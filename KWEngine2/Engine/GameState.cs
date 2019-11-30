@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KWEngine2.GameLoop
+namespace KWEngine2.Engine
 {
     class GameState
     {

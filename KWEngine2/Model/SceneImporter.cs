@@ -9,7 +9,7 @@ using Assimp;
 
 namespace KWEngine2.Model
 {
-    public static class SceneImporter
+    internal static class SceneImporter
     {
         private const int MAX_BONES = 36;
         private enum FileType { DirectX, Filmbox, Wavefront, GLTF, Collada, Blender, Invalid }
@@ -23,6 +23,8 @@ namespace KWEngine2.Model
                 case "dae":
                     return FileType.Collada;
                 case "glb":
+                    return FileType.GLTF;
+                case "gltf":
                     return FileType.GLTF;
                 case "obj":
                     return FileType.Wavefront;
@@ -83,6 +85,8 @@ namespace KWEngine2.Model
         {
             GeoModel returnModel = new GeoModel();
             returnModel.Filename = filename;
+
+            
 
             ProcessNode(scene.RootNode);
 

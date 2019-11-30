@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace KWEngine2.GameLoop
+namespace KWEngine2.Engine
 {
-    static class DeltaTime
+    public static class DeltaTime
     {
         private static float smoothedDeltaRealTime_ms = 16.666666f; // initial value, Optionally you can save the new computed value (will change with each hardware) in Preferences to optimize the first drawing frames 
         private static float movAverageDeltaTime_ms = 16.6666666f; // mov Average start with default value
@@ -19,7 +19,7 @@ namespace KWEngine2.GameLoop
             return deltaTimeFactor;
         }
 
-        public static void UpdateDeltaTime()
+        internal static void UpdateDeltaTime()
         {
             float currTimePick_ms = Stopwatch.GetTimestamp() / (float)TimeSpan.TicksPerMillisecond;
             float realTimeElapsed_ms;

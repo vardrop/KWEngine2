@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using KWEngine2.Engine;
 using KWEngine2.Helper;
+using KWEngine2.Renderers;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
@@ -19,7 +17,7 @@ namespace KWEngine2
         /// Konstruktormethode
         /// </summary>
         public GLWindow()
-            : this(1280, 720, GameWindowFlags.FixedWindow, 0, true)
+           : this(1280, 720, GameWindowFlags.FixedWindow, 0, true)
         {
 
         }
@@ -33,7 +31,7 @@ namespace KWEngine2
         /// <param name="antialiasing">FSAA-Wert (Anti-Aliasing)</param>
         /// <param name="vSync">VSync aktivieren</param>
         public GLWindow(int width, int height, GameWindowFlags flag, int antialiasing = 0, bool vSync = true)
-            : base(width, height, GraphicsMode.Default, "KWEngine2 - C# 3D Gaming", flag, DisplayDevice.Default, 4, 1, GraphicsContextFlags.ForwardCompatible)
+            : base(width, height, GraphicsMode.Default, "KWEngine2 - C# 3D Gaming", flag, DisplayDevice.Default, 4, 5, GraphicsContextFlags.ForwardCompatible, null, false)
         {
             
             if (flag != GameWindowFlags.Fullscreen)
@@ -51,9 +49,16 @@ namespace KWEngine2
 
         private void BasicInit()
         {
-            string productVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductMajorPart + "." + FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductMinorPart;
-            Console.WriteLine("\n\n\n================================================\n" + "Running KWEngine " + productVersion + " on OpenGL 4.1 Core Profile.\n" + "================================================\n");
+            string productVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductMajorPart + 
+                "." + FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductMinorPart;
+            Console.Write("\n\n\n================================================\n" + "Running KWEngine " + productVersion + " ");
+            Console.WriteLine("on OpenGL 4 Core Profile.\n" + "================================================\n");
+
+            EngineState.InitializeShaders();
+            EngineState.InitializeModels();
         }
+
+        
 
         protected override void OnLoad(EventArgs e)
         {
@@ -65,7 +70,7 @@ namespace KWEngine2
             // Only needed for tesselation... maybe later?
             //GL.PatchParameter(PatchParameterInt.PatchVertices, 4);
 
-            GLStatic.CheckGLErrors();
+            HelperGL.CheckGLErrors();
         }
 
         protected override void Dispose(bool manual)
@@ -77,8 +82,12 @@ namespace KWEngine2
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             base.OnRenderFrame(e);
-
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+            // TODO
+
+            SwapBuffers();
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)

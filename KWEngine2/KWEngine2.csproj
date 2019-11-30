@@ -55,24 +55,40 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GameLoop\DeltaTime.cs" />
-    <Compile Include="GameLoop\GameState.cs" />
+    <Compile Include="Engine\DeltaTime.cs" />
+    <Compile Include="Engine\EngineState.cs" />
+    <Compile Include="Engine\GameState.cs" />
     <Compile Include="GLWindow.cs" />
-    <Compile Include="Helper\GLStatic.cs" />
+    <Compile Include="Helper\HelperGL.cs" />
+    <Compile Include="Helper\HelperMatrix.cs" />
+    <Compile Include="Model\GeoArmature.cs" />
+    <Compile Include="Model\GeoBone.cs" />
+    <Compile Include="Model\GeoMesh.cs" />
     <Compile Include="Model\GeoModel.cs" />
+    <Compile Include="Model\GeoNode.cs" />
     <Compile Include="Model\SceneImporter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Renderers\Renderer.cs" />
+    <Compile Include="Renderers\RendererStandard.cs" />
     <Compile Include="World.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <EmbeddedResource Include="Assets\Models\kwcube.obj" />
+    <EmbeddedResource Include="Assets\Models\kwrect.obj" />
+    <EmbeddedResource Include="Assets\Models\kwsphere.obj" />
+    <EmbeddedResource Include="Assets\Models\littlegirl.fbx" />
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
+    <EmbeddedResource Include="Shaders\shader_fragment.glsl" />
+    <EmbeddedResource Include="Shaders\shader_vertex.glsl" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Assets\Models\" />
-    <Folder Include="Assets\Textures\" />
     <Folder Include="GameObjects\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Assets\readme.txt" />
+    <Content Include="Assets\Textures\readme.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\AssimpNet.4.1.0\build\AssimpNet.targets" Condition="Exists('..\packages\AssimpNet.4.1.0\build\AssimpNet.targets')" />

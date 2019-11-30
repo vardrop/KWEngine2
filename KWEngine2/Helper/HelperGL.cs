@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace KWEngine2.Helper
 {
-    public class GLStatic
+    public class HelperGL
     {
         public static void SetAlphaBlendingEnabled(bool enabled)
         {
