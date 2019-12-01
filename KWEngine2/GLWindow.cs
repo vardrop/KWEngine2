@@ -13,6 +13,8 @@ namespace KWEngine2
 {
     public abstract class GLWindow : GameWindow
     {
+        public World CurrentWorld { get; private set; }
+
         /// <summary>
         /// Konstruktormethode
         /// </summary>
@@ -100,6 +102,19 @@ namespace KWEngine2
             base.OnResize(e);
 
             GL.Viewport(ClientRectangle);
+        }
+
+        public void SetWorld(World w)
+        {
+            lock (CurrentWorld)
+            {
+                if(CurrentWorld != null)
+                {
+                    CurrentWorld.Dispose();
+                }
+                CurrentWorld = null;
+                CurrentWorld = w;
+            }
         }
     }
 }

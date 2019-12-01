@@ -96,7 +96,6 @@ namespace KWEngine2.Model
             returnModel.IsValid = false;
 
             ProcessMeshes(scene, ref returnModel);
-            //ProcessNode(scene.RootNode, ref returnModel, 0);
             ProcessAnimations(scene);
 
             return returnModel;
@@ -104,7 +103,6 @@ namespace KWEngine2.Model
 
         private static bool FindTransformForMesh(Scene scene, Node currentNode, Mesh mesh, out Matrix4 transform)
         {
-
             for(int i = 0; i < currentNode.MeshIndices.Count; i++)
             {
                 Mesh tmpMesh = scene.Meshes[currentNode.MeshIndices[i]];
@@ -138,8 +136,8 @@ namespace KWEngine2.Model
             {
                 material = scene.Materials[mesh.MaterialIndex];
                 geoMaterial.BlendMode = material.BlendMode == BlendMode.Default ? OpenTK.Graphics.OpenGL4.BlendingFactor.OneMinusSrcAlpha : OpenTK.Graphics.OpenGL4.BlendingFactor.One; // TODO: Check if this is correct!
-                geoMaterial.ColorDiffuse = new Vector4(material.ColorDiffuse.R, material.ColorDiffuse.G, material.ColorDiffuse.B, material.ColorDiffuse.A);
-                geoMaterial.ColorEmissive = new Vector4(material.ColorEmissive.R, material.ColorEmissive.G, material.ColorEmissive.B, material.ColorEmissive.A);
+                geoMaterial.ColorDiffuse = material.HasColorDiffuse ? new Vector4(material.ColorDiffuse.R, material.ColorDiffuse.G, material.ColorDiffuse.B, material.ColorDiffuse.A) : new Vector4(1,1,1,1);
+                geoMaterial.ColorEmissive = material.HasColorEmissive ? new Vector4(material.ColorEmissive.R, material.ColorEmissive.G, material.ColorEmissive.B, material.ColorEmissive.A) : new Vector4(0,0,0,1);
             }
             else
             {
@@ -148,9 +146,99 @@ namespace KWEngine2.Model
                 geoMaterial.ColorEmissive = new Vector4(0, 0, 0, 1);
             }
 
+            // Process Textures:
             if(material != null)
             {
-                //TODO: Process Textures...
+                // Diffuse texture
+                if (material.HasTextureDiffuse)
+                {
+                    GeoTexture tex = new GeoTexture();
+                    tex.Filename = material.TextureDiffuse.FilePath;
+                    tex.UVMapIndex = material.TextureDiffuse.UVIndex;
+                    if (model.Textures.ContainsKey(tex.Filename))
+                    {
+                        tex.OpenGLID = model.Textures[tex.Filename];
+                    }
+                    else
+                    {
+                        tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(tex.Filename);
+                        model.Textures.Add(tex.Filename, tex.OpenGLID);
+                    }
+                    tex.Type = GeoTexture.TexType.Diffuse;
+                }
+
+                // Normal map texture
+                if (material.HasTextureNormal)
+                {
+                    GeoTexture tex = new GeoTexture();
+                    tex.Filename = material.TextureNormal.FilePath;
+                    tex.UVMapIndex = material.TextureNormal.UVIndex;
+                    if (model.Textures.ContainsKey(tex.Filename))
+                    {
+                        tex.OpenGLID = model.Textures[tex.Filename];
+                    }
+                    else
+                    {
+                        tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(tex.Filename);
+                        model.Textures.Add(tex.Filename, tex.OpenGLID);
+                    }
+                    tex.Type = GeoTexture.TexType.Normal;
+                }
+
+                // Specular map texture
+                if (material.HasTextureSpecular)
+                {
+                    GeoTexture tex = new GeoTexture();
+                    tex.Filename = material.TextureSpecular.FilePath;
+                    tex.UVMapIndex = material.TextureSpecular.UVIndex;
+                    if (model.Textures.ContainsKey(tex.Filename))
+                    {
+                        tex.OpenGLID = model.Textures[tex.Filename];
+                    }
+                    else
+                    {
+                        tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(tex.Filename);
+                        model.Textures.Add(tex.Filename, tex.OpenGLID);
+                    }
+                    tex.Type = GeoTexture.TexType.Specular;
+                }
+
+                // Emissive map texture
+                if (material.HasTextureEmissive)
+                {
+                    GeoTexture tex = new GeoTexture();
+                    tex.Filename = material.TextureEmissive.FilePath;
+                    tex.UVMapIndex = material.TextureEmissive.UVIndex;
+                    if (model.Textures.ContainsKey(tex.Filename))
+                    {
+                        tex.OpenGLID = model.Textures[tex.Filename];
+                    }
+                    else
+                    {
+                        tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(tex.Filename);
+                        model.Textures.Add(tex.Filename, tex.OpenGLID);
+                    }
+                    tex.Type = GeoTexture.TexType.Emissive;
+                }
+
+                // Light map texture
+                if (material.HasTextureLightMap)
+                {
+                    GeoTexture tex = new GeoTexture();
+                    tex.Filename = material.TextureLightMap.FilePath;
+                    tex.UVMapIndex = material.TextureLightMap.UVIndex;
+                    if (model.Textures.ContainsKey(tex.Filename))
+                    {
+                        tex.OpenGLID = model.Textures[tex.Filename];
+                    }
+                    else
+                    {
+                        tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(tex.Filename);
+                        model.Textures.Add(tex.Filename, tex.OpenGLID);
+                    }
+                    tex.Type = GeoTexture.TexType.Light;
+                }
+
             }
            
             geoMesh.Material = geoMaterial;
@@ -176,8 +264,7 @@ namespace KWEngine2.Model
                 geoMesh.Indices = mesh.GetIndices();
                 geoMesh.Vertices = new GeoVertex[mesh.VertexCount];
                 geoMesh.Primitive = OpenTK.Graphics.OpenGL4.PrimitiveType.Triangles;
-
-                ProcessMaterialsForMesh(scene, mesh, ref model, ref geoMesh);
+                geoMesh.VAOGenerateAndBind();
 
                 for(int i = 0; i < mesh.VertexCount; i++)
                 {
@@ -185,16 +272,17 @@ namespace KWEngine2.Model
                     GeoVertex geoVertex = new GeoVertex(i, vertex.X, vertex.Y, vertex.Z);
                     geoMesh.Vertices[i] = geoVertex;
                 }
+                geoMesh.VBOGenerateVertices();
 
+                ProcessMaterialsForMesh(scene, mesh, ref model, ref geoMesh);
 
-                foreach(Bone bone in mesh.Bones)
+                foreach (Bone bone in mesh.Bones)
                 {
                     if (!model.Bones.ContainsKey(bone.Name))
                     {
                         GeoBone geoBone = new GeoBone();
                         geoBone.Name = bone.Name;
                         geoBone.Offset = HelperMatrix.ConvertAssimpToOpenTKMatrix(bone.OffsetMatrix);
-
                         foreach(VertexWeight vw in bone.VertexWeights)
                         {
                             int weightIndexToBeSet = geoMesh.Vertices[vw.VertexID].WeightSet;
@@ -209,6 +297,7 @@ namespace KWEngine2.Model
                         model.Bones.Add(bone.Name, geoBone);
                     }
                 }
+                geoMesh.VAOUnbind();
             }
         }
 

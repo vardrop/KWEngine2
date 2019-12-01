@@ -58,6 +58,7 @@
     <Compile Include="Engine\DeltaTime.cs" />
     <Compile Include="Engine\EngineState.cs" />
     <Compile Include="Engine\GameState.cs" />
+    <Compile Include="GameObjects\GameObject.cs" />
     <Compile Include="GLWindow.cs" />
     <Compile Include="Helper\HelperGL.cs" />
     <Compile Include="Helper\HelperMatrix.cs" />
@@ -68,6 +69,7 @@
     <Compile Include="Model\GeoMesh.cs" />
     <Compile Include="Model\GeoModel.cs" />
     <Compile Include="Model\GeoNode.cs" />
+    <Compile Include="Model\GeoTexture.cs" />
     <Compile Include="Model\GeoVertex.cs" />
     <Compile Include="Model\GeoVertexWeight.cs" />
     <Compile Include="Model\SceneImporter.cs" />
@@ -87,9 +89,7 @@
     <EmbeddedResource Include="Shaders\shader_fragment.glsl" />
     <EmbeddedResource Include="Shaders\shader_vertex.glsl" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="GameObjects\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="Assets\readme.txt" />
     <Content Include="Assets\Textures\readme.txt" />
