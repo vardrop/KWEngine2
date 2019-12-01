@@ -10,6 +10,7 @@ namespace KWEngine2.Helper
 {
     public class HelperGL
     {
+        
         public static void SetAlphaBlendingEnabled(bool enabled)
         {
             if (!enabled)

@@ -25,6 +25,16 @@ namespace KWEngine2.Helper
             convertedMatrix.Transpose();
         }
 
+        public static Matrix4 ConvertAssimpToOpenTKMatrix(Matrix4x4 source)
+        {
+            Matrix4 convertedMatrix = new Matrix4(source.A1, source.A2, source.A3, source.A4,
+                                                            source.B1, source.B2, source.B3, source.B4,
+                                                            source.C1, source.C2, source.C3, source.C4,
+                                                            source.D1, source.D2, source.D3, source.D4);
+            convertedMatrix.Transpose();
+            return convertedMatrix;
+        }
+
         public static void ConvertAssimpToOpenTKMatrix(Matrix3x3 source, out Matrix3 convertedMatrix)
         {
             convertedMatrix = new Matrix3(source.A1, source.A2, source.A3,

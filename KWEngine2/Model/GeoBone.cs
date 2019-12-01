@@ -9,6 +9,8 @@ namespace KWEngine2.Model
 {
     public struct GeoBone
     {
-        public Matrix4 Transform { get; internal set; }
+        public string Name { get; internal set; }
+        public Matrix4 Offset { get; internal set; }
+        //public Vector3[] VertexWeights { get; internal set; }
     }
 }
