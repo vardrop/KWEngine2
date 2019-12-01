@@ -15,6 +15,8 @@ namespace KWEngine2
     {
         public World CurrentWorld { get; private set; }
 
+        public static GLWindow CurrentWindow { get; internal set; }
+
         /// <summary>
         /// Konstruktormethode
         /// </summary>
@@ -46,6 +48,9 @@ namespace KWEngine2
                 X = 0;
                 Y = 0;
             }
+
+            CurrentWindow = this;
+
             BasicInit();
         }
 
@@ -56,8 +61,8 @@ namespace KWEngine2
             Console.Write("\n\n\n================================================\n" + "Running KWEngine " + productVersion + " ");
             Console.WriteLine("on OpenGL 4 Core Profile.\n" + "================================================\n");
 
-            EngineState.InitializeShaders();
-            EngineState.InitializeModels();
+            KWEngine.InitializeShaders();
+            KWEngine.InitializeModels();
         }
 
         

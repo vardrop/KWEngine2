@@ -24,7 +24,7 @@ namespace KWEngine2.Model
             Y = y;
             Z = z;
 
-            Weights = new float[EngineState.MAX_BONE_WEIGHTS];
+            Weights = new float[Engine.KWEngine.MAX_BONE_WEIGHTS];
             Weights[0] = 1f;
 
             WeightSet = 0;

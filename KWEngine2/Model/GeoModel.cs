@@ -11,6 +11,7 @@ namespace KWEngine2.Model
     public struct GeoModel
     {
         public bool IsValid { get; internal set; }
+        public string Name { get; internal set; }
         public string Filename { get; internal set; }
         public Matrix4 TransformGlobalInverse { get; internal set; }
         public Dictionary<string, GeoMesh> Meshes { get; internal set; }

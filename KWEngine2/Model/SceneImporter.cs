@@ -40,8 +40,8 @@ namespace KWEngine2.Model
         internal static GeoModel LoadModel(string filename, bool isInAssembly = false)
         {
             AssimpContext importer = new AssimpContext();
-            importer.SetConfig(new VertexBoneWeightLimitConfig(EngineState.MAX_BONE_WEIGHTS));
-            importer.SetConfig(new MaxBoneCountConfig(EngineState.MAX_BONES));
+            importer.SetConfig(new VertexBoneWeightLimitConfig(KWEngine.MAX_BONE_WEIGHTS));
+            importer.SetConfig(new MaxBoneCountConfig(KWEngine.MAX_BONES));
 
             Scene scene = null;
             if (isInAssembly)
@@ -286,7 +286,7 @@ namespace KWEngine2.Model
                         foreach(VertexWeight vw in bone.VertexWeights)
                         {
                             int weightIndexToBeSet = geoMesh.Vertices[vw.VertexID].WeightSet;
-                            if(weightIndexToBeSet > EngineState.MAX_BONE_WEIGHTS - 1)
+                            if(weightIndexToBeSet > KWEngine.MAX_BONE_WEIGHTS - 1)
                             {
                                 throw new Exception("Model's bones have more than three weights per vertex. Cannot import model.");
                             }

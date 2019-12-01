@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KWEngine2.Engine
+namespace KWEngine2.GameObjects
 {
-    class GameState
+    public class HUDObject
     {
     }
 }

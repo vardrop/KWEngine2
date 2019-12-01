@@ -56,8 +56,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Engine\DeltaTime.cs" />
-    <Compile Include="Engine\EngineState.cs" />
-    <Compile Include="Engine\GameState.cs" />
+    <Compile Include="GameObjects\HUDObject.cs" />
+    <Compile Include="KWEngine.cs" />
     <Compile Include="GameObjects\GameObject.cs" />
     <Compile Include="GLWindow.cs" />
     <Compile Include="Helper\HelperGL.cs" />

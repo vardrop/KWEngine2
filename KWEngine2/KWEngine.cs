@@ -1,10 +1,11 @@
-﻿using KWEngine2.Model;
+﻿using System;
+using KWEngine2.Model;
 using KWEngine2.Renderers;
 using System.Collections.Generic;
 
-namespace KWEngine2.Engine
+namespace KWEngine2
 {
-    public class EngineState
+    public class KWEngine
     {
         public const int MAX_BONE_WEIGHTS = 3;
         public const int MAX_BONES = 36;
@@ -21,5 +22,13 @@ namespace KWEngine2.Engine
         {
             Renderers.Add("Standard", new RendererStandard());
         }
+
+        public static GeoModel GetModel(string name)
+        {
+            bool modelFound = Models.TryGetValue(name, out GeoModel m);
+            if (!modelFound)
+                throw new Exception("Model " + name + " not found.");
+            return m;
+        }        
     }
 }
