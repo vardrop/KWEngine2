@@ -12,6 +12,7 @@ namespace KWEngine2.Model
     {
         public int VAO { get; internal set; }
         public int VBOPosition { get; internal set; }
+        public int VBOIndex { get; internal set; }
         public string Name { get; internal set; }
         public Matrix4 Transform { get; internal set; }
         public GeoVertex[] Vertices { get; internal set; }
@@ -53,6 +54,14 @@ namespace KWEngine2.Model
             GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 0, 0);
             GL.EnableVertexAttribArray(0);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+        }
+
+        internal void VBOGenerateIndices()
+        {
+            VBOIndex = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, VBOIndex);
+            GL.BufferData(BufferTarget.ElementArrayBuffer, Indices.Length * 4, Indices, BufferUsageHint.StaticDraw);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
         }
 
         internal void Dispose()

@@ -1,4 +1,7 @@
-﻿using KWEngine2.Helper;
+﻿using KWEngine2.GameObjects;
+using KWEngine2.Helper;
+using KWEngine2.Model;
+using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.IO;
@@ -8,7 +11,7 @@ namespace KWEngine2.Renderers
 {
     internal class RendererStandard : Renderer
     {
-        public override void Unload()
+        public override void Dispose()
         {
             if (mProgramId >= 0)
             {
@@ -18,6 +21,8 @@ namespace KWEngine2.Renderers
                 HelperGL.CheckGLErrors();
                 GL.DeleteShader(mShaderFragmentId);
                 HelperGL.CheckGLErrors();
+
+                mProgramId = -1;
             }
         }
 
@@ -112,6 +117,33 @@ namespace KWEngine2.Renderers
             mUniform_LightCount = GL.GetUniformLocation(mProgramId, "uLightCount");
 
             mUniform_TextureTransform = GL.GetUniformLocation(mProgramId, "uTextureTransform");
+        }
+
+        internal override void Draw(GameObject g, ref Matrix4 viewProjection)
+        {
+            if (g == null || !g.HasModel)
+                return;
+
+            GL.UseProgram(mProgramId);
+
+            Matrix4.Mult(ref g._modelMatrix, ref viewProjection, out _modelViewProjection);
+            Matrix4.Transpose(ref g._modelMatrix, out _normalMatrix);
+            Matrix4.Invert(ref _normalMatrix, out _normalMatrix);
+
+            GL.UniformMatrix4(mUniform_MVP, false, ref _modelViewProjection);
+
+            foreach(GeoMesh mesh in g.Model.Meshes.Values)
+            {
+                GL.BindVertexArray(mesh.VAO);
+
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
+                GL.DrawElements(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+
+                GL.BindVertexArray(0);
+            }
+
+            GL.UseProgram(0);
         }
     }
 }

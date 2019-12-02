@@ -24,15 +24,10 @@ namespace KWEngine2.Model
             Y = y;
             Z = z;
 
-            Weights = new float[Engine.KWEngine.MAX_BONE_WEIGHTS];
+            Weights = new float[KWEngine.MAX_BONE_WEIGHTS];
             Weights[0] = 1f;
 
             WeightSet = 0;
-            /*new bool[EngineState.MAX_BONE_WEIGHTS];
-            for(int c = 0; c < WeightsSet.Length; c++)
-            {
-                WeightsSet[c] = false;
-            }*/
         }
         
     }

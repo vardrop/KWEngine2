@@ -1,10 +1,15 @@
-﻿using System.IO;
+﻿using KWEngine2.GameObjects;
+using OpenTK;
 using OpenTK.Graphics.OpenGL4;
+using System.IO;
 
 namespace KWEngine2.Renderers
 {
     internal abstract class Renderer
     {
+        protected Matrix4 _modelViewProjection = Matrix4.Identity;
+        protected Matrix4 _normalMatrix = Matrix4.Identity;
+
         public string Name { get; protected set; } = "";
 
         protected int mProgramId = -1;
@@ -83,7 +88,7 @@ namespace KWEngine2.Renderers
         }
         
         public abstract void Initialize();
-        public abstract void Unload();
+        public abstract void Dispose();
 
         public int GetProgramId()
         {
@@ -308,5 +313,7 @@ namespace KWEngine2.Renderers
         {
             return mUniform_TextureUseLightMap;
         }
+
+        internal abstract void Draw(GameObject g, ref Matrix4 viewProjection);
     }
 }

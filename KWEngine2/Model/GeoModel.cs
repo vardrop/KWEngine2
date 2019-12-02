@@ -5,11 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OpenTK.Graphics.OpenGL4;
+using System.IO;
 
 namespace KWEngine2.Model
 {
     public struct GeoModel
     {
+        public string Path { get; internal set; }
+        internal bool IsInAssembly { get; set; }
         public bool IsValid { get; internal set; }
         public string Name { get; internal set; }
         public string Filename { get; internal set; }
@@ -36,6 +39,22 @@ namespace KWEngine2.Model
                 foreach(GeoMesh m in Meshes.Values)
                 {
                     m.Dispose();
+                }
+            }
+        }
+
+        internal void CalculatePath()
+        {
+            if (!IsInAssembly)
+            {
+                FileInfo fi = new FileInfo(Filename);
+                if (fi.Exists)
+                {
+                    Path = fi.DirectoryName;
+                }
+                else
+                {
+                    throw new Exception("File " + Filename + " does not exist.");
                 }
             }
         }

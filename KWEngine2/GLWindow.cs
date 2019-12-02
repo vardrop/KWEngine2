@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Windows.Forms;
 using KWEngine2.Engine;
+using KWEngine2.GameObjects;
 using KWEngine2.Helper;
 using KWEngine2.Renderers;
 using OpenTK;
@@ -16,6 +17,7 @@ namespace KWEngine2
         public World CurrentWorld { get; private set; }
 
         public static GLWindow CurrentWindow { get; internal set; }
+        internal Matrix4 _projectionMatrix = Matrix4.Identity;
 
         /// <summary>
         /// Konstruktormethode
@@ -92,8 +94,16 @@ namespace KWEngine2
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            // TODO
+            if (CurrentWorld != null)
+            {
+                Matrix4 viewMatrix = Matrix4.LookAt(CurrentWorld.GetCameraPosition(), CurrentWorld.GetCameraTarget(), KWEngine.WorldUp);
+                Matrix4 viewProjection = viewMatrix * _projectionMatrix;
 
+                foreach (GameObject g in CurrentWorld.GetGameObjects())
+                {
+                    KWEngine.Renderers["Standard"].Draw(g, ref viewProjection);
+                }
+            }
             SwapBuffers();
         }
 
@@ -105,20 +115,34 @@ namespace KWEngine2
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-
             GL.Viewport(ClientRectangle);
+            
+        }
+
+        private void CalculateProjectionMatrix()
+        {
+            _projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(CurrentWorld != null ? CurrentWorld.FOV / 2: 45f), Width / (float)Height, 0.1f, CurrentWorld != null ? CurrentWorld.ZFar : 1000f);
         }
 
         public void SetWorld(World w)
         {
+            if(CurrentWorld == null)
+            {
+                CurrentWorld = w;
+                CurrentWorld.Prepare();
+                CalculateProjectionMatrix();
+                return;
+            }
+
             lock (CurrentWorld)
             {
                 if(CurrentWorld != null)
                 {
                     CurrentWorld.Dispose();
                 }
-                CurrentWorld = null;
                 CurrentWorld = w;
+                CurrentWorld.Prepare();
+                CalculateProjectionMatrix();
             }
         }
     }

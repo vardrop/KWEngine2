@@ -14,7 +14,7 @@ namespace KWEngine2Test
         public GameWindow()
             :base()
         {
-
+            SetWorld(new GameWorld());
         }
     }
 }

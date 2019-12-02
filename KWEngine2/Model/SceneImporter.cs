@@ -81,14 +81,16 @@ namespace KWEngine2.Model
                     scene = importer.ImportFile(filename, steps);
                 }
             }
-            GeoModel model = ProcessScene(scene, filename.ToLower().Trim());
+            GeoModel model = ProcessScene(scene, filename.ToLower().Trim(), isInAssembly);
             return model;
         }
 
-        private static GeoModel ProcessScene(Scene scene, string filename)
+        private static GeoModel ProcessScene(Scene scene, string filename, bool isInAssembly)
         {
             GeoModel returnModel = new GeoModel();
             returnModel.Filename = filename;
+            returnModel.IsInAssembly = isInAssembly;
+            returnModel.CalculatePath();
             returnModel.Bones = new Dictionary<string, GeoBone>();
             returnModel.Meshes = new Dictionary<string, GeoMesh>();
             returnModel.TransformGlobalInverse = Matrix4.Identity;
@@ -98,10 +100,11 @@ namespace KWEngine2.Model
             ProcessMeshes(scene, ref returnModel);
             ProcessAnimations(scene);
 
+            returnModel.IsValid = true;
             return returnModel;
         }
 
-        private static bool FindTransformForMesh(Scene scene, Node currentNode, Mesh mesh, out Matrix4 transform)
+        private static bool FindTransformForMesh(Scene scene, Node currentNode, Mesh mesh, out Matrix4 transform, out string nodeName)
         {
             for(int i = 0; i < currentNode.MeshIndices.Count; i++)
             {
@@ -109,6 +112,7 @@ namespace KWEngine2.Model
                 if (tmpMesh.Name == mesh.Name)
                 {
                     transform = HelperMatrix.ConvertAssimpToOpenTKMatrix(currentNode.Transform);
+                    nodeName = currentNode.Name;
                     return true;
                 }
             }
@@ -116,15 +120,17 @@ namespace KWEngine2.Model
             for(int i = 0; i < currentNode.ChildCount; i++)
             {
                 Node child = currentNode.Children[i];
-                bool found = FindTransformForMesh(scene, child, mesh, out Matrix4 t);
+                bool found = FindTransformForMesh(scene, child, mesh, out Matrix4 t, out string nName);
                 if (found)
                 {
                     transform = t;
+                    nodeName = nName;
                     return true;
                 }
             }
 
             transform = Matrix4.Identity;
+            nodeName = null;
             return false;
         }
 
@@ -161,7 +167,7 @@ namespace KWEngine2.Model
                     }
                     else
                     {
-                        tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(tex.Filename);
+                        tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(model.Path + "\\" + tex.Filename);
                         model.Textures.Add(tex.Filename, tex.OpenGLID);
                     }
                     tex.Type = GeoTexture.TexType.Diffuse;
@@ -179,7 +185,7 @@ namespace KWEngine2.Model
                     }
                     else
                     {
-                        tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(tex.Filename);
+                        tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(model.Path + "\\" + tex.Filename);
                         model.Textures.Add(tex.Filename, tex.OpenGLID);
                     }
                     tex.Type = GeoTexture.TexType.Normal;
@@ -197,7 +203,7 @@ namespace KWEngine2.Model
                     }
                     else
                     {
-                        tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(tex.Filename);
+                        tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(model.Path + "\\" + tex.Filename);
                         model.Textures.Add(tex.Filename, tex.OpenGLID);
                     }
                     tex.Type = GeoTexture.TexType.Specular;
@@ -215,7 +221,7 @@ namespace KWEngine2.Model
                     }
                     else
                     {
-                        tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(tex.Filename);
+                        tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(model.Path + "\\" + tex.Filename);
                         model.Textures.Add(tex.Filename, tex.OpenGLID);
                     }
                     tex.Type = GeoTexture.TexType.Emissive;
@@ -233,7 +239,7 @@ namespace KWEngine2.Model
                     }
                     else
                     {
-                        tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(tex.Filename);
+                        tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(model.Path + "\\" + tex.Filename);
                         model.Textures.Add(tex.Filename, tex.OpenGLID);
                     }
                     tex.Type = GeoTexture.TexType.Light;
@@ -258,9 +264,9 @@ namespace KWEngine2.Model
 
                 GeoMesh geoMesh = new GeoMesh();
 
-                bool transformFound = FindTransformForMesh(scene, scene.RootNode, mesh, out Matrix4 nodeTransform);
+                bool transformFound = FindTransformForMesh(scene, scene.RootNode, mesh, out Matrix4 nodeTransform, out string nodeName);
                 geoMesh.Transform = nodeTransform;
-                geoMesh.Name = mesh.Name;
+                geoMesh.Name = mesh.Name + " #" + m.ToString().PadLeft(4,'0') + " (Node: " + nodeName + ")";
                 geoMesh.Indices = mesh.GetIndices();
                 geoMesh.Vertices = new GeoVertex[mesh.VertexCount];
                 geoMesh.Primitive = OpenTK.Graphics.OpenGL4.PrimitiveType.Triangles;
@@ -273,6 +279,7 @@ namespace KWEngine2.Model
                     geoMesh.Vertices[i] = geoVertex;
                 }
                 geoMesh.VBOGenerateVertices();
+                geoMesh.VBOGenerateIndices();
 
                 ProcessMaterialsForMesh(scene, mesh, ref model, ref geoMesh);
 
@@ -298,6 +305,8 @@ namespace KWEngine2.Model
                     }
                 }
                 geoMesh.VAOUnbind();
+
+                model.Meshes.Add(geoMesh.Name, geoMesh);
             }
         }
 
