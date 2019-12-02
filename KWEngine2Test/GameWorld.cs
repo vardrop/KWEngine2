@@ -20,12 +20,15 @@ namespace KWEngine2Test
         public override void Prepare()
         {
             FOV = 90;
-            SetCameraPosition(0, 500, 500);
+            SetCameraPosition(0, 100, 100);
             SetCameraTarget(0, 0, 0);
 
-            LoadModelFromFile("building", @".\Models\Schoolpart\building.fbx");
+            LoadModelFromFile("rect", @".\Models\Schoolpart\building.fbx");
+
+
+
             Building go = new Building();
-            go.SetModel(GetModel("building"));
+            go.SetModel(GetModel("rect"));
             AddGameObject(go);
         }
     }

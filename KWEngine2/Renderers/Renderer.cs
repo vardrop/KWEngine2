@@ -7,6 +7,7 @@ namespace KWEngine2.Renderers
 {
     internal abstract class Renderer
     {
+        protected Matrix4 _tmpMatrix = Matrix4.Identity;
         protected Matrix4 _modelViewProjection = Matrix4.Identity;
         protected Matrix4 _normalMatrix = Matrix4.Identity;
 

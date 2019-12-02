@@ -59,6 +59,9 @@
     <None Include="Models\Schoolpart\building.fbx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Models\Schoolpart\rect.fbx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
   </ItemGroup>
@@ -69,33 +72,34 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Models\Schoolpart\Tex\153_artificial green grass texture-seamless_style1.png">
+    <Content Include="Models\Schoolpart\153_artificial green grass texture-seamless_style1.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Models\Schoolpart\Tex\186_metal facade cladding texture-seamless.png">
+    <Content Include="Models\Schoolpart\186_metal facade cladding texture-seamless.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Models\Schoolpart\Tex\20_glass building window texture.jpg">
+    <Content Include="Models\Schoolpart\20_glass building window texture.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Models\Schoolpart\Tex\257_metal facade cladding texture-seamless.png">
+    <Content Include="Models\Schoolpart\257_metal facade cladding texture-seamless.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Models\Schoolpart\Tex\37_texture colored bricks rustic-seamless_style2.png">
+    <Content Include="Models\Schoolpart\37_texture colored bricks rustic-seamless_style2.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Models\Schoolpart\Tex\67_concrete paving outdoor texture-seamless_style2.png">
+    <Content Include="Models\Schoolpart\67_concrete paving outdoor texture-seamless_style2.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Models\Schoolpart\Tex\entrance.png">
+    <Content Include="Models\Schoolpart\entrance.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Models\Schoolpart\Tex\ers_hameln.png">
+    <Content Include="Models\Schoolpart\ers_hameln.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Models\Schoolpart\Tex\rg-gate1_1_deffuse.png">
+    <Content Include="Models\Schoolpart\rg-gate1_1_deffuse.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

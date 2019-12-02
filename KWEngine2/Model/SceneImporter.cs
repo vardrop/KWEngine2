@@ -309,7 +309,6 @@ namespace KWEngine2.Model
                 bool transformFound = FindTransformForMesh(scene, scene.RootNode, mesh, out Matrix4 nodeTransform, out string nodeName);
                 geoMesh.Transform = nodeTransform;
                 geoMesh.Name = mesh.Name + " #" + m.ToString().PadLeft(4,'0') + " (Node: " + nodeName + ")";
-                geoMesh.Indices = mesh.GetIndices();
                 geoMesh.Vertices = new GeoVertex[mesh.VertexCount];
                 geoMesh.Primitive = OpenTK.Graphics.OpenGL4.PrimitiveType.Triangles;
                 geoMesh.VAOGenerateAndBind();
@@ -321,6 +320,8 @@ namespace KWEngine2.Model
                     GeoVertex geoVertex = new GeoVertex(i, vertex.X, vertex.Y, vertex.Z);
                     geoMesh.Vertices[i] = geoVertex;
                 }
+                geoMesh.Indices = mesh.GetIndices();//GenerateIndices(geoMesh.Vertices, mesh);
+
                 if (model.HasBones)
                 {
                     for (int i = 0; i < mesh.BoneCount; i++)

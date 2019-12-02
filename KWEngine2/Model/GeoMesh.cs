@@ -22,7 +22,7 @@ namespace KWEngine2.Model
         public int VBOBiTangent { get; internal set; }
         public int VBOIndex { get; internal set; }
         public string Name { get; internal set; }
-        public Matrix4 Transform { get; internal set; }
+        internal Matrix4 Transform;
         public GeoVertex[] Vertices { get; internal set; }
         public OpenTK.Graphics.OpenGL4.PrimitiveType Primitive;
         public int IndexCount 
