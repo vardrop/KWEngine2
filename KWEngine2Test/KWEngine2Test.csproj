@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GameObjects\Building.cs" />
     <Compile Include="GameWindow.cs" />
     <Compile Include="GameWorld.cs" />
     <Compile Include="Program.cs" />

@@ -10,5 +10,6 @@ namespace KWEngine2.Model
     public struct GeoArmature
     {
         public Matrix4 Transform { get; internal set; }
+        public GeoBone RootBone { get; internal set; }
     }
 }

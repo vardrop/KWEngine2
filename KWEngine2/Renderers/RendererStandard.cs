@@ -58,6 +58,7 @@ namespace KWEngine2.Renderers
                 GL.BindAttribLocation(mProgramId, 6, "aWeights");
                 GL.BindAttribLocation(mProgramId, 7, "aTexture2");
                 GL.BindFragDataLocation(mProgramId, 0, "color");
+                GL.BindFragDataLocation(mProgramId, 1, "bloom");
                 GL.LinkProgram(mProgramId);
             }
             else
@@ -68,20 +69,21 @@ namespace KWEngine2.Renderers
             mAttribute_vpos = GL.GetAttribLocation(mProgramId, "aPosition");
             mAttribute_vtexture = GL.GetAttribLocation(mProgramId, "aTexture");
             mAttribute_vnormal = GL.GetAttribLocation(mProgramId, "aNormal");
-            mAttribute_vnormaltangent = GL.GetAttribLocation(mProgramId, "aNormalTangent");
-            mAttribute_vnormalbitangent = GL.GetAttribLocation(mProgramId, "aNormalBiTangent");
+            mAttribute_vnormaltangent = GL.GetAttribLocation(mProgramId, "aTangent");
+            mAttribute_vnormalbitangent = GL.GetAttribLocation(mProgramId, "aBiTangent");
             mAttribute_vjoints = GL.GetAttribLocation(mProgramId, "aJoints");
             mAttribute_vweights = GL.GetAttribLocation(mProgramId, "aWeights");
             mAttribute_vtexture2 = GL.GetAttribLocation(mProgramId, "aTexture2");
             mUniform_MVP = GL.GetUniformLocation(mProgramId, "uMVP"); 
             mUniform_MVPShadowMap = GL.GetUniformLocation(mProgramId, "uMVPShadowMap");
-            mUniform_NormalMatrix = GL.GetUniformLocation(mProgramId, "uNormalMatrix");
-            mUniform_ModelMatrix = GL.GetUniformLocation(mProgramId, "uModelMatrix");
+            mUniform_NormalMatrix = GL.GetUniformLocation(mProgramId, "uN");
+            mUniform_ModelMatrix = GL.GetUniformLocation(mProgramId, "uM");
             mUniform_HasBones = GL.GetUniformLocation(mProgramId, "uHasBones");
             mUniform_BoneTransforms = GL.GetUniformLocation(mProgramId, "uBoneTransforms");
 
-            mUniform_Texture = GL.GetUniformLocation(mProgramId, "uTexture"); 
-            mUniform_TextureUse = GL.GetUniformLocation(mProgramId, "uTextureUse");
+            mUniform_Texture = GL.GetUniformLocation(mProgramId, "uTextureDiffuse"); 
+            mUniform_TextureUse = GL.GetUniformLocation(mProgramId, "uUseTextureDiffuse");
+            
 
             mUniform_Glow = GL.GetUniformLocation(mProgramId, "uGlow");
             mUniform_BaseColor = GL.GetUniformLocation(mProgramId, "uBaseColor");
@@ -134,6 +136,13 @@ namespace KWEngine2.Renderers
 
             foreach(GeoMesh mesh in g.Model.Meshes.Values)
             {
+                if (mUniform_Texture >= 0)
+                {
+                    GL.ActiveTexture(TextureUnit.Texture0);
+                    GL.BindTexture(TextureTarget.Texture2D, mesh.Material.TextureDiffuse.OpenGLID);
+                    GL.Uniform1(mUniform_Texture, 0);
+                }
+
                 GL.BindVertexArray(mesh.VAO);
 
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);

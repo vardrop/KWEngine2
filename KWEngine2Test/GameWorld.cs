@@ -1,5 +1,6 @@
 ﻿using KWEngine2;
 using KWEngine2.GameObjects;
+using KWEngine2Test.GameObjects;
 using OpenTK.Input;
 using System;
 using System.Collections.Generic;
@@ -23,7 +24,8 @@ namespace KWEngine2Test
             SetCameraTarget(0, 0, 0);
 
             LoadModelFromFile("building", @".\Models\Schoolpart\building.fbx");
-            GameObject go = new GameObject(GetModel("building"));
+            Building go = new Building();
+            go.SetModel(GetModel("building"));
             AddGameObject(go);
         }
     }

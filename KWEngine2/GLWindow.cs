@@ -9,6 +9,7 @@ using KWEngine2.Renderers;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Input;
 
 namespace KWEngine2
 {
@@ -110,6 +111,17 @@ namespace KWEngine2
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             base.OnUpdateFrame(e);
+            KeyboardState ks = Keyboard.GetState();
+            MouseState ms = Mouse.GetState();
+
+            foreach(GameObject g in CurrentWorld.GetGameObjects())
+            {
+                g.Act(ks, ms, DeltaTime.GetDeltaTimeFactor());
+            }
+
+
+
+            DeltaTime.UpdateDeltaTime();
         }
 
         protected override void OnResize(EventArgs e)
@@ -126,23 +138,25 @@ namespace KWEngine2
 
         public void SetWorld(World w)
         {
-            if(CurrentWorld == null)
+            if (CurrentWorld == null)
             {
                 CurrentWorld = w;
                 CurrentWorld.Prepare();
                 CalculateProjectionMatrix();
                 return;
             }
-
-            lock (CurrentWorld)
+            else
             {
-                if(CurrentWorld != null)
+                lock (CurrentWorld)
                 {
-                    CurrentWorld.Dispose();
+                    if (CurrentWorld != null)
+                    {
+                        CurrentWorld.Dispose();
+                    }
+                    CurrentWorld = w;
+                    CurrentWorld.Prepare();
+                    CalculateProjectionMatrix();
                 }
-                CurrentWorld = w;
-                CurrentWorld.Prepare();
-                CalculateProjectionMatrix();
             }
         }
     }

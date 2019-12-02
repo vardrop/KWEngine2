@@ -1,8 +1,13 @@
 ﻿#version 430
 
+in vec2 vTexture;
+
+uniform sampler2D uTextureDiffuse;
+
 out vec4 color;
+
 
 void main()
 {
-	color = vec4(1.0, 1.0, 1.0, 1.0);
+	color = texture(uTextureDiffuse, vTexture);
 }

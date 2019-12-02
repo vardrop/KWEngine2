@@ -13,13 +13,21 @@ namespace KWEngine2.Model
     {
         public string Path { get; internal set; }
         internal bool IsInAssembly { get; set; }
+
+        public bool HasBones
+        {
+            get
+            {
+                return Bones.Count > 0;
+            }
+        }
         public bool IsValid { get; internal set; }
         public string Name { get; internal set; }
         public string Filename { get; internal set; }
         public Matrix4 TransformGlobalInverse { get; internal set; }
         public Dictionary<string, GeoMesh> Meshes { get; internal set; }
-        public Dictionary<string, GeoBone> Bones { get; internal set; }
-        public Dictionary<string, int> Textures { get; internal set; }
+        public Dictionary<int, GeoBone> Bones { get; internal set; }
+        public Dictionary<string, GeoTexture> Textures { get; internal set; }
 
         internal void Dispose()
         {
@@ -27,9 +35,9 @@ namespace KWEngine2.Model
 
             lock (Textures)
             {
-                foreach(int t in Textures.Values)
+                foreach(GeoTexture t in Textures.Values)
                 {
-                    GL.DeleteTexture(t);
+                    GL.DeleteTexture(t.OpenGLID);
                 }
                 Textures.Clear();
             }

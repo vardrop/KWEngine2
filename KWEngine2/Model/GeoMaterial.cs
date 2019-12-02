@@ -13,5 +13,7 @@ namespace KWEngine2.Model
         public BlendingFactor BlendMode { get; internal set; }
         public Vector4 ColorEmissive { get; internal set; }
         public Vector4 ColorDiffuse { get; internal set; }
+
+        public GeoTexture TextureDiffuse { get; internal set; }
     }
 }

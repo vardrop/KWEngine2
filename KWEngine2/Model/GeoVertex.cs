@@ -14,6 +14,7 @@ namespace KWEngine2.Model
         public float Y { get; internal set; }
         public float Z { get; internal set; }
         public float[] Weights;
+        public int[] BoneIDs;
         internal int WeightSet;
 
         public GeoVertex(int i, float x, float y, float z)
@@ -28,6 +29,8 @@ namespace KWEngine2.Model
             Weights[0] = 1f;
 
             WeightSet = 0;
+
+            BoneIDs = new int[KWEngine.MAX_BONE_WEIGHTS];
         }
         
     }

@@ -12,7 +12,7 @@ namespace KWEngine2.Engine
         private const float smoothFactor = 0.1f; // adjusting ratio (suggested values 0.01-0.5)
         private const float TargetFrameTime = 1f / 60f * 1000f;
 
-        public static float deltaTimeFactor = 1;
+        private static float deltaTimeFactor = 1;
         
         public static float GetDeltaTimeFactor()
         {
