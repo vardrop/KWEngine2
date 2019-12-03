@@ -141,11 +141,16 @@ namespace KWEngine2.Renderers
 
                     GL.UniformMatrix4(mUniform_MVP, false, ref _modelViewProjection);
 
-                    if (mUniform_Texture >= 0)
+                    if (mUniform_Texture >= 0 && mesh.Material.TextureDiffuse.OpenGLID > 0)
                     {
                         GL.ActiveTexture(TextureUnit.Texture0);
                         GL.BindTexture(TextureTarget.Texture2D, mesh.Material.TextureDiffuse.OpenGLID);
                         GL.Uniform1(mUniform_Texture, 0);
+                        GL.Uniform1(mUniform_TextureUse, 1);
+                    }
+                    else
+                    {
+                        GL.Uniform1(mUniform_TextureUse, 0);
                     }
 
                     GL.BindVertexArray(mesh.VAO);

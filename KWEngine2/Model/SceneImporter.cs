@@ -293,8 +293,9 @@ namespace KWEngine2.Model
                     }
                     else
                     {
-                        string path = FindTextureInSubs(StripPathFromFile(tex.Filename), model.PathAbsolute);
-                        tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(path);
+                        tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
+                                FindTextureInSubs(StripPathFromFile(tex.Filename), model.PathAbsolute)
+                            );
                         model.Textures.Add(tex.Filename, tex);
                     }
                     tex.Type = GeoTexture.TexType.Diffuse;
@@ -313,7 +314,9 @@ namespace KWEngine2.Model
                     }
                     else
                     {
-                        tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(model.Path + "\\" + tex.Filename);
+                        tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
+                                FindTextureInSubs(StripPathFromFile(tex.Filename), model.PathAbsolute)
+                            );
                         model.Textures.Add(tex.Filename, tex);
                     }
                     tex.Type = GeoTexture.TexType.Normal;
@@ -331,7 +334,9 @@ namespace KWEngine2.Model
                     }
                     else
                     {
-                        tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(model.Path + "\\" + tex.Filename);
+                        tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
+                                FindTextureInSubs(StripPathFromFile(tex.Filename), model.PathAbsolute)
+                            );
                         model.Textures.Add(tex.Filename, tex);
                     }
                     tex.Type = GeoTexture.TexType.Specular;
@@ -349,7 +354,9 @@ namespace KWEngine2.Model
                     }
                     else
                     {
-                        tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(model.Path + "\\" + tex.Filename);
+                        tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
+                                FindTextureInSubs(StripPathFromFile(tex.Filename), model.PathAbsolute)
+                            );
                         model.Textures.Add(tex.Filename, tex);
                     }
                     tex.Type = GeoTexture.TexType.Emissive;
@@ -367,7 +374,9 @@ namespace KWEngine2.Model
                     }
                     else
                     {
-                        tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(model.Path + "\\" + tex.Filename);
+                        tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
+                                FindTextureInSubs(StripPathFromFile(tex.Filename), model.PathAbsolute)
+                            );
                         model.Textures.Add(tex.Filename, tex);
                     }
                     tex.Type = GeoTexture.TexType.Light;
