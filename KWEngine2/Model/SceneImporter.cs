@@ -344,7 +344,7 @@ namespace KWEngine2.Model
                 }
 
                 geoMesh.VBOGenerateIndices();
-                geoMesh.VBOGenerateVertices(model.HasBones);
+                geoMesh.VBOGenerateVerticesAndBones(model.HasBones);
                 geoMesh.VBOGenerateNormals(mesh);
                 geoMesh.VBOGenerateTangents(mesh);
                 geoMesh.VBOGenerateTextureCoords1(mesh);
@@ -365,6 +365,7 @@ namespace KWEngine2.Model
             
         }
 
+        /*
         private static void ProcessNode(Node node, ref GeoModel model, int level = 0)
         {
             if(node.Parent == null)
@@ -381,6 +382,6 @@ namespace KWEngine2.Model
 
             }
         }
-
+        */
     }
 }

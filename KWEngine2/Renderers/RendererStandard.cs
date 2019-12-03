@@ -51,12 +51,12 @@ namespace KWEngine2.Renderers
             {
                 GL.BindAttribLocation(mProgramId, 0, "aPosition");
                 GL.BindAttribLocation(mProgramId, 1, "aNormal");
-                GL.BindAttribLocation(mProgramId, 2, "aNormalTangent");
-                GL.BindAttribLocation(mProgramId, 3, "aNormalBiTangent");
-                GL.BindAttribLocation(mProgramId, 4, "aTexture");
-                GL.BindAttribLocation(mProgramId, 5, "aJoints");
-                GL.BindAttribLocation(mProgramId, 6, "aWeights");
-                GL.BindAttribLocation(mProgramId, 7, "aTexture2");
+                GL.BindAttribLocation(mProgramId, 2, "aTexture");
+                GL.BindAttribLocation(mProgramId, 3, "aTexture2");
+                GL.BindAttribLocation(mProgramId, 4, "aTangent");
+                GL.BindAttribLocation(mProgramId, 5, "aBiTangent");
+                GL.BindAttribLocation(mProgramId, 6, "aBoneIds");
+                GL.BindAttribLocation(mProgramId, 7, "aBoneWeights");
                 GL.BindFragDataLocation(mProgramId, 0, "color");
                 GL.BindFragDataLocation(mProgramId, 1, "bloom");
                 GL.LinkProgram(mProgramId);

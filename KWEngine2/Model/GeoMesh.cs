@@ -46,7 +46,7 @@ namespace KWEngine2.Model
             GL.BindVertexArray(0);
         }
 
-        internal void VBOGenerateVertices(bool hasBones)
+        internal void VBOGenerateVerticesAndBones(bool hasBones)
         {
             float[] verticesF = new float[Vertices.Length * 3];
             int[] boneIds = new int[Vertices.Length * 3];
@@ -128,7 +128,7 @@ namespace KWEngine2.Model
                 }
                 VBOTexture1 = GL.GenBuffer();
                 GL.BindBuffer(BufferTarget.ArrayBuffer, VBOTexture1);
-                GL.BufferData(BufferTarget.ArrayBuffer, mesh.TextureCoordinateChannels[0].Count * 2 * 4, values, BufferUsageHint.StaticDraw);
+                GL.BufferData(BufferTarget.ArrayBuffer, values.Length * 4, values, BufferUsageHint.StaticDraw);
                 GL.VertexAttribPointer(2, 2, VertexAttribPointerType.Float, false, 0, 0);
                 GL.EnableVertexAttribArray(2);
                 GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
