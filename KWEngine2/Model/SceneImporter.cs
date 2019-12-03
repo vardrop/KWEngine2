@@ -102,6 +102,7 @@ namespace KWEngine2.Model
             ProcessAnimations(scene);
 
             returnModel.IsValid = true;
+            //GC.Collect(GC.MaxGeneration);
             return returnModel;
         }
 

@@ -10,9 +10,17 @@ namespace KWEngine2Test.GameObjects
 {
     public class Building : GameObject
     {
+
         public override void Act(KeyboardState ks, MouseState ms, float deltaTimeFactor)
         {
-           
+            if (ks[Key.D])
+                this.MoveOffset(0.1f * deltaTimeFactor, 0, 0);
+            if (ks[Key.S])
+                this.MoveOffset(0, 0, 0.1f * deltaTimeFactor);
+            if (ks[Key.A])
+                this.MoveOffset(-0.1f * deltaTimeFactor, 0, 0);
+            if (ks[Key.W])
+                this.MoveOffset(0, 0, -0.1f * deltaTimeFactor);
         }
     }
 }

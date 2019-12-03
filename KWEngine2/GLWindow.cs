@@ -53,7 +53,7 @@ namespace KWEngine2
             }
 
             CurrentWindow = this;
-
+            VSync = vSync ? VSyncMode.Adaptive : VSyncMode.Off;
             BasicInit();
         }
 
@@ -111,6 +111,7 @@ namespace KWEngine2
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             base.OnUpdateFrame(e);
+
             KeyboardState ks = Keyboard.GetState();
             MouseState ms = Mouse.GetState();
 
@@ -118,8 +119,6 @@ namespace KWEngine2
             {
                 g.Act(ks, ms, DeltaTime.GetDeltaTimeFactor());
             }
-
-
 
             DeltaTime.UpdateDeltaTime();
         }

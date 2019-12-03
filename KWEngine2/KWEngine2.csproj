@@ -57,6 +57,7 @@
   <ItemGroup>
     <Compile Include="Engine\DeltaTime.cs" />
     <Compile Include="GameObjects\HUDObject.cs" />
+    <Compile Include="Helper\HelperRotation.cs" />
     <Compile Include="KWEngine.cs" />
     <Compile Include="GameObjects\GameObject.cs" />
     <Compile Include="GLWindow.cs" />
@@ -69,7 +70,9 @@
     <Compile Include="Model\GeoMesh.cs" />
     <Compile Include="Model\GeoModel.cs" />
     <Compile Include="Model\GeoNode.cs" />
+    <Compile Include="Model\GeoTerrain.cs" />
     <Compile Include="Model\GeoTexture.cs" />
+    <Compile Include="Model\GeoTriangle.cs" />
     <Compile Include="Model\GeoVertex.cs" />
     <Compile Include="Model\GeoVertexWeight.cs" />
     <Compile Include="Model\SceneImporter.cs" />

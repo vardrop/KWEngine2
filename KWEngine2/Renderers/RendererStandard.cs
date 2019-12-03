@@ -127,34 +127,35 @@ namespace KWEngine2.Renderers
                 return;
 
             GL.UseProgram(mProgramId);
-            
 
-            
-
-            foreach(string meshName in g.Model.Meshes.Keys)
+            lock (g)
             {
-                GeoMesh mesh = g.Model.Meshes[meshName];
-                Matrix4.Mult(ref mesh.Transform, ref g._modelMatrix, out _tmpMatrix);
-                Matrix4.Mult(ref _tmpMatrix, ref viewProjection, out _modelViewProjection);
-                Matrix4.Transpose(ref g._modelMatrix, out _normalMatrix);
-                Matrix4.Invert(ref _normalMatrix, out _normalMatrix);
 
-                GL.UniformMatrix4(mUniform_MVP, false, ref _modelViewProjection);
-
-                if (mUniform_Texture >= 0)
+                foreach (string meshName in g.Model.Meshes.Keys)
                 {
-                    GL.ActiveTexture(TextureUnit.Texture0);
-                    GL.BindTexture(TextureTarget.Texture2D, mesh.Material.TextureDiffuse.OpenGLID);
-                    GL.Uniform1(mUniform_Texture, 0);
+                    GeoMesh mesh = g.Model.Meshes[meshName];
+                    Matrix4.Mult(ref mesh.Transform, ref g._modelMatrix, out _tmpMatrix);
+                    Matrix4.Mult(ref _tmpMatrix, ref viewProjection, out _modelViewProjection);
+                    Matrix4.Transpose(ref g._modelMatrix, out _normalMatrix);
+                    Matrix4.Invert(ref _normalMatrix, out _normalMatrix);
+
+                    GL.UniformMatrix4(mUniform_MVP, false, ref _modelViewProjection);
+
+                    if (mUniform_Texture >= 0)
+                    {
+                        GL.ActiveTexture(TextureUnit.Texture0);
+                        GL.BindTexture(TextureTarget.Texture2D, mesh.Material.TextureDiffuse.OpenGLID);
+                        GL.Uniform1(mUniform_Texture, 0);
+                    }
+
+                    GL.BindVertexArray(mesh.VAO);
+
+                    GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
+                    GL.DrawElements(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
+                    GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+
+                    GL.BindVertexArray(0);
                 }
-
-                GL.BindVertexArray(mesh.VAO);
-
-                GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
-                GL.DrawElements(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
-                GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-
-                GL.BindVertexArray(0);
             }
 
             GL.UseProgram(0);

@@ -9,7 +9,7 @@ using System.IO;
 
 namespace KWEngine2.Model
 {
-    public struct GeoModel
+    public class GeoModel
     {
         public string Path { get; internal set; }
         internal bool IsInAssembly { get; set; }
