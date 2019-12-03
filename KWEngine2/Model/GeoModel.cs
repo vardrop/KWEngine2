@@ -12,6 +12,7 @@ namespace KWEngine2.Model
     public class GeoModel
     {
         public string Path { get; internal set; }
+        public string PathAbsolute { get; internal set; }
         internal bool IsInAssembly { get; set; }
 
         public bool HasBones

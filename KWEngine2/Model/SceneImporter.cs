@@ -88,7 +88,30 @@ namespace KWEngine2.Model
         private static GeoModel ProcessScene(Scene scene, string filename, bool isInAssembly)
         {
             GeoModel returnModel = new GeoModel();
+            
             returnModel.Filename = filename;
+            if (isInAssembly)
+            {
+                returnModel.PathAbsolute = "";
+            }
+            else
+            {
+                
+                string p = Assembly.GetExecutingAssembly().Location;
+                string pA = new DirectoryInfo(StripFileNameFromPath(p)).FullName;
+                if (!Path.IsPathRooted(filename))
+                {
+                    returnModel.PathAbsolute = Path.Combine(pA, filename);
+                }
+                else
+                {
+                    returnModel.PathAbsolute = filename;
+                }
+                
+                bool success = File.Exists(returnModel.PathAbsolute);
+            }
+            
+
             returnModel.IsInAssembly = isInAssembly;
             returnModel.CalculatePath();
             returnModel.Bones = new Dictionary<int, GeoBone>();
@@ -168,6 +191,75 @@ namespace KWEngine2.Model
             return false;
         }
 
+        private static string GetFileNameFromPath(string path)
+        {
+            return path.Substring(path.LastIndexOf('.') + 1).ToLower();
+        }
+
+        private static string StripFileNameFromPath(string path)
+        {
+            int index = path.LastIndexOf('\\');
+            if(index < 0)
+            {
+                return path;
+            }
+            else
+            {
+                return path.Substring(0, index + 1).ToLower();
+            }
+            
+        }
+
+        private static string StripPathFromFile(string fileWithPath)
+        {
+            int index = fileWithPath.LastIndexOf('\\');
+            if (index < 0)
+            {
+                return fileWithPath;
+            }
+            else
+            {
+                return fileWithPath.Substring(index + 1).ToLower();
+            }
+        }
+
+        private static string FindTextureInSubs(string filename, string path = null)
+        {
+            DirectoryInfo currentDir;
+            if (path == null)
+            {
+                string p = Assembly.GetExecutingAssembly().Location;
+                currentDir = new DirectoryInfo(StripFileNameFromPath(p));
+            }
+            else
+            {
+                currentDir = new DirectoryInfo(StripFileNameFromPath(path));
+            }
+            
+            foreach(FileInfo fi in currentDir.GetFiles())
+            {
+                if (fi.Name.ToLower() == StripPathFromFile(filename))
+                {
+                    // file found:
+                    return fi.FullName;
+                }
+            }
+            
+            if(currentDir.GetDirectories().Length == 0)
+            {
+                throw new Exception("File " + filename + " not found anywhere. Aborting import.");
+            }
+            else
+            {
+                foreach(DirectoryInfo di in currentDir.GetDirectories())
+                {
+                    return FindTextureInSubs(filename, di.FullName);
+                }
+            }
+
+            return "";
+        }
+
         private static void ProcessMaterialsForMesh(Scene scene, Mesh mesh, ref GeoModel model, ref GeoMesh geoMesh)
         {
             GeoMaterial geoMaterial = new GeoMaterial();
@@ -201,7 +293,8 @@ namespace KWEngine2.Model
                     }
                     else
                     {
-                        tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(model.Path + "\\" + tex.Filename);
+                        string path = FindTextureInSubs(StripPathFromFile(tex.Filename), model.PathAbsolute);
+                        tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(path);
                         model.Textures.Add(tex.Filename, tex);
                     }
                     tex.Type = GeoTexture.TexType.Diffuse;
