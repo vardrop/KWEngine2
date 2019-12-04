@@ -29,6 +29,7 @@ namespace KWEngine2Test
 
             Building go = new Building();
             go.SetModel(GetModel("KWCube"));
+            go.Scale = new OpenTK.Vector3(1,1,1);
             AddGameObject(go);
         }
     }

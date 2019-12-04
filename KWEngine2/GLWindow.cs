@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using System.Windows.Forms;
@@ -16,6 +17,8 @@ namespace KWEngine2
     public abstract class GLWindow : GameWindow
     {
         public World CurrentWorld { get; private set; }
+
+        internal List<RenderObject> _renderObjects = new List<RenderObject>();
 
         public static GLWindow CurrentWindow { get; internal set; }
         internal Matrix4 _projectionMatrix = Matrix4.Identity;
@@ -100,6 +103,8 @@ namespace KWEngine2
                 Matrix4 viewMatrix = Matrix4.LookAt(CurrentWorld.GetCameraPosition(), CurrentWorld.GetCameraTarget(), KWEngine.WorldUp);
                 Matrix4 viewProjection = viewMatrix * _projectionMatrix;
 
+
+
                 foreach (GameObject g in CurrentWorld.GetGameObjects())
                 {
                     KWEngine.Renderers["Standard"].Draw(g, ref viewProjection);
@@ -118,6 +123,14 @@ namespace KWEngine2
             foreach(GameObject g in CurrentWorld.GetGameObjects())
             {
                 g.Act(ks, ms, DeltaTime.GetDeltaTimeFactor());
+
+                /*
+                if(g.IsValid && g.HasModel)
+                {
+                    RenderObject ro = new RenderObject();
+                    ro.
+                }
+                */
             }
 
             DeltaTime.UpdateDeltaTime();

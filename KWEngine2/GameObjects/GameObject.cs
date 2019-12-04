@@ -9,6 +9,8 @@ namespace KWEngine2.GameObjects
 {
     public abstract class GameObject
     {
+        internal Matrix4[] BoneTranslationMatrices;
+
         private int _animationId = -1;
         public int AnimationID
         {
@@ -136,6 +138,17 @@ namespace KWEngine2.GameObjects
         public void SetModel(GeoModel m)
         {
             _model = m;
+            if (BoneTranslationMatrices == null)
+            {
+                BoneTranslationMatrices = new Matrix4[_model.Bones.Count];
+            }
+            else
+            {
+                lock (BoneTranslationMatrices)
+                {
+                    BoneTranslationMatrices = new Matrix4[_model.Bones.Count];
+                }
+            }
         }
 
         public abstract void Act(KeyboardState ks, MouseState ms, float deltaTimeFactor);
@@ -318,9 +331,9 @@ namespace KWEngine2.GameObjects
             }
             else
             {
-                for (int i = 0; i < Model.BoneTranslationMatrices.Length; i++)
+                for (int i = 0; i < BoneTranslationMatrices.Length; i++)
                 {
-                    Model.BoneTranslationMatrices[i] = Matrix4.Identity;
+                    BoneTranslationMatrices[i] = Matrix4.Identity;
                 }
             }
         }
@@ -330,7 +343,7 @@ namespace KWEngine2.GameObjects
             string nodeName = node.Name;
 
 
-            GeoNodeAnimationChannel channel = animation.AnimationChannels[animationId];
+            GeoNodeAnimationChannel channel = animation.AnimationChannels[node];
             Matrix4 globalTransform = Matrix4.Identity;
             Matrix4 nodeTransformation = node.Transform;
 
@@ -347,7 +360,7 @@ namespace KWEngine2.GameObjects
             globalTransform = nodeTransformation * parentTransform;
 
             Matrix4 tmp = node.Offset * globalTransform * Model.TransformGlobalInverse;
-            Model.BoneTranslationMatrices[node.Index] = tmp;
+            BoneTranslationMatrices[node.Index] = tmp;
 
             for (int i = 0; i < node.Children.Count; i++)
             {

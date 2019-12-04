@@ -232,6 +232,21 @@ namespace KWEngine2.Model
             return found;
         }
 
+        private static bool FindBoneForNode(string nodeName, ref GeoModel model, out GeoBone bone)
+        {
+            bool found = false;
+            foreach (GeoBone b in model.Bones.Values)
+            {
+                if (b.Name == nodeName) // This node is a bone!
+                {
+                    bone = b;
+                    return true;
+                }
+            }
+            bone = new GeoBone();
+            return found;
+        }
+
         private static void ProcessBones(Scene scene, ref GeoModel model)
         {
             int boneID = 1;
@@ -554,7 +569,7 @@ namespace KWEngine2.Model
 
         private static void ProcessAnimations(Scene scene, ref GeoModel model)
         {
-            model.BoneTranslationMatrices = new Matrix4[model.Bones.Count];
+            
             if (scene.HasAnimations)
             {
                 model.Animations = new List<GeoAnimation>();
@@ -564,7 +579,7 @@ namespace KWEngine2.Model
                     ga.DurationInTicks = (float)a.DurationInTicks;
                     ga.TicksPerSecond = (float)a.TicksPerSecond;
                     ga.Name = a.Name;
-                    ga.AnimationChannels = new List<GeoNodeAnimationChannel>();
+                    ga.AnimationChannels = new Dictionary<GeoBone, GeoNodeAnimationChannel>();
                     foreach(NodeAnimationChannel nac in a.NodeAnimationChannels)
                     {
                         GeoNodeAnimationChannel ganc = new GeoNodeAnimationChannel();
@@ -607,7 +622,11 @@ namespace KWEngine2.Model
                             ganc.TranslationKeys.Add(akf);
                         }
 
-                        ga.AnimationChannels.Add(ganc);
+                        bool nodeFound = FindBoneForNode(nac.NodeName, ref model, out GeoBone bone);
+                        if (nodeFound)
+                        {
+                            ga.AnimationChannels.Add(bone, ganc);
+                        }
                     }
 
                     model.Animations.Add(ga);

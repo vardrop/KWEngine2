@@ -141,9 +141,10 @@ namespace KWEngine2.Renderers
                     }
                     if(mUniform_BoneTransforms >= 0)
                     {
+                        Matrix4 test = Matrix4.Identity;
                         for (int i = 0; i < g.Model.Bones.Values.Count; i++)
                         {
-                            GL.UniformMatrix4(mUniform_BoneTransforms + i, false, ref g.Model.BoneTranslationMatrices[i]);
+                            GL.UniformMatrix4(mUniform_BoneTransforms + i, false, ref g.BoneTranslationMatrices[i]);
                         }
                     }
                     useMeshTransform = false;

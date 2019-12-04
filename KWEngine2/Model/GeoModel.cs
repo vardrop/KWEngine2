@@ -11,7 +11,7 @@ namespace KWEngine2.Model
         public string Path { get; internal set; }
         public string PathAbsolute { get; internal set; }
         internal bool IsInAssembly { get; set; }
-        internal Matrix4[] BoneTranslationMatrices;
+        
         public List<GeoAnimation> Animations { get; internal set; }
         public int ArmatureIndex { get; internal set; }
 
