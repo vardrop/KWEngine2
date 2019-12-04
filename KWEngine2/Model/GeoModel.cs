@@ -15,6 +15,8 @@ namespace KWEngine2.Model
         public string PathAbsolute { get; internal set; }
         internal bool IsInAssembly { get; set; }
 
+        public int ArmatureIndex { get; internal set; }
+
         public bool HasBones
         {
             get

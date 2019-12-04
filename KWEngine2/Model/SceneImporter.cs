@@ -141,6 +141,73 @@ namespace KWEngine2.Model
             return false;
         }
 
+        private static Node FindArmature(Node node, ref GeoModel model, int level = 0)
+        {
+            if (level > 0 && !node.HasMeshes) // this is not the root node
+            {
+                bool found = FindBoneForNode(node, ref model, out GeoBone bone);
+                if (!found)
+                {
+                    // this must be the armature:
+                    if (node.Parent != null && node.Parent.Parent == null && !node.Parent.Parent.HasMeshes && node.ChildCount > 0)
+                    {
+                        return node;
+                    }
+                }
+            }
+            else
+            {
+                foreach(Node child in node.Children)
+                {
+                    return FindArmature(child, ref model, level + 1);
+                }
+            }
+
+            return null;
+        }
+
+        private static void GenerateBoneHierarchy(Node node, ref GeoModel model, int level)
+        {
+            Node armature = FindArmature(node, ref model);
+            /*
+            // Process current Node:
+            if(level != 0 && !node.HasMeshes)
+            {
+                bool found = FindBoneForNode(node, ref model, out GeoBone bone);
+                
+
+                if (!found)
+                {
+                    // this might be the armature:
+                    if(node.Parent != null && node.Parent.Parent != null && !node.Parent.Parent.HasMeshes)
+                    {
+                        GeoBone
+                    }
+                }
+            }
+           
+            foreach(Node child in node.Children)
+            {
+                GenerateBoneHierarchy(child, ref model, level + 1);
+            }
+            */
+        }
+
+        private static bool FindBoneForNode(Node node, ref GeoModel model, out GeoBone bone)
+        {
+            bool found = false;
+            foreach (GeoBone b in model.Bones.Values)
+            {
+                if (b.Name == node.Name) // This node is a bone!
+                {
+                    bone = b;
+                    return true;
+                }
+            }
+            bone = new GeoBone();
+            return found;
+        }
+
         private static void ProcessBones(Scene scene, ref GeoModel model)
         {
             int boneID = 0;
@@ -159,6 +226,9 @@ namespace KWEngine2.Model
                     }
                 }
             }
+
+            // Generate GeoBone hierarchy tree:
+            GenerateBoneHierarchy(scene.RootNode, ref model, 0);
         }
 
         private static bool FindTransformForMesh(Scene scene, Node currentNode, Mesh mesh, out Matrix4 transform, out string nodeName)
