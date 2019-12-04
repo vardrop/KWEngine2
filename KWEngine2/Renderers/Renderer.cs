@@ -32,7 +32,7 @@ namespace KWEngine2.Renderers
         protected int mUniform_ModelMatrix = -1;
         protected int mUniform_Texture = -1;
         protected int mUniform_TextureSkybox = -1;
-        protected int mUniform_HasBones = -1;
+        protected int mUniform_UseAnimations = -1;
         protected int mUniform_BoneTransforms = -1;
 
         protected int mUniform_SunPosition = -1;
@@ -197,7 +197,7 @@ namespace KWEngine2.Renderers
 
         public int GetUniformHasBones()
         {
-            return mUniform_HasBones;
+            return mUniform_UseAnimations;
         }
 
         public int GetUniformSunPosition()

@@ -64,11 +64,14 @@
     <Compile Include="Helper\HelperGL.cs" />
     <Compile Include="Helper\HelperMatrix.cs" />
     <Compile Include="Helper\HelperTexture.cs" />
+    <Compile Include="Model\GeoAnimation.cs" />
+    <Compile Include="Model\GeoAnimationKeyframe.cs" />
     <Compile Include="Model\GeoArmature.cs" />
     <Compile Include="Model\GeoBone.cs" />
     <Compile Include="Model\GeoMaterial.cs" />
     <Compile Include="Model\GeoMesh.cs" />
     <Compile Include="Model\GeoModel.cs" />
+    <Compile Include="Model\GeoNodeAnimationChannel.cs" />
     <Compile Include="Model\GeoTerrain.cs" />
     <Compile Include="Model\GeoTexture.cs" />
     <Compile Include="Model\GeoTriangle.cs" />

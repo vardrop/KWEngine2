@@ -10,7 +10,15 @@ namespace KWEngine2.Helper
 {
     public class HelperGL
     {
-        
+        public static float Clamp(float v, float l, float u)
+        {
+            if (v < l)
+                return l;
+            else if (v > u)
+                return u;
+            else
+                return v;
+        }
         public static void SetAlphaBlendingEnabled(bool enabled)
         {
             if (!enabled)

@@ -78,7 +78,7 @@ namespace KWEngine2.Renderers
             mUniform_MVPShadowMap = GL.GetUniformLocation(mProgramId, "uMVPShadowMap");
             mUniform_NormalMatrix = GL.GetUniformLocation(mProgramId, "uN");
             mUniform_ModelMatrix = GL.GetUniformLocation(mProgramId, "uM");
-            mUniform_HasBones = GL.GetUniformLocation(mProgramId, "uHasBones");
+            mUniform_UseAnimations = GL.GetUniformLocation(mProgramId, "uUseAnimations");
             mUniform_BoneTransforms = GL.GetUniformLocation(mProgramId, "uBoneTransforms");
 
             mUniform_Texture = GL.GetUniformLocation(mProgramId, "uTextureDiffuse"); 
@@ -130,11 +130,40 @@ namespace KWEngine2.Renderers
 
             lock (g)
             {
+                bool useMeshTransform = true;
+                if(g.AnimationID >= 0 && g.Model.Animations.Count > 0)
+                {
+                    g.ProcessCurrentAnimation();
+
+                    if (mUniform_UseAnimations >= 0)
+                    {
+                        GL.Uniform1(mUniform_UseAnimations, 1);
+                    }
+                    if(mUniform_BoneTransforms >= 0)
+                    {
+                        for (int i = 0; i < g.Model.Bones.Values.Count; i++)
+                        {
+                            GL.UniformMatrix4(mUniform_BoneTransforms + i, false, ref g.Model.BoneTranslationMatrices[i]);
+                        }
+                    }
+                    useMeshTransform = false;
+                }
+                else
+                {
+                    if(mUniform_UseAnimations >= 0)
+                    {
+                        GL.Uniform1(mUniform_UseAnimations, 0);
+                    }
+                }
+
 
                 foreach (string meshName in g.Model.Meshes.Keys)
                 {
                     GeoMesh mesh = g.Model.Meshes[meshName];
-                    Matrix4.Mult(ref mesh.Transform, ref g._modelMatrix, out _tmpMatrix);
+                    if (useMeshTransform)
+                        Matrix4.Mult(ref mesh.Transform, ref g._modelMatrix, out _tmpMatrix);
+                    else
+                        _tmpMatrix = g._modelMatrix;
                     Matrix4.Mult(ref _tmpMatrix, ref viewProjection, out _modelViewProjection);
                     Matrix4.Transpose(ref g._modelMatrix, out _normalMatrix);
                     Matrix4.Invert(ref _normalMatrix, out _normalMatrix);

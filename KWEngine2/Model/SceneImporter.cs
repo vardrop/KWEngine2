@@ -122,10 +122,10 @@ namespace KWEngine2.Model
 
             ProcessBones(scene, ref returnModel);
             ProcessMeshes(scene, ref returnModel);
-            ProcessAnimations(scene);
+            ProcessAnimations(scene, ref returnModel);
 
             returnModel.IsValid = true;
-            //GC.Collect(GC.MaxGeneration);
+            GC.Collect(GC.MaxGeneration);
             return returnModel;
         }
 
@@ -149,48 +149,72 @@ namespace KWEngine2.Model
                 if (!found)
                 {
                     // this must be the armature:
-                    if (node.Parent != null && node.Parent.Parent == null && !node.Parent.Parent.HasMeshes && node.ChildCount > 0)
+                    if (node.Parent != null && node.Parent.Parent == null && node.ChildCount > 0)
                     {
                         return node;
                     }
                 }
             }
-            else
+            
+            foreach(Node child in node.Children)
             {
-                foreach(Node child in node.Children)
-                {
-                    return FindArmature(child, ref model, level + 1);
-                }
+                Node n = FindArmature(child, ref model, level + 1);
+                return n;
             }
-
             return null;
         }
 
         private static void GenerateBoneHierarchy(Node node, ref GeoModel model, int level)
         {
             Node armature = FindArmature(node, ref model);
-            /*
-            // Process current Node:
-            if(level != 0 && !node.HasMeshes)
+            if(armature != null)
             {
-                bool found = FindBoneForNode(node, ref model, out GeoBone bone);
-                
+                GeoBone bone = new GeoBone();
+                bone.Index = 0;
+                bone.Transform = HelperMatrix.ConvertAssimpToOpenTKMatrix(armature.Transform);
+                bone.Parent = null;
+                bone.Name = "Armature";
+                bone.Offset = Matrix4.Identity;
+                model.Bones.Add(0, bone);
 
-                if (!found)
+                MapNodeToBone(armature, ref model);
+            }
+            else
+            {
+                if (model.Bones.Count > 0)
+                    throw new Exception("Cannot find armature bone for model " + model.Name + ".");
+            }
+        }
+
+        private static void MapNodeToBone(Node n, ref GeoModel model)
+        {
+            GeoBone nBone = null;
+            GeoBone parentBone = null;
+            bool nFound = FindBoneForNode(n, ref model, out nBone);
+            bool parentFound = FindBoneForNode(n.Parent, ref model, out parentBone);
+
+            if (nFound)
+            {
+                if (parentFound)
                 {
-                    // this might be the armature:
-                    if(node.Parent != null && node.Parent.Parent != null && !node.Parent.Parent.HasMeshes)
+                    nBone.Parent = parentBone;
+                }
+
+                foreach (Node child in n.Children)
+                {
+                    bool found = FindBoneForNode(child, ref model, out GeoBone foundBone);
+                    if (found)
                     {
-                        GeoBone
+                        nBone.Children.Add(foundBone);
+                        MapNodeToBone(child, ref model);
                     }
                 }
+                 
+                foreach(Node child in n.Children)
+                {
+                    
+                }
             }
-           
-            foreach(Node child in node.Children)
-            {
-                GenerateBoneHierarchy(child, ref model, level + 1);
-            }
-            */
         }
 
         private static bool FindBoneForNode(Node node, ref GeoModel model, out GeoBone bone)
@@ -210,7 +234,7 @@ namespace KWEngine2.Model
 
         private static void ProcessBones(Scene scene, ref GeoModel model)
         {
-            int boneID = 0;
+            int boneID = 1;
             foreach(Mesh mesh in scene.Meshes)
             {
                 foreach (Bone bone in mesh.Bones)
@@ -259,12 +283,7 @@ namespace KWEngine2.Model
             transform = Matrix4.Identity;
             nodeName = null;
             return false;
-        }
-
-        private static string GetFileNameFromPath(string path)
-        {
-            return path.Substring(path.LastIndexOf('.') + 1).ToLower();
-        }
+        }       
 
         private static string StripFileNameFromPath(string path)
         {
@@ -533,28 +552,68 @@ namespace KWEngine2.Model
             }
         }
 
-        private static void ProcessAnimations(Scene scene)
+        private static void ProcessAnimations(Scene scene, ref GeoModel model)
         {
-            
-        }
-
-        /*
-        private static void ProcessNode(Node node, ref GeoModel model, int level = 0)
-        {
-            if(node.Parent == null)
+            model.BoneTranslationMatrices = new Matrix4[model.Bones.Count];
+            if (scene.HasAnimations)
             {
-                HelperMatrix.ConvertAssimpToOpenTKMatrix(node.Transform, out Matrix4 globalTransform);
-                globalTransform.Invert();
-                model.TransformGlobalInverse = globalTransform;
-            }
+                model.Animations = new List<GeoAnimation>();
+                foreach(Animation a in scene.Animations)
+                {
+                    GeoAnimation ga = new GeoAnimation();
+                    ga.DurationInTicks = (float)a.DurationInTicks;
+                    ga.TicksPerSecond = (float)a.TicksPerSecond;
+                    ga.Name = a.Name;
+                    ga.AnimationChannels = new List<GeoNodeAnimationChannel>();
+                    foreach(NodeAnimationChannel nac in a.NodeAnimationChannels)
+                    {
+                        GeoNodeAnimationChannel ganc = new GeoNodeAnimationChannel();
 
-            
+                        // Rotation:
+                        ganc.RotationKeys = new List<GeoAnimationKeyframe>();
+                        foreach (QuaternionKey key in nac.RotationKeys) {
+                            GeoAnimationKeyframe akf = new GeoAnimationKeyframe();
+                            akf.Time = (float)key.Time;
+                            akf.Rotation = new OpenTK.Quaternion(key.Value.X, key.Value.Y, key.Value.Z, key.Value.W);
+                            akf.Translation = new Vector3(0, 0, 0);
+                            akf.Scale = new Vector3(1, 1, 1);
+                            akf.Type = GeoKeyframeType.Rotation;
+                            ganc.RotationKeys.Add(akf);
+                        }
 
-            foreach(Node child in node.Children)
-            {
+                        // Scale:
+                        ganc.ScaleKeys = new List<GeoAnimationKeyframe>();
+                        foreach (VectorKey key in nac.ScalingKeys)
+                        {
+                            GeoAnimationKeyframe akf = new GeoAnimationKeyframe();
+                            akf.Time = (float)key.Time;
+                            akf.Rotation = new OpenTK.Quaternion(0,0,0,1);
+                            akf.Translation = new Vector3(0, 0, 0);
+                            akf.Scale = new Vector3(key.Value.X, key.Value.Y, key.Value.Z);
+                            akf.Type = GeoKeyframeType.Scale;
+                            ganc.ScaleKeys.Add(akf);
+                        }
 
+                        // Translation:
+                        ganc.TranslationKeys = new List<GeoAnimationKeyframe>();
+                        foreach (VectorKey key in nac.PositionKeys)
+                        {
+                            GeoAnimationKeyframe akf = new GeoAnimationKeyframe();
+                            akf.Time = (float)key.Time;
+                            akf.Rotation = new OpenTK.Quaternion(0, 0, 0, 1);
+                            akf.Translation = new Vector3(key.Value.X, key.Value.Y, key.Value.Z);
+                            akf.Scale = new Vector3(1, 1, 1);
+                            akf.Type = GeoKeyframeType.Translation;
+                            ganc.TranslationKeys.Add(akf);
+                        }
+
+                        ga.AnimationChannels.Add(ganc);
+                    }
+
+                    model.Animations.Add(ga);
+
+                }
             }
         }
-        */
     }
 }
