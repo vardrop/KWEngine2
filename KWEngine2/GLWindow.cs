@@ -76,7 +76,7 @@ namespace KWEngine2
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            GL.ClearColor(0f, 0f, 0f, 1f);
+            GL.ClearColor(0.5f, 0.5f, 0.5f, 1f);
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
 
@@ -123,14 +123,8 @@ namespace KWEngine2
             foreach(GameObject g in CurrentWorld.GetGameObjects())
             {
                 g.Act(ks, ms, DeltaTime.GetDeltaTimeFactor());
-
-                /*
-                if(g.IsValid && g.HasModel)
-                {
-                    RenderObject ro = new RenderObject();
-                    ro.
-                }
-                */
+                g.ProcessCurrentAnimation();
+                
             }
 
             DeltaTime.UpdateDeltaTime();

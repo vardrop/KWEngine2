@@ -134,9 +134,6 @@ namespace KWEngine2.Renderers
                 
                 if(g.AnimationID >= 0 && g.Model.Animations.Count > 0)
                 {
-                    
-                    g.ProcessCurrentAnimation();
-
                     if (mUniform_UseAnimations >= 0)
                     {
                         GL.Uniform1(mUniform_UseAnimations, 1);
@@ -144,9 +141,13 @@ namespace KWEngine2.Renderers
                     if(mUniform_BoneTransforms >= 0)
                     {
                         Matrix4 test = Matrix4.Identity;
-                        for (int i = 0; i < g.Model.Bones.Values.Count; i++)
+                        lock (g.BoneTranslationMatrices)
                         {
-                            GL.UniformMatrix4(mUniform_BoneTransforms + i, false, ref g.BoneTranslationMatrices[i]);
+                            for (int i = 0; i < g.Model.Bones.Values.Count - 1; i++)
+                            {
+                                GL.UniformMatrix4(mUniform_BoneTransforms + i, false, ref g.BoneTranslationMatrices[i]);
+                                //GL.UniformMatrix4(mUniform_BoneTransforms + i, false, ref test);
+                            }
                         }
                     }
                     

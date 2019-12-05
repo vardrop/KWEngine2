@@ -165,7 +165,7 @@ namespace KWEngine2.Model
             return null;
         }
 
-        private static void GenerateBoneHierarchy(Node node, ref GeoModel model, int level)
+        private static void GenerateBoneHierarchy(Node node, ref GeoModel model, int boneIndex)
         {
             Node armature = FindArmature(node, ref model);
             if(armature != null)
@@ -178,7 +178,7 @@ namespace KWEngine2.Model
                 bone.Offset = Matrix4.Identity;
                 model.Bones.Add(model.LastBoneIndex, bone);
 
-                MapNodeToBone(armature, ref model);
+                MapNodeToBone(armature, ref model, ref boneIndex);
             }
             else
             {
@@ -187,7 +187,7 @@ namespace KWEngine2.Model
             }
         }
 
-        private static void MapNodeToBone(Node n, ref GeoModel model)
+        private static void MapNodeToBone(Node n, ref GeoModel model, ref int boneIndex)
         {
             GeoBone nBone = null;
             GeoBone parentBone = null;
@@ -196,6 +196,8 @@ namespace KWEngine2.Model
 
             if (nFound)
             {
+                if(nBone.Name != "Armature")
+                    nBone.Index = boneIndex++;
                 if (parentFound)
                 {
                     nBone.Parent = parentBone;
@@ -207,7 +209,7 @@ namespace KWEngine2.Model
                     if (found)
                     {
                         nBone.Children.Add(foundBone);
-                        MapNodeToBone(child, ref model);
+                        MapNodeToBone(child, ref model, ref boneIndex);
                     }
                 }
                  
@@ -250,9 +252,8 @@ namespace KWEngine2.Model
 
         private static void ProcessBones(Scene scene, ref GeoModel model)
         {
-            
             foreach(Mesh mesh in scene.Meshes)
-            {
+            {       
                 foreach (Bone bone in mesh.Bones)
                 {
                     if (!IsBoneAlreadyStored(bone.Name, ref model))
@@ -267,7 +268,6 @@ namespace KWEngine2.Model
                 }
             }
 
-            // Generate GeoBone hierarchy tree:
             GenerateBoneHierarchy(scene.RootNode, ref model, 0);
         }
 

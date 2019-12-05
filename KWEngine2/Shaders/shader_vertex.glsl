@@ -6,6 +6,7 @@ in		ivec3 aBoneIds;
 in		vec3 aBoneWeights;
 
 out		vec2 vTexture;
+out		vec3 colors;
 
 uniform mat4 uMVP;
 uniform mat4 uBoneTransforms[36];
@@ -17,6 +18,8 @@ void main()
 	//vec4 totalNormal = vec4(0.0);
 	//vec4 totalTangent = vec4(0.0);
 	//vec4 totalBiTangent = vec4(0.0);
+
+	colors = vec3(float(aBoneIds.x) / 3.0, float(aBoneIds.y) / 3.0, float(aBoneIds.z) / 3.0);
 
 	if(uUseAnimations > 0)
 	{	
