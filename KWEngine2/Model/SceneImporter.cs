@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using Assimp;
@@ -542,6 +543,8 @@ namespace KWEngine2.Model
                             {
                                 throw new Exception("Model's bones have more than three weights per vertex. Cannot import model.");
                             }
+
+                            //Debug.WriteLine("Setting Vertex " + vw.VertexID + " with BoneID " + boneIndex + " and Weight: " + vw.Weight + " to Slot #" + weightIndexToBeSet);
                             geoMesh.Vertices[vw.VertexID].Weights[weightIndexToBeSet] = vw.Weight;
                             geoMesh.Vertices[vw.VertexID].BoneIDs[weightIndexToBeSet] = boneIndex;
                             geoMesh.Vertices[vw.VertexID].WeightSet++;

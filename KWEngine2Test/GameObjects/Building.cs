@@ -21,9 +21,12 @@ namespace KWEngine2Test.GameObjects
             if (ks[Key.W])
                 this.MoveOffset(0, 0, -0.1f * deltaTimeFactor);
 
-            AnimationPercentage += 0.025f;
-            if (AnimationPercentage > 1)
+            if (AnimationPercentage >= 1)
                 AnimationPercentage = 0;
+            else
+                AnimationPercentage += (0.01f * deltaTimeFactor);
+            
+            //Console.WriteLine(AnimationPercentage);
             AnimationID = 0;
         }
     }

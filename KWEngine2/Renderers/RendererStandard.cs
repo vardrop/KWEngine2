@@ -159,6 +159,7 @@ namespace KWEngine2.Renderers
                         GL.Uniform1(mUniform_UseAnimations, 0);
                     }
                 }
+                
 
     
                 foreach (string meshName in g.Model.Meshes.Keys)
