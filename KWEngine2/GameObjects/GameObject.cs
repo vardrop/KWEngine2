@@ -327,7 +327,7 @@ namespace KWEngine2.GameObjects
                 Matrix4 identity = Matrix4.Identity;
 
                 float timestamp = ((float)(a.DurationInTicks * AnimationPercentage));
-                ReadNodeHierarchy(timestamp, ref a, AnimationID, Model.Bones[0], ref identity);
+                ReadNodeHierarchy(timestamp, ref a, AnimationID, Model.Bones[Model.LastBoneIndex], ref identity);
             }
             else
             {
