@@ -131,8 +131,10 @@ namespace KWEngine2.Renderers
             lock (g)
             {
                 bool useMeshTransform = true;
+                
                 if(g.AnimationID >= 0 && g.Model.Animations.Count > 0)
                 {
+                    
                     g.ProcessCurrentAnimation();
 
                     if (mUniform_UseAnimations >= 0)
@@ -147,6 +149,7 @@ namespace KWEngine2.Renderers
                             GL.UniformMatrix4(mUniform_BoneTransforms + i, false, ref g.BoneTranslationMatrices[i]);
                         }
                     }
+                    
                     useMeshTransform = false;
                 }
                 else
@@ -157,7 +160,7 @@ namespace KWEngine2.Renderers
                     }
                 }
 
-
+    
                 foreach (string meshName in g.Model.Meshes.Keys)
                 {
                     GeoMesh mesh = g.Model.Meshes[meshName];

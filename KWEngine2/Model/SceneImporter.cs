@@ -116,7 +116,7 @@ namespace KWEngine2.Model
             returnModel.CalculatePath();
             returnModel.Bones = new Dictionary<int, GeoBone>();
             returnModel.Meshes = new Dictionary<string, GeoMesh>();
-            returnModel.TransformGlobalInverse = Matrix4.Identity;
+            returnModel.TransformGlobalInverse = Matrix4.Invert(HelperMatrix.ConvertAssimpToOpenTKMatrix(scene.RootNode.Transform));
             returnModel.Textures = new Dictionary<string, GeoTexture>();
             returnModel.IsValid = false;
 
@@ -170,12 +170,12 @@ namespace KWEngine2.Model
             if(armature != null)
             {
                 GeoBone bone = new GeoBone();
-                bone.Index = 0;
+                bone.Index = model.LastBoneIndex;
                 bone.Transform = HelperMatrix.ConvertAssimpToOpenTKMatrix(armature.Transform);
                 bone.Parent = null;
                 bone.Name = "Armature";
                 bone.Offset = Matrix4.Identity;
-                model.Bones.Add(0, bone);
+                model.Bones.Add(model.LastBoneIndex, bone);
 
                 MapNodeToBone(armature, ref model);
             }
@@ -249,7 +249,7 @@ namespace KWEngine2.Model
 
         private static void ProcessBones(Scene scene, ref GeoModel model)
         {
-            int boneID = 1;
+            
             foreach(Mesh mesh in scene.Meshes)
             {
                 foreach (Bone bone in mesh.Bones)
@@ -258,10 +258,10 @@ namespace KWEngine2.Model
                     {
                         GeoBone geoBone = new GeoBone();
                         geoBone.Name = bone.Name;
-                        geoBone.Index = boneID;
+                        geoBone.Index = model.LastBoneIndex;
                         geoBone.Offset = HelperMatrix.ConvertAssimpToOpenTKMatrix(bone.OffsetMatrix);
-                        model.Bones.Add(boneID, geoBone);
-                        boneID++;
+                        model.Bones.Add(geoBone.Index, geoBone);
+                        model.LastBoneIndex++;
                     }
                 }
             }

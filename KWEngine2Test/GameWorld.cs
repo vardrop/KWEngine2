@@ -20,7 +20,7 @@ namespace KWEngine2Test
         public override void Prepare()
         {
             FOV = 90;
-            SetCameraPosition(0, 1, 1);
+            SetCameraPosition(0, 100, 100);
             SetCameraTarget(0, 0, 0);
 
             LoadModelFromFile("rect", @".\Models\Schoolpart\building.fbx");

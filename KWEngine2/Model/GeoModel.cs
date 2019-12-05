@@ -14,7 +14,7 @@ namespace KWEngine2.Model
         
         public List<GeoAnimation> Animations { get; internal set; }
         public int ArmatureIndex { get; internal set; }
-
+        internal int LastBoneIndex { get; set; } = 0;
         public bool HasBones
         {
             get
