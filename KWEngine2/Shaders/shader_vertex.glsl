@@ -21,7 +21,7 @@ void main()
 
 	colors = vec3(float(aBoneIds.x) / 3.0, float(aBoneIds.y) / 3.0, float(aBoneIds.z) / 3.0);
 
-	if(uUseAnimations > 0)
+	if(uUseAnimations > 1)
 	{	
 		for(int i = 0; i < 3; i++)
 		{

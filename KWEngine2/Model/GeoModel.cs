@@ -11,7 +11,7 @@ namespace KWEngine2.Model
         public string Path { get; internal set; }
         public string PathAbsolute { get; internal set; }
         internal bool IsInAssembly { get; set; }
-        
+        internal Dictionary<GeoMesh, List<int>> BoneIndexLookUpTable = new Dictionary<GeoMesh, List<int>>();
         public List<GeoAnimation> Animations { get; internal set; }
         public int ArmatureIndex { get; internal set; }
         internal int LastBoneIndex { get; set; } = 0;

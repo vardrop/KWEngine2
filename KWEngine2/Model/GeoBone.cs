@@ -1,9 +1,5 @@
 ﻿using OpenTK;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KWEngine2.Model
 {
@@ -16,5 +12,7 @@ namespace KWEngine2.Model
 
         public List<GeoBone> Children { get; internal set; } = new List<GeoBone>();
         public GeoBone Parent { get; internal set; } = null;
+
+        
     }
 }

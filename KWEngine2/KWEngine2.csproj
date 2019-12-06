@@ -68,6 +68,7 @@
     <Compile Include="Model\GeoAnimationKeyframe.cs" />
     <Compile Include="Model\GeoArmature.cs" />
     <Compile Include="Model\GeoBone.cs" />
+    <Compile Include="Model\GeoBoneMapping.cs" />
     <Compile Include="Model\GeoMaterial.cs" />
     <Compile Include="Model\GeoMesh.cs" />
     <Compile Include="Model\GeoModel.cs" />

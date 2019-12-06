@@ -3,13 +3,14 @@ using KWEngine2.Model;
 using OpenTK;
 using OpenTK.Input;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace KWEngine2.GameObjects
 {
     public abstract class GameObject
     {
-        internal Matrix4[] BoneTranslationMatrices;
+        internal Dictionary<GeoMesh, Matrix4[]> BoneTranslationMatrices;
 
         private int _animationId = -1;
         public int AnimationID
@@ -140,13 +141,20 @@ namespace KWEngine2.GameObjects
             _model = m;
             if (BoneTranslationMatrices == null)
             {
-                BoneTranslationMatrices = new Matrix4[_model.Bones.Count];
+                BoneTranslationMatrices = new Dictionary<GeoMesh, Matrix4[]>();
+                foreach(GeoMesh mesh in m.Meshes.Values)
+                {
+                    BoneTranslationMatrices.Add(mesh, new Matrix4[_model.Bones.Count]);
+                }
             }
             else
             {
                 lock (BoneTranslationMatrices)
                 {
-                    BoneTranslationMatrices = new Matrix4[_model.Bones.Count];
+                    foreach (GeoMesh mesh in m.Meshes.Values)
+                    {
+                        BoneTranslationMatrices.Add(mesh, new Matrix4[_model.Bones.Count]);
+                    }
                 }
             }
         }
@@ -331,11 +339,20 @@ namespace KWEngine2.GameObjects
             }
             else
             {
-                for (int i = 0; i < BoneTranslationMatrices.Length; i++)
+                foreach (GeoMesh mesh in _model.Meshes.Values)
                 {
-                    BoneTranslationMatrices[i] = Matrix4.Identity;
+                    for (int i = 0; i < _model.Bones.Count; i++)
+                    {
+                        BoneTranslationMatrices[mesh][i] = Matrix4.Identity;
+                    }
                 }
             }
+        }
+
+        private int FindLocalBoneIndexForGlobalBoneIndex(int globalBoneIndex)
+        {
+            // TODO
+            return 0;
         }
 
         private void ReadNodeHierarchy(float timestamp, ref GeoAnimation animation, int animationId, GeoBone node, ref Matrix4 parentTransform)
@@ -360,7 +377,12 @@ namespace KWEngine2.GameObjects
             globalTransform = nodeTransformation * parentTransform;
 
             Matrix4 tmp = node.Offset * globalTransform * Model.TransformGlobalInverse;
-            BoneTranslationMatrices[node.Index] = tmp;
+            foreach(GeoMesh mesh in _model.Meshes.Values)
+            {
+                int localBoneIndex = FindLocalBoneIndexForGlobalBoneIndex(node.Index);
+                BoneTranslationMatrices[mesh][localBoneIndex] = tmp;
+            }
+            
 
             for (int i = 0; i < node.Children.Count; i++)
             {

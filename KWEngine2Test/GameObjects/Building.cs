@@ -25,8 +25,9 @@ namespace KWEngine2Test.GameObjects
                 AnimationPercentage = 0;
             else
                 AnimationPercentage += (0.01f * deltaTimeFactor);
-            
+
             //Console.WriteLine(AnimationPercentage);
+            AnimationPercentage = 0.25f;
             AnimationID = 0;
         }
     }

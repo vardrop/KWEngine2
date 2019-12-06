@@ -130,42 +130,45 @@ namespace KWEngine2.Renderers
 
             lock (g)
             {
-                bool useMeshTransform = true;
                 
-                if(g.AnimationID >= 0 && g.Model.Animations.Count > 0)
-                {
-                    if (mUniform_UseAnimations >= 0)
-                    {
-                        GL.Uniform1(mUniform_UseAnimations, 1);
-                    }
-                    if(mUniform_BoneTransforms >= 0)
-                    {
-                        Matrix4 test = Matrix4.Identity;
-                        lock (g.BoneTranslationMatrices)
-                        {
-                            for (int i = 0; i < g.Model.Bones.Values.Count - 1; i++)
-                            {
-                                GL.UniformMatrix4(mUniform_BoneTransforms + i, false, ref g.BoneTranslationMatrices[i]);
-                                //GL.UniformMatrix4(mUniform_BoneTransforms + i, false, ref test);
-                            }
-                        }
-                    }
-                    
-                    useMeshTransform = false;
-                }
-                else
-                {
-                    if(mUniform_UseAnimations >= 0)
-                    {
-                        GL.Uniform1(mUniform_UseAnimations, 0);
-                    }
-                }
                 
 
     
                 foreach (string meshName in g.Model.Meshes.Keys)
                 {
                     GeoMesh mesh = g.Model.Meshes[meshName];
+
+                    bool useMeshTransform = true;
+
+                    if (g.AnimationID >= 0 && g.Model.Animations.Count > 0)
+                    {
+                        if (mUniform_UseAnimations >= 0)
+                        {
+                            GL.Uniform1(mUniform_UseAnimations, 1);
+                        }
+                        if (mUniform_BoneTransforms >= 0)
+                        {
+                            Matrix4 test = Matrix4.Identity;
+                            lock (g.BoneTranslationMatrices)
+                            {
+                                for (int i = 0; i < g.Model.Bones.Values.Count - 1; i++)
+                                {
+                                    GL.UniformMatrix4(mUniform_BoneTransforms + i, false, ref g.BoneTranslationMatrices[mesh][i]);
+                                    //GL.UniformMatrix4(mUniform_BoneTransforms + i, false, ref test);
+                                }
+                            }
+                        }
+
+                        useMeshTransform = false;
+                    }
+                    else
+                    {
+                        if (mUniform_UseAnimations >= 0)
+                        {
+                            GL.Uniform1(mUniform_UseAnimations, 0);
+                        }
+                    }
+
                     if (useMeshTransform)
                         Matrix4.Mult(ref mesh.Transform, ref g._modelMatrix, out _tmpMatrix);
                     else

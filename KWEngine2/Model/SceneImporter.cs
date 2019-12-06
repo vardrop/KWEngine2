@@ -89,7 +89,6 @@ namespace KWEngine2.Model
         private static GeoModel ProcessScene(Scene scene, string filename, bool isInAssembly)
         {
             GeoModel returnModel = new GeoModel();
-            
             returnModel.Filename = filename;
             if (isInAssembly)
             {
@@ -124,6 +123,7 @@ namespace KWEngine2.Model
             ProcessBones(scene, ref returnModel);
             ProcessMeshes(scene, ref returnModel);
             ProcessAnimations(scene, ref returnModel);
+            ProcessLocalBoneMapping(scene, ref returnModel);
 
             returnModel.IsValid = true;
             GC.Collect(GC.MaxGeneration);
@@ -253,7 +253,7 @@ namespace KWEngine2.Model
         private static void ProcessBones(Scene scene, ref GeoModel model)
         {
             foreach(Mesh mesh in scene.Meshes)
-            {       
+            {
                 foreach (Bone bone in mesh.Bones)
                 {
                     if (!IsBoneAlreadyStored(bone.Name, ref model))
@@ -269,6 +269,31 @@ namespace KWEngine2.Model
             }
 
             GenerateBoneHierarchy(scene.RootNode, ref model, 0);
+        }
+
+        private static void ProcessLocalBoneMapping(Scene scene, ref GeoModel model)
+        {
+            int m = 0;
+            foreach (Mesh mesh in scene.Meshes)
+            {
+                string meshNameAssimp = mesh.Name + " #" + m.ToString().PadLeft(4, '0');
+                foreach(string meshNameKWEngine in model.Meshes.Keys)
+                {
+                    if (meshNameKWEngine.Contains(meshNameAssimp))
+                    {
+                        if (!model.BoneIndexLookUpTable.ContainsKey(model.Meshes[meshNameKWEngine])){
+                            model.BoneIndexLookUpTable.Add(model.Meshes[meshNameKWEngine], new List<int>());
+                        }
+                        model.BoneIndexLookUpTable[model.Meshes[meshNameKWEngine]].Add(m);
+                    }
+                }
+
+                foreach (Bone bone in mesh.Bones)
+                {
+                   
+                }
+                m++;
+            }
         }
 
         private static bool FindTransformForMesh(Scene scene, Node currentNode, Mesh mesh, out Matrix4 transform, out string nodeName)
@@ -492,7 +517,7 @@ namespace KWEngine2.Model
             geoMesh.Material = geoMaterial;
         }
 
-        private static int FindBoneIndexForBone(string boneName, ref GeoModel model)
+        private static int FindGlobalBoneIndexForBone(string boneName, ref GeoModel model)
         {
             foreach(GeoBone bone in model.Bones.Values)
             {
@@ -528,7 +553,7 @@ namespace KWEngine2.Model
                     GeoVertex geoVertex = new GeoVertex(i, vertex.X, vertex.Y, vertex.Z);
                     geoMesh.Vertices[i] = geoVertex;
                 }
-                geoMesh.Indices = mesh.GetIndices();//GenerateIndices(geoMesh.Vertices, mesh);
+                geoMesh.Indices = mesh.GetIndices();
 
                 if (model.HasBones)
                 {
@@ -537,7 +562,7 @@ namespace KWEngine2.Model
                         Bone bone = mesh.Bones[i];
                         foreach (VertexWeight vw in bone.VertexWeights)
                         {
-                            int boneIndex = FindBoneIndexForBone(bone.Name, ref model);
+                            int boneIndex = FindGlobalBoneIndexForBone(bone.Name, ref model);
                             int weightIndexToBeSet = geoMesh.Vertices[vw.VertexID].WeightSet;
                             if (weightIndexToBeSet > KWEngine.MAX_BONE_WEIGHTS - 1)
                             {
@@ -548,7 +573,6 @@ namespace KWEngine2.Model
                             geoMesh.Vertices[vw.VertexID].Weights[weightIndexToBeSet] = vw.Weight;
                             geoMesh.Vertices[vw.VertexID].BoneIDs[weightIndexToBeSet] = boneIndex;
                             geoMesh.Vertices[vw.VertexID].WeightSet++;
-
                         }
                     }
                 }
