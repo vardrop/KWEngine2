@@ -74,6 +74,8 @@ namespace KWEngine2.Renderers
             mAttribute_vjoints = GL.GetAttribLocation(mProgramId, "aJoints");
             mAttribute_vweights = GL.GetAttribLocation(mProgramId, "aWeights");
             mAttribute_vtexture2 = GL.GetAttribLocation(mProgramId, "aTexture2");
+
+
             mUniform_MVP = GL.GetUniformLocation(mProgramId, "uMVP"); 
             mUniform_MVPShadowMap = GL.GetUniformLocation(mProgramId, "uMVPShadowMap");
             mUniform_NormalMatrix = GL.GetUniformLocation(mProgramId, "uN");
@@ -130,10 +132,6 @@ namespace KWEngine2.Renderers
 
             lock (g)
             {
-                
-                
-
-    
                 foreach (string meshName in g.Model.Meshes.Keys)
                 {
                     GeoMesh mesh = g.Model.Meshes[meshName];
@@ -149,11 +147,12 @@ namespace KWEngine2.Renderers
                         if (mUniform_BoneTransforms >= 0)
                         {
                             Matrix4 test = Matrix4.Identity;
-                            lock (g.BoneTranslationMatrices)
+                            lock (mesh.BoneTranslationMatrices)
                             {
-                                for (int i = 0; i < g.Model.Bones.Values.Count - 1; i++)
+                                for (int i = 0; i < mesh.BoneTranslationMatrices.Count; i++)
                                 {
-                                    GL.UniformMatrix4(mUniform_BoneTransforms + i, false, ref g.BoneTranslationMatrices[mesh][i]);
+                                    Matrix4 currentMatrix = mesh.BoneTranslationMatrices[i];
+                                    GL.UniformMatrix4(mUniform_BoneTransforms + i, false, ref currentMatrix);
                                     //GL.UniformMatrix4(mUniform_BoneTransforms + i, false, ref test);
                                 }
                             }
@@ -185,11 +184,17 @@ namespace KWEngine2.Renderers
                         GL.BindTexture(TextureTarget.Texture2D, mesh.Material.TextureDiffuse.OpenGLID);
                         GL.Uniform1(mUniform_Texture, 0);
                         GL.Uniform1(mUniform_TextureUse, 1);
+
+                        GL.Uniform3(mUniform_BaseColor, 1f, 1f, 1f);
                     }
                     else
                     {
                         GL.Uniform1(mUniform_TextureUse, 0);
+
+                        GL.Uniform3(mUniform_BaseColor, mesh.Material.ColorDiffuse.X, mesh.Material.ColorDiffuse.Y, mesh.Material.ColorDiffuse.Z);
                     }
+
+                    
 
                     GL.BindVertexArray(mesh.VAO);
 

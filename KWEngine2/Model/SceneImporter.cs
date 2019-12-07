@@ -271,26 +271,32 @@ namespace KWEngine2.Model
             GenerateBoneHierarchy(scene.RootNode, ref model, 0);
         }
 
+        private static GeoMesh FindMeshByName(string meshNameAssimp, ref GeoModel model)
+        {
+            foreach (string meshNameKWEngine in model.Meshes.Keys)
+            {
+                if (meshNameKWEngine.Contains(meshNameAssimp))
+                {
+                    return model.Meshes[meshNameKWEngine];
+                }
+            }
+            GeoMesh dummy = new GeoMesh();
+            dummy.Vertices = null;
+            return dummy;
+        }
         private static void ProcessLocalBoneMapping(Scene scene, ref GeoModel model)
         {
             int m = 0;
             foreach (Mesh mesh in scene.Meshes)
             {
                 string meshNameAssimp = mesh.Name + " #" + m.ToString().PadLeft(4, '0');
-                foreach(string meshNameKWEngine in model.Meshes.Keys)
-                {
-                    if (meshNameKWEngine.Contains(meshNameAssimp))
-                    {
-                        if (!model.BoneIndexLookUpTable.ContainsKey(model.Meshes[meshNameKWEngine])){
-                            model.BoneIndexLookUpTable.Add(model.Meshes[meshNameKWEngine], new List<int>());
-                        }
-                        model.BoneIndexLookUpTable[model.Meshes[meshNameKWEngine]].Add(m);
-                    }
-                }
+                GeoMesh kwMesh = FindMeshByName(meshNameAssimp, ref model);
+                if (kwMesh.Vertices == null)
+                    throw new Exception("Error processing mesh for local bone mapping. Mesh could not be found: " + meshNameAssimp);
 
-                foreach (Bone bone in mesh.Bones)
+                for (int i = 0; i < mesh.BoneCount; i++)
                 {
-                   
+                    kwMesh.BoneTranslationMatrices.Add(Matrix4.Identity);
                 }
                 m++;
             }
@@ -517,16 +523,6 @@ namespace KWEngine2.Model
             geoMesh.Material = geoMaterial;
         }
 
-        private static int FindGlobalBoneIndexForBone(string boneName, ref GeoModel model)
-        {
-            foreach(GeoBone bone in model.Bones.Values)
-            {
-                if (bone.Name == boneName)
-                    return bone.Index;
-            }
-            throw new Exception("Fatal error while loading animations: Bone index for Bone " + boneName + " not found.");
-        }
-
         private static void ProcessMeshes(Scene scene, ref GeoModel model)
         {
             for(int m = 0; m < scene.MeshCount; m++)
@@ -541,9 +537,12 @@ namespace KWEngine2.Model
 
                 bool transformFound = FindTransformForMesh(scene, scene.RootNode, mesh, out Matrix4 nodeTransform, out string nodeName);
                 geoMesh.Transform = nodeTransform;
+                geoMesh.Bones = new List<GeoBone>();
+                geoMesh.BoneTranslationMatrices = new List<Matrix4>();
                 geoMesh.Name = mesh.Name + " #" + m.ToString().PadLeft(4,'0') + " (Node: " + nodeName + ")";
                 geoMesh.Vertices = new GeoVertex[mesh.VertexCount];
                 geoMesh.Primitive = OpenTK.Graphics.OpenGL4.PrimitiveType.Triangles;
+                geoMesh.AssimpBoneOrder = new List<string>();
                 geoMesh.VAOGenerateAndBind();
 
                 for(int i = 0; i < mesh.VertexCount; i++)
@@ -560,18 +559,23 @@ namespace KWEngine2.Model
                     for (int i = 0; i < mesh.BoneCount; i++)
                     {
                         Bone bone = mesh.Bones[i];
+                        bool found = FindBoneForNode(bone.Name, ref model, out GeoBone kwBone);
+                        if(found)
+                        {
+                            geoMesh.Bones.Add(kwBone);
+                        }
+
                         foreach (VertexWeight vw in bone.VertexWeights)
                         {
-                            int boneIndex = FindGlobalBoneIndexForBone(bone.Name, ref model);
                             int weightIndexToBeSet = geoMesh.Vertices[vw.VertexID].WeightSet;
                             if (weightIndexToBeSet > KWEngine.MAX_BONE_WEIGHTS - 1)
                             {
                                 throw new Exception("Model's bones have more than three weights per vertex. Cannot import model.");
                             }
 
-                            //Debug.WriteLine("Setting Vertex " + vw.VertexID + " with BoneID " + boneIndex + " and Weight: " + vw.Weight + " to Slot #" + weightIndexToBeSet);
+                            //Debug.WriteLine("Setting Vertex " + vw.VertexID + " with BoneID " + i + " and Weight: " + vw.Weight + " to Slot #" + weightIndexToBeSet);
                             geoMesh.Vertices[vw.VertexID].Weights[weightIndexToBeSet] = vw.Weight;
-                            geoMesh.Vertices[vw.VertexID].BoneIDs[weightIndexToBeSet] = boneIndex;
+                            geoMesh.Vertices[vw.VertexID].BoneIDs[weightIndexToBeSet] = i;
                             geoMesh.Vertices[vw.VertexID].WeightSet++;
                         }
                     }

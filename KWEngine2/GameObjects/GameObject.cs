@@ -10,8 +10,6 @@ namespace KWEngine2.GameObjects
 {
     public abstract class GameObject
     {
-        internal Dictionary<GeoMesh, Matrix4[]> BoneTranslationMatrices;
-
         private int _animationId = -1;
         public int AnimationID
         {
@@ -21,7 +19,7 @@ namespace KWEngine2.GameObjects
             }
             set
             {
-                if (Model == null || !Model.IsValid || Model.Animations.Count == 0 || value >= Model.Animations.Count || value < 0)
+                if (Model == null || !Model.IsValid || Model.Animations.Count == 0 || value >= Model.Animations.Count)
                 {
                     throw new Exception("Cannot set animation id on invalid model. Model might be null, invalid, without any animations or the animation id does not exist.");
                 }
@@ -139,24 +137,6 @@ namespace KWEngine2.GameObjects
         public void SetModel(GeoModel m)
         {
             _model = m;
-            if (BoneTranslationMatrices == null)
-            {
-                BoneTranslationMatrices = new Dictionary<GeoMesh, Matrix4[]>();
-                foreach(GeoMesh mesh in m.Meshes.Values)
-                {
-                    BoneTranslationMatrices.Add(mesh, new Matrix4[_model.Bones.Count]);
-                }
-            }
-            else
-            {
-                lock (BoneTranslationMatrices)
-                {
-                    foreach (GeoMesh mesh in m.Meshes.Values)
-                    {
-                        BoneTranslationMatrices.Add(mesh, new Matrix4[_model.Bones.Count]);
-                    }
-                }
-            }
         }
 
         public abstract void Act(KeyboardState ks, MouseState ms, float deltaTimeFactor);
@@ -337,22 +317,6 @@ namespace KWEngine2.GameObjects
                 float timestamp = ((float)(a.DurationInTicks * AnimationPercentage));
                 ReadNodeHierarchy(timestamp, ref a, AnimationID, Model.Bones[Model.LastBoneIndex], ref identity);
             }
-            else
-            {
-                foreach (GeoMesh mesh in _model.Meshes.Values)
-                {
-                    for (int i = 0; i < _model.Bones.Count; i++)
-                    {
-                        BoneTranslationMatrices[mesh][i] = Matrix4.Identity;
-                    }
-                }
-            }
-        }
-
-        private int FindLocalBoneIndexForGlobalBoneIndex(int globalBoneIndex)
-        {
-            // TODO
-            return 0;
         }
 
         private void ReadNodeHierarchy(float timestamp, ref GeoAnimation animation, int animationId, GeoBone node, ref Matrix4 parentTransform)
@@ -376,11 +340,15 @@ namespace KWEngine2.GameObjects
 
             globalTransform = nodeTransformation * parentTransform;
 
-            Matrix4 tmp = node.Offset * globalTransform * Model.TransformGlobalInverse;
-            foreach(GeoMesh mesh in _model.Meshes.Values)
+            foreach (GeoMesh mesh in Model.Meshes.Values)
             {
-                int localBoneIndex = FindLocalBoneIndexForGlobalBoneIndex(node.Index);
-                BoneTranslationMatrices[mesh][localBoneIndex] = tmp;
+                int localBoneIndex = mesh.Bones.IndexOf(node);
+                if (localBoneIndex >= 0)
+                {
+                    Matrix4 tmp = node.Offset * globalTransform * Model.TransformGlobalInverse;
+                    mesh.BoneTranslationMatrices[localBoneIndex] = tmp;
+                }
+                
             }
             
 

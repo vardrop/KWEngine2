@@ -76,7 +76,7 @@ namespace KWEngine2
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            GL.ClearColor(0.5f, 0.5f, 0.5f, 1f);
+            GL.ClearColor(0.0f, 0.0f, 1.0f, 1f);
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
 

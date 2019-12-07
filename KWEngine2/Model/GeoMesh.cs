@@ -11,6 +11,15 @@ namespace KWEngine2.Model
 {
     public struct GeoMesh
     {
+        public override string ToString()
+        {
+            return Name;
+        }
+
+        public List<GeoBone> Bones { get; internal set; }
+        internal List<Matrix4> BoneTranslationMatrices;
+
+        internal List<string> AssimpBoneOrder { get;  set; }
         public int VAO { get; internal set; }
         public int VBOPosition { get; internal set; }
         public int VBONormal { get; internal set; }
@@ -68,10 +77,12 @@ namespace KWEngine2.Model
                     boneWeights[arrayIndex + 1] = Vertices[i].Weights[1];
                     boneWeights[arrayIndex + 2] = Vertices[i].Weights[2];
                 }
+                /*
                 Console.Write("V" + i.ToString().PadLeft(5, '0') + ": ");
                 Console.Write(boneIds[arrayIndex] + " (" + Math.Round(boneWeights[arrayIndex], 2) + "), ");
                 Console.Write(boneIds[arrayIndex+1] + " (" + Math.Round(boneWeights[arrayIndex+1], 2) + "), ");
                 Console.WriteLine(boneIds[arrayIndex+2] + " (" + Math.Round(boneWeights[arrayIndex+2], 2) + "), ");
+                */
             }
             VBOPosition = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, VBOPosition);
