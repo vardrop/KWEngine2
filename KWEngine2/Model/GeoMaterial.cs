@@ -10,6 +10,7 @@ namespace KWEngine2.Model
 {
     public class GeoMaterial
     {
+        public string Name { get; internal set; }
         public BlendingFactor BlendMode { get; internal set; }
         public Vector4 ColorEmissive { get; internal set; }
         public Vector4 ColorDiffuse { get; internal set; }

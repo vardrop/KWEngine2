@@ -11,6 +11,17 @@ namespace KWEngine2.Model
         public string Name { get; internal set; }
         public float DurationInTicks { get; internal set; }
         public float TicksPerSecond { get; internal set; }
-        public Dictionary<GeoBone, GeoNodeAnimationChannel> AnimationChannels { get; internal set; }
+        public Dictionary<string, GeoNodeAnimationChannel> AnimationChannels { get; internal set; }
+
+        public GeoNodeAnimationChannel GetBoneForNodeName(string nodeName)
+        {
+
+            if (AnimationChannels.Keys.Contains(nodeName))
+            {
+                return AnimationChannels[nodeName];
+            }
+
+            return null;
+        }
     }
 }

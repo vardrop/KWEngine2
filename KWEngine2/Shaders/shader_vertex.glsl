@@ -9,6 +9,7 @@ in		vec3 aBiTangent;
 in		ivec3 aBoneIds;
 in		vec3 aBoneWeights;
 
+out		vec3 vNormal;
 out		vec2 vTexture;
 out		vec2 vTexture2;
 
@@ -18,31 +19,20 @@ uniform int uUseAnimations;
 
 void main()
 {
-	vec4 totalLocalPos = vec4(0.0);
-	vec4 totalNormal = vec4(0.0);
-	vec4 totalTangent = vec4(0.0);
-	vec4 totalBiTangent = vec4(0.0);
-
+	mat4 BoneTransform = mat4(0.0);
 	if(uUseAnimations > 0)
 	{	
-		for(int i = 0; i < 3; i++)
-		{
-		    int index = aBoneIds[i];
-			totalLocalPos += aBoneWeights[i] * uBoneTransforms[index] * vec4(aPosition, 1.0);
-			totalNormal  += aBoneWeights[i] * uBoneTransforms[index] * vec4(aNormal, 0.0);
-			totalTangent += aBoneWeights[i] * uBoneTransforms[index] * vec4(aTangent, 0.0);
-			totalBiTangent  += aBoneWeights[i] * uBoneTransforms[index] * vec4(aBiTangent, 0.0);
-		}
+		BoneTransform += uBoneTransforms[aBoneIds[0]] * aBoneWeights[0];
+		BoneTransform += uBoneTransforms[aBoneIds[1]] * aBoneWeights[1];
+		BoneTransform += uBoneTransforms[aBoneIds[2]] * aBoneWeights[2];
 	}
 	else
 	{
-
-		totalLocalPos = vec4(aPosition, 1.0);
-		totalNormal = vec4(aNormal, 0.0);
-		totalTangent = vec4(aTangent, 0.0);
-		totalBiTangent = vec4(aBiTangent, 0.0);
+		BoneTransform = mat4(1.0);
 	}
-
+	//BoneTransform = mat4(1.0);
+	vec4 totalLocalPos = BoneTransform * vec4(aPosition, 1.0);
+	vNormal = (BoneTransform * vec4(aNormal, 0.0)).xyz;
 
 	vTexture = aTexture;
 	gl_Position = uMVP * totalLocalPos;

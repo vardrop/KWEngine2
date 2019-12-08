@@ -10,6 +10,8 @@ namespace KWEngine2.GameObjects
 {
     public abstract class GameObject
     {
+
+        internal Dictionary<string, Matrix4[]> BoneTranslationMatrices { get; set; }
         private int _animationId = -1;
         public int AnimationID
         {
@@ -42,11 +44,12 @@ namespace KWEngine2.GameObjects
                 _animationPercentage = HelperGL.Clamp(value, 0f, 1f);
             }
         }
-        
+
         public object Tag { get; protected set; } = null;
         private GeoModel _model;
         private Vector3 _color = new Vector3(1, 1, 1);
-        public Vector3 Color {
+        public Vector3 Color
+        {
             get
             {
                 return _color;
@@ -69,7 +72,7 @@ namespace KWEngine2.GameObjects
         }
 
         private Vector3 _position = new Vector3(0, 0, 0);
-        public Vector3 Position 
+        public Vector3 Position
         {
             get { return _position; }
             set
@@ -100,7 +103,7 @@ namespace KWEngine2.GameObjects
         }
         private string _name = "undefined gameobject name";
         public string Name
-        { 
+        {
             get
             {
                 return _name;
@@ -137,6 +140,16 @@ namespace KWEngine2.GameObjects
         public void SetModel(GeoModel m)
         {
             _model = m;
+            if (m.HasBones)
+            {
+                BoneTranslationMatrices = new Dictionary<string, Matrix4[]>();
+                foreach (GeoMesh mesh in m.Meshes.Values)
+                {
+                    BoneTranslationMatrices[mesh.Name] = new Matrix4[mesh.Bones.Count];
+                    for (int i = 0; i < mesh.Bones.Count; i++)
+                        BoneTranslationMatrices[mesh.Name][i] = Matrix4.Identity;
+                }
+            }
         }
 
         public abstract void Act(KeyboardState ks, MouseState ms, float deltaTimeFactor);
@@ -281,9 +294,9 @@ namespace KWEngine2.GameObjects
             {*/
 
             // TODO: FP-View!
-                Vector3 standardOrientation = Vector3.UnitZ;
-                Vector3 rotatedNormal = Vector3.TransformNormal(standardOrientation, _modelMatrix);
-                return rotatedNormal;
+            Vector3 standardOrientation = Vector3.UnitZ;
+            Vector3 rotatedNormal = Vector3.TransformNormal(standardOrientation, _modelMatrix);
+            return rotatedNormal;
             //}
         }
 
@@ -314,47 +327,50 @@ namespace KWEngine2.GameObjects
                 GeoAnimation a = Model.Animations[AnimationID];
                 Matrix4 identity = Matrix4.Identity;
 
-                float timestamp = ((float)(a.DurationInTicks * AnimationPercentage));
-                ReadNodeHierarchy(timestamp, ref a, AnimationID, Model.Bones[Model.LastBoneIndex], ref identity);
+                float timestamp = a.DurationInTicks * AnimationPercentage;
+                ReadNodeHierarchy(timestamp, ref a, AnimationID, Model.Root, ref identity);
             }
         }
 
-        private void ReadNodeHierarchy(float timestamp, ref GeoAnimation animation, int animationId, GeoBone node, ref Matrix4 parentTransform)
+
+
+        private void ReadNodeHierarchy(float timestamp, ref GeoAnimation animation, int animationId, GeoNode node, ref Matrix4 parentTransform, int debugLevel = 0)
         {
             string nodeName = node.Name;
 
-
-            GeoNodeAnimationChannel channel = animation.AnimationChannels[node];
-            Matrix4 globalTransform = Matrix4.Identity;
+            animation.AnimationChannels.TryGetValue(nodeName, out GeoNodeAnimationChannel channel);
             Matrix4 nodeTransformation = node.Transform;
 
-            Matrix4 scalingMatrix = Matrix4.CreateScale(CalcInterpolatedScaling(timestamp, ref channel));
-            Matrix4 rotationMatrix = Matrix4.CreateFromQuaternion(CalcInterpolatedRotation(timestamp, ref channel));
-            Matrix4 translationMatrix = Matrix4.CreateTranslation(CalcInterpolatedTranslation(timestamp, ref channel));
-
-            nodeTransformation =
-                scalingMatrix
-                * rotationMatrix
-                * translationMatrix;
-            
-
-            globalTransform = nodeTransformation * parentTransform;
-
-            foreach (GeoMesh mesh in Model.Meshes.Values)
+            if (channel != null)
             {
-                int localBoneIndex = mesh.Bones.IndexOf(node);
-                if (localBoneIndex >= 0)
-                {
-                    Matrix4 tmp = node.Offset * globalTransform * Model.TransformGlobalInverse;
-                    mesh.BoneTranslationMatrices[localBoneIndex] = tmp;
-                }
-                
+                Matrix4 scalingMatrix = Matrix4.CreateScale(CalcInterpolatedScaling(timestamp, ref channel));
+                Matrix4 rotationMatrix = Matrix4.CreateFromQuaternion(CalcInterpolatedRotation(timestamp, ref channel));
+                Matrix4 translationMatrix = Matrix4.CreateTranslation(CalcInterpolatedTranslation(timestamp, ref channel));
+
+                nodeTransformation =
+                    scalingMatrix
+                    * rotationMatrix
+                    * translationMatrix;
             }
-            
+
+
+            Matrix4 globalTransform = nodeTransformation * parentTransform;
+
+            lock (BoneTranslationMatrices)
+            {
+                foreach (GeoMesh m in Model.Meshes.Values)
+                {
+                    bool found = m.Bones.TryGetValue(node.Name, out GeoBone gBone);
+                    if (found)
+                    {
+                        BoneTranslationMatrices[m.Name][gBone.Index] = gBone.Offset * globalTransform * Model.TransformGlobalInverse;
+                    }
+                }
+            }
 
             for (int i = 0; i < node.Children.Count; i++)
             {
-                ReadNodeHierarchy(timestamp, ref animation, animationId, node.Children[i], ref globalTransform);
+                ReadNodeHierarchy(timestamp, ref animation, animationId, node.Children[i], ref globalTransform, debugLevel + 1);
             }
 
         }
@@ -371,9 +387,9 @@ namespace KWEngine2.GameObjects
                 GeoAnimationKeyframe key = channel.ScaleKeys[i];
                 if (timestamp < channel.ScaleKeys[0].Time)
                 {
-                    return  key.Scale;
+                    return key.Scale;
                 }
-                else if (timestamp == (float)key.Time)
+                else if (timestamp == key.Time)
                 {
                     return key.Scale;
                 }
@@ -384,8 +400,8 @@ namespace KWEngine2.GameObjects
                     {
                         GeoAnimationKeyframe key2 = channel.ScaleKeys[i + 1];
 
-                        float deltaTime = (float)(key2.Time - key.Time);
-                        float factor = (timestamp - (float)key.Time) / deltaTime;
+                        float deltaTime = (key2.Time - key.Time);
+                        float factor = (timestamp - key.Time) / deltaTime;
                         if (factor < 0 || factor > 1)
                         {
                             throw new Exception("Error mapping animation timestamps. Delta time not valid.");
@@ -467,7 +483,7 @@ namespace KWEngine2.GameObjects
                     {
                         GeoAnimationKeyframe key2 = channel.RotationKeys[i + 1];
 
-                        float deltaTime = (float)(key2.Time - channel.RotationKeys[i].Time);
+                        float deltaTime = key2.Time - channel.RotationKeys[i].Time;
                         float factor = (timestamp - channel.RotationKeys[i].Time) / deltaTime;
                         if (factor < 0 || factor > 1)
                         {

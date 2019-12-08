@@ -10,6 +10,7 @@ namespace KWEngine2
     {
         public const int MAX_BONE_WEIGHTS = 3;
         public const int MAX_BONES = 36;
+        internal static Matrix4 Identity = Matrix4.Identity;
         private static Vector3 _worldUp = new Vector3(0, 1, 0);
 
         public static Vector3 WorldUp

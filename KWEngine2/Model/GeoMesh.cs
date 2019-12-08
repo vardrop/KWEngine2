@@ -16,10 +16,11 @@ namespace KWEngine2.Model
             return Name;
         }
 
-        public List<GeoBone> Bones { get; internal set; }
-        internal List<Matrix4> BoneTranslationMatrices;
+        public Dictionary<string, GeoBone> Bones { get; internal set; }
+       
+        internal int BoneTranslationMatrixCount;
 
-        internal List<string> AssimpBoneOrder { get;  set; }
+        internal List<string> BoneOrder { get;  set; }
         public int VAO { get; internal set; }
         public int VBOPosition { get; internal set; }
         public int VBONormal { get; internal set; }
@@ -41,7 +42,7 @@ namespace KWEngine2.Model
                 return Indices.Length;
             }
         }
-        public int[] Indices { get; internal set; }
+        public uint[] Indices { get; internal set; }
         public GeoMaterial Material { get; internal set; }
 
         internal void VAOGenerateAndBind()
@@ -96,7 +97,7 @@ namespace KWEngine2.Model
                 VBOBoneIDs = GL.GenBuffer();
                 GL.BindBuffer(BufferTarget.ArrayBuffer, VBOBoneIDs);
                 GL.BufferData(BufferTarget.ArrayBuffer, boneIds.Length * 4, boneIds, BufferUsageHint.StaticDraw);
-                GL.VertexAttribPointer(6, 3, VertexAttribPointerType.Int, false, 0, 0);
+                GL.VertexAttribPointer(6, 3, VertexAttribPointerType.UnsignedInt, false, 0, 0);
                 GL.EnableVertexAttribArray(6);
                 GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 

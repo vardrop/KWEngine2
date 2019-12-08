@@ -9,6 +9,10 @@ namespace KWEngine2.Model
 {
     public struct GeoVertex
     {
+        public override string ToString()
+        {
+            return Index + ": " + BoneIDs[0] + " - " + Math.Round(Weights[0], 4) + ", " + BoneIDs[1] + " - " + Math.Round(Weights[1], 4) + ", " + BoneIDs[2] + " - " + Math.Round(Weights[2], 4);
+        }
         public int Index { get; internal set; }
         public float X { get; internal set; }
         public float Y { get; internal set; }
@@ -26,11 +30,9 @@ namespace KWEngine2.Model
             Z = z;
 
             Weights = new float[KWEngine.MAX_BONE_WEIGHTS];
-            Weights[0] = 1f;
+            BoneIDs = new int[KWEngine.MAX_BONE_WEIGHTS];
 
             WeightSet = 0;
-
-            BoneIDs = new int[KWEngine.MAX_BONE_WEIGHTS];
         }
         
     }

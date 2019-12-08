@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace KWEngine2.Model
 {
-    public struct GeoNodeAnimationChannel
+    public class GeoNodeAnimationChannel
     {
         public List<GeoAnimationKeyframe> ScaleKeys { get; internal set; }
         public List<GeoAnimationKeyframe> RotationKeys { get; internal set; }

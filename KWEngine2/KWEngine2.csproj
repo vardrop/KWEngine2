@@ -55,6 +55,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Collision\Hitbox.cs" />
     <Compile Include="Engine\DeltaTime.cs" />
     <Compile Include="GameObjects\HUDObject.cs" />
     <Compile Include="Helper\HelperRotation.cs" />
@@ -70,6 +71,7 @@
     <Compile Include="Model\GeoMaterial.cs" />
     <Compile Include="Model\GeoMesh.cs" />
     <Compile Include="Model\GeoModel.cs" />
+    <Compile Include="Model\GeoNode.cs" />
     <Compile Include="Model\GeoNodeAnimationChannel.cs" />
     <Compile Include="Model\GeoTerrain.cs" />
     <Compile Include="Model\GeoTexture.cs" />

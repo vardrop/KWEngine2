@@ -71,8 +71,8 @@ namespace KWEngine2.Renderers
             mAttribute_vnormal = GL.GetAttribLocation(mProgramId, "aNormal");
             mAttribute_vnormaltangent = GL.GetAttribLocation(mProgramId, "aTangent");
             mAttribute_vnormalbitangent = GL.GetAttribLocation(mProgramId, "aBiTangent");
-            mAttribute_vjoints = GL.GetAttribLocation(mProgramId, "aJoints");
-            mAttribute_vweights = GL.GetAttribLocation(mProgramId, "aWeights");
+            mAttribute_vjoints = GL.GetAttribLocation(mProgramId, "aBoneIds");
+            mAttribute_vweights = GL.GetAttribLocation(mProgramId, "aBoneWeights");
             mAttribute_vtexture2 = GL.GetAttribLocation(mProgramId, "aTexture2");
 
 
@@ -132,6 +132,8 @@ namespace KWEngine2.Renderers
 
             lock (g)
             {
+                
+
                 foreach (string meshName in g.Model.Meshes.Keys)
                 {
                     GeoMesh mesh = g.Model.Meshes[meshName];
@@ -146,14 +148,13 @@ namespace KWEngine2.Renderers
                         }
                         if (mUniform_BoneTransforms >= 0)
                         {
-                            Matrix4 test = Matrix4.Identity;
-                            lock (mesh.BoneTranslationMatrices)
+
+                            lock (g.BoneTranslationMatrices)
                             {
-                                for (int i = 0; i < mesh.BoneTranslationMatrices.Count; i++)
+                                for (int i = 0; i < g.BoneTranslationMatrices[meshName].Length; i++)
                                 {
-                                    Matrix4 currentMatrix = mesh.BoneTranslationMatrices[i];
-                                    GL.UniformMatrix4(mUniform_BoneTransforms + i, false, ref currentMatrix);
-                                    //GL.UniformMatrix4(mUniform_BoneTransforms + i, false, ref test);
+                                    Matrix4 tmp = g.BoneTranslationMatrices[meshName][i];
+                                    GL.UniformMatrix4(mUniform_BoneTransforms + i, false, ref tmp);
                                 }
                             }
                         }
@@ -167,6 +168,7 @@ namespace KWEngine2.Renderers
                             GL.Uniform1(mUniform_UseAnimations, 0);
                         }
                     }
+
 
                     if (useMeshTransform)
                         Matrix4.Mult(ref mesh.Transform, ref g._modelMatrix, out _tmpMatrix);

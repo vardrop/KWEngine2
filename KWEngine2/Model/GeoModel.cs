@@ -8,24 +8,24 @@ namespace KWEngine2.Model
 {
     public class GeoModel
     {
+        public GeoNode Root { get; internal set; } = null;
         public string Path { get; internal set; }
         public string PathAbsolute { get; internal set; }
         internal bool IsInAssembly { get; set; }
         public List<GeoAnimation> Animations { get; internal set; }
-        internal int LastBoneIndex { get; set; } = 0;
         public bool HasBones
         {
-            get
-            {
-                return Bones.Count > 0;
-            }
-        }
+            get; internal set;
+
+        } = false;
+        
         public bool IsValid { get; internal set; }
         public string Name { get; internal set; }
         public string Filename { get; internal set; }
         public Matrix4 TransformGlobalInverse { get; internal set; }
         public Dictionary<string, GeoMesh> Meshes { get; internal set; }
-        public Dictionary<int, GeoBone> Bones { get; internal set; }
+        //public Dictionary<int, GeoBone> Bones { get; internal set; }
+        public List<string> BoneNames { get; internal set; } = new List<string>();
         public Dictionary<string, GeoTexture> Textures { get; internal set; }
 
         internal void Dispose()

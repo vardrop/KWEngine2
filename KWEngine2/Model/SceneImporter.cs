@@ -65,7 +65,7 @@ namespace KWEngine2.Model
             else
             {
                 FileType type = CheckFileEnding(filename);
-                if(type != FileType.Invalid)
+                if (type != FileType.Invalid)
                 {
                     PostProcessSteps steps =
                               PostProcessSteps.LimitBoneWeights
@@ -96,7 +96,7 @@ namespace KWEngine2.Model
             }
             else
             {
-                
+
                 string p = Assembly.GetExecutingAssembly().Location;
                 string pA = new DirectoryInfo(StripFileNameFromPath(p)).FullName;
                 if (!Path.IsPathRooted(filename))
@@ -107,29 +107,30 @@ namespace KWEngine2.Model
                 {
                     returnModel.PathAbsolute = filename;
                 }
-                
+
                 bool success = File.Exists(returnModel.PathAbsolute);
             }
-            
+
 
             returnModel.IsInAssembly = isInAssembly;
             returnModel.CalculatePath();
-            returnModel.Bones = new Dictionary<int, GeoBone>();
+            //returnModel.Bones = new Dictionary<int, GeoBone>();
             returnModel.Meshes = new Dictionary<string, GeoMesh>();
             returnModel.TransformGlobalInverse = Matrix4.Invert(HelperMatrix.ConvertAssimpToOpenTKMatrix(scene.RootNode.Transform));
             returnModel.Textures = new Dictionary<string, GeoTexture>();
             returnModel.IsValid = false;
 
+            GenerateNodeHierarchy(scene.RootNode, ref returnModel);
             ProcessBones(scene, ref returnModel);
             ProcessMeshes(scene, ref returnModel);
             ProcessAnimations(scene, ref returnModel);
-            ProcessLocalBoneMapping(scene, ref returnModel);
 
             returnModel.IsValid = true;
             GC.Collect(GC.MaxGeneration);
             return returnModel;
         }
 
+        /*
         private static bool IsBoneAlreadyStored(string boneName, ref GeoModel model)
         {
             foreach(GeoBone bone in model.Bones.Values)
@@ -141,7 +142,8 @@ namespace KWEngine2.Model
             }
             return false;
         }
-
+        */
+        /*
         private static Node FindArmature(Node node, ref GeoModel model, int level = 0)
         {
             if (level > 0 && !node.HasMeshes) // this is not the root node
@@ -156,15 +158,46 @@ namespace KWEngine2.Model
                     }
                 }
             }
-            
-            foreach(Node child in node.Children)
+
+            foreach (Node child in node.Children)
             {
                 Node n = FindArmature(child, ref model, level + 1);
                 return n;
             }
             return null;
         }
+        */
 
+        private static void GenerateNodeHierarchy(Node node, ref GeoModel model)
+        {
+            GeoNode root = new GeoNode();
+            root.Name = node.Name;
+            root.Transform = HelperMatrix.ConvertAssimpToOpenTKMatrix(node.Transform);
+            root.Parent = null;
+
+            foreach (Node child in node.Children)
+            {
+                root.Children.Add(MapNodeToNode(child, ref model, ref root));
+            }
+
+            model.Root = root;
+        }
+
+        private static GeoNode MapNodeToNode(Node n, ref GeoModel model, ref GeoNode callingNode)
+        {
+            GeoNode gNode = new GeoNode();
+            gNode.Parent = callingNode;
+            gNode.Transform = HelperMatrix.ConvertAssimpToOpenTKMatrix(n.Transform);
+            gNode.Name = n.Name;
+
+            foreach (Node child in n.Children)
+            {
+                gNode.Children.Add(MapNodeToNode(child, ref model, ref gNode));
+            }
+
+            return gNode;
+        }
+        /*
         private static void GenerateBoneHierarchy(Node node, ref GeoModel model, int boneIndex)
         {
             Node armature = FindArmature(node, ref model);
@@ -172,6 +205,7 @@ namespace KWEngine2.Model
             {
                 GeoBone bone = new GeoBone();
                 bone.Index = model.LastBoneIndex;
+                bone.IndexForMesh = new Dictionary<string, int>();
                 bone.Transform = HelperMatrix.ConvertAssimpToOpenTKMatrix(armature.Transform);
                 bone.Parent = null;
                 bone.Name = "Armature";
@@ -186,7 +220,8 @@ namespace KWEngine2.Model
                     throw new Exception("Cannot find armature bone for model " + model.Name + ".");
             }
         }
-
+        */
+        /*
         private static void MapNodeToBone(Node n, ref GeoModel model, ref int boneIndex)
         {
             GeoBone nBone = null;
@@ -212,14 +247,11 @@ namespace KWEngine2.Model
                         MapNodeToBone(child, ref model, ref boneIndex);
                     }
                 }
-                 
-                foreach(Node child in n.Children)
-                {
-                    
-                }
             }
         }
+        */
 
+        /*
         private static bool FindBoneForNode(Node node, ref GeoModel model, out GeoBone bone)
         {
             bool found = false;
@@ -234,41 +266,45 @@ namespace KWEngine2.Model
             bone = new GeoBone();
             return found;
         }
+        */
 
-        private static bool FindBoneForNode(string nodeName, ref GeoModel model, out GeoBone bone)
+        /*
+    private static bool FindBoneForNode(string nodeName, ref GeoModel model, out GeoBone bone)
+    {
+        bool found = false;
+        foreach (GeoBone b in model.Bones.Values)
         {
-            bool found = false;
-            foreach (GeoBone b in model.Bones.Values)
+            if (b.Name == nodeName) // This node is a bone!
             {
-                if (b.Name == nodeName) // This node is a bone!
-                {
-                    bone = b;
-                    return true;
-                }
+                bone = b;
+                return true;
             }
-            bone = new GeoBone();
-            return found;
         }
+        bone = new GeoBone();
+        return found;
+    }
+    */
 
         private static void ProcessBones(Scene scene, ref GeoModel model)
         {
-            foreach(Mesh mesh in scene.Meshes)
+            foreach (Mesh mesh in scene.Meshes)
             {
+                int boneIndexLocal = 0;
                 foreach (Bone bone in mesh.Bones)
                 {
-                    if (!IsBoneAlreadyStored(bone.Name, ref model))
+                    model.HasBones = true;
+                    if (!model.BoneNames.Contains(bone.Name))
                     {
-                        GeoBone geoBone = new GeoBone();
-                        geoBone.Name = bone.Name;
-                        geoBone.Index = model.LastBoneIndex;
-                        geoBone.Offset = HelperMatrix.ConvertAssimpToOpenTKMatrix(bone.OffsetMatrix);
-                        model.Bones.Add(geoBone.Index, geoBone);
-                        model.LastBoneIndex++;
+                        model.BoneNames.Add(bone.Name);
                     }
+
+                    GeoBone geoBone = new GeoBone();
+                    geoBone.Name = bone.Name;
+                    geoBone.Index = boneIndexLocal;
+                    geoBone.Offset = HelperMatrix.ConvertAssimpToOpenTKMatrix(bone.OffsetMatrix);
+                    boneIndexLocal++;
                 }
             }
-
-            GenerateBoneHierarchy(scene.RootNode, ref model, 0);
         }
 
         private static GeoMesh FindMeshByName(string meshNameAssimp, ref GeoModel model)
@@ -284,27 +320,10 @@ namespace KWEngine2.Model
             dummy.Vertices = null;
             return dummy;
         }
-        private static void ProcessLocalBoneMapping(Scene scene, ref GeoModel model)
-        {
-            int m = 0;
-            foreach (Mesh mesh in scene.Meshes)
-            {
-                string meshNameAssimp = mesh.Name + " #" + m.ToString().PadLeft(4, '0');
-                GeoMesh kwMesh = FindMeshByName(meshNameAssimp, ref model);
-                if (kwMesh.Vertices == null)
-                    throw new Exception("Error processing mesh for local bone mapping. Mesh could not be found: " + meshNameAssimp);
-
-                for (int i = 0; i < mesh.BoneCount; i++)
-                {
-                    kwMesh.BoneTranslationMatrices.Add(Matrix4.Identity);
-                }
-                m++;
-            }
-        }
 
         private static bool FindTransformForMesh(Scene scene, Node currentNode, Mesh mesh, out Matrix4 transform, out string nodeName)
         {
-            for(int i = 0; i < currentNode.MeshIndices.Count; i++)
+            for (int i = 0; i < currentNode.MeshIndices.Count; i++)
             {
                 Mesh tmpMesh = scene.Meshes[currentNode.MeshIndices[i]];
                 if (tmpMesh.Name == mesh.Name)
@@ -315,7 +334,7 @@ namespace KWEngine2.Model
                 }
             }
 
-            for(int i = 0; i < currentNode.ChildCount; i++)
+            for (int i = 0; i < currentNode.ChildCount; i++)
             {
                 Node child = currentNode.Children[i];
                 bool found = FindTransformForMesh(scene, child, mesh, out Matrix4 t, out string nName);
@@ -330,12 +349,12 @@ namespace KWEngine2.Model
             transform = Matrix4.Identity;
             nodeName = null;
             return false;
-        }       
+        }
 
         private static string StripFileNameFromPath(string path)
         {
             int index = path.LastIndexOf('\\');
-            if(index < 0)
+            if (index < 0)
             {
                 return path;
             }
@@ -343,7 +362,7 @@ namespace KWEngine2.Model
             {
                 return path.Substring(0, index + 1).ToLower();
             }
-            
+
         }
 
         private static string StripPathFromFile(string fileWithPath)
@@ -371,8 +390,8 @@ namespace KWEngine2.Model
             {
                 currentDir = new DirectoryInfo(StripFileNameFromPath(path));
             }
-            
-            foreach(FileInfo fi in currentDir.GetFiles())
+
+            foreach (FileInfo fi in currentDir.GetFiles())
             {
                 if (fi.Name.ToLower() == StripPathFromFile(filename))
                 {
@@ -380,14 +399,14 @@ namespace KWEngine2.Model
                     return fi.FullName;
                 }
             }
-            
-            if(currentDir.GetDirectories().Length == 0)
+
+            if (currentDir.GetDirectories().Length == 0)
             {
                 throw new Exception("File " + filename + " not found anywhere. Aborting import.");
             }
             else
             {
-                foreach(DirectoryInfo di in currentDir.GetDirectories())
+                foreach (DirectoryInfo di in currentDir.GetDirectories())
                 {
                     return FindTextureInSubs(filename, di.FullName);
                 }
@@ -403,19 +422,21 @@ namespace KWEngine2.Model
             if (mesh.MaterialIndex >= 0)
             {
                 material = scene.Materials[mesh.MaterialIndex];
+                geoMaterial.Name = material.Name;
                 geoMaterial.BlendMode = material.BlendMode == BlendMode.Default ? OpenTK.Graphics.OpenGL4.BlendingFactor.OneMinusSrcAlpha : OpenTK.Graphics.OpenGL4.BlendingFactor.One; // TODO: Check if this is correct!
-                geoMaterial.ColorDiffuse = material.HasColorDiffuse ? new Vector4(material.ColorDiffuse.R, material.ColorDiffuse.G, material.ColorDiffuse.B, material.ColorDiffuse.A) : new Vector4(1,1,1,1);
-                geoMaterial.ColorEmissive = material.HasColorEmissive ? new Vector4(material.ColorEmissive.R, material.ColorEmissive.G, material.ColorEmissive.B, material.ColorEmissive.A) : new Vector4(0,0,0,1);
+                geoMaterial.ColorDiffuse = material.HasColorDiffuse ? new Vector4(material.ColorDiffuse.R, material.ColorDiffuse.G, material.ColorDiffuse.B, material.ColorDiffuse.A) : new Vector4(1, 1, 1, 1);
+                geoMaterial.ColorEmissive = material.HasColorEmissive ? new Vector4(material.ColorEmissive.R, material.ColorEmissive.G, material.ColorEmissive.B, material.ColorEmissive.A) : new Vector4(0, 0, 0, 1);
             }
             else
             {
+                geoMaterial.Name = "kw-undefined.";
                 geoMaterial.BlendMode = OpenTK.Graphics.OpenGL4.BlendingFactor.OneMinusSrcAlpha;
                 geoMaterial.ColorDiffuse = new Vector4(1, 1, 1, 1);
                 geoMaterial.ColorEmissive = new Vector4(0, 0, 0, 1);
             }
 
             // Process Textures:
-            if(material != null)
+            if (material != null)
             {
                 // Diffuse texture
                 if (material.HasTextureDiffuse)
@@ -519,13 +540,13 @@ namespace KWEngine2.Model
                 }
 
             }
-           
+
             geoMesh.Material = geoMaterial;
         }
 
         private static void ProcessMeshes(Scene scene, ref GeoModel model)
         {
-            for(int m = 0; m < scene.MeshCount; m++)
+            for (int m = 0; m < scene.MeshCount; m++)
             {
                 Mesh mesh = scene.Meshes[m];
                 if (mesh.PrimitiveType != PrimitiveType.Triangle)
@@ -537,38 +558,41 @@ namespace KWEngine2.Model
 
                 bool transformFound = FindTransformForMesh(scene, scene.RootNode, mesh, out Matrix4 nodeTransform, out string nodeName);
                 geoMesh.Transform = nodeTransform;
-                geoMesh.Bones = new List<GeoBone>();
-                geoMesh.BoneTranslationMatrices = new List<Matrix4>();
-                geoMesh.Name = mesh.Name + " #" + m.ToString().PadLeft(4,'0') + " (Node: " + nodeName + ")";
+                geoMesh.Bones = new Dictionary<string, GeoBone>();
+                geoMesh.BoneTranslationMatrixCount = mesh.BoneCount;
+                geoMesh.Name = mesh.Name + " #" + m.ToString().PadLeft(4, '0') + " (Node: " + nodeName + ")";
                 geoMesh.Vertices = new GeoVertex[mesh.VertexCount];
                 geoMesh.Primitive = OpenTK.Graphics.OpenGL4.PrimitiveType.Triangles;
-                geoMesh.AssimpBoneOrder = new List<string>();
+                geoMesh.BoneOrder = new List<string>();
                 geoMesh.VAOGenerateAndBind();
 
-                for(int i = 0; i < mesh.VertexCount; i++)
+                for (int i = 0; i < mesh.VertexCount; i++)
                 {
                     //TODO: Find max/min for x/y/z (for hitboxing)
                     Vector3D vertex = mesh.Vertices[i];
                     GeoVertex geoVertex = new GeoVertex(i, vertex.X, vertex.Y, vertex.Z);
                     geoMesh.Vertices[i] = geoVertex;
                 }
-                geoMesh.Indices = mesh.GetIndices();
+                geoMesh.Indices = mesh.GetUnsignedIndices();
 
                 if (model.HasBones)
                 {
                     for (int i = 0; i < mesh.BoneCount; i++)
                     {
                         Bone bone = mesh.Bones[i];
-                        bool found = FindBoneForNode(bone.Name, ref model, out GeoBone kwBone);
-                        if(found)
-                        {
-                            geoMesh.Bones.Add(kwBone);
-                        }
+                        geoMesh.BoneOrder.Add(bone.Name);
+
+                        GeoBone gBone = new GeoBone();
+                        gBone.Offset = HelperMatrix.ConvertAssimpToOpenTKMatrix(bone.OffsetMatrix);
+                        gBone.Index = i;
+                        gBone.Name = bone.Name;
+                        geoMesh.Bones.Add(bone.Name, gBone);
 
                         foreach (VertexWeight vw in bone.VertexWeights)
                         {
+
                             int weightIndexToBeSet = geoMesh.Vertices[vw.VertexID].WeightSet;
-                            if (weightIndexToBeSet > KWEngine.MAX_BONE_WEIGHTS - 1)
+                            if (weightIndexToBeSet >= KWEngine.MAX_BONE_WEIGHTS)
                             {
                                 throw new Exception("Model's bones have more than three weights per vertex. Cannot import model.");
                             }
@@ -579,7 +603,7 @@ namespace KWEngine2.Model
                             geoMesh.Vertices[vw.VertexID].WeightSet++;
                         }
                     }
-                }
+                } 
 
                 geoMesh.VBOGenerateIndices();
                 geoMesh.VBOGenerateVerticesAndBones(model.HasBones);
@@ -590,7 +614,7 @@ namespace KWEngine2.Model
 
                 ProcessMaterialsForMesh(scene, mesh, ref model, ref geoMesh);
 
-                
+
 
                 geoMesh.VAOUnbind();
 
@@ -600,24 +624,25 @@ namespace KWEngine2.Model
 
         private static void ProcessAnimations(Scene scene, ref GeoModel model)
         {
-            
+
             if (scene.HasAnimations)
             {
                 model.Animations = new List<GeoAnimation>();
-                foreach(Animation a in scene.Animations)
+                foreach (Animation a in scene.Animations)
                 {
                     GeoAnimation ga = new GeoAnimation();
                     ga.DurationInTicks = (float)a.DurationInTicks;
                     ga.TicksPerSecond = (float)a.TicksPerSecond;
                     ga.Name = a.Name;
-                    ga.AnimationChannels = new Dictionary<GeoBone, GeoNodeAnimationChannel>();
-                    foreach(NodeAnimationChannel nac in a.NodeAnimationChannels)
+                    ga.AnimationChannels = new Dictionary<string, GeoNodeAnimationChannel>();
+                    foreach (NodeAnimationChannel nac in a.NodeAnimationChannels)
                     {
                         GeoNodeAnimationChannel ganc = new GeoNodeAnimationChannel();
 
                         // Rotation:
                         ganc.RotationKeys = new List<GeoAnimationKeyframe>();
-                        foreach (QuaternionKey key in nac.RotationKeys) {
+                        foreach (QuaternionKey key in nac.RotationKeys)
+                        {
                             GeoAnimationKeyframe akf = new GeoAnimationKeyframe();
                             akf.Time = (float)key.Time;
                             akf.Rotation = new OpenTK.Quaternion(key.Value.X, key.Value.Y, key.Value.Z, key.Value.W);
@@ -633,7 +658,7 @@ namespace KWEngine2.Model
                         {
                             GeoAnimationKeyframe akf = new GeoAnimationKeyframe();
                             akf.Time = (float)key.Time;
-                            akf.Rotation = new OpenTK.Quaternion(0,0,0,1);
+                            akf.Rotation = new OpenTK.Quaternion(0, 0, 0, 1);
                             akf.Translation = new Vector3(0, 0, 0);
                             akf.Scale = new Vector3(key.Value.X, key.Value.Y, key.Value.Z);
                             akf.Type = GeoKeyframeType.Scale;
@@ -653,15 +678,10 @@ namespace KWEngine2.Model
                             ganc.TranslationKeys.Add(akf);
                         }
 
-                        bool nodeFound = FindBoneForNode(nac.NodeName, ref model, out GeoBone bone);
-                        if (nodeFound)
-                        {
-                            ga.AnimationChannels.Add(bone, ganc);
-                        }
+                        if(model.BoneNames.Contains(nac.NodeName))
+                            ga.AnimationChannels.Add(nac.NodeName, ganc);
                     }
-
                     model.Animations.Add(ga);
-
                 }
             }
         }

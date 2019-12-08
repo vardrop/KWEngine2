@@ -134,7 +134,7 @@ namespace KWEngine2
         {
             base.OnResize(e);
             GL.Viewport(ClientRectangle);
-            
+            CalculateProjectionMatrix();
         }
 
         private void CalculateProjectionMatrix()
