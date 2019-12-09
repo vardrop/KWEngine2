@@ -151,10 +151,6 @@ namespace KWEngine2.Renderers
 
                             lock (g.BoneTranslationMatrices)
                             {
-                                if(mesh.Material.Name == "lambert21")
-                                {
-                                    Console.WriteLine("1");
-                                }
                                 for (int i = 0; i < g.BoneTranslationMatrices[meshName].Length; i++)
                                 {
                                     Matrix4 tmp = g.BoneTranslationMatrices[meshName][i];

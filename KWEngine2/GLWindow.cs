@@ -103,11 +103,14 @@ namespace KWEngine2
                 Matrix4 viewMatrix = Matrix4.LookAt(CurrentWorld.GetCameraPosition(), CurrentWorld.GetCameraTarget(), KWEngine.WorldUp);
                 Matrix4 viewProjection = viewMatrix * _projectionMatrix;
 
-
-
-                foreach (GameObject g in CurrentWorld.GetGameObjects())
+                
+                lock (CurrentWorld)
                 {
-                    KWEngine.Renderers["Standard"].Draw(g, ref viewProjection);
+                    CurrentWorld.SortByZ();
+                    foreach (GameObject g in CurrentWorld.GetGameObjects())
+                    {
+                        KWEngine.Renderers["Standard"].Draw(g, ref viewProjection);
+                    }
                 }
             }
             SwapBuffers();

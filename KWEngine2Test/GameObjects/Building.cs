@@ -1,4 +1,5 @@
-﻿using KWEngine2.GameObjects;
+﻿using KWEngine2.Collision;
+using KWEngine2.GameObjects;
 using OpenTK.Input;
 using System;
 using System.Collections.Generic;
@@ -29,6 +30,12 @@ namespace KWEngine2Test.GameObjects
             //Console.WriteLine(AnimationPercentage);
             //AnimationPercentage = 0.25f;
             AnimationID = 0;
+
+            List<Intersection> intersections = GetIntersections();
+            foreach(Intersection i in intersections)
+            {
+                Position += i.MTV;
+            }
         }
     }
 }

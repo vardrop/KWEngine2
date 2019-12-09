@@ -58,6 +58,7 @@
     <Compile Include="Collision\Hitbox.cs" />
     <Compile Include="Collision\Intersection.cs" />
     <Compile Include="Engine\DeltaTime.cs" />
+    <Compile Include="GameObjects\Explosion.cs" />
     <Compile Include="GameObjects\HUDObject.cs" />
     <Compile Include="Helper\HelperRotation.cs" />
     <Compile Include="Helper\Sector.cs" />

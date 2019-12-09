@@ -9,9 +9,11 @@ using System.Diagnostics;
 
 namespace KWEngine2.GameObjects
 {
-    public abstract class GameObject
+    public abstract class GameObject : IComparable
     {
-
+        public World CurrentWorld { get; internal set; } = null;
+        internal int _largestHitboxIndex = -1;
+        internal List<Hitbox> Hitboxes = new List<Hitbox>();
         internal Dictionary<string, Matrix4[]> BoneTranslationMatrices { get; set; }
         private int _animationId = -1;
         public int AnimationID
@@ -45,7 +47,7 @@ namespace KWEngine2.GameObjects
                 _animationPercentage = HelperGL.Clamp(value, 0f, 1f);
             }
         }
-
+        public bool IsCollisionObject { get; set; } = false;
         public object Tag { get; protected set; } = null;
         private GeoModel _model;
         private Vector3 _color = new Vector3(1, 1, 1);
@@ -68,7 +70,7 @@ namespace KWEngine2.GameObjects
             set
             {
                 _rotation = value;
-                UpdateModelMatrix();
+                UpdateModelMatrixAndHitboxes();
             }
         }
 
@@ -79,9 +81,20 @@ namespace KWEngine2.GameObjects
             set
             {
                 _position = value;
-                UpdateModelMatrix();
+                UpdateModelMatrixAndHitboxes();
             }
         }
+
+        public void SetScale(float x, float y, float z)
+        {
+            Scale = new Vector3(x, y, z);
+        }
+
+        public void SetScale(float scale)
+        {
+            Scale = new Vector3(scale, scale, scale);
+        }
+
         public Vector3 Scale
         {
             get
@@ -99,7 +112,7 @@ namespace KWEngine2.GameObjects
                     _scale = new Vector3(1, 1, 1);
                     Debug.WriteLine("Scale must be > 0 in all dimensions. Resetting to 1.");
                 }
-                UpdateModelMatrix();
+                UpdateModelMatrixAndHitboxes();
             }
         }
         private string _name = "undefined gameobject name";
@@ -117,14 +130,16 @@ namespace KWEngine2.GameObjects
 
         internal Hitbox GetLargestHitbox()
         {
-            // TODO: add implementation
-            return null;
+            return Hitboxes[_largestHitboxIndex];
         }
 
-        private void UpdateModelMatrix()
+        private void UpdateModelMatrixAndHitboxes()
         {
             _modelMatrix = Matrix4.CreateScale(_scale) * Matrix4.CreateFromQuaternion(_rotation) * Matrix4.CreateTranslation(_position);
-            //TODO: Update Hitboxes
+            foreach(Hitbox h in Hitboxes)
+            {
+                h.Update();
+            }
         }
 
         public bool IsValid { get; internal set; } = false;
@@ -147,6 +162,20 @@ namespace KWEngine2.GameObjects
         public void SetModel(GeoModel m)
         {
             _model = m;
+            int hIndex = 0;
+            float diameter = float.MinValue;
+            foreach (GeoMeshHitbox gmh in m.MeshHitboxes)
+            {
+                Hitbox h = new Hitbox(this, gmh);
+                Hitboxes.Add(h);
+                if(h.DiameterFull > diameter)
+                {
+                    diameter = h.DiameterFull;
+                    _largestHitboxIndex = hIndex;
+                }
+                hIndex++;
+            }
+
             if (m.HasBones)
             {
                 BoneTranslationMatrices = new Dictionary<string, Matrix4[]>();
@@ -169,7 +198,7 @@ namespace KWEngine2.GameObjects
 
         public void SetRotation(float x, float y, float z)
         {
-            if (Model is GeoTerrain)
+            if (Model.IsTerrain)
             {
                 Debug.WriteLine("Setting rotation on a GeoTerrain instance is not supported.");
             }
@@ -189,7 +218,7 @@ namespace KWEngine2.GameObjects
 
         public void AddRotation(Quaternion r)
         {
-            if (Model is GeoTerrain)
+            if (Model.IsTerrain)
             {
                 Debug.WriteLine("Adding rotation for GeoTerrain instance is not supported.");
             }
@@ -201,7 +230,7 @@ namespace KWEngine2.GameObjects
 
         public void AddRotationX(float amount, bool absolute = false)
         {
-            if (Model is GeoTerrain)
+            if (Model.IsTerrain)
             {
                 Debug.WriteLine("Adding rotation for GeoTerrain instance is not supported.");
             }
@@ -222,7 +251,7 @@ namespace KWEngine2.GameObjects
 
         public void AddRotationY(float amount, bool absolute = false)
         {
-            if (Model is GeoTerrain)
+            if (Model.IsTerrain)
             {
                 Debug.WriteLine("Adding rotation for GeoTerrain instance is not supported.");
             }
@@ -244,7 +273,7 @@ namespace KWEngine2.GameObjects
 
         public void AddRotationZ(float amount, bool absolute = false)
         {
-            if (Model is GeoTerrain)
+            if (Model.IsTerrain)
             {
                 Debug.WriteLine("Adding rotation for GeoTerrain instance is not supported.");
             }
@@ -270,7 +299,7 @@ namespace KWEngine2.GameObjects
 
         public void SetPosition(Vector3 newPosition)
         {
-            if (Model is GeoTerrain)
+            if (Model.IsTerrain)
             {
                 throw new Exception("GeoTerrain may not be repositioned after creation.");
             }
@@ -508,6 +537,131 @@ namespace KWEngine2.GameObjects
             }
             Debug.WriteLine("Error finding rotation timestamp for animation cycle.");
             return new Quaternion(0, 0, 0, 1);
+        }
+
+        private void CheckModelAndWorld()
+        {
+            if (Model == null || CurrentWorld == null)
+            {
+                throw new Exception("Model and/or World have not been set yet!");
+            }
+        }
+
+        protected List<Intersection> GetIntersections()
+        {
+            CheckModelAndWorld();
+            List<Intersection> intersections = new List<Intersection>();
+            if (!IsCollisionObject)
+            {
+                throw new Exception("Error: You are calling GetIntersectingObjects() on an instance that is marked as a non-colliding object.");
+            }
+            //Objekte außerhalb der Reichweite ausfiltern:
+            foreach (GameObject go in CurrentWorld.GetGameObjects())
+            {
+                if (!go.IsCollisionObject || go is Explosion || go.Equals(this))
+                {
+                    continue;
+                }
+                if (ConsiderForMeasurement(go, this))
+                {
+                    foreach (Hitbox hbother in go.Hitboxes)
+                    {
+                        foreach (Hitbox hbcaller in this.Hitboxes)
+                        {
+                            Intersection i = null;
+                            if (hbother.Owner.Model.IsTerrain)
+                            {
+                                i = Hitbox.TestIntersectionTerrain(hbcaller, hbother);
+                            }
+                            else
+                            {
+                                i = Hitbox.TestIntersection(hbcaller, hbother);
+                            }
+
+                            if (i != null)
+                                intersections.Add(i);
+                        }
+                    }
+                }
+            }
+
+            return intersections;
+        }
+
+        private static bool ConsiderForMeasurement(GameObject go, GameObject caller)
+        {
+            if (go.Model.IsTerrain)
+            {
+                GeoTerrain terra = go.Model.Meshes["Terrain"].Terrain;
+                float terraHigh = go.Position.Y + terra.GetScaleFactor();
+                float terraLow = go.Position.Y;
+                float left = go.Position.X - terra.GetWidth() / 2f;
+                float right = go.Position.X + terra.GetWidth() / 2f;
+
+                float back = go.Position.Z - terra.GetDepth() / 2f;
+                float front = go.Position.Z + terra.GetDepth() / 2f;
+
+                Hitbox hbCaller = caller.Hitboxes[caller._largestHitboxIndex];
+                if (hbCaller.GetCenter().X >= left && hbCaller.GetCenter().X <= right
+                    && hbCaller.GetCenter().Z >= back && hbCaller.GetCenter().Z <= front
+                    && hbCaller.GetCenter().Y >= terraLow
+                    && hbCaller.GetLowestVertexHeight() <= (terraHigh * 1.01f))
+                {
+                    return true;
+                }
+                return false;
+            }
+            else
+            {
+
+                float max1 = 0;
+                if (go.Scale.X > max1)
+                {
+                    max1 = go.Scale.X;
+                }
+                if (go.Scale.Y > max1)
+                {
+                    max1 = go.Scale.Y;
+                }
+                if (go.Scale.Z > max1)
+                {
+                    max1 = go.Scale.Z;
+                }
+                float max2 = 0;
+                if (caller.Scale.X > max2)
+                {
+                    max2 = caller.Scale.X;
+                }
+                if (caller.Scale.Y > max2)
+                {
+                    max2 = caller.Scale.Y;
+                }
+                if (caller.Scale.Z > max2)
+                {
+                    max2 = caller.Scale.Z;
+                }
+
+                float distance = (caller.Hitboxes[caller._largestHitboxIndex].GetCenter() - go.Hitboxes[go._largestHitboxIndex].GetCenter()).LengthFast;
+                float rad1 = (go.Hitboxes[caller._largestHitboxIndex].DiameterFull * max1);
+                float rad2 = (caller.Hitboxes[caller._largestHitboxIndex].DiameterFull * max2);
+                if (distance - (rad1 + rad2) > 0)
+                    return false;
+                else
+                    return true;
+            }
+        }
+
+        public int CompareTo(object obj)
+        {
+            if (obj is GameObject)
+            {
+                GameObject g = (GameObject)obj;
+                if (g.CurrentWorld == null)
+                    return 0;
+                return (g.Position - CurrentWorld.GetCameraPosition()).LengthSquared > (this.Position - CurrentWorld.GetCameraPosition()).LengthSquared ? 1 : -1;
+            }
+            else
+                return 0;
         }
     }
 }

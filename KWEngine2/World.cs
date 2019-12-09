@@ -104,7 +104,10 @@ namespace KWEngine2
             lock (_gameObjects)
             {
                 if (!_gameObjects.Contains(g))
+                {
                     _gameObjects.Add(g);
+                    g.CurrentWorld = this;
+                }
                 else
                     throw new Exception("GameObject instance " + g.Name + " already in current world.");
             }
@@ -116,6 +119,7 @@ namespace KWEngine2
             bool success = false;
             lock(_gameObjects)
             {
+                g.CurrentWorld = null;
                 success = _gameObjects.Remove(g);
             }
             return success;
@@ -152,5 +156,9 @@ namespace KWEngine2
             return returnCollection;
         }
 
+        internal void SortByZ()
+        {
+            _gameObjects.Sort((a, b) => a.CompareTo(b));
+        }
     }
 }

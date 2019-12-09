@@ -23,8 +23,6 @@ namespace KWEngine2.Collision
         private static List<GeoTerrainTriangle> triangles = new List<GeoTerrainTriangle>();
         private static List<GeoTerrainTriangle> trianglesMTV = new List<GeoTerrainTriangle>();
 
-        private GeoMeshHitbox MeshHitbox = null;
-
         public float DiameterAveraged
         {
             get
@@ -57,6 +55,7 @@ namespace KWEngine2.Collision
         {
             Owner = owner;
             mMesh = mesh;
+            Update();
         }
 
         public void Update()
@@ -79,7 +78,7 @@ namespace KWEngine2.Collision
                 mOldScale.Z = Owner.Scale.Z;
             }
 
-            if (Owner.Model.HasBones)
+            if (Owner.Model.HasBones && Owner.Model.Armature != null)
             {
                 Matrix4.Mult(ref Owner.Model.Armature.Transform, ref mMesh.Transform, out mTempMatrix);
                 Matrix4.Mult(ref mTempMatrix, ref Owner._modelMatrix, out mModelMatrixFinal);
@@ -249,7 +248,7 @@ namespace KWEngine2.Collision
                 int rayResult = triangle.Intersect3D_RayTriangle(ref mobbPosition, ref tmpMap);
                 float lowestVertexHeight = caller.GetLowestVertexHeight();
 
-                if (rayResult > 0) // && lowestVertexHeight <= tmpMap.Y)
+                if (rayResult > 0)
                 {
                     if (tmpMap.Y < lowestIntersectionHeight)
                     {
