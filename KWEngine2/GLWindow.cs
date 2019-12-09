@@ -43,7 +43,9 @@ namespace KWEngine2
         public GLWindow(int width, int height, GameWindowFlags flag, int antialiasing = 0, bool vSync = true)
             : base(width, height, GraphicsMode.Default, "KWEngine2 - C# 3D Gaming", flag, DisplayDevice.Default, 4, 5, GraphicsContextFlags.ForwardCompatible, null, false)
         {
-            
+            Width = width;
+            Height = height;
+
             if (flag != GameWindowFlags.Fullscreen)
             {
                 X = Screen.PrimaryScreen.Bounds.Width / 2 - Width / 2;
@@ -122,6 +124,12 @@ namespace KWEngine2
 
             KeyboardState ks = Keyboard.GetState();
             MouseState ms = Mouse.GetState();
+
+            if (ks.IsKeyDown(Key.AltLeft) && ks.IsKeyDown(Key.F4))
+            {
+                Close();
+                return;
+            }
 
             foreach(GameObject g in CurrentWorld.GetGameObjects())
             {

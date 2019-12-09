@@ -31,7 +31,9 @@ namespace KWEngine2
 
         internal static void InitializeModels()
         {
-            Models.Add("KWCube", SceneImporter.LoadModel("littlegirl.fbx", true));
+            Models.Add("KWCube", SceneImporter.LoadModel("kwcube.obj", true));
+            Models.Add("KWRect", SceneImporter.LoadModel("kwrect.obj", true));
+            Models.Add("KWSphere", SceneImporter.LoadModel("kwsphere.obj", true));
         }
 
         internal static void InitializeShaders()

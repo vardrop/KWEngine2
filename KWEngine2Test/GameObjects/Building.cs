@@ -3,9 +3,7 @@ using KWEngine2.GameObjects;
 using OpenTK.Input;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace KWEngine2Test.GameObjects
 {
@@ -29,7 +27,7 @@ namespace KWEngine2Test.GameObjects
 
             //Console.WriteLine(AnimationPercentage);
             //AnimationPercentage = 0.25f;
-            AnimationID = 0;
+            AnimationID = -1;
 
             List<Intersection> intersections = GetIntersections();
             foreach(Intersection i in intersections)
