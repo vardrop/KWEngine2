@@ -27,7 +27,7 @@ namespace KWEngine2Test.GameObjects
 
             //Console.WriteLine(AnimationPercentage);
             //AnimationPercentage = 0.25f;
-            AnimationID = -1;
+            AnimationID = 0;
 
             List<Intersection> intersections = GetIntersections();
             foreach(Intersection i in intersections)

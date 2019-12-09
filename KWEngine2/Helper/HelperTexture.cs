@@ -7,6 +7,26 @@ namespace KWEngine2.Helper
 {
     public static class HelperTexture
     {
+
+        public static int RoundToPowerOf2(int value)
+        {
+            if (value < 0)
+            {
+                throw new Exception("Negative values are not allowed.");
+            }
+
+            uint v = (uint)value;
+
+            v--;
+            v |= v >> 1;
+            v |= v >> 2;
+            v |= v >> 4;
+            v |= v >> 8;
+            v |= v >> 16;
+            v++;
+
+            return (int)v;
+        }
         public static int LoadTextureForModelExternal(string filename)
         {
             int texID = GL.GenTexture();

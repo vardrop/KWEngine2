@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using System.Threading;
 using System.Windows.Forms;
 using KWEngine2.Engine;
 using KWEngine2.GameObjects;
@@ -32,6 +33,8 @@ namespace KWEngine2
 
         }
 
+        private int _fsaa = 0;
+
         /// <summary>
         /// Konstruktormethode
         /// </summary>
@@ -45,6 +48,17 @@ namespace KWEngine2
         {
             Width = width;
             Height = height;
+
+            if(antialiasing >= 0 && antialiasing <= 8)
+            {
+                if (antialiasing == 1 || antialiasing == 3 || antialiasing == 5 || antialiasing == 6 || antialiasing == 7)
+                    antialiasing = 0;
+            }
+            else
+            {
+                antialiasing = 0;
+            }
+            _fsaa = antialiasing;
 
             if (flag != GameWindowFlags.Fullscreen)
             {
@@ -145,6 +159,9 @@ namespace KWEngine2
         {
             base.OnResize(e);
             GL.Viewport(ClientRectangle);
+
+            InitializeFramebuffers();
+
             CalculateProjectionMatrix();
         }
 
@@ -176,5 +193,286 @@ namespace KWEngine2
                 }
             }
         }
+
+        #region Framebuffers
+
+        internal int FramebufferShadowMap = -1;
+        internal int FramebufferBloom1 = -1;
+        internal int FramebufferBloom2 = -1;
+        internal int FramebufferMainMultisample = -1;
+        internal int FramebufferMainDownsampled = -1;
+        internal int FramebufferMainFinal = -1;
+
+        internal int TextureShadowMap = -1;
+        internal int TextureMain = -1;
+        internal int TextureMainDepth = -1;
+        internal int TextureBloom = -1;
+        internal int TextureBloom1 = -1;
+        internal int TextureBloom2 = -1;
+        internal int TextureMainFinal = -1;
+        internal int TextureBloomFinal = -1;
+
+
+        private void InitializeFramebuffers()
+        {
+            bool ok = false;
+            while (!ok)
+            {
+                try
+                {
+                    if (TextureMain >= 0)
+                    {
+                        GL.DeleteTextures(8, new int[] { TextureMainDepth, TextureMain, TextureShadowMap, TextureBloom1, TextureBloom2, TextureMainFinal, TextureBloomFinal, TextureBloom });
+                        GL.DeleteFramebuffers(6, new int[] { FramebufferShadowMap, FramebufferBloom1, FramebufferBloom2, FramebufferMainMultisample, FramebufferMainDownsampled, FramebufferMainFinal });
+
+                        Thread.Sleep(1000);
+                    }
+
+                    InitFramebufferOriginal();
+                    InitFramebufferOriginalDownsampled();
+                    InitFramebufferShadowMap();
+                    InitFramebufferBloom();
+                }
+                catch (Exception)
+                {
+                    ok = false;
+                }
+                ok = true;
+            }
+            
+        }
+
+        private void InitFramebufferShadowMap()
+        {
+            int framebufferId = -1;
+            int depthTexId = -1;
+
+            framebufferId = GL.GenFramebuffer();
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebufferId);
+
+            depthTexId = GL.GenTexture();
+            GL.BindTexture(TextureTarget.Texture2D, depthTexId);
+
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent32,
+                KWEngine.ShadowMapSize, KWEngine.ShadowMapSize, 0, PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
+
+            GL.TexParameterI(TextureTarget.Texture2D, TextureParameterName.TextureCompareMode, new int[] { (int)TextureCompareMode.CompareRefToTexture });
+            GL.TexParameterI(TextureTarget.Texture2D, TextureParameterName.TextureCompareFunc, new int[] { (int)DepthFunction.Lequal });
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (float)TextureMinFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBorderColor, new float[] { 1, 1, 1, 1 });
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (float)TextureParameterName.ClampToBorder);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (float)TextureParameterName.ClampToBorder);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapR, (float)TextureParameterName.ClampToBorder);
+
+            GL.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, depthTexId, 0);
+            GL.DrawBuffer(DrawBufferMode.None);
+            GL.ReadBuffer(ReadBufferMode.None);
+
+            FramebufferErrorCode code = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
+            if (code != FramebufferErrorCode.FramebufferComplete)
+            {
+                throw new Exception("GL_FRAMEBUFFER_COMPLETE failed. Cannot use FrameBuffer object.");
+            }
+            else
+            {
+                FramebufferShadowMap = framebufferId;
+                TextureShadowMap = depthTexId;
+            }
+        }
+
+        private void InitFramebufferOriginalDownsampled()
+        {
+            int framebufferId = -1;
+            int renderedTexture = -1;
+            int renderedTextureAttachment = -1;
+
+            //Init des frame buffer:
+            framebufferId = GL.GenFramebuffer();
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebufferId);
+
+            // Init der Textur auf die gerendet wird:
+            renderedTexture = GL.GenTexture();
+            renderedTextureAttachment = GL.GenTexture();
+
+            GL.BindTexture(TextureTarget.Texture2D, renderedTexture);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8,
+                Width, Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, IntPtr.Zero);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (float)TextureMinFilter.Nearest);
+
+
+            GL.BindTexture(TextureTarget.Texture2D, renderedTextureAttachment);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8,
+                Width, Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, IntPtr.Zero);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (float)TextureMinFilter.Nearest);
+
+            //Konfig. des frame buffer:
+            GL.DrawBuffers(2, new DrawBuffersEnum[2] { DrawBuffersEnum.ColorAttachment0, DrawBuffersEnum.ColorAttachment1 });
+            GL.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, renderedTexture, 0);
+            GL.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment1, renderedTextureAttachment, 0);
+
+            FramebufferErrorCode code = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
+            if (code != FramebufferErrorCode.FramebufferComplete)
+            {
+                throw new Exception("GL_FRAMEBUFFER_COMPLETE failed. Cannot use FrameBuffer object.");
+            }
+            else
+            {
+                FramebufferMainFinal = framebufferId;
+                TextureMainFinal = renderedTexture;
+                TextureBloomFinal = renderedTextureAttachment;
+            }
+        }
+
+        private void InitFramebufferOriginal()
+        {
+            int framebufferId = -1;
+            int renderedTexture = -1;
+            int renderedTextureAttachment = -1;
+            int renderbufferFSAA = -1;
+            int renderbufferFSAA2 = -1;
+            int depthTexId = -1;
+
+            // FULL RESOLUTION
+
+            //Init des frame buffer:
+            framebufferId = GL.GenFramebuffer();
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebufferId);
+
+            // Init der Textur auf die gerendet wird:
+            renderedTexture = GL.GenTexture();
+            renderedTextureAttachment = GL.GenTexture();
+
+            depthTexId = GL.GenTexture();
+
+
+            //Konfig. des frame buffer:
+            GL.DrawBuffers(2, new DrawBuffersEnum[2] { DrawBuffersEnum.ColorAttachment0, DrawBuffersEnum.ColorAttachment1 });
+
+            GL.BindTexture(TextureTarget.Texture2D, renderedTexture);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8,
+                Width, Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, IntPtr.Zero);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (float)TextureMinFilter.Nearest);
+
+            //render buffer fsaa:
+            renderbufferFSAA = GL.GenRenderbuffer();
+            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, renderbufferFSAA);
+            GL.RenderbufferStorageMultisample(RenderbufferTarget.Renderbuffer, _fsaa, RenderbufferStorage.Rgba8, Width, Height);
+            GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, RenderbufferTarget.Renderbuffer, renderbufferFSAA);
+
+            GL.BindTexture(TextureTarget.Texture2D, renderedTextureAttachment);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8,
+                Width, Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, IntPtr.Zero);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (float)TextureMinFilter.Nearest);
+
+            renderbufferFSAA2 = GL.GenRenderbuffer();
+            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, renderbufferFSAA2);
+            GL.RenderbufferStorageMultisample(RenderbufferTarget.Renderbuffer, _fsaa, RenderbufferStorage.Rgba8, Width, Height);
+            GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment1, RenderbufferTarget.Renderbuffer, renderbufferFSAA2);
+
+            // depth buffer fsaa:
+            int depthRenderBuffer = GL.GenRenderbuffer();
+            GL.BindTexture(TextureTarget.Texture2D, depthTexId);
+
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent24,
+                Width, Height, 0, PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
+
+            GL.TexParameterI(TextureTarget.Texture2D, TextureParameterName.TextureCompareMode, new int[] { (int)TextureCompareMode.CompareRefToTexture });
+            GL.TexParameterI(TextureTarget.Texture2D, TextureParameterName.TextureCompareFunc, new int[] { (int)DepthFunction.Lequal });
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (float)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (float)TextureParameterName.ClampToEdge);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (float)TextureParameterName.ClampToEdge);
+
+            GL.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, depthTexId, 0);
+
+            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, depthRenderBuffer);
+            GL.RenderbufferStorageMultisample(RenderbufferTarget.Renderbuffer, _fsaa, RenderbufferStorage.DepthComponent24, Width, Height);
+            GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, RenderbufferTarget.Renderbuffer, depthRenderBuffer);
+
+            FramebufferErrorCode code = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
+            if (code != FramebufferErrorCode.FramebufferComplete)
+            {
+                throw new Exception("GL_FRAMEBUFFER_COMPLETE failed. Cannot use FrameBuffer object.");
+            }
+            else
+            {
+                FramebufferMainMultisample = framebufferId;
+                TextureMain = renderedTexture;
+                TextureBloom = renderedTextureAttachment;
+                TextureMainDepth = depthTexId;
+            }
+            GL.BindTexture(TextureTarget.Texture2D, 0);
+        }
+
+        private void InitFramebufferBloom()
+        {
+            int framebufferTempId = -1;
+            int renderedTextureTemp = -1;
+
+            // =========== TEMP ===========
+
+            //Init des frame buffer:
+            framebufferTempId = GL.GenFramebuffer();
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebufferTempId);
+
+            // Init der Textur auf die gerendet wird:
+            renderedTextureTemp = GL.GenTexture();
+            GL.BindTexture(TextureTarget.Texture2D, renderedTextureTemp);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba,
+                Width, Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, IntPtr.Zero);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (float)TextureMinFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (float)TextureParameterName.ClampToEdge);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (float)TextureParameterName.ClampToEdge);
+
+            //Konfig. des frame buffer:
+            GL.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, renderedTextureTemp, 0);
+            GL.DrawBuffer(DrawBufferMode.ColorAttachment0);
+            FramebufferErrorCode code = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
+            if (code != FramebufferErrorCode.FramebufferComplete)
+            {
+                throw new Exception("GL_FRAMEBUFFER_COMPLETE failed. Cannot use FrameBuffer object.");
+            }
+            else
+            {
+                FramebufferBloom1 = framebufferTempId;
+                TextureBloom1 = renderedTextureTemp;
+            }
+
+            // =========== TEMP 2 ===========
+
+            //Init des frame buffer:
+            int framebufferId = GL.GenFramebuffer();
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebufferId);
+
+            // Init der Textur auf die gerendet wird:
+            int renderedTextureTemp2 = GL.GenTexture();
+            GL.BindTexture(TextureTarget.Texture2D, renderedTextureTemp2);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba,
+                Width, Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (float)TextureMinFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (float)TextureParameterName.ClampToEdge);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (float)TextureParameterName.ClampToEdge);
+            //Konfig. des frame buffer:
+            GL.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, renderedTextureTemp2, 0);
+            GL.DrawBuffer(DrawBufferMode.ColorAttachment0);
+            code = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
+            if (code != FramebufferErrorCode.FramebufferComplete)
+            {
+                throw new Exception("GL_FRAMEBUFFER_COMPLETE failed. Cannot use FrameBuffer object.");
+            }
+            else
+            {
+                FramebufferBloom2 = framebufferId;
+                TextureBloom2 = renderedTextureTemp2;
+            }
+        }
+        #endregion
     }
 }
