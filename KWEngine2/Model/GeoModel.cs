@@ -19,13 +19,18 @@ namespace KWEngine2.Model
 
         } = false;
         
+        public GeoNode Armature { get; internal set; }
+
         public bool IsValid { get; internal set; }
         public string Name { get; internal set; }
         public string Filename { get; internal set; }
         public Matrix4 TransformGlobalInverse { get; internal set; }
         public Dictionary<string, GeoMesh> Meshes { get; internal set; }
-        //public Dictionary<int, GeoBone> Bones { get; internal set; }
+        public List<GeoMeshHitbox> MeshHitboxes { get; internal set; }
+        public bool IsTerrain { get; internal set; } = false;
+        
         public List<string> BoneNames { get; internal set; } = new List<string>();
+        public List<GeoNode> NodesWithoutHierarchy = new List<GeoNode>();
         public Dictionary<string, GeoTexture> Textures { get; internal set; }
 
         internal void Dispose()

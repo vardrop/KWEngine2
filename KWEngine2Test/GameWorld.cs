@@ -20,7 +20,7 @@ namespace KWEngine2Test
         public override void Prepare()
         {
             FOV = 90;
-            SetCameraPosition(0, 1, 1);
+            SetCameraPosition(0, 1, 5);
             SetCameraTarget(0, 0, 0);
 
             LoadModelFromFile("rect", @".\Models\cubetest2.fbx");
@@ -28,7 +28,7 @@ namespace KWEngine2Test
 
 
             Building go = new Building();
-            go.SetModel(GetModel("KWCube"));
+            go.SetModel(GetModel("rect"));
             go.Scale = new OpenTK.Vector3(1,1,1);
             go.AddRotationY(0);
             AddGameObject(go);

@@ -1,4 +1,5 @@
-﻿using KWEngine2.Helper;
+﻿using KWEngine2.Collision;
+using KWEngine2.Helper;
 using KWEngine2.Model;
 using OpenTK;
 using OpenTK.Input;
@@ -112,6 +113,12 @@ namespace KWEngine2.GameObjects
             {
                 _name = value != null && value.Length > 0 ? value : "undefined gameobject name";
             }
+        }
+
+        internal Hitbox GetLargestHitbox()
+        {
+            // TODO: add implementation
+            return null;
         }
 
         private void UpdateModelMatrix()

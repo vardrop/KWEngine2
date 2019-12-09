@@ -30,7 +30,7 @@ void main()
 	{
 		BoneTransform = mat4(1.0);
 	}
-	//BoneTransform = mat4(1.0);
+	
 	vec4 totalLocalPos = BoneTransform * vec4(aPosition, 1.0);
 	vNormal = (BoneTransform * vec4(aNormal, 0.0)).xyz;
 

@@ -42,6 +42,8 @@ namespace KWEngine2.Model
                 return Indices.Length;
             }
         }
+
+        public bool HasPCAHitbox { get; internal set; }
         public uint[] Indices { get; internal set; }
         public GeoMaterial Material { get; internal set; }
 
@@ -242,5 +244,7 @@ namespace KWEngine2.Model
             if (VAO >= 0)
                 GL.DeleteVertexArray(VAO);
         }
+
+        public GeoTerrain Terrain { get; internal set; } 
     }
 }

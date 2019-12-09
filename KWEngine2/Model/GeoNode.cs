@@ -14,7 +14,7 @@ namespace KWEngine2.Model
             return Name;
         }
         public string Name { get; internal set; } = null;
-        public Matrix4 Transform { get; internal set; } = Matrix4.Identity;
+        public Matrix4 Transform = Matrix4.Identity;
 
         public List<GeoNode> Children { get; internal set; } = new List<GeoNode>();
         public GeoNode Parent { get; internal set; } = null;

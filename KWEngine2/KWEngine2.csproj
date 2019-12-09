@@ -56,9 +56,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Collision\Hitbox.cs" />
+    <Compile Include="Collision\Intersection.cs" />
     <Compile Include="Engine\DeltaTime.cs" />
     <Compile Include="GameObjects\HUDObject.cs" />
     <Compile Include="Helper\HelperRotation.cs" />
+    <Compile Include="Helper\Sector.cs" />
     <Compile Include="KWEngine.cs" />
     <Compile Include="GameObjects\GameObject.cs" />
     <Compile Include="GLWindow.cs" />
@@ -70,12 +72,13 @@
     <Compile Include="Model\GeoBone.cs" />
     <Compile Include="Model\GeoMaterial.cs" />
     <Compile Include="Model\GeoMesh.cs" />
+    <Compile Include="Model\GeoMeshHitbox.cs" />
     <Compile Include="Model\GeoModel.cs" />
     <Compile Include="Model\GeoNode.cs" />
     <Compile Include="Model\GeoNodeAnimationChannel.cs" />
     <Compile Include="Model\GeoTerrain.cs" />
     <Compile Include="Model\GeoTexture.cs" />
-    <Compile Include="Model\GeoTriangle.cs" />
+    <Compile Include="Model\GeoTerrainTriangle.cs" />
     <Compile Include="Model\GeoVertex.cs" />
     <Compile Include="Model\SceneImporter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

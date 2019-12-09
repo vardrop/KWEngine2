@@ -5,6 +5,7 @@ using System.IO;
 using System.Reflection;
 using Assimp;
 using Assimp.Configs;
+using KWEngine2.Collision;
 using KWEngine2.Engine;
 using KWEngine2.Helper;
 using OpenTK;
@@ -130,57 +131,18 @@ namespace KWEngine2.Model
             return returnModel;
         }
 
-        /*
-        private static bool IsBoneAlreadyStored(string boneName, ref GeoModel model)
-        {
-            foreach(GeoBone bone in model.Bones.Values)
-            {
-                if(bone.Name == boneName)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-        */
-        /*
-        private static Node FindArmature(Node node, ref GeoModel model, int level = 0)
-        {
-            if (level > 0 && !node.HasMeshes) // this is not the root node
-            {
-                bool found = FindBoneForNode(node, ref model, out GeoBone bone);
-                if (!found)
-                {
-                    // this must be the armature:
-                    if (node.Parent != null && node.Parent.Parent == null && node.ChildCount > 0)
-                    {
-                        return node;
-                    }
-                }
-            }
-
-            foreach (Node child in node.Children)
-            {
-                Node n = FindArmature(child, ref model, level + 1);
-                return n;
-            }
-            return null;
-        }
-        */
-
         private static void GenerateNodeHierarchy(Node node, ref GeoModel model)
         {
             GeoNode root = new GeoNode();
             root.Name = node.Name;
             root.Transform = HelperMatrix.ConvertAssimpToOpenTKMatrix(node.Transform);
             root.Parent = null;
-
+            model.Root = root;
+            model.NodesWithoutHierarchy.Add(root);
             foreach (Node child in node.Children)
             {
                 root.Children.Add(MapNodeToNode(child, ref model, ref root));
             }
-
-            model.Root = root;
         }
 
         private static GeoNode MapNodeToNode(Node n, ref GeoModel model, ref GeoNode callingNode)
@@ -189,7 +151,7 @@ namespace KWEngine2.Model
             gNode.Parent = callingNode;
             gNode.Transform = HelperMatrix.ConvertAssimpToOpenTKMatrix(n.Transform);
             gNode.Name = n.Name;
-
+            model.NodesWithoutHierarchy.Add(gNode);
             foreach (Node child in n.Children)
             {
                 gNode.Children.Add(MapNodeToNode(child, ref model, ref gNode));
@@ -197,93 +159,38 @@ namespace KWEngine2.Model
 
             return gNode;
         }
-        /*
-        private static void GenerateBoneHierarchy(Node node, ref GeoModel model, int boneIndex)
+
+        private static void FindRootBone(Scene scene, ref GeoModel model, string boneName)
         {
-            Node armature = FindArmature(node, ref model);
-            if(armature != null)
+            foreach(Node child in scene.RootNode.Children)
             {
-                GeoBone bone = new GeoBone();
-                bone.Index = model.LastBoneIndex;
-                bone.IndexForMesh = new Dictionary<string, int>();
-                bone.Transform = HelperMatrix.ConvertAssimpToOpenTKMatrix(armature.Transform);
-                bone.Parent = null;
-                bone.Name = "Armature";
-                bone.Offset = Matrix4.Identity;
-                model.Bones.Add(model.LastBoneIndex, bone);
-
-                MapNodeToBone(armature, ref model, ref boneIndex);
-            }
-            else
-            {
-                if (model.Bones.Count > 0)
-                    throw new Exception("Cannot find armature bone for model " + model.Name + ".");
-            }
-        }
-        */
-        /*
-        private static void MapNodeToBone(Node n, ref GeoModel model, ref int boneIndex)
-        {
-            GeoBone nBone = null;
-            GeoBone parentBone = null;
-            bool nFound = FindBoneForNode(n, ref model, out nBone);
-            bool parentFound = FindBoneForNode(n.Parent, ref model, out parentBone);
-
-            if (nFound)
-            {
-                if(nBone.Name != "Armature")
-                    nBone.Index = boneIndex++;
-                if (parentFound)
+                if(child.Name == boneName) // found the anchor
                 {
-                    nBone.Parent = parentBone;
-                }
-
-                foreach (Node child in n.Children)
-                {
-                    bool found = FindBoneForNode(child, ref model, out GeoBone foundBone);
-                    if (found)
+                    Node armature = ScanForParent(scene, child);
+                    if(armature != null)
                     {
-                        nBone.Children.Add(foundBone);
-                        MapNodeToBone(child, ref model, ref boneIndex);
+                        foreach(GeoNode n in model.NodesWithoutHierarchy)
+                        {
+                            if (armature.Name == n.Name)
+                                model.Armature = n;
+                            return;
+                        }
                     }
                 }
             }
         }
-        */
 
-        /*
-        private static bool FindBoneForNode(Node node, ref GeoModel model, out GeoBone bone)
+        private static Node ScanForParent(Scene scene, Node node)
         {
-            bool found = false;
-            foreach (GeoBone b in model.Bones.Values)
+            if(node.Parent != null && node.Parent.Parent == null)
             {
-                if (b.Name == node.Name) // This node is a bone!
-                {
-                    bone = b;
-                    return true;
-                }
+                return node.Parent;
             }
-            bone = new GeoBone();
-            return found;
-        }
-        */
-
-        /*
-    private static bool FindBoneForNode(string nodeName, ref GeoModel model, out GeoBone bone)
-    {
-        bool found = false;
-        foreach (GeoBone b in model.Bones.Values)
-        {
-            if (b.Name == nodeName) // This node is a bone!
+            else
             {
-                bone = b;
-                return true;
+                return ScanForParent(scene, node.Parent);
             }
         }
-        bone = new GeoBone();
-        return found;
-    }
-    */
 
         private static void ProcessBones(Scene scene, ref GeoModel model)
         {
@@ -293,10 +200,11 @@ namespace KWEngine2.Model
                 foreach (Bone bone in mesh.Bones)
                 {
                     model.HasBones = true;
+                    if (model.Armature == null)
+                        FindRootBone(scene, ref model, bone.Name);
+
                     if (!model.BoneNames.Contains(bone.Name))
-                    {
                         model.BoneNames.Add(bone.Name);
-                    }
 
                     GeoBone geoBone = new GeoBone();
                     geoBone.Name = bone.Name;
@@ -305,20 +213,6 @@ namespace KWEngine2.Model
                     boneIndexLocal++;
                 }
             }
-        }
-
-        private static GeoMesh FindMeshByName(string meshNameAssimp, ref GeoModel model)
-        {
-            foreach (string meshNameKWEngine in model.Meshes.Keys)
-            {
-                if (meshNameKWEngine.Contains(meshNameAssimp))
-                {
-                    return model.Meshes[meshNameKWEngine];
-                }
-            }
-            GeoMesh dummy = new GeoMesh();
-            dummy.Vertices = null;
-            return dummy;
         }
 
         private static bool FindTransformForMesh(Scene scene, Node currentNode, Mesh mesh, out Matrix4 transform, out string nodeName)
@@ -546,20 +440,43 @@ namespace KWEngine2.Model
 
         private static void ProcessMeshes(Scene scene, ref GeoModel model)
         {
+            model.MeshHitboxes = new List<GeoMeshHitbox>();
+
+            string currentMeshName = null;
+            GeoMeshHitbox meshHitBox = null;
+            float minX = float.MaxValue, minY = float.MaxValue, minZ = float.MaxValue;
+            float maxX = float.MinValue, maxY = float.MinValue, maxZ = float.MinValue;
+            Matrix4 nodeTransform = Matrix4.Identity;
+
             for (int m = 0; m < scene.MeshCount; m++)
             {
                 Mesh mesh = scene.Meshes[m];
+
+                bool isNewMesh = currentMeshName == null || (currentMeshName != null && mesh.Name != currentMeshName);
+
                 if (mesh.PrimitiveType != PrimitiveType.Triangle)
                 {
                     throw new Exception("Model's primitive type is not set to 'triangles'. Cannot import model.");
                 }
 
-                GeoMesh geoMesh = new GeoMesh();
+                if (isNewMesh)
+                {
+                    // Generate hitbox for the previous mesh:
+                    meshHitBox = new GeoMeshHitbox(maxX, maxY, maxZ, minX, minY, minZ);
+                    meshHitBox.Model = model;
+                    meshHitBox.Name = mesh.Name;
+                    meshHitBox.Transform = nodeTransform;
+                    meshHitBox.HasPCA = false;
+                    model.MeshHitboxes.Add(meshHitBox);
+                }
 
-                bool transformFound = FindTransformForMesh(scene, scene.RootNode, mesh, out Matrix4 nodeTransform, out string nodeName);
+                GeoMesh geoMesh = new GeoMesh();
+                bool transformFound = FindTransformForMesh(scene, scene.RootNode, mesh, out nodeTransform, out string nodeName);
                 geoMesh.Transform = nodeTransform;
                 geoMesh.Bones = new Dictionary<string, GeoBone>();
+                geoMesh.Terrain = null;
                 geoMesh.BoneTranslationMatrixCount = mesh.BoneCount;
+                geoMesh.HasPCAHitbox = false; // TODO: Calculate PCA Hitbox
                 geoMesh.Name = mesh.Name + " #" + m.ToString().PadLeft(4, '0') + " (Node: " + nodeName + ")";
                 geoMesh.Vertices = new GeoVertex[mesh.VertexCount];
                 geoMesh.Primitive = OpenTK.Graphics.OpenGL4.PrimitiveType.Triangles;
@@ -570,6 +487,19 @@ namespace KWEngine2.Model
                 {
                     //TODO: Find max/min for x/y/z (for hitboxing)
                     Vector3D vertex = mesh.Vertices[i];
+                    if (vertex.X > maxX)
+                        maxX = vertex.X;
+                    if (vertex.Y > maxY)
+                        maxY = vertex.Y;
+                    if (vertex.Z > maxZ)
+                        maxZ = vertex.Z;
+                    if (vertex.X < minX)
+                        minX = vertex.X;
+                    if (vertex.Y < minY)
+                        minY = vertex.Y;
+                    if (vertex.Z < minX)
+                        minZ = vertex.Z;
+
                     GeoVertex geoVertex = new GeoVertex(i, vertex.X, vertex.Y, vertex.Z);
                     geoMesh.Vertices[i] = geoVertex;
                 }
@@ -678,8 +608,8 @@ namespace KWEngine2.Model
                             ganc.TranslationKeys.Add(akf);
                         }
 
-                        if(model.BoneNames.Contains(nac.NodeName))
-                            ga.AnimationChannels.Add(nac.NodeName, ganc);
+                        //if(model.BoneNames.Contains(nac.NodeName))
+                        ga.AnimationChannels.Add(nac.NodeName, ganc);
                     }
                     model.Animations.Add(ga);
                 }
