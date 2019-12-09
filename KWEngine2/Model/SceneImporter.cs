@@ -451,8 +451,7 @@ namespace KWEngine2.Model
             for (int m = 0; m < scene.MeshCount; m++)
             {
                 Mesh mesh = scene.Meshes[m];
-
-                bool isNewMesh = currentMeshName == null || (currentMeshName != null && mesh.Name != currentMeshName);
+                bool isNewMesh = currentMeshName != null && mesh.Name != currentMeshName;
 
                 if (mesh.PrimitiveType != PrimitiveType.Triangle)
                 {
@@ -464,11 +463,21 @@ namespace KWEngine2.Model
                     // Generate hitbox for the previous mesh:
                     meshHitBox = new GeoMeshHitbox(maxX, maxY, maxZ, minX, minY, minZ);
                     meshHitBox.Model = model;
-                    meshHitBox.Name = mesh.Name;
+                    meshHitBox.Name = currentMeshName;
                     meshHitBox.Transform = nodeTransform;
                     meshHitBox.HasPCA = false;
                     model.MeshHitboxes.Add(meshHitBox);
+
+                    minX = float.MaxValue;
+                    minY = float.MaxValue;
+                    minZ = float.MaxValue;
+
+                    maxX = float.MinValue;
+                    maxY = float.MinValue;
+                    maxZ = float.MinValue;
                 }
+
+                currentMeshName = mesh.Name;
 
                 GeoMesh geoMesh = new GeoMesh();
                 bool transformFound = FindTransformForMesh(scene, scene.RootNode, mesh, out nodeTransform, out string nodeName);
@@ -550,6 +559,15 @@ namespace KWEngine2.Model
 
                 model.Meshes.Add(geoMesh.Name, geoMesh);
             }
+
+            // Generate hitbox for the last mesh:
+            meshHitBox = new GeoMeshHitbox(maxX, maxY, maxZ, minX, minY, minZ);
+            meshHitBox.Model = model;
+            meshHitBox.Name = currentMeshName;
+            meshHitBox.Transform = nodeTransform;
+            meshHitBox.HasPCA = false;
+            model.MeshHitboxes.Add(meshHitBox);
+
         }
 
         private static void ProcessAnimations(Scene scene, ref GeoModel model)
