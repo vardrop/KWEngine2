@@ -76,16 +76,16 @@ namespace KWEngine2.Renderers
             mAttribute_vtexture2 = GL.GetAttribLocation(mProgramId, "aTexture2");
 
 
-            mUniform_MVP = GL.GetUniformLocation(mProgramId, "uMVP"); 
+            mUniform_MVP = GL.GetUniformLocation(mProgramId, "uMVP");
             mUniform_MVPShadowMap = GL.GetUniformLocation(mProgramId, "uMVPShadowMap");
             mUniform_NormalMatrix = GL.GetUniformLocation(mProgramId, "uN");
             mUniform_ModelMatrix = GL.GetUniformLocation(mProgramId, "uM");
             mUniform_UseAnimations = GL.GetUniformLocation(mProgramId, "uUseAnimations");
             mUniform_BoneTransforms = GL.GetUniformLocation(mProgramId, "uBoneTransforms");
 
-            mUniform_Texture = GL.GetUniformLocation(mProgramId, "uTextureDiffuse"); 
+            mUniform_Texture = GL.GetUniformLocation(mProgramId, "uTextureDiffuse");
             mUniform_TextureUse = GL.GetUniformLocation(mProgramId, "uUseTextureDiffuse");
-            
+
 
             mUniform_Glow = GL.GetUniformLocation(mProgramId, "uGlow");
             mUniform_BaseColor = GL.GetUniformLocation(mProgramId, "uBaseColor");
@@ -132,8 +132,6 @@ namespace KWEngine2.Renderers
 
             lock (g)
             {
-                
-
                 foreach (string meshName in g.Model.Meshes.Keys)
                 {
                     GeoMesh mesh = g.Model.Meshes[meshName];
@@ -180,6 +178,8 @@ namespace KWEngine2.Renderers
 
                     GL.UniformMatrix4(mUniform_MVP, false, ref _modelViewProjection);
 
+                    //TODO: Add normal and specular maps
+
                     if (mUniform_Texture >= 0 && mesh.Material.TextureDiffuse.OpenGLID > 0)
                     {
                         GL.ActiveTexture(TextureUnit.Texture0);
@@ -192,11 +192,8 @@ namespace KWEngine2.Renderers
                     else
                     {
                         GL.Uniform1(mUniform_TextureUse, 0);
-
                         GL.Uniform3(mUniform_BaseColor, mesh.Material.ColorDiffuse.X, mesh.Material.ColorDiffuse.Y, mesh.Material.ColorDiffuse.Z);
                     }
-
-                    
 
                     GL.BindVertexArray(mesh.VAO);
 

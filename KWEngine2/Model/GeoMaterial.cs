@@ -16,5 +16,8 @@ namespace KWEngine2.Model
         public Vector4 ColorDiffuse { get; internal set; }
 
         public GeoTexture TextureDiffuse { get; internal set; }
+        public GeoTexture TextureNormal { get; internal set; }
+        public GeoTexture TextureSpecular { get; internal set; }
+
     }
 }

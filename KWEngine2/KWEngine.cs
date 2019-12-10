@@ -15,6 +15,9 @@ namespace KWEngine2
         internal static Matrix4 Identity = Matrix4.Identity;
         private static Vector3 _worldUp = new Vector3(0, 1, 0);
 
+        public static Dictionary<World, Dictionary<string, int>> CubeTextures { get; internal set; } = new Dictionary<World, Dictionary<string, int>>();
+        public enum CubeSide { All, Front, Back, Left, Right, Top, Bottom }
+        public enum TextureType { Diffuse, Normal, Specular };
         public static Vector3 WorldUp
         {
             get
@@ -34,6 +37,7 @@ namespace KWEngine2
         internal static void InitializeModels()
         {
             Models.Add("KWCube", SceneImporter.LoadModel("kwcube.obj", true));
+            Models.Add("KWCube6", SceneImporter.LoadModel("kwcube6.obj", true));
             Models.Add("KWRect", SceneImporter.LoadModel("kwrect.obj", true));
             Models.Add("KWSphere", SceneImporter.LoadModel("kwsphere.obj", true));
         }

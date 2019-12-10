@@ -6,6 +6,7 @@ using OpenTK.Input;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using static KWEngine2.KWEngine;
 
 namespace KWEngine2.GameObjects
 {
@@ -13,6 +14,7 @@ namespace KWEngine2.GameObjects
     {
         public World CurrentWorld { get; internal set; } = null;
         internal int _largestHitboxIndex = -1;
+        internal GeoModelCube _cubeModel = null;
         internal List<Hitbox> Hitboxes = new List<Hitbox>();
         internal Dictionary<string, Matrix4[]> BoneTranslationMatrices { get; set; }
         private int _animationId = -1;
@@ -161,14 +163,32 @@ namespace KWEngine2.GameObjects
 
         public void SetModel(GeoModel m)
         {
+            if (m == null)
+            {
+                throw new Exception("Your model is null.");
+            }
+
             _model = m;
+            if (m.Name == "kwcube.obj")
+            {
+                _cubeModel = new GeoModelCube1();
+                _cubeModel.Owner = this;
+            }
+            else if (m.Name == "kwcube6.obj")
+            {
+                _cubeModel = new GeoModelCube6();
+                _cubeModel.Owner = this;
+            }
+            else
+                _cubeModel = null;
+
             int hIndex = 0;
             float diameter = float.MinValue;
             foreach (GeoMeshHitbox gmh in m.MeshHitboxes)
             {
                 Hitbox h = new Hitbox(this, gmh);
                 Hitboxes.Add(h);
-                if(h.DiameterFull > diameter)
+                if (h.DiameterFull > diameter)
                 {
                     diameter = h.DiameterFull;
                     _largestHitboxIndex = hIndex;
@@ -546,6 +566,13 @@ namespace KWEngine2.GameObjects
                 throw new Exception("Model and/or World have not been set yet!");
             }
         }
+        private void CheckModel()
+        {
+            if (Model == null)
+            {
+                throw new Exception("Model has not been set yet!");
+            }
+        }
 
         protected List<Intersection> GetIntersections()
         {
@@ -662,6 +689,24 @@ namespace KWEngine2.GameObjects
             }
             else
                 return 0;
+        }
+
+        public void SetTexture(string texture, CubeSide side, TextureType type = TextureType.Diffuse)
+        {
+            CheckModelAndWorld();
+
+            if (_cubeModel != null)
+            {
+                if (_cubeModel is GeoModelCube1 && side != CubeSide.All)
+                {
+                    throw new Exception("Cannot set side texture on single sided cube model. Please use KWCube6 as model.");
+                }
+                _cubeModel.SetTexture(texture, side, type);
+            }
+            else
+            {
+                throw new Exception("Cannot set textures for model " + Model.Name + " because it is not a KWCube.");
+            }
         }
     }
 }

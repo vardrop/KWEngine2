@@ -60,6 +60,7 @@
     <Compile Include="Engine\DeltaTime.cs" />
     <Compile Include="GameObjects\Explosion.cs" />
     <Compile Include="GameObjects\HUDObject.cs" />
+    <Compile Include="GameObjects\LightObject.cs" />
     <Compile Include="Helper\HelperRotation.cs" />
     <Compile Include="Helper\Sector.cs" />
     <Compile Include="KWEngine.cs" />
@@ -75,6 +76,9 @@
     <Compile Include="Model\GeoMesh.cs" />
     <Compile Include="Model\GeoMeshHitbox.cs" />
     <Compile Include="Model\GeoModel.cs" />
+    <Compile Include="Model\GeoModelCube.cs" />
+    <Compile Include="Model\GeoModelCube1.cs" />
+    <Compile Include="Model\GeoModelCube6.cs" />
     <Compile Include="Model\GeoNode.cs" />
     <Compile Include="Model\GeoNodeAnimationChannel.cs" />
     <Compile Include="Model\GeoTerrain.cs" />
@@ -94,6 +98,9 @@
     <EmbeddedResource Include="Assets\Models\kwrect.obj" />
     <EmbeddedResource Include="Assets\Models\kwsphere.obj" />
     <EmbeddedResource Include="Assets\Models\littlegirl.fbx" />
+    <EmbeddedResource Include="Assets\Models\kwcube.mtl" />
+    <EmbeddedResource Include="Assets\Models\kwcube6.mtl" />
+    <EmbeddedResource Include="Assets\Models\kwcube6.obj" />
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
     <EmbeddedResource Include="Shaders\shader_fragment.glsl" />

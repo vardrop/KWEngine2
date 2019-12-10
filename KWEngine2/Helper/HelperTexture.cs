@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 using OpenTK.Graphics.OpenGL4;
 
 namespace KWEngine2.Helper
@@ -29,10 +30,19 @@ namespace KWEngine2.Helper
         }
         public static int LoadTextureForModelExternal(string filename)
         {
+            if (!File.Exists(filename))
+            {
+                throw new Exception("File " + filename + " not found.");
+            }
+
             int texID = GL.GenTexture();
             try
             {
                 Bitmap image = new Bitmap(filename);
+                if (image == null)
+                {
+                    throw new Exception("File " + filename + " is not a valid image file.");
+                }
                 GL.BindTexture(TextureTarget.Texture2D, texID);
                 BitmapData data = null;
 
@@ -60,7 +70,7 @@ namespace KWEngine2.Helper
                 GL.BindTexture(TextureTarget.Texture2D, 0);
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new Exception("Could not load image file " + filename + "! Make sure to copy it to the correct output directory. " + "[" + ex.Message + "]");
             }

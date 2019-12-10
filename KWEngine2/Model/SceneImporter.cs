@@ -91,6 +91,7 @@ namespace KWEngine2.Model
         {
             GeoModel returnModel = new GeoModel();
             returnModel.Filename = filename;
+            returnModel.Name = StripPathFromFile(filename);
             if (isInAssembly)
             {
                 returnModel.PathAbsolute = "";
@@ -162,14 +163,14 @@ namespace KWEngine2.Model
 
         private static void FindRootBone(Scene scene, ref GeoModel model, string boneName)
         {
-            foreach(Node child in scene.RootNode.Children)
+            foreach (Node child in scene.RootNode.Children)
             {
-                if(child.Name == boneName) // found the anchor
+                if (child.Name == boneName) // found the anchor
                 {
                     Node armature = ScanForParent(scene, child);
-                    if(armature != null)
+                    if (armature != null)
                     {
-                        foreach(GeoNode n in model.NodesWithoutHierarchy)
+                        foreach (GeoNode n in model.NodesWithoutHierarchy)
                         {
                             if (armature.Name == n.Name)
                                 model.Armature = n;
@@ -182,7 +183,7 @@ namespace KWEngine2.Model
 
         private static Node ScanForParent(Scene scene, Node node)
         {
-            if(node.Parent != null && node.Parent.Parent == null)
+            if (node.Parent != null && node.Parent.Parent == null)
             {
                 return node.Parent;
             }
@@ -245,7 +246,7 @@ namespace KWEngine2.Model
             return false;
         }
 
-        private static string StripFileNameFromPath(string path)
+        internal static string StripFileNameFromPath(string path)
         {
             int index = path.LastIndexOf('\\');
             if (index < 0)
@@ -259,7 +260,7 @@ namespace KWEngine2.Model
 
         }
 
-        private static string StripPathFromFile(string fileWithPath)
+        internal static string StripPathFromFile(string fileWithPath)
         {
             int index = fileWithPath.LastIndexOf('\\');
             if (index < 0)
@@ -272,7 +273,7 @@ namespace KWEngine2.Model
             }
         }
 
-        private static string FindTextureInSubs(string filename, string path = null)
+        internal static string FindTextureInSubs(string filename, string path = null)
         {
             DirectoryInfo currentDir;
             if (path == null)
@@ -542,7 +543,7 @@ namespace KWEngine2.Model
                             geoMesh.Vertices[vw.VertexID].WeightSet++;
                         }
                     }
-                } 
+                }
 
                 geoMesh.VBOGenerateIndices();
                 geoMesh.VBOGenerateVerticesAndBones(model.HasBones);

@@ -175,6 +175,7 @@ namespace KWEngine2
             if (CurrentWorld == null)
             {
                 CurrentWorld = w;
+                KWEngine.CubeTextures.Add(w, new Dictionary<string, int>());
                 CurrentWorld.Prepare();
                 CalculateProjectionMatrix();
                 return;
@@ -186,8 +187,15 @@ namespace KWEngine2
                     if (CurrentWorld != null)
                     {
                         CurrentWorld.Dispose();
+                        Dictionary<string, int> worldTextures = KWEngine.CubeTextures[CurrentWorld];
+                        foreach (int texId in worldTextures.Values)
+                        {
+                            GL.DeleteTexture(texId);
+                        }
+                        KWEngine.CubeTextures.Remove(CurrentWorld);
                     }
                     CurrentWorld = w;
+                    KWEngine.CubeTextures.Add(w, new Dictionary<string, int>());
                     CurrentWorld.Prepare();
                     CalculateProjectionMatrix();
                 }
