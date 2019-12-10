@@ -507,7 +507,7 @@ namespace KWEngine2.Model
                         minX = vertex.X;
                     if (vertex.Y < minY)
                         minY = vertex.Y;
-                    if (vertex.Z < minX)
+                    if (vertex.Z < minZ)
                         minZ = vertex.Z;
 
                     GeoVertex geoVertex = new GeoVertex(i, vertex.X, vertex.Y, vertex.Z);

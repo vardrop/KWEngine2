@@ -14,7 +14,7 @@ namespace KWEngine2Test.GameObjects
         {
          
             
-            AnimationID = -1;
+            ///AnimationID = -1;
         }
     }
 }

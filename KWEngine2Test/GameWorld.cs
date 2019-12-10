@@ -26,18 +26,19 @@ namespace KWEngine2Test
             LoadModelFromFile("rect", @".\Models\cubetest2.fbx");
 
             Building go = new Building();
-            go.SetModel(GetModel("rect"));
+            go.SetModel(GetModel("KWCube"));
             go.Scale = new OpenTK.Vector3(1,1,1);
             go.AddRotationY(0);
             go.IsCollisionObject = true;
             AddGameObject(go);
 
             Block block = new Block();
-            block.SetModel(GetModel("rect"));
+            block.SetModel(GetModel("KWCube6"));
             block.SetPosition(5, 0, 3);
             block.SetScale(0.5f);
             block.IsCollisionObject = true;
             AddGameObject(block);
+            block.SetTexture(".\\textures\\holland.jpg", KWEngine.CubeSide.All, KWEngine.TextureType.Diffuse);
         }
     }
 }
