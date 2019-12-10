@@ -3,6 +3,8 @@ using KWEngine2.Model;
 using KWEngine2.Renderers;
 using System.Collections.Generic;
 using OpenTK;
+using KWEngine2.Helper;
+using System.Diagnostics;
 
 namespace KWEngine2
 {
@@ -47,6 +49,27 @@ namespace KWEngine2
             if (!modelFound)
                 throw new Exception("Model " + name + " not found.");
             return m;
-        }        
+        }
+
+        private static int _shadowMapSize = 1024;
+        public static int ShadowMapSize 
+        {
+            get
+            {
+                return _shadowMapSize;
+            }
+            set
+            {
+                if(value >= 256 && value <= 8192)
+                {
+                    _shadowMapSize = HelperTexture.RoundToPowerOf2(value);
+                }
+                else
+                {
+                    Debug.WriteLine("Cannot set shadow map to a size < 256 or > 8192. Resetting it to 1024.");
+                    _shadowMapSize = 1024;
+                }
+            }
+        }
     }
 }
