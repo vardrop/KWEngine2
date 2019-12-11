@@ -45,6 +45,7 @@ namespace KWEngine2
         internal static void InitializeShaders()
         {
             Renderers.Add("Standard", new RendererStandard());
+            Renderers.Add("Shadow", new RendererShadow());
         }
 
         public static GeoModel GetModel(string name)

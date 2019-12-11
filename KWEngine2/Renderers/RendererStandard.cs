@@ -11,21 +11,6 @@ namespace KWEngine2.Renderers
 {
     internal class RendererStandard : Renderer
     {
-        public override void Dispose()
-        {
-            if (mProgramId >= 0)
-            {
-                GL.DeleteProgram(mProgramId);
-                HelperGL.CheckGLErrors();
-                GL.DeleteShader(mShaderVertexId);
-                HelperGL.CheckGLErrors();
-                GL.DeleteShader(mShaderFragmentId);
-                HelperGL.CheckGLErrors();
-
-                mProgramId = -1;
-            }
-        }
-
         public override void Initialize()
         {
             Name = "Standard";
@@ -78,36 +63,34 @@ namespace KWEngine2.Renderers
 
             mUniform_MVP = GL.GetUniformLocation(mProgramId, "uMVP");
             mUniform_MVPShadowMap = GL.GetUniformLocation(mProgramId, "uMVPShadowMap");
-            mUniform_NormalMatrix = GL.GetUniformLocation(mProgramId, "uN");
-            mUniform_ModelMatrix = GL.GetUniformLocation(mProgramId, "uM");
+            mUniform_NormalMatrix = GL.GetUniformLocation(mProgramId, "uNormalMatrix");
+            mUniform_ModelMatrix = GL.GetUniformLocation(mProgramId, "uModelMatrix");
             mUniform_UseAnimations = GL.GetUniformLocation(mProgramId, "uUseAnimations");
             mUniform_BoneTransforms = GL.GetUniformLocation(mProgramId, "uBoneTransforms");
 
+            // Textures:
             mUniform_Texture = GL.GetUniformLocation(mProgramId, "uTextureDiffuse");
             mUniform_TextureUse = GL.GetUniformLocation(mProgramId, "uUseTextureDiffuse");
+            mUniform_TextureNormalMap = GL.GetUniformLocation(mProgramId, "uTextureNormal");
+            mUniform_TextureUseNormalMap = GL.GetUniformLocation(mProgramId, "uUseTextureNormal");
+            mUniform_TextureSpecularMap = GL.GetUniformLocation(mProgramId, "uTextureSpecular");
+            mUniform_TextureUseSpecularMap = GL.GetUniformLocation(mProgramId, "uUseTextureSpecular");
+            mUniform_TextureLightMap = GL.GetUniformLocation(mProgramId, "uTextureLightmap");
+            mUniform_TextureUseLightMap = GL.GetUniformLocation(mProgramId, "uUseTextureLightMap");
+            mUniform_TextureShadowMap = GL.GetUniformLocation(mProgramId, "uTextureShadow");
 
 
             mUniform_Glow = GL.GetUniformLocation(mProgramId, "uGlow");
             mUniform_BaseColor = GL.GetUniformLocation(mProgramId, "uBaseColor");
             mUniform_TintColor = GL.GetUniformLocation(mProgramId, "uTintColor");
-            mUniform_EmissiveColor = GL.GetUniformLocation(mProgramId, "uEmissiveColor");
-            mUniform_SpecularArea = GL.GetUniformLocation(mProgramId, "uSpecularArea");
-            mUniform_SpecularPower = GL.GetUniformLocation(mProgramId, "uSpecularPower");
-
-            mUniform_TextureNormalMap = GL.GetUniformLocation(mProgramId, "uNormalMap");
-            mUniform_TextureUseNormalMap = GL.GetUniformLocation(mProgramId, "uTextureUseNormalMap");
-
-            mUniform_TextureSpecularMap = GL.GetUniformLocation(mProgramId, "uSpecularMap");
-            mUniform_TextureUseSpecularMap = GL.GetUniformLocation(mProgramId, "uTextureUseSpecularMap");
-
-            mUniform_TextureLightMap = GL.GetUniformLocation(mProgramId, "uLightMap");
-            mUniform_TextureUseLightMap = GL.GetUniformLocation(mProgramId, "uTextureUseLightMap");
+            mUniform_EmissiveColor = GL.GetUniformLocation(mProgramId, "uEmissiveColor");            
 
             mUniform_SpecularArea = GL.GetUniformLocation(mProgramId, "uSpecularArea");
             mUniform_SpecularPower = GL.GetUniformLocation(mProgramId, "uSpecularPower");
+            
             mUniform_uCameraPos = GL.GetUniformLocation(mProgramId, "uCameraPos");
 
-            mUniform_TextureShadowMap = GL.GetUniformLocation(mProgramId, "uTextureShadowMap");
+           
 
             mUniform_SunPosition = GL.GetUniformLocation(mProgramId, "uSunPosition");
             mUniform_SunDirection = GL.GetUniformLocation(mProgramId, "uSunDirection");
@@ -123,7 +106,7 @@ namespace KWEngine2.Renderers
             mUniform_TextureTransform = GL.GetUniformLocation(mProgramId, "uTextureTransform");
         }
 
-        internal override void Draw(GameObject g, ref Matrix4 viewProjection)
+        internal override void Draw(GameObject g, ref Matrix4 viewProjection, ref Matrix4 viewProjectionShadow)
         {
             if (g == null || !g.HasModel)
                 return;
@@ -132,13 +115,22 @@ namespace KWEngine2.Renderers
 
             lock (g)
             {
+                
+                // Upload depth texture (shadow mapping)
+                if (mUniform_TextureShadowMap >= 0)
+                {
+                    GL.ActiveTexture(TextureUnit.Texture3);
+                    GL.BindTexture(TextureTarget.Texture2D, GLWindow.CurrentWindow.TextureShadowMap);
+                    GL.Uniform1(mUniform_TextureShadowMap, 3);
+                }
+
                 foreach (string meshName in g.Model.Meshes.Keys)
                 {
                     GeoMesh mesh = g.Model.Meshes[meshName];
 
                     bool useMeshTransform = true;
 
-                    if (g.AnimationID >= 0 && g.Model.Animations.Count > 0)
+                    if (g.AnimationID >= 0 && g.Model.Animations != null && g.Model.Animations.Count > 0)
                     {
                         if (mUniform_UseAnimations >= 0)
                         {
@@ -176,9 +168,18 @@ namespace KWEngine2.Renderers
                     Matrix4.Transpose(ref g._modelMatrix, out _normalMatrix);
                     Matrix4.Invert(ref _normalMatrix, out _normalMatrix);
 
+                    GL.UniformMatrix4(mUniform_ModelMatrix, false, ref _tmpMatrix);
+                    GL.UniformMatrix4(mUniform_NormalMatrix, false, ref _normalMatrix);
                     GL.UniformMatrix4(mUniform_MVP, false, ref _modelViewProjection);
 
-                    //TODO: Add normal and specular maps
+
+                    // Shadow mapping
+                    if (mUniform_MVPShadowMap >= 0)
+                    {
+                        Matrix4 viewProjectionMatrixShadowBiased = viewProjectionShadow * HelperMatrix.BiasedMatrixForShadowMapping;
+                        Matrix4.Mult(ref _tmpMatrix, ref viewProjectionMatrixShadowBiased, out Matrix4 modelViewProjectionMatrixBiased);
+                        GL.UniformMatrix4(mUniform_MVPShadowMap, false, ref modelViewProjectionMatrixBiased);
+                    }
 
                     if (mUniform_Texture >= 0 && mesh.Material.TextureDiffuse.OpenGLID > 0)
                     {
@@ -195,6 +196,31 @@ namespace KWEngine2.Renderers
                         GL.Uniform3(mUniform_BaseColor, mesh.Material.ColorDiffuse.X, mesh.Material.ColorDiffuse.Y, mesh.Material.ColorDiffuse.Z);
                     }
 
+                    if(mUniform_TextureNormalMap >= 0 && mesh.Material.TextureNormal.OpenGLID > 0)
+                    {
+                        GL.ActiveTexture(TextureUnit.Texture1);
+                        GL.BindTexture(TextureTarget.Texture2D, mesh.Material.TextureNormal.OpenGLID);
+                        GL.Uniform1(mUniform_TextureNormalMap, 1);
+                        GL.Uniform1(mUniform_TextureUseNormalMap, 1);
+                    }
+                    else
+                    {
+                        GL.Uniform1(mUniform_TextureUseNormalMap, 0);
+                    }
+
+                    if (mUniform_TextureSpecularMap >= 0 && mesh.Material.TextureSpecular.OpenGLID > 0)
+                    {
+                        GL.ActiveTexture(TextureUnit.Texture2);
+                        GL.BindTexture(TextureTarget.Texture2D, mesh.Material.TextureSpecular.OpenGLID);
+                        GL.Uniform1(mUniform_TextureSpecularMap, 2);
+                        GL.Uniform1(mUniform_TextureUseSpecularMap, 1);
+                    }
+                    else
+                    {
+                        GL.Uniform1(mUniform_TextureUseSpecularMap, 0);
+                    }
+
+
                     GL.BindVertexArray(mesh.VAO);
 
                     GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
@@ -206,6 +232,11 @@ namespace KWEngine2.Renderers
             }
 
             GL.UseProgram(0);
+        }
+
+        internal override void Draw(GameObject g, ref Matrix4 viewProjection)
+        {
+            throw new NotImplementedException();
         }
     }
 }

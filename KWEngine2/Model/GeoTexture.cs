@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenTK;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,7 @@ namespace KWEngine2.Model
         public string Filename { get; internal set; }
         public int OpenGLID { get; internal set; }
         public int UVMapIndex { get; internal set; }
+        public Vector2 UVTransform { get; internal set; }
         public TexType Type { get; internal set; }
     }
 }

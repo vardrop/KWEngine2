@@ -130,7 +130,7 @@ namespace KWEngine2.Model
 
         private void SetTextureFront(string texture, TextureType type)
         {
-            if (KWEngine.CubeTextures[Owner.CurrentWorld].ContainsKey(texture))
+            if (CubeTextures[Owner.CurrentWorld].ContainsKey(texture))
             {
                 if (type == TextureType.Diffuse)
                     TextureFront = KWEngine.CubeTextures[Owner.CurrentWorld][texture];
@@ -325,6 +325,7 @@ namespace KWEngine2.Model
                 tex.Type = GeoTexture.TexType.Diffuse;
                 tex.UVMapIndex = 0;
                 tex.OpenGLID = diffuse;
+                tex.UVTransform = new OpenTK.Vector2(1, 1);
 
                 mesh.Material.TextureDiffuse = tex;
             }
@@ -335,6 +336,7 @@ namespace KWEngine2.Model
                 tex.Type = GeoTexture.TexType.Normal;
                 tex.UVMapIndex = 0;
                 tex.OpenGLID = normal;
+                tex.UVTransform = new OpenTK.Vector2(1, 1);
 
                 mesh.Material.TextureNormal = tex;
             }
@@ -345,6 +347,7 @@ namespace KWEngine2.Model
                 tex.Type = GeoTexture.TexType.Specular;
                 tex.UVMapIndex = 0;
                 tex.OpenGLID = specular;
+                tex.UVTransform = new OpenTK.Vector2(1, 1);
 
                 mesh.Material.TextureSpecular = tex;
             }

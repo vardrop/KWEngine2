@@ -13,6 +13,8 @@ namespace KWEngine2
         private List<HUDObject> _hudObjects = new List<HUDObject>();
         private Vector3 _cameraPosition = new Vector3(0, 0, 25);
         private Vector3 _cameraTarget = new Vector3(0, 0, 0);
+        private Vector3 _sunPosition = new Vector3(100, 100, 100);
+        private Vector3 _sunTarget = new Vector3(0, 0, 0);
         private float _fov = 45f;
         private float _zFar = 1000f;
 
@@ -75,6 +77,37 @@ namespace KWEngine2
         {
             _cameraTarget = p;
         }
+
+        // Sun
+        public Vector3 GetSunPosition()
+        {
+            return _sunPosition;
+        }
+
+        public Vector3 GetSunTarget()
+        {
+            return _sunTarget;
+        }
+
+        public void SetSunPosition(float x, float y, float z)
+        {
+            _sunPosition = new Vector3(x, y, z);
+        }
+
+        public void SetSunPosition(Vector3 p)
+        {
+            _sunPosition = p;
+        }
+
+        public void SetSunTarget(float x, float y, float z)
+        {
+            _sunTarget = new Vector3(x, y, z);
+        }
+        public void SetSunTarget(Vector3 p)
+        {
+            _sunTarget = p;
+        }
+
 
         public void LoadModelFromFile(string name, string filename)
         {

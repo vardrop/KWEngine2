@@ -1,4 +1,5 @@
 ﻿using KWEngine2.GameObjects;
+using KWEngine2.Helper;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System.IO;
@@ -76,6 +77,21 @@ namespace KWEngine2.Renderers
             Initialize();
         }
 
+        public void Dispose()
+        {
+            if (mProgramId >= 0)
+            {
+                GL.DeleteProgram(mProgramId);
+                HelperGL.CheckGLErrors();
+                GL.DeleteShader(mShaderVertexId);
+                HelperGL.CheckGLErrors();
+                GL.DeleteShader(mShaderFragmentId);
+                HelperGL.CheckGLErrors();
+
+                mProgramId = -1;
+            }
+        }
+
         protected int LoadShader(Stream pFileStream, ShaderType pType, int pProgram)
         {
             int address = GL.CreateShader(pType);
@@ -89,7 +105,6 @@ namespace KWEngine2.Renderers
         }
         
         public abstract void Initialize();
-        public abstract void Dispose();
 
         public int GetProgramId()
         {
@@ -316,5 +331,6 @@ namespace KWEngine2.Renderers
         }
 
         internal abstract void Draw(GameObject g, ref Matrix4 viewProjection);
+        internal abstract void Draw(GameObject g, ref Matrix4 viewProjection, ref Matrix4 viewProjectionShadow);
     }
 }

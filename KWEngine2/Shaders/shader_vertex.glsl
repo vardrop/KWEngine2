@@ -9,13 +9,20 @@ in		vec3 aBiTangent;
 in		ivec3 aBoneIds;
 in		vec3 aBoneWeights;
 
+out		vec3 vPosition;
 out		vec3 vNormal;
 out		vec2 vTexture;
 out		vec2 vTexture2;
+out		mat3 vTBN;
+out		vec4 vShadowCoord;
 
 uniform mat4 uMVP;
 uniform mat4 uBoneTransforms[36];
 uniform int uUseAnimations;
+uniform mat4 uNormalMatrix;
+uniform mat4 uModelMatrix;
+uniform mat4 uMVPShadowMap;
+uniform vec2 uTextureTransform;
 
 void main()
 {
@@ -30,10 +37,19 @@ void main()
 	{
 		BoneTransform = mat4(1.0);
 	}
-	
 	vec4 totalLocalPos = BoneTransform * vec4(aPosition, 1.0);
-	vNormal = (BoneTransform * vec4(aNormal, 0.0)).xyz;
+	
+	// normal mapping:
+	vNormal = (uNormalMatrix * (BoneTransform * vec4(aNormal, 0.0))).xyz;
+	vec3 vTangent = (uNormalMatrix * (BoneTransform * vec4(aTangent, 0.0))).xyz;
+	vec3 vBiTangent = (uNormalMatrix * (BoneTransform * vec4(aBiTangent, 0.0))).xyz;
 
-	vTexture = aTexture;
+	// Other pass-throughs:
+	vTexture = aTexture * uTextureTransform;
+	vTexture2 = aTexture2 * uTextureTransform;
+	vPosition = (uModelMatrix * totalLocalPos).xyz;
+	vShadowCoord = uMVPShadowMap * totalLocalPos;
+	vTBN = mat3(vTangent.xyz, vBiTangent.xyz, vNormal.xyz);
+	
 	gl_Position = uMVP * totalLocalPos;
 }

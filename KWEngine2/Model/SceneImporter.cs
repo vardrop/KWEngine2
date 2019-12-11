@@ -337,6 +337,7 @@ namespace KWEngine2.Model
                 if (material.HasTextureDiffuse)
                 {
                     GeoTexture tex = new GeoTexture();
+                    tex.UVTransform = new OpenTK.Vector2(1, 1);
                     tex.Filename = material.TextureDiffuse.FilePath;
                     tex.UVMapIndex = material.TextureDiffuse.UVIndex;
                     if (model.Textures.ContainsKey(tex.Filename))
@@ -358,6 +359,7 @@ namespace KWEngine2.Model
                 if (material.HasTextureNormal)
                 {
                     GeoTexture tex = new GeoTexture();
+                    tex.UVTransform = new OpenTK.Vector2(1, 1);
                     tex.Filename = material.TextureNormal.FilePath;
                     tex.UVMapIndex = material.TextureNormal.UVIndex;
                     if (model.Textures.ContainsKey(tex.Filename))
@@ -378,6 +380,7 @@ namespace KWEngine2.Model
                 if (material.HasTextureSpecular)
                 {
                     GeoTexture tex = new GeoTexture();
+                    tex.UVTransform = new OpenTK.Vector2(1, 1);
                     tex.Filename = material.TextureSpecular.FilePath;
                     tex.UVMapIndex = material.TextureSpecular.UVIndex;
                     if (model.Textures.ContainsKey(tex.Filename))
@@ -398,6 +401,7 @@ namespace KWEngine2.Model
                 if (material.HasTextureEmissive)
                 {
                     GeoTexture tex = new GeoTexture();
+                    tex.UVTransform = new OpenTK.Vector2(1, 1);
                     tex.Filename = material.TextureEmissive.FilePath;
                     tex.UVMapIndex = material.TextureEmissive.UVIndex;
                     if (model.Textures.ContainsKey(tex.Filename))
@@ -418,6 +422,7 @@ namespace KWEngine2.Model
                 if (material.HasTextureLightMap)
                 {
                     GeoTexture tex = new GeoTexture();
+                    tex.UVTransform = new OpenTK.Vector2(1, 1);
                     tex.Filename = material.TextureLightMap.FilePath;
                     tex.UVMapIndex = material.TextureLightMap.UVIndex;
                     if (model.Textures.ContainsKey(tex.Filename))

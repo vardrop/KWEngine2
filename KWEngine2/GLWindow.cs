@@ -19,10 +19,9 @@ namespace KWEngine2
     {
         public World CurrentWorld { get; private set; }
 
-        internal List<RenderObject> _renderObjects = new List<RenderObject>();
-
         public static GLWindow CurrentWindow { get; internal set; }
         internal Matrix4 _projectionMatrix = Matrix4.Identity;
+        internal Matrix4 _projectionMatrixShadow = Matrix4.Identity;
 
         /// <summary>
         /// Konstruktormethode
@@ -119,17 +118,36 @@ namespace KWEngine2
                 Matrix4 viewMatrix = Matrix4.LookAt(CurrentWorld.GetCameraPosition(), CurrentWorld.GetCameraTarget(), KWEngine.WorldUp);
                 Matrix4 viewProjection = viewMatrix * _projectionMatrix;
 
-                
+                Matrix4 viewMatrixShadow = Matrix4.LookAt(CurrentWorld.GetSunPosition(), CurrentWorld.GetSunTarget(), KWEngine.WorldUp);
+                Matrix4 viewProjectionShadow = viewMatrixShadow * _projectionMatrixShadow;
                 lock (CurrentWorld)
                 {
                     CurrentWorld.SortByZ();
+
+                    SwitchToBufferAndClear(FramebufferShadowMap);
+                    GL.Viewport(0, 0, KWEngine.ShadowMapSize, KWEngine.ShadowMapSize);
+                    GL.UseProgram(KWEngine.Renderers["Shadow"].GetProgramId());
                     foreach (GameObject g in CurrentWorld.GetGameObjects())
                     {
-                        KWEngine.Renderers["Standard"].Draw(g, ref viewProjection);
+                        KWEngine.Renderers["Shadow"].Draw(g, ref viewProjectionShadow);
+                    }
+                    GL.UseProgram(0);
+
+                    SwitchToBufferAndClear(0);
+                    GL.Viewport(0,0,Width,Height);
+                    foreach (GameObject g in CurrentWorld.GetGameObjects())
+                    {
+                        KWEngine.Renderers["Standard"].Draw(g, ref viewProjection, ref viewProjectionShadow);
                     }
                 }
             }
             SwapBuffers();
+        }
+
+        private static void SwitchToBufferAndClear(int id)
+        {
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, id);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -168,6 +186,7 @@ namespace KWEngine2
         private void CalculateProjectionMatrix()
         {
             _projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(CurrentWorld != null ? CurrentWorld.FOV / 2: 45f), Width / (float)Height, 0.1f, CurrentWorld != null ? CurrentWorld.ZFar : 1000f);
+            _projectionMatrixShadow = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(CurrentWorld != null ? CurrentWorld.FOV / 2 : 45f), Width / (float)Height, 1f, CurrentWorld != null ? CurrentWorld.ZFar : 1000f);
         }
 
         public void SetWorld(World w)
@@ -208,7 +227,7 @@ namespace KWEngine2
         internal int FramebufferBloom1 = -1;
         internal int FramebufferBloom2 = -1;
         internal int FramebufferMainMultisample = -1;
-        internal int FramebufferMainDownsampled = -1;
+        //internal int FramebufferMainDownsampled = -1;
         internal int FramebufferMainFinal = -1;
 
         internal int TextureShadowMap = -1;
@@ -231,7 +250,7 @@ namespace KWEngine2
                     if (TextureMain >= 0)
                     {
                         GL.DeleteTextures(8, new int[] { TextureMainDepth, TextureMain, TextureShadowMap, TextureBloom1, TextureBloom2, TextureMainFinal, TextureBloomFinal, TextureBloom });
-                        GL.DeleteFramebuffers(6, new int[] { FramebufferShadowMap, FramebufferBloom1, FramebufferBloom2, FramebufferMainMultisample, FramebufferMainDownsampled, FramebufferMainFinal });
+                        GL.DeleteFramebuffers(5, new int[] { FramebufferShadowMap, FramebufferBloom1, FramebufferBloom2, FramebufferMainMultisample, FramebufferMainFinal, }); // FramebufferMainDownsampled,  });
 
                         Thread.Sleep(1000);
                     }
