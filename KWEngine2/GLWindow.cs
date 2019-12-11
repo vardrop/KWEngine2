@@ -20,6 +20,7 @@ namespace KWEngine2
         public World CurrentWorld { get; private set; }
 
         public static GLWindow CurrentWindow { get; internal set; }
+        internal Matrix4 _viewMatrix = Matrix4.Identity;
         internal Matrix4 _projectionMatrix = Matrix4.Identity;
         internal Matrix4 _projectionMatrixShadow = Matrix4.Identity;
 
@@ -115,8 +116,8 @@ namespace KWEngine2
 
             if (CurrentWorld != null)
             {
-                Matrix4 viewMatrix = Matrix4.LookAt(CurrentWorld.GetCameraPosition(), CurrentWorld.GetCameraTarget(), KWEngine.WorldUp);
-                Matrix4 viewProjection = viewMatrix * _projectionMatrix;
+                _viewMatrix = Matrix4.LookAt(CurrentWorld.GetCameraPosition(), CurrentWorld.GetCameraTarget(), KWEngine.WorldUp);
+                Matrix4 viewProjection = _viewMatrix * _projectionMatrix;
 
                 Matrix4 viewMatrixShadow = Matrix4.LookAt(CurrentWorld.GetSunPosition(), CurrentWorld.GetSunTarget(), KWEngine.WorldUp);
                 Matrix4 viewProjectionShadow = viewMatrixShadow * _projectionMatrixShadow;
@@ -252,7 +253,7 @@ namespace KWEngine2
                         GL.DeleteTextures(8, new int[] { TextureMainDepth, TextureMain, TextureShadowMap, TextureBloom1, TextureBloom2, TextureMainFinal, TextureBloomFinal, TextureBloom });
                         GL.DeleteFramebuffers(5, new int[] { FramebufferShadowMap, FramebufferBloom1, FramebufferBloom2, FramebufferMainMultisample, FramebufferMainFinal, }); // FramebufferMainDownsampled,  });
 
-                        Thread.Sleep(1000);
+                        Thread.Sleep(250);
                     }
 
                     InitFramebufferOriginal();

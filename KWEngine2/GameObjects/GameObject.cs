@@ -18,6 +18,8 @@ namespace KWEngine2.GameObjects
         internal List<Hitbox> Hitboxes = new List<Hitbox>();
         internal Dictionary<string, Matrix4[]> BoneTranslationMatrices { get; set; }
         private int _animationId = -1;
+
+        public bool IsPickable { get; set; } = false;
         public int AnimationID
         {
             get
@@ -707,6 +709,64 @@ namespace KWEngine2.GameObjects
             {
                 throw new Exception("Cannot set textures for model " + Model.Name + " because it is not a KWCube.");
             }
+        }
+
+        protected GameObject PickGameObject(float x, float y)
+        {
+            Vector3 ray = Get3DMouseCoords(x, x);
+            Vector3 pos = CurrentWorld.GetCameraPosition() + ray;
+
+            GameObject pickedObject = null;
+            float pickedDistance = float.MaxValue;
+
+            foreach (GameObject go in CurrentWorld.GetGameObjects())
+            {
+                //TODO: Add frustum culling
+                if (go.IsPickable) // && go.IsInsideScreenSpace)
+                {
+                    if (IntersectRaySphere(pos, ray, go.Hitboxes[_largestHitboxIndex].GetCenter(), go.Hitboxes[_largestHitboxIndex].DiameterFull / 2))
+                    {
+                        float distance = (go.Hitboxes[_largestHitboxIndex].GetCenter() - pos).LengthSquared;
+                        if (distance < pickedDistance)
+                        {
+                            pickedDistance = distance;
+                            pickedObject = go;
+                        }
+                    }
+                }
+            }
+            
+                return pickedObject;
+        }
+
+        private static bool IntersectRaySphere(Vector3 rayStart, Vector3 ray, Vector3 sphereCenter, float sphereRadius)
+        {
+            Vector3 p = rayStart - sphereCenter;
+
+            float rSquared = sphereRadius * sphereRadius;
+            float p_d = Vector3.Dot(p, ray);
+
+            // The sphere is behind or surrounding the start point.
+            if (p_d > 0 || Vector3.Dot(p, p) < rSquared)
+                return false;
+
+            // Flatten p into the plane passing through c perpendicular to the ray.
+            // This gives the closest approach of the ray to the center.
+            Vector3 a = p - p_d * ray;
+
+            float aSquared = Vector3.Dot(a, a);
+
+            // Closest approach is outside the sphere.
+            if (aSquared > rSquared)
+                return false;
+
+            return true;
+        }
+
+        private static Vector3 Get3DMouseCoords(float x, float y)
+        {
+            HelperMouseRay r = new HelperMouseRay(x, y, GLWindow.CurrentWindow._viewMatrix, GLWindow.CurrentWindow._projectionMatrix);
+            return Vector3.NormalizeFast(r.End - r.Start);
         }
     }
 }
