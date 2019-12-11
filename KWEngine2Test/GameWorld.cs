@@ -29,16 +29,21 @@ namespace KWEngine2Test
             go.SetModel(GetModel("KWCube"));
             go.Scale = new OpenTK.Vector3(1,1,1);
             go.AddRotationY(0);
+            go.SetGlow(1, 0, 0, 1);
             go.IsCollisionObject = true;
+            go.IsShadowCaster = true;
             AddGameObject(go);
 
             Block block = new Block();
             block.SetModel(GetModel("KWCube6"));
-            block.SetPosition(5, 0, 3);
-            block.SetScale(0.5f);
+            block.SetPosition(0, -1, 0);
+            block.SetScale(5, 2, 5);
             block.IsCollisionObject = true;
-            AddGameObject(block);
+            block.IsShadowCaster = true;
             block.SetTexture(".\\textures\\holland.jpg", KWEngine.CubeSide.All, KWEngine.TextureType.Diffuse);
+            block.SetTextureRepeat(2, 2, KWEngine.CubeSide.All);
+            AddGameObject(block);
+            
         }
     }
 }

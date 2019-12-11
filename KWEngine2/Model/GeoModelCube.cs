@@ -8,33 +8,69 @@ namespace KWEngine2.Model
 {
     internal class GeoModelCube
     {
-        public int TextureFront = -1;
-        public int TextureBack = -1;
-        public int TextureLeft = -1;
-        public int TextureRight = -1;
-        public int TextureTop = -1;
-        public int TextureBottom = -1;
+        public GeoTexture GeoTextureFront = new GeoTexture("");
+        public GeoTexture GeoTextureBack = new GeoTexture("");
+        public GeoTexture GeoTextureLeft = new GeoTexture("");
+        public GeoTexture GeoTextureRight = new GeoTexture("");
+        public GeoTexture GeoTextureTop = new GeoTexture("");
+        public GeoTexture GeoTextureBottom = new GeoTexture("");
 
-        public int TextureFrontNormal = -1;
-        public int TextureBackNormal = -1;
-        public int TextureLeftNormal = -1;
-        public int TextureRightNormal = -1;
-        public int TextureTopNormal = -1;
-        public int TextureBottomNormal = -1;
+        public GeoTexture GeoTextureFrontNormal = new GeoTexture("");
+        public GeoTexture GeoTextureBackNormal = new GeoTexture("");
+        public GeoTexture GeoTextureLeftNormal = new GeoTexture("");
+        public GeoTexture GeoTextureRightNormal = new GeoTexture("");
+        public GeoTexture GeoTextureTopNormal = new GeoTexture("");
+        public GeoTexture GeoTextureBottomNormal = new GeoTexture("");
 
-        public int TextureFrontSpecular = -1;
-        public int TextureBackSpecular = -1;
-        public int TextureLeftSpecular = -1;
-        public int TextureRightSpecular = -1;
-        public int TextureTopSpecular = -1;
-        public int TextureBottomSpecular = -1;
+        public GeoTexture GeoTextureFrontSpecular = new GeoTexture("");
+        public GeoTexture GeoTextureBackSpecular = new GeoTexture("");
+        public GeoTexture GeoTextureLeftSpecular = new GeoTexture("");
+        public GeoTexture GeoTextureRightSpecular = new GeoTexture("");
+        public GeoTexture GeoTextureTopSpecular = new GeoTexture("");
+        public GeoTexture GeoTextureBottomSpecular = new GeoTexture("");
 
         public GameObject Owner = null;
 
+        public void SetTextureRepeat(float x, float y, CubeSide side)
+        {
+            if(side == CubeSide.All)
+            {
+                EditTextureObject(ref GeoTextureFront, x, y);
+                EditTextureObject(ref GeoTextureBack, x, y);
+                EditTextureObject(ref GeoTextureLeft, x, y);
+                EditTextureObject(ref GeoTextureRight, x, y);
+                EditTextureObject(ref GeoTextureTop, x, y);
+                EditTextureObject(ref GeoTextureBottom, x, y);
+            }
+            else if(side == CubeSide.Front)
+            {
+                EditTextureObject(ref GeoTextureFront, x, y);
+            }
+            else if (side == CubeSide.Back)
+            {
+                EditTextureObject(ref GeoTextureBack, x, y);
+            }
+            else if (side == CubeSide.Left)
+            {
+                EditTextureObject(ref GeoTextureLeft, x, y);
+            }
+            else if (side == CubeSide.Right)
+            {
+                EditTextureObject(ref GeoTextureRight, x, y);
+            }
+            else if (side == CubeSide.Top)
+            {
+                EditTextureObject(ref GeoTextureTop, x, y);
+            }
+            else if (side == CubeSide.Bottom)
+            {
+                EditTextureObject(ref GeoTextureBottom, x, y);
+            }
+        }
 
         public void SetTexture(string texture, CubeSide side, TextureType type)
         {
-            if(Owner == null || Owner.CurrentWorld == null)
+            if(Owner == null || GLWindow.CurrentWindow.CurrentWorld == null)
             {
                 throw new Exception("Cube texture owner is not set or is not member of a world.");
             }
@@ -80,277 +116,213 @@ namespace KWEngine2.Model
         private void SetTextureAll(string texture, TextureType type)
         {
             int texAll = -1;
-            int texAllNormal = -1;
-            int texAllSpecular = -1;
-            if (KWEngine.CubeTextures[Owner.CurrentWorld].ContainsKey(texture))
+           
+            if (KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld].ContainsKey(texture))
             {
-                if (type == TextureType.Diffuse)
-                    texAll = KWEngine.CubeTextures[Owner.CurrentWorld][texture];
-                else if (type == TextureType.Normal)
-                    texAllNormal = KWEngine.CubeTextures[Owner.CurrentWorld][texture];
-                else if (type == TextureType.Specular)
-                    texAllSpecular = KWEngine.CubeTextures[Owner.CurrentWorld][texture];
+                    texAll = KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld][texture];
             }
             else
             {
-                if (type == TextureType.Diffuse)
                     texAll = HelperTexture.LoadTextureForModelExternal(texture);
-                else if (type == TextureType.Normal)
-                    texAllNormal = HelperTexture.LoadTextureForModelExternal(texture);
-                else if (type == TextureType.Specular)
-                    texAllSpecular = HelperTexture.LoadTextureForModelExternal(texture);
             }
 
-            TextureFront = texAll;
-            TextureBack = texAll;
-            TextureLeft = texAll;
-            TextureRight = texAll;
-            TextureTop = texAll;
-            TextureBottom = texAll;
-
-            TextureFrontNormal = texAllNormal;
-            TextureBackNormal = texAllNormal;
-            TextureLeftNormal = texAllNormal;
-            TextureRightNormal = texAllNormal;
-            TextureTopNormal = texAllNormal;
-            TextureBottomNormal = texAllNormal;
-
-            TextureFrontSpecular = texAllSpecular;
-            TextureBackSpecular = texAllSpecular;
-            TextureLeftSpecular = texAllSpecular;
-            TextureRightSpecular = texAllSpecular;
-            TextureTopSpecular = texAllSpecular;
-            TextureBottomSpecular = texAllSpecular;
-
-            foreach (GeoMesh m in Owner.Model.Meshes.Values)
+            if (type == TextureType.Diffuse)
+            {   
+                EditTextureObject(ref GeoTextureFront, texAll, type, texture);
+                EditTextureObject(ref GeoTextureBack, texAll, type, texture);
+                EditTextureObject(ref GeoTextureLeft, texAll, type, texture);
+                EditTextureObject(ref GeoTextureRight, texAll, type, texture);
+                EditTextureObject(ref GeoTextureTop, texAll, type, texture);
+                EditTextureObject(ref GeoTextureBottom, texAll, type, texture);
+            }
+            else if (type == TextureType.Normal)
             {
-                CreateTextureObject(m, TextureFront, TextureFrontNormal, TextureFrontSpecular, type, texture);
+                EditTextureObject(ref GeoTextureFrontNormal, texAll, type, texture);
+                EditTextureObject(ref GeoTextureBackNormal, texAll, type, texture);
+                EditTextureObject(ref GeoTextureLeftNormal, texAll, type, texture);
+                EditTextureObject(ref GeoTextureRightNormal, texAll, type, texture);
+                EditTextureObject(ref GeoTextureTopNormal, texAll, type, texture);
+                EditTextureObject(ref GeoTextureBottomNormal, texAll, type, texture);
             }
+            else if (type == TextureType.Specular)
+            {
+                EditTextureObject(ref GeoTextureFrontSpecular, texAll, type, texture);
+                EditTextureObject(ref GeoTextureBackSpecular, texAll, type, texture);
+                EditTextureObject(ref GeoTextureLeftSpecular, texAll, type, texture);
+                EditTextureObject(ref GeoTextureRightSpecular, texAll, type, texture);
+                EditTextureObject(ref GeoTextureTopSpecular, texAll, type, texture);
+                EditTextureObject(ref GeoTextureBottomSpecular, texAll, type, texture);
+            }
+
         }
 
         private void SetTextureFront(string texture, TextureType type)
         {
-            if (CubeTextures[Owner.CurrentWorld].ContainsKey(texture))
+            int texId = -1;
+            if (CubeTextures[GLWindow.CurrentWindow.CurrentWorld].ContainsKey(texture))
             {
-                if (type == TextureType.Diffuse)
-                    TextureFront = KWEngine.CubeTextures[Owner.CurrentWorld][texture];
-                else if (type == TextureType.Normal)
-                    TextureFrontNormal = KWEngine.CubeTextures[Owner.CurrentWorld][texture];
-                else if (type == TextureType.Specular)
-                    TextureFrontSpecular = KWEngine.CubeTextures[Owner.CurrentWorld][texture];
+                
+                    texId = KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld][texture];
             }
             else
             {
-                if (type == TextureType.Diffuse)
-                    TextureFront = HelperTexture.LoadTextureForModelExternal(texture);
-                else if (type == TextureType.Normal)
-                    TextureFrontNormal = HelperTexture.LoadTextureForModelExternal(texture);
-                else if (type == TextureType.Specular)
-                    TextureFrontSpecular = HelperTexture.LoadTextureForModelExternal(texture);
+               
+                    texId = HelperTexture.LoadTextureForModelExternal(texture);
+
+                KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld].Add(texture, texId);
             }
 
-            foreach (GeoMesh m in Owner.Model.Meshes.Values)
-            {
-                if (m.Material.Name == "Front")
-                {
-                    CreateTextureObject(m, TextureFront, TextureFrontNormal, TextureFrontSpecular, type, texture);
-                    return;
-                }
-            }
+            if(type == TextureType.Diffuse)
+                EditTextureObject(ref GeoTextureFront, texId, type, texture);
+            else if(type == TextureType.Normal)
+                EditTextureObject(ref GeoTextureFrontNormal, texId, type, texture);
+            else if (type == TextureType.Specular)
+                EditTextureObject(ref GeoTextureFrontSpecular, texId, type, texture);
+
         }
 
        
 
         private void SetTextureBack(string texture, TextureType type)
         {
-            if (KWEngine.CubeTextures[Owner.CurrentWorld].ContainsKey(texture))
+            int texId = -1;
+            if (KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld].ContainsKey(texture))
             {
-                if (type == TextureType.Diffuse)
-                    TextureBack = KWEngine.CubeTextures[Owner.CurrentWorld][texture];
-                else if (type == TextureType.Normal)
-                    TextureBackNormal = KWEngine.CubeTextures[Owner.CurrentWorld][texture];
-                else if (type == TextureType.Specular)
-                    TextureBackSpecular = KWEngine.CubeTextures[Owner.CurrentWorld][texture];
+               
+                    texId = KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld][texture];
             }
             else
             {
-                if (type == TextureType.Diffuse)
-                    TextureBack = HelperTexture.LoadTextureForModelExternal(texture);
-                else if (type == TextureType.Normal)
-                    TextureBackNormal = HelperTexture.LoadTextureForModelExternal(texture);
-                else if (type == TextureType.Specular)
-                    TextureBackSpecular = HelperTexture.LoadTextureForModelExternal(texture);
+               
+                    texId = HelperTexture.LoadTextureForModelExternal(texture);
+
+                KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld].Add(texture, texId);
             }
 
-            foreach (GeoMesh m in Owner.Model.Meshes.Values)
-            {
-                if (m.Material.Name == "Back")
-                {
-                    CreateTextureObject(m, TextureBack, TextureBackNormal, TextureBackSpecular, type, texture);
-                    return;
-                }
-            }
+            if (type == TextureType.Diffuse)
+                EditTextureObject(ref GeoTextureBack, texId, type, texture);
+            else if (type == TextureType.Normal)
+                EditTextureObject(ref GeoTextureBackNormal, texId, type, texture);
+            else if (type == TextureType.Specular)
+                EditTextureObject(ref GeoTextureBackSpecular, texId, type, texture);
         }
 
         private void SetTextureLeft(string texture, TextureType type)
         {
-            if (KWEngine.CubeTextures[Owner.CurrentWorld].ContainsKey(texture))
+            int texId = -1;
+            if (KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld].ContainsKey(texture))
             {
-                if (type == TextureType.Diffuse)
-                    TextureLeft = KWEngine.CubeTextures[Owner.CurrentWorld][texture];
-                else if (type == TextureType.Normal)
-                    TextureLeftNormal = KWEngine.CubeTextures[Owner.CurrentWorld][texture];
-                else if (type == TextureType.Specular)
-                    TextureLeftSpecular = KWEngine.CubeTextures[Owner.CurrentWorld][texture];
+               
+                    texId = KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld][texture];
             }
             else
             {
-                if (type == TextureType.Diffuse)
-                    TextureLeft = HelperTexture.LoadTextureForModelExternal(texture);
-                else if (type == TextureType.Normal)
-                    TextureLeftNormal = HelperTexture.LoadTextureForModelExternal(texture);
-                else if (type == TextureType.Specular)
-                    TextureLeftSpecular = HelperTexture.LoadTextureForModelExternal(texture);
+               
+                    texId = HelperTexture.LoadTextureForModelExternal(texture);
+
+                KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld].Add(texture, texId);
             }
 
-            foreach (GeoMesh m in Owner.Model.Meshes.Values)
-            {
-                if (m.Material.Name == "Left")
-                {
-                    CreateTextureObject(m, TextureLeft, TextureLeftNormal, TextureLeftSpecular, type, texture);
-                    return;
-                }
-            }
+            if (type == TextureType.Diffuse)
+                EditTextureObject(ref GeoTextureLeft, texId, type, texture);
+            else if (type == TextureType.Normal)
+                EditTextureObject(ref GeoTextureLeftNormal, texId, type, texture);
+            else if (type == TextureType.Specular)
+                EditTextureObject(ref GeoTextureLeftSpecular, texId, type, texture);
         }
 
         private void SetTextureRight(string texture, TextureType type)
         {
-            if (KWEngine.CubeTextures[Owner.CurrentWorld].ContainsKey(texture))
+            int texId = -1;
+            if (KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld].ContainsKey(texture))
             {
-                if (type == TextureType.Diffuse)
-                    TextureRight = KWEngine.CubeTextures[Owner.CurrentWorld][texture];
-                else if (type == TextureType.Normal)
-                    TextureRightNormal = KWEngine.CubeTextures[Owner.CurrentWorld][texture];
-                else if (type == TextureType.Specular)
-                    TextureRightSpecular = KWEngine.CubeTextures[Owner.CurrentWorld][texture];
+                
+                    texId = KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld][texture];
             }
             else
             {
-                if (type == TextureType.Diffuse)
-                    TextureRight = HelperTexture.LoadTextureForModelExternal(texture);
-                else if (type == TextureType.Normal)
-                    TextureRightNormal = HelperTexture.LoadTextureForModelExternal(texture);
-                else if (type == TextureType.Specular)
-                    TextureRightSpecular = HelperTexture.LoadTextureForModelExternal(texture);
+                
+                    texId = HelperTexture.LoadTextureForModelExternal(texture);
+
+                KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld].Add(texture, texId);
             }
 
-            foreach (GeoMesh m in Owner.Model.Meshes.Values)
-            {
-                if (m.Material.Name == "Right")
-                {
-                    CreateTextureObject(m, TextureRight, TextureRightNormal, TextureRightSpecular, type, texture);
-                    return;
-                }
-            }
+            if (type == TextureType.Diffuse)
+                EditTextureObject(ref GeoTextureRight, texId, type, texture);
+            else if (type == TextureType.Normal)
+                EditTextureObject(ref GeoTextureRightNormal, texId, type, texture);
+            else if (type == TextureType.Specular)
+                EditTextureObject(ref GeoTextureRightSpecular, texId, type, texture);
         }
 
         private void SetTextureTop(string texture, TextureType type)
         {
-            if (KWEngine.CubeTextures[Owner.CurrentWorld].ContainsKey(texture))
+            int texId = -1;
+            if (KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld].ContainsKey(texture))
             {
-                if (type == TextureType.Diffuse)
-                    TextureTop = KWEngine.CubeTextures[Owner.CurrentWorld][texture];
-                else if (type == TextureType.Normal)
-                    TextureTopNormal = KWEngine.CubeTextures[Owner.CurrentWorld][texture];
-                else if (type == TextureType.Specular)
-                    TextureTopSpecular = KWEngine.CubeTextures[Owner.CurrentWorld][texture];
+                texId = KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld][texture];
             }
             else
             {
-                if (type == TextureType.Diffuse)
-                    TextureTop = HelperTexture.LoadTextureForModelExternal(texture);
-                else if (type == TextureType.Normal)
-                    TextureTopNormal = HelperTexture.LoadTextureForModelExternal(texture);
-                else if (type == TextureType.Specular)
-                    TextureTopSpecular = HelperTexture.LoadTextureForModelExternal(texture);
+                texId = HelperTexture.LoadTextureForModelExternal(texture);
+                KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld].Add(texture, texId);
             }
 
-            foreach (GeoMesh m in Owner.Model.Meshes.Values)
-            {
-                if (m.Material.Name == "Top")
-                {
-                    CreateTextureObject(m, TextureTop, TextureTopNormal, TextureTopSpecular, type, texture);
-                    return;
-                }
-            }
+            if (type == TextureType.Diffuse)
+                EditTextureObject(ref GeoTextureTop, texId, type, texture);
+            else if (type == TextureType.Normal)
+                EditTextureObject(ref GeoTextureTopNormal, texId, type, texture);
+            else if (type == TextureType.Specular)
+                EditTextureObject(ref GeoTextureTopSpecular, texId, type, texture);
         }
 
         private void SetTextureBottom(string texture, TextureType type)
         {
-            if (KWEngine.CubeTextures[Owner.CurrentWorld].ContainsKey(texture))
+            int texId = -1;
+            if (KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld].ContainsKey(texture))
             {
-                if(type == TextureType.Diffuse)
-                    TextureBottom = KWEngine.CubeTextures[Owner.CurrentWorld][texture];
-                else if(type == TextureType.Normal)
-                    TextureBottomNormal = KWEngine.CubeTextures[Owner.CurrentWorld][texture];
-                else if(type == TextureType.Specular)
-                    TextureBottomSpecular = KWEngine.CubeTextures[Owner.CurrentWorld][texture];
+                texId = KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld][texture];
             }
             else
             {
-                if (type == TextureType.Diffuse)
-                    TextureBottom = HelperTexture.LoadTextureForModelExternal(texture);
-                else if (type == TextureType.Normal)
-                    TextureBottomNormal = HelperTexture.LoadTextureForModelExternal(texture);
-                else if (type == TextureType.Specular)
-                    TextureBottomSpecular= HelperTexture.LoadTextureForModelExternal(texture);
+                texId = HelperTexture.LoadTextureForModelExternal(texture);
             }
 
-            foreach (GeoMesh m in Owner.Model.Meshes.Values)
-            {
-                if (m.Material.Name == "Bottom")
-                {
-                    CreateTextureObject(m, TextureBottom, TextureBottomNormal, TextureBottomSpecular, type, texture);
-                    return;
-                }
-            }
+            if (type == TextureType.Diffuse)
+                EditTextureObject(ref GeoTextureBottom, texId, type, texture);
+            else if (type == TextureType.Normal)
+                EditTextureObject(ref GeoTextureBottomNormal, texId, type, texture);
+            else if (type == TextureType.Specular)
+                EditTextureObject(ref GeoTextureBottomSpecular, texId, type, texture);
         }
 
-        private void CreateTextureObject(GeoMesh mesh, int diffuse, int normal, int specular, TextureType type, string name)
+        private void EditTextureObject(ref GeoTexture tex, int texId, TextureType type, string name)
         {
             if (type == TextureType.Diffuse)
             {
-                GeoTexture tex = new GeoTexture();
+                
                 tex.Filename = name;
                 tex.Type = GeoTexture.TexType.Diffuse;
-                tex.UVMapIndex = 0;
-                tex.OpenGLID = diffuse;
-                tex.UVTransform = new OpenTK.Vector2(1, 1);
-
-                mesh.Material.TextureDiffuse = tex;
+                tex.OpenGLID = texId;
             }
             else if (type == TextureType.Normal)
             {
-                GeoTexture tex = new GeoTexture();
+               
                 tex.Filename = name;
                 tex.Type = GeoTexture.TexType.Normal;
-                tex.UVMapIndex = 0;
-                tex.OpenGLID = normal;
-                tex.UVTransform = new OpenTK.Vector2(1, 1);
-
-                mesh.Material.TextureNormal = tex;
+                tex.OpenGLID = texId;
             }
             else
             {
-                GeoTexture tex = new GeoTexture();
                 tex.Filename = name;
                 tex.Type = GeoTexture.TexType.Specular;
-                tex.UVMapIndex = 0;
-                tex.OpenGLID = specular;
-                tex.UVTransform = new OpenTK.Vector2(1, 1);
-
-                mesh.Material.TextureSpecular = tex;
+                tex.OpenGLID = texId;
             }
+        }
+
+        private void EditTextureObject(ref GeoTexture tex, float x, float y)
+        {
+            tex.UVTransform = new OpenTK.Vector2(x, y);
         }
 
     }

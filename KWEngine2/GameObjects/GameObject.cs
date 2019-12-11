@@ -12,12 +12,36 @@ namespace KWEngine2.GameObjects
 {
     public abstract class GameObject : IComparable
     {
+        public bool IsShadowCaster { get; set; } = false;
         public World CurrentWorld { get; internal set; } = null;
         internal int _largestHitboxIndex = -1;
         internal GeoModelCube _cubeModel = null;
         internal List<Hitbox> Hitboxes = new List<Hitbox>();
         internal Dictionary<string, Matrix4[]> BoneTranslationMatrices { get; set; }
         private int _animationId = -1;
+
+        private Vector4 _glow = new Vector4(0, 0, 0, 0);
+        
+        public Vector4 Glow
+        {
+            get
+            {
+                return _glow;
+            }
+            set
+            {
+                _glow.X = HelperGL.Clamp(value.X, 0, 1);
+                _glow.Y = HelperGL.Clamp(value.Y, 0, 1);
+                _glow.Z = HelperGL.Clamp(value.Z, 0, 1);
+                _glow.W = HelperGL.Clamp(value.W, 0, 1);
+            }
+        }
+        
+
+        public void SetGlow(float red, float green, float blue, float intensity)
+        {
+            Glow = new Vector4(red, green, blue, intensity);
+        }
 
         public bool IsPickable { get; set; } = false;
         public int AnimationID
@@ -561,9 +585,9 @@ namespace KWEngine2.GameObjects
             return new Quaternion(0, 0, 0, 1);
         }
 
-        private void CheckModelAndWorld()
+        private void CheckModelAndWorld(bool checkIfGameObjectIsInAWorld = false)
         {
-            if (Model == null || CurrentWorld == null)
+            if (Model == null || checkIfGameObjectIsInAWorld ? this.CurrentWorld == null : GLWindow.CurrentWindow.CurrentWorld == null)
             {
                 throw new Exception("Model and/or World have not been set yet!");
             }
@@ -578,7 +602,7 @@ namespace KWEngine2.GameObjects
 
         protected List<Intersection> GetIntersections()
         {
-            CheckModelAndWorld();
+            CheckModelAndWorld(true);
             List<Intersection> intersections = new List<Intersection>();
             if (!IsCollisionObject)
             {
@@ -704,6 +728,30 @@ namespace KWEngine2.GameObjects
                     throw new Exception("Cannot set side texture on single sided cube model. Please use KWCube6 as model.");
                 }
                 _cubeModel.SetTexture(texture, side, type);
+            }
+            else
+            {
+                throw new Exception("Cannot set textures for model " + Model.Name + " because it is not a KWCube.");
+            }
+        }
+
+        public void SetTextureRepeat(float x, float y, CubeSide side)
+        {
+            CheckModelAndWorld();
+
+            if (_cubeModel != null)
+            {
+                if (_cubeModel is GeoModelCube1 && side != CubeSide.All)
+                {
+                    throw new Exception("Cannot set side texture repeat on single sided cube model. Please use KWCube6 as model.");
+                }
+                else if(!(x > 0 && y > 0))
+                {
+                    throw new Exception("Texture repeat values must be > 0.");
+                }
+                
+
+                _cubeModel.SetTextureRepeat(x, y, side);
             }
             else
             {

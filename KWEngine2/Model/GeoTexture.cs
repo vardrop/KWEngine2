@@ -16,5 +16,14 @@ namespace KWEngine2.Model
         public int UVMapIndex { get; internal set; }
         public Vector2 UVTransform { get; internal set; }
         public TexType Type { get; internal set; }
+
+        public GeoTexture(string name = null)
+        {
+            Type = TexType.Diffuse;
+            Filename = "undefined.";
+            OpenGLID = -1;
+            UVMapIndex = 0;
+            UVTransform = new Vector2(1, 1);
+        }
     }
 }

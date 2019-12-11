@@ -6,6 +6,7 @@ using OpenTK.Graphics.OpenGL4;
 using System;
 using System.IO;
 using System.Reflection;
+using static KWEngine2.KWEngine;
 
 namespace KWEngine2.Renderers
 {
@@ -115,7 +116,12 @@ namespace KWEngine2.Renderers
 
             lock (g)
             {
-                
+                if (mUniform_Glow >= 0)
+                {
+                    GL.Uniform4(mUniform_Glow, g.Glow.X, g.Glow.Y, g.Glow.Z, g.Glow.W);
+                }
+
+
                 // Upload depth texture (shadow mapping)
                 if (mUniform_TextureShadowMap >= 0)
                 {
@@ -181,45 +187,53 @@ namespace KWEngine2.Renderers
                         GL.UniformMatrix4(mUniform_MVPShadowMap, false, ref modelViewProjectionMatrixBiased);
                     }
 
-                    if (mUniform_Texture >= 0 && mesh.Material.TextureDiffuse.OpenGLID > 0)
+                    if (g._cubeModel != null)
                     {
-                        GL.ActiveTexture(TextureUnit.Texture0);
-                        GL.BindTexture(TextureTarget.Texture2D, mesh.Material.TextureDiffuse.OpenGLID);
-                        GL.Uniform1(mUniform_Texture, 0);
-                        GL.Uniform1(mUniform_TextureUse, 1);
-
-                        GL.Uniform3(mUniform_BaseColor, 1f, 1f, 1f);
+                        UploadMaterialForKWCube(g._cubeModel, mesh);
                     }
                     else
                     {
-                        GL.Uniform1(mUniform_TextureUse, 0);
-                        GL.Uniform3(mUniform_BaseColor, mesh.Material.ColorDiffuse.X, mesh.Material.ColorDiffuse.Y, mesh.Material.ColorDiffuse.Z);
-                    }
+                        GL.Uniform2(mUniform_TextureTransform, mesh.Material.TextureDiffuse.UVTransform.X, mesh.Material.TextureDiffuse.UVTransform.Y);
+                        if (mUniform_Texture >= 0 && mesh.Material.TextureDiffuse.OpenGLID > 0)
+                        {
+                            GL.ActiveTexture(TextureUnit.Texture0);
+                            GL.BindTexture(TextureTarget.Texture2D, mesh.Material.TextureDiffuse.OpenGLID);
+                            GL.Uniform1(mUniform_Texture, 0);
+                            GL.Uniform1(mUniform_TextureUse, 1);
 
-                    if(mUniform_TextureNormalMap >= 0 && mesh.Material.TextureNormal.OpenGLID > 0)
-                    {
-                        GL.ActiveTexture(TextureUnit.Texture1);
-                        GL.BindTexture(TextureTarget.Texture2D, mesh.Material.TextureNormal.OpenGLID);
-                        GL.Uniform1(mUniform_TextureNormalMap, 1);
-                        GL.Uniform1(mUniform_TextureUseNormalMap, 1);
-                    }
-                    else
-                    {
-                        GL.Uniform1(mUniform_TextureUseNormalMap, 0);
-                    }
+                            
+                            GL.Uniform3(mUniform_BaseColor, 1f, 1f, 1f);
+                        }
+                        else
+                        {
+                            GL.Uniform1(mUniform_TextureUse, 0);
+                            GL.Uniform3(mUniform_BaseColor, mesh.Material.ColorDiffuse.X, mesh.Material.ColorDiffuse.Y, mesh.Material.ColorDiffuse.Z);
+                        }
 
-                    if (mUniform_TextureSpecularMap >= 0 && mesh.Material.TextureSpecular.OpenGLID > 0)
-                    {
-                        GL.ActiveTexture(TextureUnit.Texture2);
-                        GL.BindTexture(TextureTarget.Texture2D, mesh.Material.TextureSpecular.OpenGLID);
-                        GL.Uniform1(mUniform_TextureSpecularMap, 2);
-                        GL.Uniform1(mUniform_TextureUseSpecularMap, 1);
-                    }
-                    else
-                    {
-                        GL.Uniform1(mUniform_TextureUseSpecularMap, 0);
-                    }
+                        if (mUniform_TextureNormalMap >= 0 && mesh.Material.TextureNormal.OpenGLID > 0)
+                        {
+                            GL.ActiveTexture(TextureUnit.Texture1);
+                            GL.BindTexture(TextureTarget.Texture2D, mesh.Material.TextureNormal.OpenGLID);
+                            GL.Uniform1(mUniform_TextureNormalMap, 1);
+                            GL.Uniform1(mUniform_TextureUseNormalMap, 1);
+                        }
+                        else
+                        {
+                            GL.Uniform1(mUniform_TextureUseNormalMap, 0);
+                        }
 
+                        if (mUniform_TextureSpecularMap >= 0 && mesh.Material.TextureSpecular.OpenGLID > 0)
+                        {
+                            GL.ActiveTexture(TextureUnit.Texture2);
+                            GL.BindTexture(TextureTarget.Texture2D, mesh.Material.TextureSpecular.OpenGLID);
+                            GL.Uniform1(mUniform_TextureSpecularMap, 2);
+                            GL.Uniform1(mUniform_TextureUseSpecularMap, 1);
+                        }
+                        else
+                        {
+                            GL.Uniform1(mUniform_TextureUseSpecularMap, 0);
+                        }
+                    }
 
                     GL.BindVertexArray(mesh.VAO);
 
@@ -237,6 +251,303 @@ namespace KWEngine2.Renderers
         internal override void Draw(GameObject g, ref Matrix4 viewProjection)
         {
             throw new NotImplementedException();
+        }
+
+        private void UploadMaterialForKWCube(GeoModelCube cubeModel, GeoMesh mesh)
+        {
+            
+            if (mesh.Material.Name == "KWCube")
+            {
+                UploadMaterialForSide(CubeSide.Front, cubeModel, mesh);
+            }
+            else
+            {
+                if(mesh.Material.Name == "Front")
+                {
+                    UploadMaterialForSide(CubeSide.Front, cubeModel, mesh);
+                }
+                else if (mesh.Material.Name == "Back")
+                {
+                    UploadMaterialForSide(CubeSide.Back, cubeModel, mesh);
+                }
+                else if (mesh.Material.Name == "Left")
+                {
+                    UploadMaterialForSide(CubeSide.Left, cubeModel, mesh);
+                }
+                else if (mesh.Material.Name == "Right")
+                {
+                    UploadMaterialForSide(CubeSide.Right, cubeModel, mesh);
+                }
+                else if (mesh.Material.Name == "Top")
+                {
+                    UploadMaterialForSide(CubeSide.Top, cubeModel, mesh);
+                }
+                else if (mesh.Material.Name == "Bottom")
+                {
+                    UploadMaterialForSide(CubeSide.Bottom, cubeModel, mesh);
+                }
+            }
+            
+
+        }
+
+        private void UploadMaterialForSide(CubeSide side, GeoModelCube cubeModel, GeoMesh mesh)
+        {
+            
+            if (side == CubeSide.Front)
+            {
+                GL.Uniform2(mUniform_TextureTransform, cubeModel.GeoTextureFront.UVTransform.X, cubeModel.GeoTextureFront.UVTransform.Y);
+                if (mUniform_Texture >= 0 && cubeModel.GeoTextureFront.OpenGLID > 0)
+                {
+                    GL.ActiveTexture(TextureUnit.Texture0);
+                    GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureFront.OpenGLID);
+                    GL.Uniform1(mUniform_Texture, 0);
+                    GL.Uniform1(mUniform_TextureUse, 1);
+                    GL.Uniform3(mUniform_BaseColor, 1f, 1f, 1f);
+                    
+                }
+                else
+                {
+                    GL.Uniform1(mUniform_TextureUse, 0);
+                    GL.Uniform3(mUniform_BaseColor, mesh.Material.ColorDiffuse.X, mesh.Material.ColorDiffuse.Y, mesh.Material.ColorDiffuse.Z);
+                }
+
+                if (mUniform_TextureNormalMap >= 0 && cubeModel.GeoTextureFrontNormal.OpenGLID > 0)
+                {
+                    GL.ActiveTexture(TextureUnit.Texture1);
+                    GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureFrontNormal.OpenGLID);
+                    GL.Uniform1(mUniform_TextureNormalMap, 1);
+                    GL.Uniform1(mUniform_TextureUseNormalMap, 1);
+                }
+                else
+                {
+                    GL.Uniform1(mUniform_TextureUseNormalMap, 0);
+                }
+
+                if (mUniform_TextureSpecularMap >= 0 && cubeModel.GeoTextureFrontSpecular.OpenGLID > 0)
+                {
+                    GL.ActiveTexture(TextureUnit.Texture2);
+                    GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureFrontSpecular.OpenGLID);
+                    GL.Uniform1(mUniform_TextureSpecularMap, 2);
+                    GL.Uniform1(mUniform_TextureUseSpecularMap, 1);
+                }
+                else
+                {
+                    GL.Uniform1(mUniform_TextureUseSpecularMap, 0);
+                }
+            }
+            else if(side == CubeSide.Back)
+            {
+                GL.Uniform2(mUniform_TextureTransform, cubeModel.GeoTextureBack.UVTransform.X, cubeModel.GeoTextureBack.UVTransform.Y);
+                if (mUniform_Texture >= 0 && cubeModel.GeoTextureBack.OpenGLID > 0)
+                {
+                    GL.ActiveTexture(TextureUnit.Texture0);
+                    GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureBack.OpenGLID);
+                    GL.Uniform1(mUniform_Texture, 0);
+                    GL.Uniform1(mUniform_TextureUse, 1);
+                    GL.Uniform3(mUniform_BaseColor, 1f, 1f, 1f);
+                }
+                else
+                {
+                    GL.Uniform1(mUniform_TextureUse, 0);
+                    GL.Uniform3(mUniform_BaseColor, mesh.Material.ColorDiffuse.X, mesh.Material.ColorDiffuse.Y, mesh.Material.ColorDiffuse.Z);
+                }
+
+                if (mUniform_TextureNormalMap >= 0 && cubeModel.GeoTextureBackNormal.OpenGLID > 0)
+                {
+                    GL.ActiveTexture(TextureUnit.Texture1);
+                    GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureBackNormal.OpenGLID);
+                    GL.Uniform1(mUniform_TextureNormalMap, 1);
+                    GL.Uniform1(mUniform_TextureUseNormalMap, 1);
+                }
+                else
+                {
+                    GL.Uniform1(mUniform_TextureUseNormalMap, 0);
+                }
+
+                if (mUniform_TextureSpecularMap >= 0 && cubeModel.GeoTextureBackSpecular.OpenGLID > 0)
+                {
+                    GL.ActiveTexture(TextureUnit.Texture2);
+                    GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureBackSpecular.OpenGLID);
+                    GL.Uniform1(mUniform_TextureSpecularMap, 2);
+                    GL.Uniform1(mUniform_TextureUseSpecularMap, 1);
+                }
+                else
+                {
+                    GL.Uniform1(mUniform_TextureUseSpecularMap, 0);
+                }
+            }
+            else if (side == CubeSide.Left)
+            {
+                GL.Uniform2(mUniform_TextureTransform, cubeModel.GeoTextureLeft.UVTransform.X, cubeModel.GeoTextureLeft.UVTransform.Y);
+
+                if (mUniform_Texture >= 0 && cubeModel.GeoTextureLeft.OpenGLID > 0)
+                {
+                    GL.ActiveTexture(TextureUnit.Texture0);
+                    GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureLeft.OpenGLID);
+                    GL.Uniform1(mUniform_Texture, 0);
+                    GL.Uniform1(mUniform_TextureUse, 1);
+                    GL.Uniform3(mUniform_BaseColor, 1f, 1f, 1f);
+                }
+                else
+                {
+                    GL.Uniform1(mUniform_TextureUse, 0);
+                    GL.Uniform3(mUniform_BaseColor, mesh.Material.ColorDiffuse.X, mesh.Material.ColorDiffuse.Y, mesh.Material.ColorDiffuse.Z);
+                }
+
+                if (mUniform_TextureNormalMap >= 0 && cubeModel.GeoTextureLeftNormal.OpenGLID > 0)
+                {
+                    GL.ActiveTexture(TextureUnit.Texture1);
+                    GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureLeftNormal.OpenGLID);
+                    GL.Uniform1(mUniform_TextureNormalMap, 1);
+                    GL.Uniform1(mUniform_TextureUseNormalMap, 1);
+                }
+                else
+                {
+                    GL.Uniform1(mUniform_TextureUseNormalMap, 0);
+                }
+
+                if (mUniform_TextureSpecularMap >= 0 && cubeModel.GeoTextureLeftSpecular.OpenGLID > 0)
+                {
+                    GL.ActiveTexture(TextureUnit.Texture2);
+                    GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureLeftSpecular.OpenGLID);
+                    GL.Uniform1(mUniform_TextureSpecularMap, 2);
+                    GL.Uniform1(mUniform_TextureUseSpecularMap, 1);
+                }
+                else
+                {
+                    GL.Uniform1(mUniform_TextureUseSpecularMap, 0);
+                }
+            }
+            else if (side == CubeSide.Right)
+            {
+                GL.Uniform2(mUniform_TextureTransform, cubeModel.GeoTextureRight.UVTransform.X, cubeModel.GeoTextureRight.UVTransform.Y);
+
+
+                if (mUniform_Texture >= 0 && cubeModel.GeoTextureRight.OpenGLID > 0)
+                {
+                    GL.ActiveTexture(TextureUnit.Texture0);
+                    GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureRight.OpenGLID);
+                    GL.Uniform1(mUniform_Texture, 0);
+                    GL.Uniform1(mUniform_TextureUse, 1);
+                    GL.Uniform3(mUniform_BaseColor, 1f, 1f, 1f);
+                }
+                else
+                {
+                    GL.Uniform1(mUniform_TextureUse, 0);
+                    GL.Uniform3(mUniform_BaseColor, mesh.Material.ColorDiffuse.X, mesh.Material.ColorDiffuse.Y, mesh.Material.ColorDiffuse.Z);
+                }
+
+                if (mUniform_TextureNormalMap >= 0 && cubeModel.GeoTextureRightNormal.OpenGLID > 0)
+                {
+                    GL.ActiveTexture(TextureUnit.Texture1);
+                    GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureRightNormal.OpenGLID);
+                    GL.Uniform1(mUniform_TextureNormalMap, 1);
+                    GL.Uniform1(mUniform_TextureUseNormalMap, 1);
+                }
+                else
+                {
+                    GL.Uniform1(mUniform_TextureUseNormalMap, 0);
+                }
+
+                if (mUniform_TextureSpecularMap >= 0 && cubeModel.GeoTextureRightSpecular.OpenGLID > 0)
+                {
+                    GL.ActiveTexture(TextureUnit.Texture2);
+                    GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureRightSpecular.OpenGLID);
+                    GL.Uniform1(mUniform_TextureSpecularMap, 2);
+                    GL.Uniform1(mUniform_TextureUseSpecularMap, 1);
+                }
+                else
+                {
+                    GL.Uniform1(mUniform_TextureUseSpecularMap, 0);
+                }
+            }
+            else if (side == CubeSide.Top)
+            {
+                GL.Uniform2(mUniform_TextureTransform, cubeModel.GeoTextureTop.UVTransform.X, cubeModel.GeoTextureTop.UVTransform.Y);
+
+
+                if (mUniform_Texture >= 0 && cubeModel.GeoTextureTop.OpenGLID > 0)
+                {
+                    GL.ActiveTexture(TextureUnit.Texture0);
+                    GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureTop.OpenGLID);
+                    GL.Uniform1(mUniform_Texture, 0);
+                    GL.Uniform1(mUniform_TextureUse, 1);
+                    GL.Uniform3(mUniform_BaseColor, 1f, 1f, 1f);
+                }
+                else
+                {
+                    GL.Uniform1(mUniform_TextureUse, 0);
+                    GL.Uniform3(mUniform_BaseColor, mesh.Material.ColorDiffuse.X, mesh.Material.ColorDiffuse.Y, mesh.Material.ColorDiffuse.Z);
+                }
+
+                if (mUniform_TextureNormalMap >= 0 && cubeModel.GeoTextureTopNormal.OpenGLID > 0)
+                {
+                    GL.ActiveTexture(TextureUnit.Texture1);
+                    GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureTopNormal.OpenGLID);
+                    GL.Uniform1(mUniform_TextureNormalMap, 1);
+                    GL.Uniform1(mUniform_TextureUseNormalMap, 1);
+                }
+                else
+                {
+                    GL.Uniform1(mUniform_TextureUseNormalMap, 0);
+                }
+
+                if (mUniform_TextureSpecularMap >= 0 && cubeModel.GeoTextureTopSpecular.OpenGLID > 0)
+                {
+                    GL.ActiveTexture(TextureUnit.Texture2);
+                    GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureTopSpecular.OpenGLID);
+                    GL.Uniform1(mUniform_TextureSpecularMap, 2);
+                    GL.Uniform1(mUniform_TextureUseSpecularMap, 1);
+                }
+                else
+                {
+                    GL.Uniform1(mUniform_TextureUseSpecularMap, 0);
+                }
+            }
+            else if (side == CubeSide.Bottom)
+            {
+                GL.Uniform2(mUniform_TextureTransform, cubeModel.GeoTextureBottom.UVTransform.X, cubeModel.GeoTextureBottom.UVTransform.Y);
+
+
+                if (mUniform_Texture >= 0 && cubeModel.GeoTextureBottom.OpenGLID > 0)
+                {
+                    GL.ActiveTexture(TextureUnit.Texture0);
+                    GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureBottom.OpenGLID);
+                    GL.Uniform1(mUniform_Texture, 0);
+                    GL.Uniform1(mUniform_TextureUse, 1);
+                    GL.Uniform3(mUniform_BaseColor, 1f, 1f, 1f);
+                }
+                else
+                {
+                    GL.Uniform1(mUniform_TextureUse, 0);
+                    GL.Uniform3(mUniform_BaseColor, mesh.Material.ColorDiffuse.X, mesh.Material.ColorDiffuse.Y, mesh.Material.ColorDiffuse.Z);
+                }
+
+                if (mUniform_TextureNormalMap >= 0 && cubeModel.GeoTextureBottomNormal.OpenGLID > 0)
+                {
+                    GL.ActiveTexture(TextureUnit.Texture1);
+                    GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureBottomNormal.OpenGLID);
+                    GL.Uniform1(mUniform_TextureNormalMap, 1);
+                    GL.Uniform1(mUniform_TextureUseNormalMap, 1);
+                }
+                else
+                {
+                    GL.Uniform1(mUniform_TextureUseNormalMap, 0);
+                }
+
+                if (mUniform_TextureSpecularMap >= 0 && cubeModel.GeoTextureBottomSpecular.OpenGLID > 0)
+                {
+                    GL.ActiveTexture(TextureUnit.Texture2);
+                    GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureBottomSpecular.OpenGLID);
+                    GL.Uniform1(mUniform_TextureSpecularMap, 2);
+                    GL.Uniform1(mUniform_TextureUseSpecularMap, 1);
+                }
+                else
+                {
+                    GL.Uniform1(mUniform_TextureUseSpecularMap, 0);
+                }
+            }
         }
     }
 }
