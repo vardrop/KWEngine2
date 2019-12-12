@@ -53,13 +53,15 @@ namespace KWEngine2.Model
 
                 using (Stream s = assembly.GetManifestResourceStream(resourceName))
                 {
+
                     PostProcessSteps steps =
                           PostProcessSteps.LimitBoneWeights
                         | PostProcessSteps.Triangulate
                         | PostProcessSteps.ValidateDataStructure
                         | PostProcessSteps.GenerateUVCoords
-                        | PostProcessSteps.CalculateTangentSpace
-                        | PostProcessSteps.JoinIdenticalVertices;
+                        | PostProcessSteps.CalculateTangentSpace;
+                    if(filename != "kwcube.obj")
+                        steps |= PostProcessSteps.JoinIdenticalVertices;
                     scene = importer.ImportFileFromStream(s, steps);
                 }
             }
@@ -463,7 +465,8 @@ namespace KWEngine2.Model
                 {
                     throw new Exception("Model's primitive type is not set to 'triangles'. Cannot import model.");
                 }
-
+                
+                
                 if (isNewMesh)
                 {
                     // Generate hitbox for the previous mesh:
@@ -500,7 +503,6 @@ namespace KWEngine2.Model
 
                 for (int i = 0; i < mesh.VertexCount; i++)
                 {
-                    //TODO: Find max/min for x/y/z (for hitboxing)
                     Vector3D vertex = mesh.Vertices[i];
                     if (vertex.X > maxX)
                         maxX = vertex.X;
@@ -554,7 +556,12 @@ namespace KWEngine2.Model
                 geoMesh.VBOGenerateVerticesAndBones(model.HasBones);
                 geoMesh.VBOGenerateNormals(mesh);
                 geoMesh.VBOGenerateTangents(mesh);
-                geoMesh.VBOGenerateTextureCoords1(mesh);
+                if(model.Filename == "kwcube.obj")
+                    geoMesh.VBOGenerateTextureCoords1(mesh, scene, 1);
+                else if(model.Filename == "kwcube6.obj")
+                    geoMesh.VBOGenerateTextureCoords1(mesh, scene, 6);
+                else
+                    geoMesh.VBOGenerateTextureCoords1(mesh, scene);
                 geoMesh.VBOGenerateTextureCoords2(mesh);
 
                 ProcessMaterialsForMesh(scene, mesh, ref model, ref geoMesh);

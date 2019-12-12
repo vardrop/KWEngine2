@@ -81,7 +81,7 @@ namespace KWEngine2
             string productVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductMajorPart + 
                 "." + FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductMinorPart;
             Console.Write("\n\n\n================================================\n" + "Running KWEngine " + productVersion + " ");
-            Console.WriteLine("on OpenGL 4 Core Profile.\n" + "================================================\n");
+            Console.WriteLine("on OpenGL 4.5 Core Profile.\n" + "================================================\n");
 
             KWEngine.InitializeShaders();
             KWEngine.InitializeModels();
@@ -92,7 +92,7 @@ namespace KWEngine2
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            GL.ClearColor(0.0f, 0.0f, 1.0f, 1f);
+            GL.ClearColor(0.0f, 0.0f, 0.0f, 1f);
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
 

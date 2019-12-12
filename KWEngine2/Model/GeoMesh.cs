@@ -17,10 +17,10 @@ namespace KWEngine2.Model
         }
 
         public Dictionary<string, GeoBone> Bones { get; internal set; }
-       
+
         internal int BoneTranslationMatrixCount;
 
-        internal List<string> BoneOrder { get;  set; }
+        internal List<string> BoneOrder { get; set; }
         public int VAO { get; internal set; }
         public int VBOPosition { get; internal set; }
         public int VBONormal { get; internal set; }
@@ -35,8 +35,8 @@ namespace KWEngine2.Model
         internal Matrix4 Transform;
         public GeoVertex[] Vertices { get; internal set; }
         public OpenTK.Graphics.OpenGL4.PrimitiveType Primitive;
-        public int IndexCount 
-        { 
+        public int IndexCount
+        {
             get
             {
                 return Indices.Length;
@@ -67,8 +67,8 @@ namespace KWEngine2.Model
             for (int i = 0, arrayIndex = 0; i < Vertices.Length; i++, arrayIndex += 3)
             {
                 verticesF[arrayIndex] = Vertices[i].X;
-                verticesF[arrayIndex+1] = Vertices[i].Y;
-                verticesF[arrayIndex+2] = Vertices[i].Z;
+                verticesF[arrayIndex + 1] = Vertices[i].Y;
+                verticesF[arrayIndex + 2] = Vertices[i].Z;
 
                 if (hasBones)
                 {
@@ -133,7 +133,7 @@ namespace KWEngine2.Model
             }
         }
 
-        internal void VBOGenerateTextureCoords1(Mesh mesh)
+        internal void VBOGenerateTextureCoords1(Mesh mesh, Scene scene, int isKWCube = 0)
         {
             if (mesh.HasTextureCoords(0))
             {
@@ -144,6 +144,43 @@ namespace KWEngine2.Model
                     values[arrayIndex] = mesh.TextureCoordinateChannels[0][i].X;
                     values[arrayIndex + 1] = mesh.TextureCoordinateChannels[0][i].Y;
                 }
+
+                if (isKWCube == 1)
+                {
+                    int[] indices = mesh.GetIndices();
+                    List<Vector3D> vertices = mesh.Vertices;
+                    // Override UVs for KWCube:
+
+                    
+                    for (int i = 6; i < values.Length; i++)
+                    {
+                        values[i] = 1- values[i];
+                    }
+
+                    for (int i = 18 * 2; i < 18 * 2 + 6; i++)
+                    {
+                        values[i] = 1 - values[i];
+                    }
+
+
+
+                }
+                else if(isKWCube == 6)
+                {
+                    string matName = scene.Materials[mesh.MaterialIndex].Name;
+                    if (matName == "Front" || matName == "Right" || matName == "Left" || matName == "Back")
+                    {
+                        values[0] = 1;
+                        values[1] = 0;
+                        values[2] = 0;
+                        values[3] = 1;
+                        values[4] = 1;
+                        values[5] = 1;
+                        values[6] = 0;
+                        values[7] = 0;
+                    }
+                }
+
                 VBOTexture1 = GL.GenBuffer();
                 GL.BindBuffer(BufferTarget.ArrayBuffer, VBOTexture1);
                 GL.BufferData(BufferTarget.ArrayBuffer, values.Length * 4, values, BufferUsageHint.StaticDraw);
@@ -151,6 +188,7 @@ namespace KWEngine2.Model
                 GL.EnableVertexAttribArray(2);
                 GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
             }
+
         }
 
         internal void VBOGenerateTextureCoords2(Mesh mesh)
@@ -226,7 +264,7 @@ namespace KWEngine2.Model
                 GL.DeleteBuffer(VBOIndex);
             if (VBOPosition >= 0)
                 GL.DeleteBuffer(VBOPosition);
-            if (VBONormal>= 0)
+            if (VBONormal >= 0)
                 GL.DeleteBuffer(VBONormal);
             if (VBOTangent >= 0)
                 GL.DeleteBuffer(VBOTangent);
@@ -245,6 +283,6 @@ namespace KWEngine2.Model
                 GL.DeleteVertexArray(VAO);
         }
 
-        public GeoTerrain Terrain { get; internal set; } 
+        public GeoTerrain Terrain { get; internal set; }
     }
 }
