@@ -79,6 +79,8 @@ namespace KWEngine2.Renderers
             mUniform_TextureLightMap = GL.GetUniformLocation(mProgramId, "uTextureLightmap");
             mUniform_TextureUseLightMap = GL.GetUniformLocation(mProgramId, "uUseTextureLightMap");
             mUniform_TextureShadowMap = GL.GetUniformLocation(mProgramId, "uTextureShadowMap");
+            mUniform_TextureUseEmissiveMap = GL.GetUniformLocation(mProgramId, "uUseTextureEmissive");
+            mUniform_TextureEmissiveMap = GL.GetUniformLocation(mProgramId, "uTextureEmissive");
 
 
             mUniform_Glow = GL.GetUniformLocation(mProgramId, "uGlow");
@@ -107,7 +109,7 @@ namespace KWEngine2.Renderers
             mUniform_TextureTransform = GL.GetUniformLocation(mProgramId, "uTextureTransform");
         }
 
-        internal override void Draw(GameObject g, ref Matrix4 viewProjection, ref Matrix4 viewProjectionShadow)
+        internal override void Draw(GameObject g, ref Matrix4 viewProjection, ref Matrix4 viewProjectionShadowBiased, ref float[] lightColors, ref float[] lightTargets, ref float[] lightPositions, int lightCount)
         {
             if (g == null || !g.HasModel || g.CurrentWorld == null)
                 return;
@@ -121,11 +123,30 @@ namespace KWEngine2.Renderers
                     GL.Uniform4(mUniform_Glow, g.Glow.X, g.Glow.Y, g.Glow.Z, g.Glow.W);
                 }
 
+                if(mUniform_TintColor >= 0)
+                {
+                    GL.Uniform3(mUniform_TintColor, g.Color.X, g.Color.Y, g.Color.Z);
+                }
+
+                if (mUniform_LightCount >= 0)
+                {
+                    // How many lights are there?
+                    GL.Uniform1(mUniform_LightCount, lightCount);
+                    GL.Uniform4(mUniform_LightsColors, KWEngine.MAX_LIGHTS, lightColors);
+                    GL.Uniform4(mUniform_LightsTargets, KWEngine.MAX_LIGHTS, lightTargets);
+                    GL.Uniform4(mUniform_LightsPositions, KWEngine.MAX_LIGHTS, lightPositions);
+                }
+
                 // Sun
-                if(mUniform_SunPosition >= 0)
+                if(mUniform_SunIntensity >= 0)
+                {
+                    GL.Uniform4(mUniform_SunIntensity, g.CurrentWorld.GetSunColor());
+                }
+
+                if (mUniform_SunPosition >= 0)
                 {
                     GL.Uniform3(mUniform_SunPosition, g.CurrentWorld.GetSunPosition().X, g.CurrentWorld.GetSunPosition().Z, g.CurrentWorld.GetSunPosition().Z);
-                    Vector3 sunDirection = g.CurrentWorld.GetSunTarget() - g.CurrentWorld.GetSunPosition();
+                    Vector3 sunDirection = g.CurrentWorld.GetSunPosition() - g.CurrentWorld.GetSunTarget();
                     sunDirection.NormalizeFast();
                     GL.Uniform3(mUniform_SunDirection, ref sunDirection);
                     GL.Uniform1(mUniform_SunAmbient, g.CurrentWorld.SunAmbientFactor);
@@ -180,6 +201,20 @@ namespace KWEngine2.Renderers
                         }
                     }
 
+
+                    if (mUniform_SpecularPower >= 0)
+                    {
+
+                        GL.Uniform1(mUniform_SpecularPower, mesh.Material.SpecularPower);
+                        
+                    }
+                    if (mUniform_SpecularArea >= 0)
+                    {
+
+                        GL.Uniform1(mUniform_SpecularArea, mesh.Material.SpecularArea);
+
+                    }
+
                     // Might not be needed because shadow map pass already calculated it:
                     /*
                     if (useMeshTransform)
@@ -195,12 +230,12 @@ namespace KWEngine2.Renderers
                     GL.UniformMatrix4(mUniform_NormalMatrix, false, ref _normalMatrix);
                     GL.UniformMatrix4(mUniform_MVP, false, ref _modelViewProjection);
 
+                    
 
                     // Shadow mapping
                     if (mUniform_MVPShadowMap >= 0)
                     {
-                        Matrix4 viewProjectionMatrixShadowBiased = viewProjectionShadow * HelperMatrix.BiasedMatrixForShadowMapping;
-                        Matrix4.Mult(ref _tmpMatrix, ref viewProjectionMatrixShadowBiased, out Matrix4 modelViewProjectionMatrixBiased);
+                        Matrix4 modelViewProjectionMatrixBiased = g.ModelMatrixForRenderPass * viewProjectionShadowBiased;
                         GL.UniformMatrix4(mUniform_MVPShadowMap, false, ref modelViewProjectionMatrixBiased);
                     }
 
@@ -210,6 +245,12 @@ namespace KWEngine2.Renderers
                     }
                     else
                     {
+                        // TODO: Add lightmap feature
+                        if(mUniform_TextureUseLightMap >= 0)
+                        {
+                            GL.Uniform1(mUniform_TextureUseLightMap, 0);
+                        }
+
                         GL.Uniform2(mUniform_TextureTransform, mesh.Material.TextureDiffuse.UVTransform.X, mesh.Material.TextureDiffuse.UVTransform.Y);
                         if (mUniform_Texture >= 0 && mesh.Material.TextureDiffuse.OpenGLID > 0)
                         {
@@ -250,6 +291,11 @@ namespace KWEngine2.Renderers
                         {
                             GL.Uniform1(mUniform_TextureUseSpecularMap, 0);
                         }
+
+
+                        //TODO: Add emissive maps
+                        GL.Uniform1(mUniform_TextureUseEmissiveMap, 0);
+                        GL.Uniform4(mUniform_EmissiveColor, mesh.Material.ColorEmissive);
                     }
 
                     GL.BindVertexArray(mesh.VAO);

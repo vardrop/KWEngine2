@@ -21,8 +21,24 @@ namespace KWEngine2.GameObjects
         internal Dictionary<string, Matrix4[]> BoneTranslationMatrices { get; set; }
         private int _animationId = -1;
 
+        private Vector3 _tintColor = new Vector3(1, 1, 1);
         private Vector4 _glow = new Vector4(0, 0, 0, 0);
         
+        public Vector3 Color
+        {
+            get
+            {
+                return _tintColor;
+            }
+            set
+            {
+                _tintColor.X = HelperGL.Clamp(value.X, 0, 1);
+                _tintColor.Y = HelperGL.Clamp(value.Y, 0, 1);
+                _tintColor.Z = HelperGL.Clamp(value.Z, 0, 1);
+               
+            }
+        }
+
         public Vector4 Glow
         {
             get
@@ -79,14 +95,6 @@ namespace KWEngine2.GameObjects
         public bool IsCollisionObject { get; set; } = false;
         public object Tag { get; protected set; } = null;
         private GeoModel _model;
-        private Vector3 _color = new Vector3(1, 1, 1);
-        public Vector3 Color
-        {
-            get
-            {
-                return _color;
-            }
-        }
         internal Matrix4 _modelMatrix = Matrix4.Identity;
         private Quaternion _rotation = new Quaternion(0, 0, 0, 1);
         private Vector3 _scale = new Vector3(1, 1, 1);
@@ -361,9 +369,9 @@ namespace KWEngine2.GameObjects
 
         protected void SetColor(float red, float green, float blue)
         {
-            _color.X = red >= 0 && red <= 1 ? red : 1;
-            _color.X = green >= 0 && green <= 1 ? green : 1;
-            _color.X = blue >= 0 && blue <= 1 ? blue : 1;
+            _tintColor.X = red >= 0 && red <= 1 ? red : 1;
+            _tintColor.Y = green >= 0 && green <= 1 ? green : 1;
+            _tintColor.Z = blue >= 0 && blue <= 1 ? blue : 1;
         }
 
         protected Vector3 GetLookAtVector()

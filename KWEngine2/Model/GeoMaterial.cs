@@ -8,12 +8,15 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace KWEngine2.Model
 {
-    public class GeoMaterial
+    public struct GeoMaterial
     {
         public string Name { get; internal set; }
         public BlendingFactor BlendMode { get; internal set; }
         public Vector4 ColorEmissive { get; internal set; }
         public Vector4 ColorDiffuse { get; internal set; }
+
+        public float SpecularPower { get; internal set; }
+        public float SpecularArea { get; internal set; }
 
         public GeoTexture TextureDiffuse { get; internal set; }
         public GeoTexture TextureNormal { get; internal set; }

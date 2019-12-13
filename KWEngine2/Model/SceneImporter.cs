@@ -333,6 +333,8 @@ namespace KWEngine2.Model
                     geoMaterial.ColorDiffuse = new Vector4(1, 1, 1, 1);
                     geoMaterial.ColorEmissive = new Vector4(0, 0, 0, 1);
                 }
+                geoMaterial.SpecularArea = 256;
+                geoMaterial.SpecularPower = 0;
             }
             else
             {
@@ -343,6 +345,8 @@ namespace KWEngine2.Model
                     geoMaterial.BlendMode = material.BlendMode == BlendMode.Default ? OpenTK.Graphics.OpenGL4.BlendingFactor.OneMinusSrcAlpha : OpenTK.Graphics.OpenGL4.BlendingFactor.One; // TODO: Check if this is correct!
                     geoMaterial.ColorDiffuse = material.HasColorDiffuse ? new Vector4(material.ColorDiffuse.R, material.ColorDiffuse.G, material.ColorDiffuse.B, material.ColorDiffuse.A) : new Vector4(1, 1, 1, 1);
                     geoMaterial.ColorEmissive = material.HasColorEmissive ? new Vector4(material.ColorEmissive.R, material.ColorEmissive.G, material.ColorEmissive.B, material.ColorEmissive.A) : new Vector4(0, 0, 0, 1);
+                    geoMaterial.SpecularPower = material.ShininessStrength;
+                    geoMaterial.SpecularArea = material.Shininess;
                 }
                 else
                 {
@@ -350,6 +354,8 @@ namespace KWEngine2.Model
                     geoMaterial.BlendMode = OpenTK.Graphics.OpenGL4.BlendingFactor.OneMinusSrcAlpha;
                     geoMaterial.ColorDiffuse = new Vector4(1, 1, 1, 1);
                     geoMaterial.ColorEmissive = new Vector4(0, 0, 0, 1);
+                    geoMaterial.SpecularArea = 256;
+                    geoMaterial.SpecularPower = 0;
                 }
             }
 

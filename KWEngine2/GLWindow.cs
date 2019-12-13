@@ -24,6 +24,10 @@ namespace KWEngine2
         internal Matrix4 _projectionMatrix = Matrix4.Identity;
         internal Matrix4 _projectionMatrixShadow = Matrix4.Identity;
 
+        internal static float[] LightColors = new float[KWEngine.MAX_LIGHTS * 4];
+        internal static float[] LightTargets = new float[KWEngine.MAX_LIGHTS * 4];
+        internal static float[] LightPositions = new float[KWEngine.MAX_LIGHTS * 4];
+
         /// <summary>
         /// Konstruktormethode
         /// </summary>
@@ -116,13 +120,14 @@ namespace KWEngine2
 
             if (CurrentWorld != null)
             {
-                _viewMatrix = Matrix4.LookAt(CurrentWorld.GetCameraPosition(), CurrentWorld.GetCameraTarget(), KWEngine.WorldUp);
-                Matrix4 viewProjection = _viewMatrix * _projectionMatrix;
-
-                Matrix4 viewMatrixShadow = Matrix4.LookAt(CurrentWorld.GetSunPosition(), CurrentWorld.GetSunTarget(), KWEngine.WorldUp);
-                Matrix4 viewProjectionShadow = viewMatrixShadow * _projectionMatrixShadow;
                 lock (CurrentWorld)
                 {
+                    _viewMatrix = Matrix4.LookAt(CurrentWorld.GetCameraPosition(), CurrentWorld.GetCameraTarget(), KWEngine.WorldUp);
+                    Matrix4 viewProjection = _viewMatrix * _projectionMatrix;
+
+                    Matrix4 viewMatrixShadow = Matrix4.LookAt(CurrentWorld.GetSunPosition(), CurrentWorld.GetSunTarget(), KWEngine.WorldUp);
+                    Matrix4 viewProjectionShadow = viewMatrixShadow * _projectionMatrixShadow;
+
                     CurrentWorld.SortByZ();
 
                     SwitchToBufferAndClear(FramebufferShadowMap);
@@ -135,11 +140,14 @@ namespace KWEngine2
                     GL.UseProgram(0);
 
                     SwitchToBufferAndClear(0);
-                    GL.Viewport(0,0,Width,Height);
+                    GL.Viewport(ClientRectangle);
+                    Matrix4 viewProjectionShadowBiased = viewProjectionShadow * HelperMatrix.BiasedMatrixForShadowMapping;
+                    LightObject.PrepareLightsForRenderPass(CurrentWorld.GetLightObjects(), ref LightColors, ref LightTargets, ref LightPositions, ref CurrentWorld._lightcount);
                     foreach (GameObject g in CurrentWorld.GetGameObjects())
                     {
-                        KWEngine.Renderers["Standard"].Draw(g, ref viewProjection, ref viewProjectionShadow);
+                        KWEngine.Renderers["Standard"].Draw(g, ref viewProjection, ref viewProjectionShadowBiased, ref LightColors, ref LightTargets, ref LightPositions, CurrentWorld._lightcount);
                     }
+                    GL.UseProgram(0);
                 }
             }
             SwapBuffers();

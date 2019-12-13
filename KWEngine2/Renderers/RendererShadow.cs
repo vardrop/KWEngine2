@@ -120,7 +120,7 @@ namespace KWEngine2.Renderers
 
         }
 
-        internal override void Draw(GameObject g, ref Matrix4 viewProjection, ref Matrix4 viewProjectionShadow)
+        internal override void Draw(GameObject g, ref Matrix4 viewProjection, ref Matrix4 viewProjectionShadow, ref float[] lightColors, ref float[] lightTargets, ref float[] lightPositions, int lightCount)
         {
             throw new NotImplementedException();
         }

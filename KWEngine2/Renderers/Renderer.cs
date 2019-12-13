@@ -47,9 +47,11 @@ namespace KWEngine2.Renderers
         protected int mUniform_Resolution = -1;
         protected int mUniform_TextureNormalMap = -1;
         protected int mUniform_TextureSpecularMap = -1;
+        protected int mUniform_TextureEmissiveMap = -1;
         protected int mUniform_TextureUse = -1;
         protected int mUniform_TextureUseNormalMap = -1;
         protected int mUniform_TextureUseSpecularMap = -1;
+        protected int mUniform_TextureUseEmissiveMap = -1;
         protected int mUniform_TextureIsSkybox = -1;
         protected int mUniform_TextureShadowMap = -1;
         protected int mUniform_BaseColor = -1;
@@ -331,6 +333,6 @@ namespace KWEngine2.Renderers
         }
 
         internal abstract void Draw(GameObject g, ref Matrix4 viewProjection);
-        internal abstract void Draw(GameObject g, ref Matrix4 viewProjection, ref Matrix4 viewProjectionShadow);
+        internal abstract void Draw(GameObject g, ref Matrix4 viewProjection, ref Matrix4 viewProjectionShadow, ref float[] lightColors, ref float[] lightTargets, ref float[] lightPositions, int lightCount );
     }
 }
