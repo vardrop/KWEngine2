@@ -312,24 +312,45 @@ namespace KWEngine2.Model
             return "";
         }
 
-        private static void ProcessMaterialsForMesh(Scene scene, Mesh mesh, ref GeoModel model, ref GeoMesh geoMesh)
+        private static void ProcessMaterialsForMesh(Scene scene, Mesh mesh, ref GeoModel model, ref GeoMesh geoMesh, bool isKWCube = false)
         {
             GeoMaterial geoMaterial = new GeoMaterial();
             Material material = null;
-            if (mesh.MaterialIndex >= 0)
+            if (isKWCube)
             {
-                material = scene.Materials[mesh.MaterialIndex];
-                geoMaterial.Name = material.Name;
-                geoMaterial.BlendMode = material.BlendMode == BlendMode.Default ? OpenTK.Graphics.OpenGL4.BlendingFactor.OneMinusSrcAlpha : OpenTK.Graphics.OpenGL4.BlendingFactor.One; // TODO: Check if this is correct!
-                geoMaterial.ColorDiffuse = material.HasColorDiffuse ? new Vector4(material.ColorDiffuse.R, material.ColorDiffuse.G, material.ColorDiffuse.B, material.ColorDiffuse.A) : new Vector4(1, 1, 1, 1);
-                geoMaterial.ColorEmissive = material.HasColorEmissive ? new Vector4(material.ColorEmissive.R, material.ColorEmissive.G, material.ColorEmissive.B, material.ColorEmissive.A) : new Vector4(0, 0, 0, 1);
+                if (mesh.MaterialIndex >= 0)
+                {
+                    material = scene.Materials[mesh.MaterialIndex];
+                    geoMaterial.Name = material.Name;
+                    geoMaterial.BlendMode = material.BlendMode == BlendMode.Default ? OpenTK.Graphics.OpenGL4.BlendingFactor.OneMinusSrcAlpha : OpenTK.Graphics.OpenGL4.BlendingFactor.One; // TODO: Check if this is correct!
+                    geoMaterial.ColorDiffuse = new Vector4(1, 1, 1, 1);
+                    geoMaterial.ColorEmissive = new Vector4(0, 0, 0, 1);
+                }
+                else
+                {
+                    geoMaterial.Name = "kw-undefined.";
+                    geoMaterial.BlendMode = OpenTK.Graphics.OpenGL4.BlendingFactor.OneMinusSrcAlpha;
+                    geoMaterial.ColorDiffuse = new Vector4(1, 1, 1, 1);
+                    geoMaterial.ColorEmissive = new Vector4(0, 0, 0, 1);
+                }
             }
             else
             {
-                geoMaterial.Name = "kw-undefined.";
-                geoMaterial.BlendMode = OpenTK.Graphics.OpenGL4.BlendingFactor.OneMinusSrcAlpha;
-                geoMaterial.ColorDiffuse = new Vector4(1, 1, 1, 1);
-                geoMaterial.ColorEmissive = new Vector4(0, 0, 0, 1);
+                if (mesh.MaterialIndex >= 0)
+                {
+                    material = scene.Materials[mesh.MaterialIndex];
+                    geoMaterial.Name = material.Name;
+                    geoMaterial.BlendMode = material.BlendMode == BlendMode.Default ? OpenTK.Graphics.OpenGL4.BlendingFactor.OneMinusSrcAlpha : OpenTK.Graphics.OpenGL4.BlendingFactor.One; // TODO: Check if this is correct!
+                    geoMaterial.ColorDiffuse = material.HasColorDiffuse ? new Vector4(material.ColorDiffuse.R, material.ColorDiffuse.G, material.ColorDiffuse.B, material.ColorDiffuse.A) : new Vector4(1, 1, 1, 1);
+                    geoMaterial.ColorEmissive = material.HasColorEmissive ? new Vector4(material.ColorEmissive.R, material.ColorEmissive.G, material.ColorEmissive.B, material.ColorEmissive.A) : new Vector4(0, 0, 0, 1);
+                }
+                else
+                {
+                    geoMaterial.Name = "kw-undefined.";
+                    geoMaterial.BlendMode = OpenTK.Graphics.OpenGL4.BlendingFactor.OneMinusSrcAlpha;
+                    geoMaterial.ColorDiffuse = new Vector4(1, 1, 1, 1);
+                    geoMaterial.ColorEmissive = new Vector4(0, 0, 0, 1);
+                }
             }
 
             // Process Textures:
@@ -564,7 +585,7 @@ namespace KWEngine2.Model
                     geoMesh.VBOGenerateTextureCoords1(mesh, scene);
                 geoMesh.VBOGenerateTextureCoords2(mesh);
 
-                ProcessMaterialsForMesh(scene, mesh, ref model, ref geoMesh);
+                ProcessMaterialsForMesh(scene, mesh, ref model, ref geoMesh, model.Filename == "kwcube.obj" || model.Filename == "kwcube6.obj");
 
 
 

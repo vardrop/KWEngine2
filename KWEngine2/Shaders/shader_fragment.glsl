@@ -5,6 +5,7 @@ in		vec3 vNormal;
 in		vec2 vTexture;
 in		vec2 vTexture2;
 in		mat3 vTBN;
+in		vec4 vShadowCoord;
 
 uniform sampler2D uTextureDiffuse;
 uniform int uUseTextureDiffuse;
@@ -20,9 +21,11 @@ uniform vec3 uBaseColor;
 uniform vec4 uGlow;
 uniform vec3 uTintColor;
 uniform vec4 uEmissiveColor;
+uniform float uSunAmbient;
 uniform vec3 uSunPosition;
 uniform vec3 uSunDirection;
 uniform vec4 uSunIntensity;
+uniform vec3 uCameraPos;
 uniform int uLightCount;
 
 out vec4 color;
@@ -45,6 +48,7 @@ float calculateDarkening(float cosTheta, vec4 shadowCoord)
 
 void main()
 {
+	// Texture mapping:
 	vec3 texColor = vec3(1.0, 1.0, 1.0);
 	vec4 texColor4 = vec4(1.0, 1.0, 1.0, 1.0);
 	if(uUseTextureDiffuse > 0)
@@ -61,6 +65,7 @@ void main()
 		}
 	}
 
+	// Normal mapping:
 	vec3 theNormal = vec3(0);
 	if(uUseTextureNormal > 0)
     {
@@ -72,5 +77,14 @@ void main()
             theNormal = vNormal;
     }
 
-	color = vec4(uBaseColor * texColor, 1.0);	
+	// Shadow mapping:
+	vec3 surfaceToCamera = normalize(uCameraPos - vPosition);
+	vec3 fragmentToSun = normalize(uSunPosition - vPosition);
+	float dotNormalLight = max(dot(theNormal, uSunDirection), 0.0);
+	float dotNormalLightShadow = max(dot(theNormal, fragmentToSun), 0.0);
+	float darkeningAbsolute = calculateDarkening(dotNormalLightShadow, vShadowCoord);
+	float darkening = max(darkeningAbsolute, uSunAmbient);
+
+	color = vec4(uBaseColor * texColor, 1.0) * darkening;	
+	color.w = 1.0;
 }

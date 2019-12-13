@@ -15,6 +15,8 @@ namespace KWEngine2
         private Vector3 _cameraTarget = new Vector3(0, 0, 0);
         private Vector3 _sunPosition = new Vector3(100, 100, 100);
         private Vector3 _sunTarget = new Vector3(0, 0, 0);
+        private float _sunAmbient = 0.5f;
+
         private float _fov = 45f;
         private float _zFar = 1000f;
 
@@ -78,6 +80,8 @@ namespace KWEngine2
             _cameraTarget = p;
         }
 
+
+
         // Sun
         public Vector3 GetSunPosition()
         {
@@ -91,7 +95,7 @@ namespace KWEngine2
 
         public void SetSunPosition(float x, float y, float z)
         {
-            _sunPosition = new Vector3(x, y, z);
+            SetSunPosition(new Vector3(x, y, z));
         }
 
         public void SetSunPosition(Vector3 p)
@@ -101,11 +105,23 @@ namespace KWEngine2
 
         public void SetSunTarget(float x, float y, float z)
         {
-            _sunTarget = new Vector3(x, y, z);
+            SetSunTarget(new Vector3(x, y, z));
         }
         public void SetSunTarget(Vector3 p)
         {
             _sunTarget = p;
+        }
+
+        public float SunAmbientFactor
+        {
+            get
+            {
+                return _sunAmbient;
+            }
+            set
+            {
+                _sunAmbient = Helper.HelperGL.Clamp(value, 0f, 1f);
+            }
         }
 
 

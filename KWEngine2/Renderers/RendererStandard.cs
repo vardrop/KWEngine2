@@ -78,7 +78,7 @@ namespace KWEngine2.Renderers
             mUniform_TextureUseSpecularMap = GL.GetUniformLocation(mProgramId, "uUseTextureSpecular");
             mUniform_TextureLightMap = GL.GetUniformLocation(mProgramId, "uTextureLightmap");
             mUniform_TextureUseLightMap = GL.GetUniformLocation(mProgramId, "uUseTextureLightMap");
-            mUniform_TextureShadowMap = GL.GetUniformLocation(mProgramId, "uTextureShadow");
+            mUniform_TextureShadowMap = GL.GetUniformLocation(mProgramId, "uTextureShadowMap");
 
 
             mUniform_Glow = GL.GetUniformLocation(mProgramId, "uGlow");
@@ -109,7 +109,7 @@ namespace KWEngine2.Renderers
 
         internal override void Draw(GameObject g, ref Matrix4 viewProjection, ref Matrix4 viewProjectionShadow)
         {
-            if (g == null || !g.HasModel)
+            if (g == null || !g.HasModel || g.CurrentWorld == null)
                 return;
 
             GL.UseProgram(mProgramId);
@@ -121,6 +121,21 @@ namespace KWEngine2.Renderers
                     GL.Uniform4(mUniform_Glow, g.Glow.X, g.Glow.Y, g.Glow.Z, g.Glow.W);
                 }
 
+                // Sun
+                if(mUniform_SunPosition >= 0)
+                {
+                    GL.Uniform3(mUniform_SunPosition, g.CurrentWorld.GetSunPosition().X, g.CurrentWorld.GetSunPosition().Z, g.CurrentWorld.GetSunPosition().Z);
+                    Vector3 sunDirection = g.CurrentWorld.GetSunTarget() - g.CurrentWorld.GetSunPosition();
+                    sunDirection.NormalizeFast();
+                    GL.Uniform3(mUniform_SunDirection, ref sunDirection);
+                    GL.Uniform1(mUniform_SunAmbient, g.CurrentWorld.SunAmbientFactor);
+                }
+
+                // Camera
+                if (mUniform_uCameraPos >= 0)
+                {
+                    GL.Uniform3(mUniform_uCameraPos, g.CurrentWorld.GetCameraPosition().X, g.CurrentWorld.GetCameraPosition().Z, g.CurrentWorld.GetCameraPosition().Z);
+                }
 
                 // Upload depth texture (shadow mapping)
                 if (mUniform_TextureShadowMap >= 0)
@@ -165,16 +180,18 @@ namespace KWEngine2.Renderers
                         }
                     }
 
-
+                    // Might not be needed because shadow map pass already calculated it:
+                    /*
                     if (useMeshTransform)
                         Matrix4.Mult(ref mesh.Transform, ref g._modelMatrix, out _tmpMatrix);
                     else
                         _tmpMatrix = g._modelMatrix;
-                    Matrix4.Mult(ref _tmpMatrix, ref viewProjection, out _modelViewProjection);
-                    Matrix4.Transpose(ref g._modelMatrix, out _normalMatrix);
+                    */
+                    Matrix4.Mult(ref g.ModelMatrixForRenderPass, ref viewProjection, out _modelViewProjection);
+                    Matrix4.Transpose(ref g.ModelMatrixForRenderPass, out _normalMatrix);
                     Matrix4.Invert(ref _normalMatrix, out _normalMatrix);
 
-                    GL.UniformMatrix4(mUniform_ModelMatrix, false, ref _tmpMatrix);
+                    GL.UniformMatrix4(mUniform_ModelMatrix, false, ref g.ModelMatrixForRenderPass);
                     GL.UniformMatrix4(mUniform_NormalMatrix, false, ref _normalMatrix);
                     GL.UniformMatrix4(mUniform_MVP, false, ref _modelViewProjection);
 

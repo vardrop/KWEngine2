@@ -101,20 +101,20 @@ namespace KWEngine2.Renderers
 
 
                     if (useMeshTransform)
-                        Matrix4.Mult(ref mesh.Transform, ref g._modelMatrix, out _tmpMatrix);
+                        Matrix4.Mult(ref mesh.Transform, ref g._modelMatrix, out g.ModelMatrixForRenderPass);
                     else
-                        _tmpMatrix = g._modelMatrix;
-                    Matrix4.Mult(ref _tmpMatrix, ref viewProjection, out _modelViewProjection);
+                        g.ModelMatrixForRenderPass = g._modelMatrix;
 
-                    GL.UniformMatrix4(mUniform_MVP, false, ref _modelViewProjection);
-
-                    GL.BindVertexArray(mesh.VAO);
-
-                    GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
-                    GL.DrawElements(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
-                    GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-
-                    GL.BindVertexArray(0);
+                    if (g.IsShadowCaster)
+                    {
+                        Matrix4.Mult(ref g.ModelMatrixForRenderPass, ref viewProjection, out _modelViewProjection);
+                        GL.UniformMatrix4(mUniform_MVP, false, ref _modelViewProjection);
+                        GL.BindVertexArray(mesh.VAO);
+                        GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
+                        GL.DrawElements(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
+                        GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+                        GL.BindVertexArray(0);
+                    }
                 }
             }
 

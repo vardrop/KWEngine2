@@ -17,6 +17,7 @@ namespace KWEngine2.GameObjects
         internal int _largestHitboxIndex = -1;
         internal GeoModelCube _cubeModel = null;
         internal List<Hitbox> Hitboxes = new List<Hitbox>();
+        internal Matrix4 ModelMatrixForRenderPass = Matrix4.Identity;
         internal Dictionary<string, Matrix4[]> BoneTranslationMatrices { get; set; }
         private int _animationId = -1;
 
