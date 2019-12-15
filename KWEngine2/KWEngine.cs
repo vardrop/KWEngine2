@@ -47,6 +47,7 @@ namespace KWEngine2
         {
             Renderers.Add("Standard", new RendererStandard());
             Renderers.Add("Shadow", new RendererShadow());
+            Renderers.Add("Bloom", new RendererBloom());
         }
 
         public static GeoModel GetModel(string name)

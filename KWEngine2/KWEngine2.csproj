@@ -89,6 +89,7 @@
     <Compile Include="Model\SceneImporter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Renderers\Renderer.cs" />
+    <Compile Include="Renderers\RendererBloom.cs" />
     <Compile Include="Renderers\RendererShadow.cs" />
     <Compile Include="Renderers\RendererStandard.cs" />
     <Compile Include="World.cs" />
@@ -108,6 +109,8 @@
     <EmbeddedResource Include="Shaders\shader_vertex.glsl" />
     <EmbeddedResource Include="Shaders\shader_fragment_shadow.glsl" />
     <EmbeddedResource Include="Shaders\shader_vertex_shadow.glsl" />
+    <EmbeddedResource Include="Shaders\shader_fragment_bloom.glsl" />
+    <EmbeddedResource Include="Shaders\shader_vertex_bloom.glsl" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

@@ -43,6 +43,7 @@ namespace KWEngine2.Renderers
                 GL.BindAttribLocation(mProgramId, 5, "aBiTangent");
                 GL.BindAttribLocation(mProgramId, 6, "aBoneIds");
                 GL.BindAttribLocation(mProgramId, 7, "aBoneWeights");
+
                 GL.BindFragDataLocation(mProgramId, 0, "color");
                 GL.BindFragDataLocation(mProgramId, 1, "bloom");
                 GL.LinkProgram(mProgramId);

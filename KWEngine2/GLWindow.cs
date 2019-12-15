@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using KWEngine2.Engine;
 using KWEngine2.GameObjects;
 using KWEngine2.Helper;
+using KWEngine2.Model;
 using KWEngine2.Renderers;
 using OpenTK;
 using OpenTK.Graphics;
@@ -21,12 +22,15 @@ namespace KWEngine2
 
         public static GLWindow CurrentWindow { get; internal set; }
         internal Matrix4 _viewMatrix = Matrix4.Identity;
+        internal Matrix4 _modelViewProjectionMatrixBloom = Matrix4.Identity;
         internal Matrix4 _projectionMatrix = Matrix4.Identity;
         internal Matrix4 _projectionMatrixShadow = Matrix4.Identity;
 
         internal static float[] LightColors = new float[KWEngine.MAX_LIGHTS * 4];
         internal static float[] LightTargets = new float[KWEngine.MAX_LIGHTS * 4];
         internal static float[] LightPositions = new float[KWEngine.MAX_LIGHTS * 4];
+
+        internal GeoModel _bloomQuad;
 
         /// <summary>
         /// Konstruktormethode
@@ -89,6 +93,8 @@ namespace KWEngine2
 
             KWEngine.InitializeShaders();
             KWEngine.InitializeModels();
+
+            _bloomQuad = KWEngine.GetModel("KWRect");
         }
 
         
@@ -139,7 +145,7 @@ namespace KWEngine2
                     }
                     GL.UseProgram(0);
 
-                    SwitchToBufferAndClear(0);
+                    SwitchToBufferAndClear(FramebufferMainMultisample);
                     GL.Viewport(ClientRectangle);
                     Matrix4 viewProjectionShadowBiased = viewProjectionShadow * HelperMatrix.BiasedMatrixForShadowMapping;
                     LightObject.PrepareLightsForRenderPass(CurrentWorld.GetLightObjects(), ref LightColors, ref LightTargets, ref LightPositions, ref CurrentWorld._lightcount);
@@ -149,6 +155,10 @@ namespace KWEngine2
                     }
                     GL.UseProgram(0);
                 }
+
+                DownsampleFramebuffer();
+                ApplyBloom();
+
             }
             SwapBuffers();
         }
@@ -196,6 +206,8 @@ namespace KWEngine2
         {
             _projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(CurrentWorld != null ? CurrentWorld.FOV / 2: 45f), Width / (float)Height, 0.1f, CurrentWorld != null ? CurrentWorld.ZFar : 1000f);
             _projectionMatrixShadow = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(CurrentWorld != null ? CurrentWorld.FOV / 2 : 45f), Width / (float)Height, 1f, CurrentWorld != null ? CurrentWorld.ZFar : 1000f);
+
+            _modelViewProjectionMatrixBloom = Matrix4.CreateScale(Width, Height, 1) * Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographic(Width, Height, 0.1f, 100f);
         }
 
         public void SetWorld(World w)
@@ -230,13 +242,52 @@ namespace KWEngine2
             }
         }
 
+        private void ApplyBloom()
+        {
+            RendererBloom r = (RendererBloom)KWEngine.Renderers["Bloom"];
+            GL.UseProgram(r.GetProgramId());
+
+            int loopCount = 4; // must 2, 4, 6 or 8, but 4 will suffice
+            int sourceTex; // this is the texture that the bloom will be read from
+            for (int i = 0; i < loopCount; i++)
+            {
+                if (i % 2 == 0)
+                {
+                    GL.BindFramebuffer(FramebufferTarget.Framebuffer, FramebufferBloom1);
+                    if (i == 0)
+                        sourceTex = TextureBloomFinal;
+                    else
+                        sourceTex = TextureBloom2;
+                }
+                else
+                {
+                    sourceTex = TextureBloom1;
+                    if (i == loopCount - 1) // last iteration
+                        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0); // choose screen as output
+                    else
+                        GL.BindFramebuffer(FramebufferTarget.Framebuffer, FramebufferBloom2);
+                }
+
+                r.DrawBloom(
+                    _bloomQuad,
+                    ref _modelViewProjectionMatrixBloom,
+                    i % 2 == 0,
+                    i == loopCount - 1,
+                    Width,
+                    Height,
+                    TextureMainFinal,
+                    sourceTex);
+            }
+
+            GL.UseProgram(0); // unload bloom shader program
+        }
+
         #region Framebuffers
 
         internal int FramebufferShadowMap = -1;
         internal int FramebufferBloom1 = -1;
         internal int FramebufferBloom2 = -1;
         internal int FramebufferMainMultisample = -1;
-        //internal int FramebufferMainDownsampled = -1;
         internal int FramebufferMainFinal = -1;
 
         internal int TextureShadowMap = -1;
@@ -259,7 +310,7 @@ namespace KWEngine2
                     if (TextureMain >= 0)
                     {
                         GL.DeleteTextures(8, new int[] { TextureMainDepth, TextureMain, TextureShadowMap, TextureBloom1, TextureBloom2, TextureMainFinal, TextureBloomFinal, TextureBloom });
-                        GL.DeleteFramebuffers(5, new int[] { FramebufferShadowMap, FramebufferBloom1, FramebufferBloom2, FramebufferMainMultisample, FramebufferMainFinal, }); // FramebufferMainDownsampled,  });
+                        GL.DeleteFramebuffers(5, new int[] { FramebufferShadowMap, FramebufferBloom1, FramebufferBloom2, FramebufferMainMultisample, FramebufferMainFinal, });
 
                         Thread.Sleep(250);
                     }
@@ -276,6 +327,20 @@ namespace KWEngine2
                 ok = true;
             }
             
+        }
+
+        private void DownsampleFramebuffer()
+        {
+            GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, FramebufferMainMultisample);
+            GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, FramebufferMainFinal);
+
+            GL.ReadBuffer(ReadBufferMode.ColorAttachment0);
+            GL.DrawBuffer(DrawBufferMode.ColorAttachment0);
+            GL.BlitFramebuffer(0, 0, Width, Height, 0, 0, Width, Height, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Linear);
+
+            GL.ReadBuffer(ReadBufferMode.ColorAttachment1);
+            GL.DrawBuffer(DrawBufferMode.ColorAttachment1);
+            GL.BlitFramebuffer(0, 0, Width, Height, 0, 0, Width, Height, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Linear);
         }
 
         private void InitFramebufferShadowMap()
@@ -414,7 +479,7 @@ namespace KWEngine2
             int depthRenderBuffer = GL.GenRenderbuffer();
             GL.BindTexture(TextureTarget.Texture2D, depthTexId);
 
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent24,
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent32,
                 Width, Height, 0, PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
 
             GL.TexParameterI(TextureTarget.Texture2D, TextureParameterName.TextureCompareMode, new int[] { (int)TextureCompareMode.CompareRefToTexture });
