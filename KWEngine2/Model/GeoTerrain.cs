@@ -75,7 +75,7 @@ namespace KWEngine2.Model
                         double mp = Math.Round(mDots / 1000000.0, 3);
                         if (mDots > 1000)
                         {
-                            Console.WriteLine("\tImage pixel count:\t\t" + mp + " megapixel");
+                            Console.Write("\tImage pixel count:\t\t" + mp + " megapixel");
                             Console.WriteLine(mp >= 0.5 ? " (WARNING: pixel count > 0.5 megapixel! You will experience SERIOUS performance issues with this terrain mapping.)" : "");
                         }
                         else
@@ -450,13 +450,13 @@ namespace KWEngine2.Model
                         GL.EnableVertexAttribArray(5);
                         GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 
+                        mmp.Indices = mIndices.ToArray();
                         // Indices:
                         GL.BindBuffer(BufferTarget.ElementArrayBuffer, mmp.VBOIndex);
                         GL.BufferData(BufferTarget.ElementArrayBuffer, mIndices.Count * 4, mmp.Indices, BufferUsageHint.StaticDraw);
                         GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
 
 
-                        mmp.Indices = mIndices.ToArray();
                         mmp.Transform = Matrix4.Identity;
 
                         GL.BindVertexArray(0);

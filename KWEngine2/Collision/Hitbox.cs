@@ -245,7 +245,7 @@ namespace KWEngine2.Collision
                 mobbPosition.Y = caller.Owner.GetLargestHitbox().mCenter.Y + a;
                 mobbPosition.Z = caller.Owner.GetLargestHitbox().mCenter.Z;
 
-                int rayResult = triangle.Intersect3D_RayTriangle(ref mobbPosition, ref tmpMap);
+                int rayResult = triangle.Intersect3D_RayTriangle(ref mobbPosition, ref tmpMap, collider.Owner.Position);
                 float lowestVertexHeight = caller.GetLowestVertexHeight();
 
                 if (rayResult > 0)

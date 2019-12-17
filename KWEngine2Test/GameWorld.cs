@@ -25,7 +25,7 @@ namespace KWEngine2Test
 
             KWEngine.LoadModelFromFile("rect", @".\Models\cubetest2.fbx");
 
-            KWEngine.BuildTerrainModel("terraX", ".\\textures\\heightmap.png", ".\\textures\\asphalt.jpg", 0, 0, 0, 50, 5, 50, 1, 1);
+            KWEngine.BuildTerrainModel("terraX", ".\\textures\\heightmap.png", ".\\textures\\asphalt.jpg", 50, 5, 50, 1, 1);
             
             Building go = new Building();
             go.SetModel(GetModel("KWCube"));
@@ -54,6 +54,9 @@ namespace KWEngine2Test
             Terrain t = new Terrain();
             t.SetModel(KWEngine.GetModel("terraX"));
             t.IsShadowCaster = true;
+            t.SetPosition(-25, 0, 0);
+            t.IsCollisionObject = true;
+
             AddGameObject(t);
             
         }

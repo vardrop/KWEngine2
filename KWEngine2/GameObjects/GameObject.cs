@@ -354,11 +354,7 @@ namespace KWEngine2.GameObjects
 
         public void SetPosition(Vector3 newPosition)
         {
-            if (Model.IsTerrain)
-            {
-                throw new Exception("GeoTerrain may not be repositioned after creation.");
-            }
-            else if (Model != null)
+            if (Model != null)
             {
                 Position = new Vector3(newPosition);
             }

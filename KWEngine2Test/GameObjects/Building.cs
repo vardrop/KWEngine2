@@ -19,6 +19,12 @@ namespace KWEngine2Test.GameObjects
                 this.MoveOffset(-0.1f * deltaTimeFactor, 0, 0);
             if (ks[Key.W])
                 this.MoveOffset(0, 0, -0.1f * deltaTimeFactor);
+
+            if (ks[Key.Q])
+                this.MoveOffset(0, -0.1f * deltaTimeFactor, 0);
+            if (ks[Key.E])
+                this.MoveOffset(0, +0.1f * deltaTimeFactor, 0);
+
             /*
             if (AnimationPercentage >= 1)
                 AnimationPercentage = 0;
@@ -33,7 +39,15 @@ namespace KWEngine2Test.GameObjects
             List<Intersection> intersections = GetIntersections();
             foreach(Intersection i in intersections)
             {
-                Position += i.MTV;
+                if (i.IsTerrain)
+                {
+                    SetPosition(Position.X, i.HeightOnTerrainSuggested, Position.Z);
+                }
+                else
+                {
+                    Position += i.MTV;
+                }
+                
             }
         }
     }

@@ -87,7 +87,7 @@ namespace KWEngine2
             }
         }
 
-        public static void BuildTerrainModel(string name, string heightmap, string texture, float posX, float posY, float posZ, float width, float height, float depth, float texRepeatX = 1, float texRepeatZ = 1)
+        public static void BuildTerrainModel(string name, string heightmap, string texture, float width, float height, float depth, float texRepeatX = 1, float texRepeatZ = 1)
         {
             if (Models.ContainsKey(name)){
                 throw new Exception("There already is a model with that name. Please choose a different name.");
@@ -97,7 +97,7 @@ namespace KWEngine2
             terrainModel.Meshes = new Dictionary<string, GeoMesh>();
             terrainModel.IsValid = true;
 
-            GeoMeshHitbox meshHitBox = new GeoMeshHitbox(posX + width / 2, posY + height / 2, posZ + depth / 2, posX - width / 2, posY - height / 2, posZ - depth / 2);
+            GeoMeshHitbox meshHitBox = new GeoMeshHitbox(0 + width / 2, 0 + height / 2, 0 + depth / 2, 0 - width / 2, 0 - height / 2, 0 - depth / 2);
             meshHitBox.Model = terrainModel;
             meshHitBox.Name = name;
 
@@ -105,8 +105,8 @@ namespace KWEngine2
             terrainModel.MeshHitboxes.Add(meshHitBox);
 
             GeoTerrain t = new GeoTerrain();
-            GeoMesh terrainMesh = t.BuildTerrain(new Vector3(posX, posY, posZ), heightmap, width, height, depth, texRepeatX, texRepeatZ);
-
+            GeoMesh terrainMesh = t.BuildTerrain(new Vector3(0, 0, 0), heightmap, width, height, depth, texRepeatX, texRepeatZ);
+            terrainMesh.Terrain = t;
             GeoMaterial mat = new GeoMaterial();
             mat.BlendMode = OpenTK.Graphics.OpenGL4.BlendingFactor.OneMinusSrcAlpha;
             mat.ColorDiffuse = new Vector4(1, 1, 1, 1);
@@ -141,8 +141,8 @@ namespace KWEngine2
             terrainMesh.Material = mat;
 
 
-            terrainModel._terrain = t;
-            terrainModel.Meshes.Add(name, terrainMesh);
+            //terrainModel._terrain = t;
+            terrainModel.Meshes.Add("Terrain", terrainMesh);
 
             KWEngine.Models.Add(name, terrainModel);
 

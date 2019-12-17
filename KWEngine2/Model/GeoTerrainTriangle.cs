@@ -90,13 +90,13 @@ namespace KWEngine2.Model
                 Normals[0] = -Normals[0];
         }
 
-        public int Intersect3D_RayTriangle(ref Vector3 origin, ref Vector3 I, bool shootFromBelow = false)
+        public int Intersect3D_RayTriangle(ref Vector3 origin, ref Vector3 I, Vector3 offset, bool shootFromBelow = false)
         {
             Vector3 dir, w0, w;           // ray vectors
             float r, a, b;              // params to calc ray-plane intersect
 
             dir = shootFromBelow ? Vector3.UnitY : -Vector3.UnitY;              // ray direction vector
-            w0 = origin - v1; // R.P0 - T.V0;
+            w0 = origin - (v1 + offset); // R.P0 - T.V0;
             a = -Vector3.Dot(Normal, w0);
             b = Vector3.Dot(Normal, dir);
             if (Math.Abs(b) <= 0.00001f)
@@ -117,7 +117,7 @@ namespace KWEngine2.Model
             // is I inside T?
             float wu, wv, D;
 
-            w = I - v1;
+            w = I - (v1 + offset);
             wu = Vector3.Dot(w, edge1);
             wv = Vector3.Dot(w, edge2);
             D = uv * uv - uu * vv;

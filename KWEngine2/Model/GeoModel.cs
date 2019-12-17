@@ -31,11 +31,19 @@ namespace KWEngine2.Model
         { 
             get
             {
-                return _terrain != null;
+                bool found = Meshes.TryGetValue("Terrain", out GeoMesh terrainMesh);
+                if (found)
+                {
+                    return terrainMesh.Terrain != null;
+                }
+                else
+                {
+                    return false;
+                }
             }
         }
 
-        internal GeoTerrain _terrain { get; set; } = null;
+        //internal GeoTerrain _terrain { get; set; } = null;
 
         public List<string> BoneNames { get; internal set; } = new List<string>();
         public List<GeoNode> NodesWithoutHierarchy = new List<GeoNode>();
