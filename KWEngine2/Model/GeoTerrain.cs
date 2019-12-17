@@ -488,7 +488,7 @@ namespace KWEngine2.Model
         private Vector3 hbTestVector = Vector3.Zero;
 
 
-        internal List<GeoTerrainTriangle> GetTrianglesForHitbox(Hitbox hb)
+        internal List<GeoTerrainTriangle> GetTrianglesForHitbox(Hitbox hb, Vector3 offset)
         {
             resultlist.Clear();
             coarse.Clear();
@@ -500,10 +500,10 @@ namespace KWEngine2.Model
 
             foreach (Sector coarseSector in mSectorsCoarse)
             {
-                if (hb.GetCenter().X >= coarseSector.Left
-                    && hb.GetCenter().X <= coarseSector.Right
-                    && hb.GetCenter().Z >= coarseSector.Back
-                    && hb.GetCenter().Z <= coarseSector.Front)
+                if (hb.GetCenter().X >= coarseSector.Left + offset.X
+                    && hb.GetCenter().X <= coarseSector.Right + offset.X
+                    && hb.GetCenter().Z >= coarseSector.Back + offset.Z
+                    && hb.GetCenter().Z <= coarseSector.Front + offset.Z)
                 {
                     if (!coarse.Contains(coarseSector))
                     {
@@ -520,15 +520,15 @@ namespace KWEngine2.Model
                     fineSectors.AddRange(mSectorCoarseMap[cs]);
                     foreach (Sector fineSector in fineSectors)
                     {
-                        if (hb.GetCenter().X >= fineSector.Left
-                            && hb.GetCenter().X <= fineSector.Right
-                            && hb.GetCenter().Z >= fineSector.Back
-                            && hb.GetCenter().Z <= fineSector.Front)
+                        if (hb.GetCenter().X >= fineSector.Left + offset.X
+                            && hb.GetCenter().X <= fineSector.Right + offset.X
+                            && hb.GetCenter().Z >= fineSector.Back + offset.Z
+                            && hb.GetCenter().Z <= fineSector.Front + offset.Z)
                         {
                             foreach (GeoTerrainTriangle t in mSectorTriangleMap[fineSector.ID])
                             {
-                                if (hbTestVector.X >= t.boundLeft && hbTestVector.X <= t.boundRight
-                                    && hbTestVector.Z >= t.boundBack && hbTestVector.Z <= t.boundFront)
+                                if (hbTestVector.X >= t.boundLeft + offset.X && hbTestVector.X <= t.boundRight + offset.X
+                                    && hbTestVector.Z >= t.boundBack + offset.Z && hbTestVector.Z <= t.boundFront + offset.Z)
                                     resultlist.Add(t);
                             }
                         }

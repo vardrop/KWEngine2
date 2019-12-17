@@ -232,7 +232,7 @@ namespace KWEngine2.Collision
             float heightOnMap;
             triangles.Clear();
             GeoModel model = collider.Owner.Model;
-            triangles.AddRange(model.Meshes.Values.ElementAt(0).Terrain.GetTrianglesForHitbox(caller));
+            triangles.AddRange(model.Meshes.Values.ElementAt(0).Terrain.GetTrianglesForHitbox(caller, collider.Owner.Position));
             float a = (caller.mCenter.Y - caller.GetLowestVertexHeight());
             TestIntersectionSATForTerrain(ref triangles, caller, collider);
             Vector3 mobbPosition = new Vector3();
@@ -288,30 +288,30 @@ namespace KWEngine2.Collision
         {
             trianglesMTV.Clear();
             float shape1Min, shape1Max, shape2Min, shape2Max;
-
+            Vector3 o = collider.Owner.Position;
             for (int i = 0; i < tris.Count; i++)
             {
                 GeoTerrainTriangle triangle = tris[i];
 
                 // Test #1
                 SatTest(ref triangle.Normal, ref caller.mVertices, out shape1Min, out shape1Max);
-                SatTest(ref triangle.Normal, ref triangle.Vertices, out shape2Min, out shape2Max);
+                SatTestOffset(ref triangle.Normal, ref triangle.Vertices, out shape2Min, out shape2Max, ref o);
 
                 if (Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
                 {
                     // Test #2:
                     SatTest(ref caller.mNormals[0], ref caller.mVertices, out shape1Min, out shape1Max);
-                    SatTest(ref caller.mNormals[0], ref triangle.Vertices, out shape2Min, out shape2Max);
+                    SatTestOffset(ref caller.mNormals[0], ref triangle.Vertices, out shape2Min, out shape2Max, ref o);
                     if (Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
                     {
                         // Test #3:
                         SatTest(ref caller.mNormals[1], ref caller.mVertices, out shape1Min, out shape1Max);
-                        SatTest(ref caller.mNormals[1], ref triangle.Vertices, out shape2Min, out shape2Max);
+                        SatTestOffset(ref caller.mNormals[1], ref triangle.Vertices, out shape2Min, out shape2Max, ref o);
                         if (Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
                         {
                             // Test #4:
                             SatTest(ref caller.mNormals[2], ref caller.mVertices, out shape1Min, out shape1Max);
-                            SatTest(ref caller.mNormals[2], ref triangle.Vertices, out shape2Min, out shape2Max);
+                            SatTestOffset(ref caller.mNormals[2], ref triangle.Vertices, out shape2Min, out shape2Max, ref o);
                             if (Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
                             {
                                 // Test #5: B-A x Hitbox-X-Axis
@@ -320,7 +320,7 @@ namespace KWEngine2.Collision
                                 axisFive.NormalizeFast();
 
                                 SatTest(ref axisFive, ref caller.mVertices, out shape1Min, out shape1Max);
-                                SatTest(ref axisFive, ref triangle.Vertices, out shape2Min, out shape2Max);
+                                SatTestOffset(ref axisFive, ref triangle.Vertices, out shape2Min, out shape2Max, ref o);
                                 if (Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
                                 {
                                     // Test #6: B-A x Hitbox-Y-Axis
@@ -330,7 +330,7 @@ namespace KWEngine2.Collision
 
 
                                     SatTest(ref axisSix, ref caller.mVertices, out shape1Min, out shape1Max);
-                                    SatTest(ref axisSix, ref triangle.Vertices, out shape2Min, out shape2Max);
+                                    SatTestOffset(ref axisSix, ref triangle.Vertices, out shape2Min, out shape2Max, ref o);
                                     if (Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
                                     {
                                         // Test #7: B-A x Hitbox-Z-Axis
@@ -339,7 +339,7 @@ namespace KWEngine2.Collision
                                         axisSeven.NormalizeFast();
 
                                         SatTest(ref axisSeven, ref caller.mVertices, out shape1Min, out shape1Max);
-                                        SatTest(ref axisSeven, ref triangle.Vertices, out shape2Min, out shape2Max);
+                                        SatTestOffset(ref axisSeven, ref triangle.Vertices, out shape2Min, out shape2Max, ref o);
                                         if (Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
                                         {
                                             // Test #8: C-B x Hitbox-X-Axis
@@ -348,7 +348,7 @@ namespace KWEngine2.Collision
                                             axisEight.NormalizeFast();
 
                                             SatTest(ref axisEight, ref caller.mVertices, out shape1Min, out shape1Max);
-                                            SatTest(ref axisEight, ref triangle.Vertices, out shape2Min, out shape2Max);
+                                            SatTestOffset(ref axisEight, ref triangle.Vertices, out shape2Min, out shape2Max, ref o);
                                             if (Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
                                             {
                                                 // Test #9: C-B x Hitbox-Y-Axis
@@ -357,7 +357,7 @@ namespace KWEngine2.Collision
                                                 axisNine.NormalizeFast();
 
                                                 SatTest(ref axisNine, ref caller.mVertices, out shape1Min, out shape1Max);
-                                                SatTest(ref axisNine, ref triangle.Vertices, out shape2Min, out shape2Max);
+                                                SatTestOffset(ref axisNine, ref triangle.Vertices, out shape2Min, out shape2Max, ref o);
                                                 if (Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
                                                 {
                                                     // Test #10: C-B x Hitbox-Z-Axis
@@ -366,7 +366,7 @@ namespace KWEngine2.Collision
                                                     axisTen.NormalizeFast();
 
                                                     SatTest(ref axisTen, ref caller.mVertices, out shape1Min, out shape1Max);
-                                                    SatTest(ref axisTen, ref triangle.Vertices, out shape2Min, out shape2Max);
+                                                    SatTestOffset(ref axisTen, ref triangle.Vertices, out shape2Min, out shape2Max, ref o);
                                                     if (Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
                                                     {
                                                         // Test #11: A-C x Hitbox-X-Axis
@@ -374,7 +374,7 @@ namespace KWEngine2.Collision
                                                         Vector3.Cross(ref subVector, ref caller.mNormals[0], out Vector3 axisEleven);
                                                         axisEleven.NormalizeFast();
                                                         SatTest(ref axisEleven, ref caller.mVertices, out shape1Min, out shape1Max);
-                                                        SatTest(ref axisEleven, ref triangle.Vertices, out shape2Min, out shape2Max);
+                                                        SatTestOffset(ref axisEleven, ref triangle.Vertices, out shape2Min, out shape2Max, ref o);
                                                         if (Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
                                                         {
                                                             // Test #12: A-C x Hitbox-Y-Axis
@@ -382,7 +382,7 @@ namespace KWEngine2.Collision
                                                             Vector3.Cross(ref subVector, ref caller.mNormals[1], out Vector3 axisTwelve);
                                                             axisTwelve.NormalizeFast();
                                                             SatTest(ref axisTwelve, ref caller.mVertices, out shape1Min, out shape1Max);
-                                                            SatTest(ref axisTwelve, ref triangle.Vertices, out shape2Min, out shape2Max);
+                                                            SatTestOffset(ref axisTwelve, ref triangle.Vertices, out shape2Min, out shape2Max, ref o);
                                                             if (Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
                                                             {
                                                                 // Test #13: A-C x Hitbox-Z-Axis
@@ -390,7 +390,7 @@ namespace KWEngine2.Collision
                                                                 Vector3.Cross(ref subVector, ref caller.mNormals[2], out Vector3 axisThirteen);
                                                                 axisThirteen.NormalizeFast();
                                                                 SatTest(ref axisThirteen, ref caller.mVertices, out shape1Min, out shape1Max);
-                                                                SatTest(ref axisThirteen, ref triangle.Vertices, out shape2Min, out shape2Max);
+                                                                SatTestOffset(ref axisThirteen, ref triangle.Vertices, out shape2Min, out shape2Max, ref o);
                                                                 if (Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
                                                                 {
                                                                     trianglesMTV.Add(triangle);
@@ -478,6 +478,18 @@ namespace KWEngine2.Collision
             for (int i = 0; i < ptSet.Length; i++)
             {
                 float dotVal = Vector3.Dot(ptSet[i], axis);
+                if (dotVal < minAlong) minAlong = dotVal;
+                if (dotVal > maxAlong) maxAlong = dotVal;
+            }
+        }
+
+        private static void SatTestOffset(ref Vector3 axis, ref Vector3[] ptSet, out float minAlong, out float maxAlong, ref Vector3 offset)
+        {
+            minAlong = float.MaxValue;
+            maxAlong = float.MinValue;
+            for (int i = 0; i < ptSet.Length; i++)
+            {
+                float dotVal = Vector3.Dot(ptSet[i] + offset, axis);
                 if (dotVal < minAlong) minAlong = dotVal;
                 if (dotVal > maxAlong) maxAlong = dotVal;
             }
