@@ -58,7 +58,7 @@ namespace KWEngine2
             return m;
         }
 
-        private static int _shadowMapSize = 1024;
+        private static int _shadowMapSize = 2048;
         public static int ShadowMapSize 
         {
             get
@@ -76,6 +76,89 @@ namespace KWEngine2
                     Debug.WriteLine("Cannot set shadow map to a size < 256 or > 8192. Resetting it to 1024.");
                     _shadowMapSize = 1024;
                 }
+            }
+        }
+
+        public static World CurrentWorld 
+        {
+            get
+            {
+                return GLWindow.CurrentWindow.CurrentWorld;
+            }
+        }
+
+        public static void BuildTerrainModel(string name, string heightmap, string texture, float posX, float posY, float posZ, float width, float height, float depth, float texRepeatX = 1, float texRepeatZ = 1)
+        {
+            if (Models.ContainsKey(name)){
+                throw new Exception("There already is a model with that name. Please choose a different name.");
+            }
+            GeoModel terrainModel = new GeoModel();
+            terrainModel.Name = name;
+            terrainModel.Meshes = new Dictionary<string, GeoMesh>();
+            terrainModel.IsValid = true;
+
+            GeoMeshHitbox meshHitBox = new GeoMeshHitbox(posX + width / 2, posY + height / 2, posZ + depth / 2, posX - width / 2, posY - height / 2, posZ - depth / 2);
+            meshHitBox.Model = terrainModel;
+            meshHitBox.Name = name;
+
+            terrainModel.MeshHitboxes = new List<GeoMeshHitbox>();
+            terrainModel.MeshHitboxes.Add(meshHitBox);
+
+            GeoTerrain t = new GeoTerrain();
+            GeoMesh terrainMesh = t.BuildTerrain(new Vector3(posX, posY, posZ), heightmap, width, height, depth, texRepeatX, texRepeatZ);
+
+            GeoMaterial mat = new GeoMaterial();
+            mat.BlendMode = OpenTK.Graphics.OpenGL4.BlendingFactor.OneMinusSrcAlpha;
+            mat.ColorDiffuse = new Vector4(1, 1, 1, 1);
+            mat.ColorEmissive = new Vector4(0, 0, 0, 0);
+            mat.Name = name + "-Material";
+            mat.SpecularArea = 512;
+            mat.SpecularPower = 0;
+
+            GeoTexture texDiffuse = new GeoTexture(name + "-TextureDiffuse");
+            texDiffuse.Filename = heightmap;
+            texDiffuse.Type = GeoTexture.TexType.Diffuse;
+            texDiffuse.UVMapIndex = 0;
+            texDiffuse.UVTransform = new Vector2(texRepeatX, texRepeatZ);
+
+            bool dictFound = CubeTextures.TryGetValue(CurrentWorld, out Dictionary<string, int> texDict);
+
+            if (dictFound && texDict.ContainsKey(texture))
+            {
+                texDiffuse.OpenGLID = texDict[texture];
+            }
+            else
+            {
+                texDiffuse.OpenGLID = HelperTexture.LoadTextureForModelExternal(texture);
+                if (dictFound)
+                {
+                    texDict.Add(texture, texDiffuse.OpenGLID);
+                }
+            }
+            mat.TextureDiffuse = texDiffuse;
+
+
+            terrainMesh.Material = mat;
+
+
+            terrainModel._terrain = t;
+            terrainModel.Meshes.Add(name, terrainMesh);
+
+            KWEngine.Models.Add(name, terrainModel);
+
+        }
+
+        public static void LoadModelFromFile(string name, string filename)
+        {
+            GeoModel m = SceneImporter.LoadModel(filename);
+            m.Name = name;
+            lock (KWEngine.Models)
+            {
+                name = name.ToLower();
+                if (!KWEngine.Models.ContainsKey(name))
+                    KWEngine.Models.Add(name, m);
+                else
+                    throw new Exception("A model with the name " + name + " already exists.");
             }
         }
     }

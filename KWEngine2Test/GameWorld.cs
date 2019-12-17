@@ -20,14 +20,16 @@ namespace KWEngine2Test
         public override void Prepare()
         {
             FOV = 90;
-            SetCameraPosition(0,15,15);
+            SetCameraPosition(0,25,25);
             SetCameraTarget(0, 0, 0);
 
-            LoadModelFromFile("rect", @".\Models\cubetest2.fbx");
+            KWEngine.LoadModelFromFile("rect", @".\Models\cubetest2.fbx");
 
+            KWEngine.BuildTerrainModel("terraX", ".\\textures\\heightmap.png", ".\\textures\\asphalt.jpg", 0, 0, 0, 50, 5, 50, 1, 1);
+            
             Building go = new Building();
             go.SetModel(GetModel("KWCube"));
-            go.SetPosition(0, 1, 0);
+            go.SetPosition(0, 7, 0);
             go.SetScale(2);
             go.AddRotationY(0);
             go.SetGlow(1, 0, 0, 1);
@@ -37,6 +39,7 @@ namespace KWEngine2Test
             go.SetTextureRepeat(2, 2, KWEngine.CubeSide.All);
             AddGameObject(go);
             
+            /*
             Block block = new Block();
             block.SetModel(GetModel("KWCube6"));
             block.SetPosition(0, -1, 0);
@@ -46,6 +49,12 @@ namespace KWEngine2Test
             //block.SetTexture(".\\textures\\holland.jpg", KWEngine.CubeSide.All, KWEngine.TextureType.Diffuse);
             //block.SetTextureRepeat(2, 2, KWEngine.CubeSide.All);
             AddGameObject(block);
+            */
+
+            Terrain t = new Terrain();
+            t.SetModel(KWEngine.GetModel("terraX"));
+            t.IsShadowCaster = true;
+            AddGameObject(t);
             
         }
     }

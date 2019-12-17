@@ -27,8 +27,16 @@ namespace KWEngine2.Model
         public Matrix4 TransformGlobalInverse { get; internal set; }
         public Dictionary<string, GeoMesh> Meshes { get; internal set; }
         public List<GeoMeshHitbox> MeshHitboxes { get; internal set; }
-        public bool IsTerrain { get; internal set; } = false;
-        
+        public bool IsTerrain
+        { 
+            get
+            {
+                return _terrain != null;
+            }
+        }
+
+        internal GeoTerrain _terrain { get; set; } = null;
+
         public List<string> BoneNames { get; internal set; } = new List<string>();
         public List<GeoNode> NodesWithoutHierarchy = new List<GeoNode>();
         public Dictionary<string, GeoTexture> Textures { get; internal set; }

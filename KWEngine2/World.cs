@@ -154,19 +154,7 @@ namespace KWEngine2
             return _sunColor;
         }
 
-        public void LoadModelFromFile(string name, string filename)
-        {
-            GeoModel m = SceneImporter.LoadModel(filename);
-            m.Name = name;
-            lock (KWEngine.Models)
-            {
-                name = name.ToLower();
-                if (!KWEngine.Models.ContainsKey(name))
-                    KWEngine.Models.Add(name, m);
-                else
-                    throw new Exception("A model with the name " + name + " already exists.");
-            }
-        }
+        
 
         public abstract void Prepare();
 
