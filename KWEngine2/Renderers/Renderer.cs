@@ -58,6 +58,8 @@ namespace KWEngine2.Renderers
         protected int mUniform_TintColor = -1;
         protected int mUniform_Glow = -1;
 
+        protected int mUniform_BiasCoefficient = -1;
+
         protected int mUniform_uCameraPos = -1;
 
         protected int mUniform_EmissiveColor = -1;

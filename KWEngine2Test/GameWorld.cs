@@ -20,7 +20,7 @@ namespace KWEngine2Test
         public override void Prepare()
         {
             FOV = 90;
-            SetCameraPosition(0,50,50);
+            SetCameraPosition(0,25,25);
             SetCameraTarget(0, 0, 0);
 
             KWEngine.LoadModelFromFile("rect", @".\Models\cubetest2.fbx");
@@ -32,7 +32,7 @@ namespace KWEngine2Test
             go.SetPosition(0, 7, 0);
             go.SetScale(2);
             go.AddRotationY(0);
-            go.SetGlow(1, 0, 0, 1);
+            //go.SetGlow(1, 0, 0, 1);
             go.IsCollisionObject = true;
             go.IsShadowCaster = true;
             go.SetTexture(".\\textures\\holland.jpg", KWEngine.CubeSide.All, KWEngine.TextureType.Diffuse);
@@ -54,7 +54,7 @@ namespace KWEngine2Test
             Terrain t = new Terrain();
             t.SetModel(KWEngine.GetModel("terraX"));
             t.IsShadowCaster = true;
-            t.SetPosition(-25, 0, 0);
+            //t.SetPosition(-10, -5, 0);
             t.IsCollisionObject = true;
 
             AddGameObject(t);

@@ -16,6 +16,8 @@ namespace KWEngine2
         internal static Matrix4 Identity = Matrix4.Identity;
         private static Vector3 _worldUp = new Vector3(0, 1, 0);
 
+        
+
         public static Dictionary<World, Dictionary<string, int>> CubeTextures { get; internal set; } = new Dictionary<World, Dictionary<string, int>>();
         public enum CubeSide { All, Front, Back, Left, Right, Top, Bottom }
         public enum TextureType { Diffuse, Normal, Specular };
@@ -58,6 +60,29 @@ namespace KWEngine2
             return m;
         }
 
+        private static float _shadowmapbiascoefficient = 0.001f;
+
+        public static float ShadowMapCoefficient
+        {
+            get
+            {
+                return _shadowmapbiascoefficient;
+            }
+            set
+            {
+                if(value > 1 || value < -1)
+                {
+                    Debug.WriteLine("Shadow map coefficient may range from -1 to +1. Reset to 0.001!");
+                    _shadowmapbiascoefficient = 0.001f;
+                }
+                else
+                {
+                    _shadowmapbiascoefficient = value;
+                }
+
+            }
+        }
+
         private static int _shadowMapSize = 2048;
         public static int ShadowMapSize 
         {
@@ -76,6 +101,8 @@ namespace KWEngine2
                     Debug.WriteLine("Cannot set shadow map to a size < 256 or > 8192. Resetting it to 1024.");
                     _shadowMapSize = 1024;
                 }
+                GLWindow.CurrentWindow.InitializeFramebuffers();
+
             }
         }
 

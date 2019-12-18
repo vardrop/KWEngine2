@@ -4,6 +4,7 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 
@@ -75,12 +76,13 @@ namespace KWEngine2.Model
                         double mp = Math.Round(mDots / 1000000.0, 3);
                         if (mDots > 1000)
                         {
-                            Console.Write("\tImage pixel count:\t\t" + mp + " megapixel");
-                            Console.WriteLine(mp >= 0.5 ? " (WARNING: pixel count > 0.5 megapixel! You will experience SERIOUS performance issues with this terrain mapping.)" : "");
+                            Debug.WriteLine("\tImage pixel count:\t\t" + mp + " megapixel");
+                            if(mp >= 0.5)
+                                Debug.WriteLine("(WARNING: pixel count > 0.5 megapixel! You will experience SERIOUS performance issues with this terrain mapping.)");
                         }
                         else
                         {
-                            Console.WriteLine("\tImage pixel count:\t\t" + mDots);
+                            Debug.WriteLine("\tImage pixel count:\t\t" + mDots);
                         }
                         long start = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
 
@@ -368,7 +370,7 @@ namespace KWEngine2.Model
 
                             triangles += 2;
                         }
-                        Console.WriteLine("\tGenerated triangles:\t" + triangles);
+                        Debug.WriteLine("\tGenerated triangles:\t" + triangles);
                         cFBuffer = 0;
 
 
@@ -462,7 +464,7 @@ namespace KWEngine2.Model
                         GL.BindVertexArray(0);
 
                         long diff = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond - start;
-                        Console.WriteLine("\t...done (" + Math.Round(diff / 1000f, 2) + " seconds)");
+                        Debug.WriteLine("\t...done (" + Math.Round(diff / 1000f, 2) + " seconds)");
 
                     }
                 }

@@ -300,7 +300,7 @@ namespace KWEngine2
         internal int TextureBloomFinal = -1;
 
 
-        private void InitializeFramebuffers()
+        internal void InitializeFramebuffers()
         {
             bool ok = false;
             while (!ok)

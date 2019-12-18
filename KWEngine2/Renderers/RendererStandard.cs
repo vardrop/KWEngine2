@@ -93,7 +93,7 @@ namespace KWEngine2.Renderers
             mUniform_SpecularPower = GL.GetUniformLocation(mProgramId, "uSpecularPower");
             
             mUniform_uCameraPos = GL.GetUniformLocation(mProgramId, "uCameraPos");
-
+            mUniform_BiasCoefficient = GL.GetUniformLocation(mProgramId, "uBiasCoefficient");
            
 
             mUniform_SunPosition = GL.GetUniformLocation(mProgramId, "uSunPosition");
@@ -119,6 +119,11 @@ namespace KWEngine2.Renderers
 
             lock (g)
             {
+                if(mUniform_BiasCoefficient >= 0)
+                {
+                    GL.Uniform1(mUniform_BiasCoefficient, KWEngine.ShadowMapCoefficient);
+                }
+
                 if (mUniform_Glow >= 0)
                 {
                     GL.Uniform4(mUniform_Glow, g.Glow.X, g.Glow.Y, g.Glow.Z, g.Glow.W);

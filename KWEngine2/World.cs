@@ -27,7 +27,7 @@ namespace KWEngine2
         private Vector3 _sunPosition = new Vector3(100, 100, 100);
         private Vector3 _sunTarget = new Vector3(0, 0, 0);
         private Vector4 _sunColor = new Vector4(1, 1, 1, 1);
-        private float _sunAmbient = 0.5f;
+        private float _sunAmbient = 0.25f;
 
         private float _fov = 45f;
         private float _zFar = 1000f;

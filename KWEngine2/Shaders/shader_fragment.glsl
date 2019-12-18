@@ -32,6 +32,8 @@ uniform vec3 uCameraPos;
 uniform float uSpecularArea;
 uniform float uSpecularPower;
 
+uniform float uBiasCoefficient;
+
 uniform vec4 uLightsPositions[10];
 uniform vec4 uLightsTargets[10];
 uniform vec4 uLightsColors[10];
@@ -42,7 +44,7 @@ out vec4 bloom;
 
 float calculateDarkening(float cosTheta, vec4 shadowCoord)
 {
-	float bias = 0.005 * sqrt ( 1.0f - cosTheta * cosTheta   ) / cosTheta;
+	float bias = uBiasCoefficient * sqrt ( 1.0f - cosTheta * cosTheta   ) / cosTheta;
 	bias = clamp(bias, 0.0 ,0.01);
 	shadowCoord.z -= bias;
 	float darkening = 0.0;
