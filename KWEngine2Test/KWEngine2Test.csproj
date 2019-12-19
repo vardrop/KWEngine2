@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="GameObjects\Block.cs" />
     <Compile Include="GameObjects\Building.cs" />
+    <Compile Include="GameObjects\Light.cs" />
     <Compile Include="GameObjects\Terrain.cs" />
     <Compile Include="GameWindow.cs" />
     <Compile Include="GameWorld.cs" />
@@ -58,6 +59,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Models\cubemattest\cubemattest.mtl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Models\cubemattest\cubemattest.obj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Models\cubetest2.fbx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -80,6 +87,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Models\cubemattest\2016-holland-0025-IMG_1976.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\cubemattest\2016-holland-0059-IMG_2628.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Models\Schoolpart\153_artificial green grass texture-seamless_style1.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

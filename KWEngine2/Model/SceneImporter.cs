@@ -290,7 +290,7 @@ namespace KWEngine2.Model
 
             foreach (FileInfo fi in currentDir.GetFiles())
             {
-                if (fi.Name.ToLower() == StripPathFromFile(filename))
+                if (fi.Name.ToLower() == StripPathFromFile(filename).ToLower())
                 {
                     // file found:
                     return fi.FullName;

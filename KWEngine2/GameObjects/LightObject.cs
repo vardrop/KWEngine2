@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using OpenTK;
+using OpenTK.Input;
 
 namespace KWEngine2.GameObjects
 {
 
     public enum LightType { Point, Directional };
 
-    public class LightObject
+    public abstract class LightObject
     {
 
         public LightType Type { get; private set; }
@@ -28,9 +29,15 @@ namespace KWEngine2.GameObjects
         public Vector3 Target { get; set; }
         public float DistanceMultiplier { get; private set; }
 
-        public virtual void UpdateAI()
-        {
+        public abstract void Act(KeyboardState ks, MouseState ms, float deltaTimeFactor);
 
+        public LightObject()
+        {
+            Position = new Vector3(0, 0, 0);
+            Target = new Vector3(0, 0, 0);
+            Color = new Vector4(1, 1, 1, 1);
+            Type = LightType.Point;
+            DistanceMultiplier = 1;
         }
 
         public LightObject(LightType type)

@@ -20,25 +20,25 @@ namespace KWEngine2Test
         public override void Prepare()
         {
             FOV = 90;
-            SetCameraPosition(0,25,25);
+            SetCameraPosition(0, 25, 25);
             SetCameraTarget(0, 0, 0);
 
-            KWEngine.LoadModelFromFile("rect", @".\Models\cubetest2.fbx");
+            KWEngine.LoadModelFromFile("rect", @".\Models\cubemattest\cubemattest.obj");
 
             KWEngine.BuildTerrainModel("terraX", ".\\textures\\heightmap.png", ".\\textures\\asphalt.jpg", 50, 5, 50, 1, 1);
-            
+
             Building go = new Building();
-            go.SetModel(GetModel("KWCube"));
+            go.SetModel(GetModel("rect"));
             go.SetPosition(0, 7, 0);
             go.SetScale(2);
             go.AddRotationY(0);
             //go.SetGlow(1, 0, 0, 1);
             go.IsCollisionObject = true;
             go.IsShadowCaster = true;
-            go.SetTexture(".\\textures\\holland.jpg", KWEngine.CubeSide.All, KWEngine.TextureType.Diffuse);
-            go.SetTextureRepeat(2, 2, KWEngine.CubeSide.All);
+            //go.SetTexture(".\\textures\\holland.jpg", KWEngine.CubeSide.All, KWEngine.TextureType.Diffuse);
+            //go.SetTextureRepeat(2, 2, KWEngine.CubeSide.All);
             AddGameObject(go);
-            
+
             /*
             Block block = new Block();
             block.SetModel(GetModel("KWCube6"));
@@ -56,9 +56,14 @@ namespace KWEngine2Test
             t.IsShadowCaster = true;
             //t.SetPosition(-10, -5, 0);
             t.IsCollisionObject = true;
-
             AddGameObject(t);
-            
+
+
+            Light l = new Light();
+            l.SetPosition(0, 7, 0);
+            l.SetDistanceMultiplier(2);
+            AddLightObject(l);
         }
+
     }
 }
