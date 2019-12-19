@@ -11,8 +11,11 @@ uniform sampler2D uTextureDiffuse;
 uniform int uUseTextureDiffuse;
 uniform sampler2D uTextureNormal;
 uniform int uUseTextureNormal;
+
 uniform sampler2D uTextureSpecular;
 uniform int uUseTextureSpecular;
+uniform int uRoughness;
+
 uniform sampler2D uTextureEmissive;
 uniform int uUseTextureEmissive;
 uniform sampler2D uTextureLightmap;
@@ -24,6 +27,7 @@ uniform vec4 uGlow;
 uniform vec3 uTintColor;
 uniform vec4 uEmissiveColor;
 uniform float uSunAmbient;
+uniform int uSunAffection;
 uniform vec3 uSunPosition;
 uniform vec3 uSunDirection;
 uniform vec4 uSunIntensity;
@@ -102,22 +106,45 @@ void main()
 	float specularFactor = 1.0;
 	if(uUseTextureSpecular > 0)
 	{
-		specularFactor = texture(uTextureSpecular, vTexture).r;
+		if(uRoughness > 0)
+			specularFactor = 1.0 - texture(uTextureSpecular, vTexture).r;
+		else
+			specularFactor = texture(uTextureSpecular, vTexture).r;
 	}
 	vec3 totalSpecColor = vec3(0);
+	vec3 reflectionVector = vec3(0);
+	float specular = 0.0;
+	if(uSunAffection > 0)
+	{
+		//Specular highlights from sun:
+		reflectionVector = reflect(-uSunDirection, theNormal);
+		specular = specularFactor * uSpecularPower * pow(max(0.0, dot(surfaceToCamera, reflectionVector)), uSpecularArea);
+		vec3 specColorSun = uSunIntensity.xyz * specular * uSunIntensity.w * darkeningAbsolute;
+		totalSpecColor += specColorSun;
+	}
 
-	//Specular highlights from sun:
-	vec3 reflectionVector = reflect(-uSunDirection, theNormal);
-    float specular = specularFactor * uSpecularPower * pow(max(0.0, dot(surfaceToCamera, reflectionVector)), uSpecularArea);
-    vec3 specColorSun = uSunIntensity.xyz * specular * uSunIntensity.w * darkeningAbsolute;
-	totalSpecColor += specColorSun;
-
-	vec3 ambient = vec3(1.0);
+	vec3 ambient = vec3(0.0);
 	if(uUseTextureLightmap == 0)
 	{
-		ambient = uSunIntensity.xyz * (uSunIntensity.w * min(max(dotNormalLight, uSunAmbient), darkening));
+		if(uSunAffection > 0)
+		{
+			ambient = vec3(uSunAmbient);
+		}
+		else
+		{
+			ambient = uSunIntensity.xyz * (uSunIntensity.w * min(max(dotNormalLight, uSunAmbient), darkening));
+		}
 	}
-	vec3 emissive = uEmissiveColor.xyz * uEmissiveColor.w;
+
+	vec3 emissive = vec3(0.0);
+	if(uUseTextureEmissive > 0)
+	{
+		emissive = texture(uTextureEmissive, vTexture).xyz;
+	}
+	else
+	{
+		uEmissiveColor.xyz * uEmissiveColor.w;
+	}
 	ambient += emissive;
 	
 	vec3 colorComponentTotal = vec3(0);
@@ -141,7 +168,7 @@ void main()
 		specular = specularFactor * uSpecularPower * pow(max(0.0, dot(surfaceToCamera, reflectionVector)), uSpecularArea) * differenceLightDirectionAndFragmentDirection;
 		totalSpecColor += uLightsColors[i].xyz * specular; // * uLightsPositions[i].w;
 
-        float dotProductNormalLight = max(dot(vNormal, lightVector), 0.0) * (uLightsPositions[i].w / distance);
+        float dotProductNormalLight = max(dot(vNormal, lightVector), 0.0) * (uLightsPositions[i].w * 10 / distance);
 
 		lightColor = lightColor * dotProductNormalLight * uLightsColors[i].w * pow(differenceLightDirectionAndFragmentDirection, 5.0); // .w includes distance multiplier factor
 		colorComponentTotal += lightColor;

@@ -315,7 +315,8 @@ namespace KWEngine2.Collision
                             if (Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
                             {
                                 // Test #5: B-A x Hitbox-X-Axis
-                                Vector3.Subtract(ref triangle.Vertices[1], ref triangle.Vertices[0], out Vector3 subVector);
+                                Vector3 subVector = triangle.Vertices[1] - triangle.Vertices[0];
+                                //Vector3.Subtract(ref triangle.Vertices[1], ref triangle.Vertices[0], out Vector3 subVector);
                                 Vector3.Cross(ref subVector, ref caller.mNormals[0], out Vector3 axisFive);
                                 axisFive.NormalizeFast();
 
@@ -324,7 +325,7 @@ namespace KWEngine2.Collision
                                 if (Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
                                 {
                                     // Test #6: B-A x Hitbox-Y-Axis
-                                    Vector3.Subtract(ref triangle.Vertices[1], ref triangle.Vertices[0], out subVector);
+                                    //Vector3.Subtract(ref triangle.Vertices[1], ref triangle.Vertices[0], out subVector);
                                     Vector3.Cross(ref subVector, ref caller.mNormals[1], out Vector3 axisSix);
                                     axisSix.NormalizeFast();
 
@@ -334,7 +335,7 @@ namespace KWEngine2.Collision
                                     if (Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
                                     {
                                         // Test #7: B-A x Hitbox-Z-Axis
-                                        Vector3.Subtract(ref triangle.Vertices[1], ref triangle.Vertices[0], out subVector);
+                                        //Vector3.Subtract(ref triangle.Vertices[1], ref triangle.Vertices[0], out subVector);
                                         Vector3.Cross(ref subVector, ref caller.mNormals[2], out Vector3 axisSeven);
                                         axisSeven.NormalizeFast();
 
@@ -343,7 +344,8 @@ namespace KWEngine2.Collision
                                         if (Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
                                         {
                                             // Test #8: C-B x Hitbox-X-Axis
-                                            Vector3.Subtract(ref triangle.Vertices[2], ref triangle.Vertices[1], out subVector);
+                                            //Vector3.Subtract(ref triangle.Vertices[2], ref triangle.Vertices[1], out subVector);
+                                            subVector = triangle.Vertices[2] - triangle.Vertices[1];
                                             Vector3.Cross(ref subVector, ref caller.mNormals[0], out Vector3 axisEight);
                                             axisEight.NormalizeFast();
 
@@ -352,7 +354,7 @@ namespace KWEngine2.Collision
                                             if (Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
                                             {
                                                 // Test #9: C-B x Hitbox-Y-Axis
-                                                Vector3.Subtract(ref triangle.Vertices[2], ref triangle.Vertices[1], out subVector);
+                                                //Vector3.Subtract(ref triangle.Vertices[2], ref triangle.Vertices[1], out subVector);
                                                 Vector3.Cross(ref subVector, ref caller.mNormals[1], out Vector3 axisNine);
                                                 axisNine.NormalizeFast();
 
@@ -361,7 +363,7 @@ namespace KWEngine2.Collision
                                                 if (Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
                                                 {
                                                     // Test #10: C-B x Hitbox-Z-Axis
-                                                    Vector3.Subtract(ref triangle.Vertices[2], ref triangle.Vertices[1], out subVector);
+                                                    //Vector3.Subtract(ref triangle.Vertices[2], ref triangle.Vertices[1], out subVector);
                                                     Vector3.Cross(ref subVector, ref caller.mNormals[2], out Vector3 axisTen);
                                                     axisTen.NormalizeFast();
 
@@ -370,7 +372,8 @@ namespace KWEngine2.Collision
                                                     if (Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
                                                     {
                                                         // Test #11: A-C x Hitbox-X-Axis
-                                                        Vector3.Subtract(ref triangle.Vertices[0], ref triangle.Vertices[2], out subVector);
+                                                        //Vector3.Subtract(ref triangle.Vertices[0], ref triangle.Vertices[2], out subVector);
+                                                        subVector = triangle.Vertices[0] - triangle.Vertices[2];
                                                         Vector3.Cross(ref subVector, ref caller.mNormals[0], out Vector3 axisEleven);
                                                         axisEleven.NormalizeFast();
                                                         SatTest(ref axisEleven, ref caller.mVertices, out shape1Min, out shape1Max);
@@ -378,7 +381,7 @@ namespace KWEngine2.Collision
                                                         if (Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
                                                         {
                                                             // Test #12: A-C x Hitbox-Y-Axis
-                                                            Vector3.Subtract(ref triangle.Vertices[0], ref triangle.Vertices[2], out subVector);
+                                                            //Vector3.Subtract(ref triangle.Vertices[0], ref triangle.Vertices[2], out subVector);
                                                             Vector3.Cross(ref subVector, ref caller.mNormals[1], out Vector3 axisTwelve);
                                                             axisTwelve.NormalizeFast();
                                                             SatTest(ref axisTwelve, ref caller.mVertices, out shape1Min, out shape1Max);
@@ -386,7 +389,7 @@ namespace KWEngine2.Collision
                                                             if (Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
                                                             {
                                                                 // Test #13: A-C x Hitbox-Z-Axis
-                                                                Vector3.Subtract(ref triangle.Vertices[0], ref triangle.Vertices[2], out subVector);
+                                                                //Vector3.Subtract(ref triangle.Vertices[0], ref triangle.Vertices[2], out subVector);
                                                                 Vector3.Cross(ref subVector, ref caller.mNormals[2], out Vector3 axisThirteen);
                                                                 axisThirteen.NormalizeFast();
                                                                 SatTest(ref axisThirteen, ref caller.mVertices, out shape1Min, out shape1Max);

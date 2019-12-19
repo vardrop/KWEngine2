@@ -13,6 +13,7 @@ namespace KWEngine2.GameObjects
     public abstract class GameObject : IComparable
     {
         public bool IsShadowCaster { get; set; } = false;
+        public bool IsAffectedBySun { get; set; } = true;
         public World CurrentWorld { get; internal set; } = null;
         internal int _largestHitboxIndex = -1;
         internal GeoModelCube _cubeModel = null;

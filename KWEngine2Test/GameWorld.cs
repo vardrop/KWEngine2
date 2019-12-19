@@ -39,7 +39,7 @@ namespace KWEngine2Test
             //go.SetTextureRepeat(2, 2, KWEngine.CubeSide.All);
             AddGameObject(go);
 
-            /*
+            
             Block block = new Block();
             block.SetModel(GetModel("KWCube6"));
             block.SetPosition(0, -1, 0);
@@ -49,15 +49,15 @@ namespace KWEngine2Test
             //block.SetTexture(".\\textures\\holland.jpg", KWEngine.CubeSide.All, KWEngine.TextureType.Diffuse);
             //block.SetTextureRepeat(2, 2, KWEngine.CubeSide.All);
             AddGameObject(block);
-            */
+            
 
-            Terrain t = new Terrain();
+           /* Terrain t = new Terrain();
             t.SetModel(KWEngine.GetModel("terraX"));
             t.IsShadowCaster = true;
             //t.SetPosition(-10, -5, 0);
             t.IsCollisionObject = true;
             AddGameObject(t);
-
+            */
 
             Light l = new Light();
             l.SetPosition(0, 7, 0);

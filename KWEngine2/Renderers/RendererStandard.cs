@@ -73,13 +73,19 @@ namespace KWEngine2.Renderers
             // Textures:
             mUniform_Texture = GL.GetUniformLocation(mProgramId, "uTextureDiffuse");
             mUniform_TextureUse = GL.GetUniformLocation(mProgramId, "uUseTextureDiffuse");
+            
             mUniform_TextureNormalMap = GL.GetUniformLocation(mProgramId, "uTextureNormal");
             mUniform_TextureUseNormalMap = GL.GetUniformLocation(mProgramId, "uUseTextureNormal");
+            
             mUniform_TextureSpecularMap = GL.GetUniformLocation(mProgramId, "uTextureSpecular");
             mUniform_TextureUseSpecularMap = GL.GetUniformLocation(mProgramId, "uUseTextureSpecular");
+            mUniform_TextureSpecularIsRoughness = GL.GetUniformLocation(mProgramId, "uRoughness");
+
             mUniform_TextureLightMap = GL.GetUniformLocation(mProgramId, "uTextureLightmap");
             mUniform_TextureUseLightMap = GL.GetUniformLocation(mProgramId, "uUseTextureLightMap");
+            
             mUniform_TextureShadowMap = GL.GetUniformLocation(mProgramId, "uTextureShadowMap");
+            
             mUniform_TextureUseEmissiveMap = GL.GetUniformLocation(mProgramId, "uUseTextureEmissive");
             mUniform_TextureEmissiveMap = GL.GetUniformLocation(mProgramId, "uTextureEmissive");
 
@@ -156,6 +162,11 @@ namespace KWEngine2.Renderers
                     sunDirection.NormalizeFast();
                     GL.Uniform3(mUniform_SunDirection, ref sunDirection);
                     GL.Uniform1(mUniform_SunAmbient, g.CurrentWorld.SunAmbientFactor);
+                }
+
+                if (mUniform_SunAffection >= 0)
+                {
+                    GL.Uniform1(mUniform_SunAffection, g.IsAffectedBySun ? 1 : 0);
                 }
 
                 // Camera
@@ -292,6 +303,10 @@ namespace KWEngine2.Renderers
                             GL.BindTexture(TextureTarget.Texture2D, mesh.Material.TextureSpecular.OpenGLID);
                             GL.Uniform1(mUniform_TextureSpecularMap, 2);
                             GL.Uniform1(mUniform_TextureUseSpecularMap, 1);
+                            if (mesh.Material.TextureSpecularIsRoughness)
+                            {
+                                GL.Uniform1(mUniform_TextureSpecularIsRoughness, mesh.Material.TextureSpecularIsRoughness ? 1 : 0);
+                            }
                         }
                         else
                         {
@@ -299,8 +314,18 @@ namespace KWEngine2.Renderers
                         }
 
 
-                        //TODO: Add emissive maps
-                        GL.Uniform1(mUniform_TextureUseEmissiveMap, 0);
+                        if(mUniform_TextureSpecularMap >= 0 && mesh.Material.TextureEmissive.OpenGLID > 0)
+                        {
+                            GL.ActiveTexture(TextureUnit.Texture4);
+                            GL.BindTexture(TextureTarget.Texture2D, mesh.Material.TextureEmissive.OpenGLID);
+                            GL.Uniform1(mUniform_TextureSpecularMap, 4);
+                            GL.Uniform1(mUniform_TextureUseEmissiveMap, 1);
+                        }
+                        else
+                        {
+                            GL.Uniform1(mUniform_TextureUseEmissiveMap, 0);
+                        }
+                        
                         GL.Uniform4(mUniform_EmissiveColor, mesh.Material.ColorEmissive);
                     }
 

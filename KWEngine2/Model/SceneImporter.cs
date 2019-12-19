@@ -347,6 +347,7 @@ namespace KWEngine2.Model
                     geoMaterial.ColorEmissive = material.HasColorEmissive ? new Vector4(material.ColorEmissive.R, material.ColorEmissive.G, material.ColorEmissive.B, material.ColorEmissive.A) : new Vector4(0, 0, 0, 1);
                     geoMaterial.SpecularPower = material.ShininessStrength;
                     geoMaterial.SpecularArea = material.Shininess;
+                    geoMaterial.TextureSpecularIsRoughness = false;
                 }
                 else
                 {
@@ -356,12 +357,47 @@ namespace KWEngine2.Model
                     geoMaterial.ColorEmissive = new Vector4(0, 0, 0, 1);
                     geoMaterial.SpecularArea = 256;
                     geoMaterial.SpecularPower = 0;
+                    geoMaterial.TextureSpecularIsRoughness = false;
                 }
             }
 
             // Process Textures:
             if (material != null)
             {
+                bool roughnessUsed = false;
+                int texturesUsed = 0;
+                TextureSlot[] texturesOfMaterial = material.GetAllMaterialTextures();
+                foreach (TextureSlot slot in texturesOfMaterial)
+                {
+                    if(slot.TextureType == TextureType.Shininess) // this is PBR Roughness
+                    {
+                        GeoTexture tex = new GeoTexture();
+                        tex.UVTransform = new OpenTK.Vector2(1, 1);
+                        tex.Filename = slot.FilePath;
+                        tex.UVMapIndex = slot.UVIndex;
+                        if (model.Textures.ContainsKey(tex.Filename))
+                        {
+                            tex.OpenGLID = model.Textures[tex.Filename].OpenGLID;
+                        }
+                        else
+                        {
+                            tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
+                                    FindTextureInSubs(StripPathFromFile(tex.Filename), model.PathAbsolute), true
+                                );
+                            model.Textures.Add(tex.Filename, tex);
+                        }
+                        tex.Type = GeoTexture.TexType.Specular;
+                        geoMaterial.TextureSpecular = tex;
+                        geoMaterial.TextureSpecularIsRoughness = true;
+                        roughnessUsed = true;
+                        texturesUsed++;
+
+                        break;
+                    }
+
+                }
+
+                
                 // Diffuse texture
                 if (material.HasTextureDiffuse)
                 {
@@ -382,6 +418,7 @@ namespace KWEngine2.Model
                     }
                     tex.Type = GeoTexture.TexType.Diffuse;
                     geoMaterial.TextureDiffuse = tex;
+                    texturesUsed++;
                 }
 
                 // Normal map texture
@@ -403,10 +440,12 @@ namespace KWEngine2.Model
                         model.Textures.Add(tex.Filename, tex);
                     }
                     tex.Type = GeoTexture.TexType.Normal;
+                    geoMaterial.TextureNormal = tex;
+                    texturesUsed++;
                 }
 
                 // Specular map texture
-                if (material.HasTextureSpecular)
+                if (material.HasTextureSpecular && roughnessUsed == false)
                 {
                     GeoTexture tex = new GeoTexture();
                     tex.UVTransform = new OpenTK.Vector2(1, 1);
@@ -424,6 +463,15 @@ namespace KWEngine2.Model
                         model.Textures.Add(tex.Filename, tex);
                     }
                     tex.Type = GeoTexture.TexType.Specular;
+                    geoMaterial.TextureSpecular = tex;
+                    texturesUsed++;
+                }
+                else
+                {
+                    if(material.HasTextureSpecular && roughnessUsed)
+                    {
+                        Debug.WriteLine("Skipping specular texture for " + model.Filename + " because roughness texture was found.");
+                    }
                 }
 
                 // Emissive map texture
@@ -445,6 +493,8 @@ namespace KWEngine2.Model
                         model.Textures.Add(tex.Filename, tex);
                     }
                     tex.Type = GeoTexture.TexType.Emissive;
+                    geoMaterial.TextureEmissive = tex;
+                    texturesUsed++;
                 }
 
                 // Light map texture
@@ -466,6 +516,8 @@ namespace KWEngine2.Model
                         model.Textures.Add(tex.Filename, tex);
                     }
                     tex.Type = GeoTexture.TexType.Light;
+                    geoMaterial.TextureLight = tex;
+                    texturesUsed++;
                 }
 
             }

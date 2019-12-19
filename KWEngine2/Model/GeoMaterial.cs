@@ -22,5 +22,10 @@ namespace KWEngine2.Model
         public GeoTexture TextureNormal { get; internal set; }
         public GeoTexture TextureSpecular { get; internal set; }
 
+        public GeoTexture TextureEmissive { get; internal set; }
+        public GeoTexture TextureLight { get; internal set; }
+
+        public bool TextureSpecularIsRoughness { get; internal set; }
+
     }
 }

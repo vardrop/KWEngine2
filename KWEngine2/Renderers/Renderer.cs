@@ -47,6 +47,7 @@ namespace KWEngine2.Renderers
         protected int mUniform_Resolution = -1;
         protected int mUniform_TextureNormalMap = -1;
         protected int mUniform_TextureSpecularMap = -1;
+        protected int mUniform_TextureSpecularIsRoughness = -1;
         protected int mUniform_TextureEmissiveMap = -1;
         protected int mUniform_TextureUse = -1;
         protected int mUniform_TextureUseNormalMap = -1;

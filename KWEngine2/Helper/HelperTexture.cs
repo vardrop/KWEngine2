@@ -28,7 +28,7 @@ namespace KWEngine2.Helper
 
             return (int)v;
         }
-        public static int LoadTextureForModelExternal(string filename)
+        public static int LoadTextureForModelExternal(string filename, bool convertRoughnessToSpecular = false)
         {
             if (!File.Exists(filename))
             {
