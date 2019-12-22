@@ -30,6 +30,9 @@ namespace KWEngine2
         internal static float[] LightTargets = new float[KWEngine.MAX_LIGHTS * 4];
         internal static float[] LightPositions = new float[KWEngine.MAX_LIGHTS * 4];
 
+        internal HelperFrustum Frustum = new HelperFrustum();
+        internal HelperFrustum FrustumShadowMap = new HelperFrustum();
+
         internal GeoModel _bloomQuad;
 
         /// <summary>
@@ -134,24 +137,33 @@ namespace KWEngine2
                     Matrix4 viewMatrixShadow = Matrix4.LookAt(CurrentWorld.GetSunPosition(), CurrentWorld.GetSunTarget(), KWEngine.WorldUp);
                     Matrix4 viewProjectionShadow = viewMatrixShadow * _projectionMatrixShadow;
 
-                    CurrentWorld.SortByZ();
+                    Frustum.CalculateFrustum(_projectionMatrix, _viewMatrix);
+                    FrustumShadowMap.CalculateFrustum(_projectionMatrixShadow, viewMatrixShadow);
+
+                    
 
                     SwitchToBufferAndClear(FramebufferShadowMap);
                     GL.Viewport(0, 0, KWEngine.ShadowMapSize, KWEngine.ShadowMapSize);
                     GL.UseProgram(KWEngine.Renderers["Shadow"].GetProgramId());
-                    foreach (GameObject g in CurrentWorld.GetGameObjects())
+                    lock (CurrentWorld._gameObjects)
                     {
-                        KWEngine.Renderers["Shadow"].Draw(g, ref viewProjectionShadow);
+                        foreach (GameObject g in CurrentWorld.GetGameObjects())
+                        {
+                            KWEngine.Renderers["Shadow"].Draw(g, ref viewProjectionShadow, FrustumShadowMap);
+                        }
                     }
                     GL.UseProgram(0);
 
                     SwitchToBufferAndClear(FramebufferMainMultisample);
                     GL.Viewport(ClientRectangle);
                     Matrix4 viewProjectionShadowBiased = viewProjectionShadow * HelperMatrix.BiasedMatrixForShadowMapping;
-                    LightObject.PrepareLightsForRenderPass(CurrentWorld.GetLightObjects(), ref LightColors, ref LightTargets, ref LightPositions, ref CurrentWorld._lightcount);
-                    foreach (GameObject g in CurrentWorld.GetGameObjects())
+                    lock (CurrentWorld._gameObjects)
                     {
-                        KWEngine.Renderers["Standard"].Draw(g, ref viewProjection, ref viewProjectionShadowBiased, ref LightColors, ref LightTargets, ref LightPositions, CurrentWorld._lightcount);
+                        LightObject.PrepareLightsForRenderPass(CurrentWorld.GetLightObjects(), ref LightColors, ref LightTargets, ref LightPositions, ref CurrentWorld._lightcount);
+                        foreach (GameObject g in CurrentWorld.GetGameObjects())
+                        {
+                            KWEngine.Renderers["Standard"].Draw(g, ref viewProjection, ref viewProjectionShadowBiased, Frustum, ref LightColors, ref LightTargets, ref LightPositions, CurrentWorld._lightcount);
+                        }
                     }
                     GL.UseProgram(0);
                 }
@@ -174,7 +186,7 @@ namespace KWEngine2
             base.OnUpdateFrame(e);
 
             KeyboardState ks = Keyboard.GetState();
-            MouseState ms = Mouse.GetState();
+            MouseState ms = Mouse.GetCursorState();
 
             if (ks.IsKeyDown(Key.AltLeft) && ks.IsKeyDown(Key.F4))
             {
@@ -182,12 +194,18 @@ namespace KWEngine2
                 return;
             }
 
-            foreach(GameObject g in CurrentWorld.GetGameObjects())
+            lock (CurrentWorld._gameObjects)
             {
-                g.Act(ks, ms, DeltaTime.GetDeltaTimeFactor());
-                g.ProcessCurrentAnimation();
-                
+                foreach (GameObject g in CurrentWorld.GetGameObjects())
+                {
+                    g.Act(ks, ms, DeltaTime.GetDeltaTimeFactor());
+                    g.ProcessCurrentAnimation();
+
+                    g.CheckBounds();
+                }
             }
+            CurrentWorld.AddRemoveObjects();
+            CurrentWorld.SortByZ();
 
             DeltaTime.UpdateDeltaTime();
         }

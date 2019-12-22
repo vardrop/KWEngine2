@@ -5,13 +5,55 @@ using OpenTK;
 using OpenTK.Input;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace KWEngine2
 {
     public abstract class World
     {
-        private List<GameObject> _gameObjects = new List<GameObject>();
-        private List<LightObject> _lightObjects = new List<LightObject>();
+
+        private float _worldDistance = 100;
+        public Vector3 WorldCenter { get; set; } = new Vector3(0, 0, 0);
+        public float WorldDistance
+        {
+            get
+            {
+                return _worldDistance;
+            }
+            set
+            {
+                if(value > 0)
+                {
+                    _worldDistance = value;
+                }
+                else
+                {
+                    _worldDistance = 200f;
+                    Debug.WriteLine("WorldDistance needs to be > 0");
+                }
+            }
+        }
+        private GameObject _firstPersonObject = null;
+
+        public bool IsFirstPersonMode
+        {
+            get
+            {
+                return _firstPersonObject != null && _gameObjects.Contains(_firstPersonObject);
+            }
+        }
+
+            
+        internal List<GameObject> _gameObjects = new List<GameObject>();
+        internal List<LightObject> _lightObjects = new List<LightObject>();
+
+        internal List<GameObject> _gameObjectsTBA = new List<GameObject>();
+        internal List<LightObject> _lightObjectsTBA = new List<LightObject>();
+
+        internal List<GameObject> _gameObjectsTBR = new List<GameObject>();
+        internal List<LightObject> _lightObjectsTBR = new List<LightObject>();
+
+
         internal int _lightcount = 0;
         public int LightCount
         { 
@@ -24,6 +66,7 @@ namespace KWEngine2
         private List<HUDObject> _hudObjects = new List<HUDObject>();
         private Vector3 _cameraPosition = new Vector3(0, 0, 25);
         private Vector3 _cameraTarget = new Vector3(0, 0, 0);
+        private Vector3 _cameraLookAt = new Vector3(0, 0, 1);
         private Vector3 _sunPosition = new Vector3(100, 100, 100);
         private Vector3 _sunTarget = new Vector3(0, 0, 0);
         private Vector4 _sunColor = new Vector4(1, 1, 1, 1);
@@ -81,23 +124,36 @@ namespace KWEngine2
         public void SetCameraPosition(float x, float y, float z)
         {
             _cameraPosition = new Vector3(x, y, z);
+            UpdateCameraLookAtVector();
         }
 
         public void SetCameraPosition(Vector3 p)
         {
             _cameraPosition = p;
+            UpdateCameraLookAtVector();
         }
 
         public void SetCameraTarget(float x, float y, float z)
         {
             _cameraTarget = new Vector3(x, y, z);
+            UpdateCameraLookAtVector();
         }
         public void SetCameraTarget(Vector3 p)
         {
             _cameraTarget = p;
+            UpdateCameraLookAtVector();
         }
 
+        private void UpdateCameraLookAtVector()
+        {
+            _cameraLookAt = _cameraTarget - _cameraPosition;
+            _cameraLookAt.NormalizeFast();
+        }
 
+        public Vector3 GetCameraLookAtVector()
+        {
+            return _cameraLookAt;
+        }
 
         // Sun
         public Vector3 GetSunPosition()
@@ -165,30 +221,68 @@ namespace KWEngine2
             return KWEngine.GetModel(name);
         }
 
-        public void AddLightObject(LightObject l)
+        internal void AddRemoveObjects()
         {
+            lock (_gameObjects)
+            {
+                foreach (GameObject g in _gameObjectsTBA)
+                {
+                    if (!_gameObjects.Contains(g))
+                    {
+                        _gameObjects.Add(g);
+                        g.CurrentWorld = this;
+                    }
+                }
+                _gameObjectsTBA.Clear();
+
+                foreach(GameObject g in _gameObjectsTBR)
+                {
+                    g.CurrentWorld = null;
+                    _gameObjects.Remove(g);
+                }
+                _gameObjectsTBR.Clear();
+            }
+
+
             lock (_lightObjects)
             {
-                if(!(_lightObjects.Contains(l)))
+                foreach (LightObject g in _lightObjectsTBR)
                 {
-                    _lightObjects.Add(l);
+                    g.CurrentWorld = null;
+                    _lightObjects.Remove(g);
                 }
+                _lightObjectsTBR.Clear();
 
-                l.CurrentWorld = this;
+                foreach (LightObject g in _lightObjectsTBA)
+                {
+                    if (!_lightObjects.Contains(g))
+                    {
+                        _lightObjects.Add(g);
+                        g.CurrentWorld = this;
+                    }
+                }
+                _lightObjectsTBA.Clear();
+
                 _lightcount = _lightObjects.Count;
             }
         }
 
-        public bool RemoveLightObject(LightObject l)
+        public void AddLightObject(LightObject l)
         {
-            bool success = false;
-            lock (_lightObjects)
+            if (!_lightObjects.Contains(l))
             {
-                l.CurrentWorld = null;
-                success = _lightObjects.Remove(l);
-                _lightcount = _lightObjects.Count;
+                _lightObjectsTBA.Add(l);
             }
-            return success;
+            else
+            {
+                throw new Exception("This light already exists in this world.");
+            }
+
+        }
+
+        public void RemoveLightObject(LightObject l)
+        {
+            _lightObjectsTBR.Add(l);
         }
 
         public void AddGameObject(GameObject g)
@@ -197,8 +291,7 @@ namespace KWEngine2
             {
                 if (!_gameObjects.Contains(g))
                 {
-                    _gameObjects.Add(g);
-                    g.CurrentWorld = this;
+                    _gameObjectsTBA.Add(g);
                 }
                 else
                     throw new Exception("GameObject instance " + g.Name + " already in current world.");
@@ -206,15 +299,9 @@ namespace KWEngine2
             
         }
 
-        public bool RemoveGameObject(GameObject g)
+        public void RemoveGameObject(GameObject g)
         {
-            bool success = false;
-            lock(_gameObjects)
-            {
-                g.CurrentWorld = null;
-                success = _gameObjects.Remove(g);
-            }
-            return success;
+            _gameObjectsTBR.Add(g);
         }
 
         internal void Dispose()
@@ -250,7 +337,17 @@ namespace KWEngine2
 
         internal void SortByZ()
         {
-            _gameObjects.Sort((a, b) => a.CompareTo(b));
+            lock (_gameObjects)
+            {
+                try
+                {
+                    _gameObjects.Sort((a, b) => a.CompareTo(b));
+                }
+                catch (Exception)
+                {
+                    Debug.WriteLine("WARNING: Sorting game objects failed due to one instance being null.");
+                }
+            }
         }
     }
 }

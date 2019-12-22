@@ -1,4 +1,5 @@
 ﻿using KWEngine2.GameObjects;
+using KWEngine2.Helper;
 using KWEngine2.Model;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
@@ -100,7 +101,12 @@ namespace KWEngine2.Renderers
             throw new NotImplementedException();
         }
 
-        internal override void Draw(GameObject g, ref Matrix4 viewProjection, ref Matrix4 viewProjectionShadow, ref float[] lightColors, ref float[] lightTargets, ref float[] lightPositions, int lightCount)
+        internal override void Draw(GameObject g, ref Matrix4 viewProjection, HelperFrustum frustum)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal override void Draw(GameObject g, ref Matrix4 viewProjection, ref Matrix4 viewProjectionShadow, HelperFrustum frustum, ref float[] lightColors, ref float[] lightTargets, ref float[] lightPositions, int lightCount)
         {
             throw new NotImplementedException();
         }

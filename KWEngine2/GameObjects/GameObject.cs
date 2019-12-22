@@ -12,9 +12,34 @@ namespace KWEngine2.GameObjects
 {
     public abstract class GameObject : IComparable
     {
+        public enum Plane { X, Y, Z, Camera }
+        internal float _baseRotation = 0;
+        public float BaseRotationInDegrees
+        {
+            get
+            {
+                return MathHelper.RadiansToDegrees(_baseRotation);
+            }
+            set
+            {
+                float tmp = value % 360f;
+                _baseRotation = MathHelper.DegreesToRadians(tmp);
+                Rotation = Quaternion.FromAxisAngle(KWEngine.WorldUp, _baseRotation) * Rotation;
+            }
+        }
         public bool IsShadowCaster { get; set; } = false;
         public bool IsAffectedBySun { get; set; } = true;
         public World CurrentWorld { get; internal set; } = null;
+        public GLWindow CurrentWindow
+        {
+            get
+            {
+                if (CurrentWorld != null)
+                    return CurrentWorld.CurrentWindow;
+                else
+                    throw new Exception("No window available.");
+            }
+        }
         internal int _largestHitboxIndex = -1;
         internal GeoModelCube _cubeModel = null;
         internal List<Hitbox> Hitboxes = new List<Hitbox>();
@@ -105,12 +130,16 @@ namespace KWEngine2.GameObjects
             {
                 return _rotation;
             }
-            set
+            internal set
             {
-                _rotation = value;
+                _rotation = _baseRotation * value;
                 UpdateModelMatrixAndHitboxes();
             }
         }
+
+        internal Vector3 _sceneCenter = new Vector3(0, 0, 0);
+        internal Vector3 _sceneDimensions = new Vector3(0, 0, 0);
+        internal float _sceneDiameter = 1;
 
         private Vector3 _position = new Vector3(0, 0, 0);
         public Vector3 Position
@@ -173,11 +202,58 @@ namespace KWEngine2.GameObjects
 
         private void UpdateModelMatrixAndHitboxes()
         {
+            //_modelMatrix = Matrix4.CreateScale(_scale) * Matrix4.CreateFromQuaternion(Quaternion.FromAxisAngle(KWEngine.WorldUp, _baseRotation)) * Matrix4.CreateFromQuaternion(_rotation) * Matrix4.CreateTranslation(_position);
             _modelMatrix = Matrix4.CreateScale(_scale) * Matrix4.CreateFromQuaternion(_rotation) * Matrix4.CreateTranslation(_position);
-            foreach(Hitbox h in Hitboxes)
+            Vector3 sceneCenter = new Vector3(0, 0, 0);
+            Vector3 tmpDims = new Vector3(0, 0, 0);
+            float minX = float.MaxValue;
+            float maxX = float.MinValue;
+            float minY = float.MaxValue;
+            float maxY = float.MinValue;
+            float minZ = float.MaxValue;
+            float maxZ = float.MinValue;
+            foreach (Hitbox h in Hitboxes)
             {
-                h.Update();
+                Vector3 localCenter = h.Update(ref tmpDims);
+                sceneCenter += localCenter;
+
+                if (localCenter.X + tmpDims.X / 2 > maxX)
+                    maxX = localCenter.X + tmpDims.X / 2;
+                if (localCenter.X - tmpDims.X / 2 < minX)
+                    minX = localCenter.X - tmpDims.X / 2;
+
+                if (localCenter.Y + tmpDims.Y / 2 > maxY)
+                    maxY = localCenter.Y + tmpDims.Y / 2;
+                if (localCenter.Y - tmpDims.Y / 2 < minY)
+                    minY = localCenter.Y - tmpDims.Y / 2;
+
+                if (localCenter.Z + tmpDims.Z / 2 > maxZ)
+                    maxZ = localCenter.Z + tmpDims.Z / 2;
+                if (localCenter.Z - tmpDims.Z / 2 < minZ)
+                    minZ = localCenter.Z - tmpDims.Z / 2;
             }
+            _sceneCenter.X = sceneCenter.X / Hitboxes.Count;
+            _sceneCenter.Y = sceneCenter.Y / Hitboxes.Count;
+            _sceneCenter.Z = sceneCenter.Z / Hitboxes.Count;
+            _sceneDimensions = new Vector3(maxX - minX, maxY - minY, maxZ - minZ);
+            Vector3 downLeftFront = new Vector3(GetGameObjectCenterPoint().X - GetGameObjectMaxDimensions().X / 2, GetGameObjectCenterPoint().Y - GetGameObjectMaxDimensions().Y / 2, GetGameObjectCenterPoint().Z + GetGameObjectMaxDimensions().Z / 2);
+            Vector3 upRightBack = new Vector3(GetGameObjectCenterPoint().X + GetGameObjectMaxDimensions().X / 2, GetGameObjectCenterPoint().Y + GetGameObjectMaxDimensions().Y / 2, GetGameObjectCenterPoint().Z - GetGameObjectMaxDimensions().Z / 2);
+            _sceneDiameter = (upRightBack - downLeftFront).LengthFast;
+        }
+
+        public Vector3 GetGameObjectCenterPoint()
+        {
+            return _sceneCenter;
+        }
+
+        public Vector3 GetGameObjectMaxDimensions()
+        {
+            return _sceneDimensions;
+        }
+
+        public float GetGameObjectMaxDiameter()
+        {
+            return _sceneDiameter;
         }
 
         public bool IsValid { get; internal set; } = false;
@@ -252,6 +328,28 @@ namespace KWEngine2.GameObjects
             return HelperRotation.ConvertQuaternionToEulerAngles(Rotation);
         }
 
+        public void SetRotation(Quaternion rotation)
+        {
+            Rotation = rotation;
+        }
+
+        internal void CheckBounds()
+        {
+            if(_sceneCenter.X > CurrentWorld.WorldCenter.X + CurrentWorld.WorldDistance
+                || _sceneCenter.X < CurrentWorld.WorldCenter.X - CurrentWorld.WorldDistance
+
+                ||_sceneCenter.Y > CurrentWorld.WorldCenter.Y + CurrentWorld.WorldDistance
+                || _sceneCenter.Y < CurrentWorld.WorldCenter.Y - CurrentWorld.WorldDistance
+
+                || _sceneCenter.Z > CurrentWorld.WorldCenter.Z + CurrentWorld.WorldDistance
+                || _sceneCenter.Z < CurrentWorld.WorldCenter.Z - CurrentWorld.WorldDistance
+                )
+            {
+                Debug.WriteLine("Object '" + this.Name + " " + this.Model.Name  + "' position is beyond world's boundaries (currently: " + CurrentWorld.WorldDistance + " units from " + CurrentWorld.WorldCenter +  "). Removing object.");
+                CurrentWorld.RemoveGameObject(this);
+            }
+        }
+
         public void SetRotation(float x, float y, float z)
         {
             if (Model.IsTerrain)
@@ -263,7 +361,7 @@ namespace KWEngine2.GameObjects
                 Quaternion tmpRotateX = Quaternion.FromAxisAngle(Vector3.UnitX, HelperRotation.CalculateRadiansFromDegrees(x));
                 Quaternion tmpRotateY = Quaternion.FromAxisAngle(Vector3.UnitY, HelperRotation.CalculateRadiansFromDegrees(y));
                 Quaternion tmpRotateZ = Quaternion.FromAxisAngle(Vector3.UnitZ, HelperRotation.CalculateRadiansFromDegrees(z));
-                Rotation = new Quaternion(0, 0, 0, 1);
+                Rotation = Quaternion.FromAxisAngle(KWEngine.WorldUp, _baseRotation);
                 Rotation = Rotation * tmpRotateZ * tmpRotateY * tmpRotateX;
             }
             else
@@ -672,37 +770,9 @@ namespace KWEngine2.GameObjects
             }
             else
             {
-
-                float max1 = 0;
-                if (go.Scale.X > max1)
-                {
-                    max1 = go.Scale.X;
-                }
-                if (go.Scale.Y > max1)
-                {
-                    max1 = go.Scale.Y;
-                }
-                if (go.Scale.Z > max1)
-                {
-                    max1 = go.Scale.Z;
-                }
-                float max2 = 0;
-                if (caller.Scale.X > max2)
-                {
-                    max2 = caller.Scale.X;
-                }
-                if (caller.Scale.Y > max2)
-                {
-                    max2 = caller.Scale.Y;
-                }
-                if (caller.Scale.Z > max2)
-                {
-                    max2 = caller.Scale.Z;
-                }
-
-                float distance = (caller.Hitboxes[caller._largestHitboxIndex].GetCenter() - go.Hitboxes[go._largestHitboxIndex].GetCenter()).LengthFast;
-                float rad1 = (go.Hitboxes[caller._largestHitboxIndex].DiameterFull * max1);
-                float rad2 = (caller.Hitboxes[caller._largestHitboxIndex].DiameterFull * max2);
+                float distance = (caller.GetGameObjectCenterPoint() - go.GetGameObjectCenterPoint()).LengthFast;
+                float rad1 = caller._sceneDiameter / 2;
+                float rad2 = go._sceneDiameter / 2;
                 if (distance - (rad1 + rad2) > 0)
                     return false;
                 else
@@ -712,7 +782,7 @@ namespace KWEngine2.GameObjects
 
         public int CompareTo(object obj)
         {
-            if (obj is GameObject)
+            if (obj != null && obj is GameObject)
             {
                 GameObject g = (GameObject)obj;
                 if (g.CurrentWorld == null)
@@ -765,9 +835,213 @@ namespace KWEngine2.GameObjects
             }
         }
 
+        protected Vector3 GetCameraLookAtVector()
+        {
+            if(CurrentWorld != null)
+            {
+                return CurrentWorld.GetCameraLookAtVector();
+            }
+            else
+            {
+                throw new Exception("Current world is null. Cannot compute camera vector.");
+            }
+        }
+
+
+        protected Vector3 GetMouseIntersectionPoint(MouseState ms, Plane plane = Plane.Camera)
+        {
+            if (CurrentWorld.IsFirstPersonMode)
+                throw new Exception("Method GetMouseIntersectionPoint() may not be called from First Person Mode object.");
+            
+            Vector3 worldRay = Get3DMouseCoords(HelperGL.GetNormalizedMouseCoords(ms.X, ms.Y, CurrentWindow));
+            Vector3 normal;
+            if (plane == Plane.Y)
+                normal = new Vector3(0, 1, 0.000001f);
+            else if (plane == Plane.X)
+                normal = new Vector3(1, 0, 0);
+            else if (plane == Plane.Z)
+                normal = new Vector3(0, 0.000001f, 1);
+            else
+            {
+                normal = -GetCameraLookAtVector();
+            }
+
+            bool result = LinePlaneIntersection(out Vector3 intersection, worldRay, CurrentWorld.GetCameraPosition(), normal, GetGameObjectCenterPoint());
+            if (result)
+            {
+                return intersection;
+            }
+            else
+                return Position;
+        }
+
+        protected bool IsMouseCursorInsideMyHitbox(MouseState ms)
+        {
+            if (CurrentWorld.IsFirstPersonMode)
+                throw new Exception("Method GetMouseIntersectionPoint2() may not be called from First Person Mode object.");
+
+            Vector3 worldRay = Get3DMouseCoords(HelperGL.GetNormalizedMouseCoords(ms.X, ms.Y, CurrentWindow));
+            Vector3 normal = -GetCameraLookAtVector();
+            normal.Y += 0.000001f;
+            normal.Z += 0.000001f;
+            bool result = LinePlaneIntersection(out Vector3 intersection, worldRay, CurrentWorld.GetCameraPosition(), normal, GetGameObjectCenterPoint());
+            if (result)
+                return IsPointInsideBox(intersection, GetGameObjectCenterPoint(), GetGameObjectMaxDimensions());
+            else
+                return false;
+        }
+
+        private bool IsPointInsideBox(Vector3 pos, Vector3 center, Vector3 dimensions)
+        {
+            return (
+                pos.X >= center.X - dimensions.X / 2 &&
+                pos.X <= center.X + dimensions.X / 2 &&
+                pos.Y >= center.Y - dimensions.Y / 2 &&
+                pos.Y <= center.Y + dimensions.Y / 2 &&
+                pos.Z >= center.Z - dimensions.Z / 2 &&
+                pos.Z <= center.Z + dimensions.Z / 2
+                );
+        }
+
+        private bool LinePlaneIntersection(out Vector3 contact, Vector3 ray, Vector3 rayOrigin,
+                                            Vector3 normal, Vector3 coord)
+        {
+            contact = Vector3.Zero;
+            float d = Vector3.Dot(normal, coord);
+            if (Vector3.Dot(normal, ray) == 0)
+            {
+                return false;
+            }
+            float x = (d - Vector3.Dot(normal, rayOrigin)) / Vector3.Dot(normal, ray);
+            ray.NormalizeFast();
+            contact = rayOrigin + ray * x;
+            return true;
+        }
+
+        protected Quaternion GetRotationToTarget(Vector3 position, Plane plane = Plane.Camera)
+        {
+            Vector3 normal;
+            if (plane == Plane.Y)
+                normal = new Vector3(0, 1, 0.000001f);
+            else if (plane == Plane.X)
+                normal = new Vector3(1, 0, 0);
+            else if (plane == Plane.Z)
+                normal = new Vector3(0, 0.000001f, 1);
+            else
+            {
+                normal = -GetCameraLookAtVector();
+            }
+
+            Matrix4 lookat = Matrix4.LookAt(GetGameObjectCenterPoint(), position, normal);
+            lookat.Transpose();
+            lookat.Invert();
+            return Quaternion.FromMatrix(new Matrix3(lookat));
+        }
+
+       
+        public void TurnTowardsXYZ(Vector3 target)
+        {
+            Vector3 dir = target - GetGameObjectCenterPoint();
+            if (dir.LengthFast < 0.1f)
+                return;
+          
+            Matrix4 lookat = Matrix4.LookAt(GetGameObjectCenterPoint(), target, -GetCameraLookAtVector());
+            lookat.Transpose();
+            lookat.Invert();
+            Rotation = Quaternion.FromAxisAngle(KWEngine.WorldUp, (float)Math.PI) * Quaternion.FromMatrix(new Matrix3(lookat));
+        }
+
+        public void TurnTowardsXY(float targetX, float targetY)
+        {
+            Vector3 target = new Vector3(targetX, targetY, GetGameObjectCenterPoint().Z);
+            if ((target - Position).LengthFast < 0.1f)
+                return;
+
+            Matrix4 lookat = Matrix4.LookAt(GetGameObjectCenterPoint(), target, Vector3.UnitZ);
+            lookat.Transpose();
+            lookat.Invert();
+            Quaternion newRotation = Quaternion.FromMatrix(new Matrix3(lookat));
+            newRotation *= Quaternion.FromAxisAngle(Vector3.UnitY, (float)Math.PI);
+            Rotation = newRotation;
+        }
+
+        /// <summary>
+        /// Verändert die Rotation der Instanz, so dass sie in Richtung der XY-Koordinaten blickt. Z-Unterschiede Unterschiede werden ignoriert.
+        /// [Geeignet, wenn die Kamera entlang der z-Achse blickt (Standard)]
+        /// </summary>
+        /// <param name="target">Zielkoordinaten</param>
+        public void TurnTowardsXY(Vector3 target)
+        {
+            target.Z = GetGameObjectCenterPoint().Z;
+            if ((target - Position).LengthFast < 0.1f)
+                return;
+
+            Matrix4 lookat = Matrix4.LookAt(GetGameObjectCenterPoint(), target, Vector3.UnitZ);
+            lookat.Transpose();
+            lookat.Invert();
+            Quaternion newRotation = Quaternion.FromMatrix(new Matrix3(lookat));
+            newRotation *= Quaternion.FromAxisAngle(Vector3.UnitY, (float)Math.PI);
+            Rotation = newRotation;
+        }
+
+        /// <summary>
+        /// Verändert die Rotation der Instanz, so dass sie in Richtung der XZ-Koordinaten blickt. Vertikale Unterschiede werden ignoriert.
+        /// (Geeignet, wenn die Kamera entlang der y-Achse blickt)
+        /// </summary>
+        /// <param name="targetX">Zielkoordinate der x-Achse</param>
+        /// <param name="targetZ">Zielkoordinate der z-Achse</param>
+        public void TurnTowardsXZ(float targetX, float targetZ)
+        {
+            Vector3 target = new Vector3(targetX, GetGameObjectCenterPoint().Y, targetZ);
+            if ((target - Position).LengthFast < 0.1f)
+                return;
+
+            Matrix4 lookat = Matrix4.LookAt(GetGameObjectCenterPoint(), target, Vector3.UnitY);
+            lookat.Transpose();
+            lookat.Invert();
+            Quaternion newRotation = Quaternion.FromMatrix(new Matrix3(lookat));
+            newRotation *= Quaternion.FromAxisAngle(Vector3.UnitY, (float)Math.PI);
+            Rotation = newRotation;
+        }
+
+        /// <summary>
+        /// Verändert die Rotation der Instanz, so dass sie in Richtung der XZ-Koordinaten blickt. Vertikale Unterschiede werden ignoriert.
+        /// (Geeignet, wenn die Kamera entlang der y-Achse blickt)
+        /// </summary>
+        /// <param name="target">Zielkoordinaten</param>
+        public void TurnTowardsXZ(Vector3 target)
+        {
+            Vector3 currentPos = GetGameObjectCenterPoint();
+            target.Y = currentPos.Y;
+            if ((target - currentPos).LengthFast < 0.1f)
+                return;
+
+            Matrix4 lookat = Matrix4.LookAt(GetGameObjectCenterPoint(), target, Vector3.UnitY);
+            lookat.Transpose();
+            lookat.Invert();
+            Quaternion newRotation = Quaternion.FromMatrix(new Matrix3(lookat));
+            newRotation *= Quaternion.FromAxisAngle(Vector3.UnitY, (float)Math.PI);
+            Rotation = newRotation;
+        }
+
+        public bool IsInsideScreenSpace
+        {
+            get
+            {
+                if(CurrentWorld != null)
+                {
+                    return CurrentWindow.Frustum.SphereVsFrustum(this.GetGameObjectCenterPoint(), this.GetGameObjectMaxDiameter() / 2);
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
         protected GameObject PickGameObject(float x, float y)
         {
-            Vector3 ray = Get3DMouseCoords(x, x);
+            Vector3 ray = Get3DMouseCoords(x, y);
             Vector3 pos = CurrentWorld.GetCameraPosition() + ray;
 
             GameObject pickedObject = null;
@@ -775,12 +1049,11 @@ namespace KWEngine2.GameObjects
 
             foreach (GameObject go in CurrentWorld.GetGameObjects())
             {
-                //TODO: Add frustum culling
-                if (go.IsPickable) // && go.IsInsideScreenSpace)
+                if (go.IsPickable && go.IsInsideScreenSpace)
                 {
-                    if (IntersectRaySphere(pos, ray, go.Hitboxes[_largestHitboxIndex].GetCenter(), go.Hitboxes[_largestHitboxIndex].DiameterFull / 2))
+                    if (IntersectRaySphere(pos, ray, go.GetGameObjectCenterPoint(), GetGameObjectMaxDiameter() / 2)) // GetDiameterFromDimensions(go.GetGameObjectCenterPoint(), go.GetGameObjectMaxDimensions())))
                     {
-                        float distance = (go.Hitboxes[_largestHitboxIndex].GetCenter() - pos).LengthSquared;
+                        float distance = (go.GetGameObjectCenterPoint() - pos).LengthSquared;
                         if (distance < pickedDistance)
                         {
                             pickedDistance = distance;
@@ -790,7 +1063,7 @@ namespace KWEngine2.GameObjects
                 }
             }
             
-                return pickedObject;
+            return pickedObject;
         }
 
         private static bool IntersectRaySphere(Vector3 rayStart, Vector3 ray, Vector3 sphereCenter, float sphereRadius)
@@ -820,6 +1093,12 @@ namespace KWEngine2.GameObjects
         private static Vector3 Get3DMouseCoords(float x, float y)
         {
             HelperMouseRay r = new HelperMouseRay(x, y, GLWindow.CurrentWindow._viewMatrix, GLWindow.CurrentWindow._projectionMatrix);
+            return Vector3.NormalizeFast(r.End - r.Start);
+        }
+
+        private static Vector3 Get3DMouseCoords(Vector2 mouseCoords)
+        {
+            HelperMouseRay r = new HelperMouseRay(mouseCoords.X, mouseCoords.Y, GLWindow.CurrentWindow._viewMatrix, GLWindow.CurrentWindow._projectionMatrix);
             return Vector3.NormalizeFast(r.End - r.Start);
         }
     }

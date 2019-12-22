@@ -336,6 +336,7 @@ namespace KWEngine2.Renderers
         }
 
         internal abstract void Draw(GameObject g, ref Matrix4 viewProjection);
-        internal abstract void Draw(GameObject g, ref Matrix4 viewProjection, ref Matrix4 viewProjectionShadow, ref float[] lightColors, ref float[] lightTargets, ref float[] lightPositions, int lightCount );
+        internal abstract void Draw(GameObject g, ref Matrix4 viewProjection, HelperFrustum frustum);
+        internal abstract void Draw(GameObject g, ref Matrix4 viewProjection, ref Matrix4 viewProjectionShadow, HelperFrustum frustum, ref float[] lightColors, ref float[] lightTargets, ref float[] lightPositions, int lightCount );
     }
 }

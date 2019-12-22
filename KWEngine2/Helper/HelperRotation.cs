@@ -4,12 +4,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static KWEngine2.GameObjects.GameObject;
 
 namespace KWEngine2.Helper
 {
     public static class HelperRotation
-    
     {
+        private static Matrix4 translationPointMatrix = Matrix4.Identity;
+        private static Matrix4 rotationMatrix = Matrix4.Identity;
+        private static Matrix4 translationMatrix = Matrix4.Identity;
+        private static Matrix4 tempMatrix = Matrix4.Identity;
+        private static Matrix4 spinMatrix = Matrix4.Identity;
+        private static Vector3 finalTranslationPoint = Vector3.Zero;
+        private static Vector3 zeroVector = Vector3.Zero;
+
         public static float CalculateRadiansFromDegrees(float degrees)
         {
             return (float)Math.PI * degrees / 180f;
@@ -81,6 +89,40 @@ namespace KWEngine2.Helper
 
             return result;
         }
-    }
 
+        public static Vector3 CalculateRotationAroundPointOnAxis(Vector3 point, float distance, float degrees, Plane plane)
+        {
+            float radians = MathHelper.DegreesToRadians(degrees % 360);
+            Matrix4.CreateTranslation(ref point, out translationPointMatrix);
+
+            if (plane == Plane.X)
+            {
+                Matrix4.CreateRotationX(radians, out rotationMatrix);
+                Matrix4.CreateTranslation(distance, 0, 0, out translationMatrix);
+            }
+            else if (plane == Plane.Y)
+            {
+                Matrix4.CreateRotationY(radians, out rotationMatrix);
+                Matrix4.CreateTranslation(0, 0, distance, out translationMatrix);
+            }
+            else if (plane == Plane.Z)
+            {
+                Matrix4.CreateRotationZ(radians, out rotationMatrix);
+                Matrix4.CreateTranslation(0, distance, 0, out translationMatrix);
+            }
+            else
+            {
+                throw new Exception("Only Rotations around X, Y or Z axis are allowed.");
+            }
+
+            Matrix4.Mult(ref translationMatrix, ref rotationMatrix, out tempMatrix);
+            Matrix4.Mult(ref tempMatrix, ref translationPointMatrix, out spinMatrix);
+
+
+            Vector3.TransformPosition(ref zeroVector, ref spinMatrix, out finalTranslationPoint);
+
+            return finalTranslationPoint;
+        }
+
+    }
 }

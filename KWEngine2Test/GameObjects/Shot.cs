@@ -8,13 +8,11 @@ using System.Threading.Tasks;
 
 namespace KWEngine2Test.GameObjects
 {
-    public class Block : GameObject
+    class Shot : GameObject
     {
         public override void Act(KeyboardState ks, MouseState ms, float deltaTimeFactor)
         {
-         
-            
-            ///AnimationID = -1;
+            Move(0.1f);
         }
     }
 }

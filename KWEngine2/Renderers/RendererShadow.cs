@@ -1,4 +1,5 @@
 ﻿using KWEngine2.GameObjects;
+using KWEngine2.Helper;
 using KWEngine2.Model;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
@@ -56,7 +57,7 @@ namespace KWEngine2.Renderers
             mUniform_BoneTransforms = GL.GetUniformLocation(mProgramId, "uBoneTransforms");
         }
 
-        internal override void Draw(GameObject g, ref Matrix4 viewProjection)
+        internal override void Draw(GameObject g, ref Matrix4 viewProjection, HelperFrustum frustum)
         {
             if (g == null || !g.HasModel)
                 return;
@@ -105,7 +106,9 @@ namespace KWEngine2.Renderers
                     else
                         g.ModelMatrixForRenderPass = g._modelMatrix;
 
-                    if (g.IsShadowCaster)
+                    bool isInsideFrustum = frustum.SphereVsFrustum(g.GetGameObjectCenterPoint(), g.GetGameObjectMaxDiameter() / 2);
+
+                    if (g.IsShadowCaster && isInsideFrustum)
                     {
                         Matrix4.Mult(ref g.ModelMatrixForRenderPass, ref viewProjection, out _modelViewProjection);
                         GL.UniformMatrix4(mUniform_MVP, false, ref _modelViewProjection);
@@ -120,7 +123,12 @@ namespace KWEngine2.Renderers
 
         }
 
-        internal override void Draw(GameObject g, ref Matrix4 viewProjection, ref Matrix4 viewProjectionShadow, ref float[] lightColors, ref float[] lightTargets, ref float[] lightPositions, int lightCount)
+        internal override void Draw(GameObject g, ref Matrix4 viewProjection, ref Matrix4 viewProjectionShadow, HelperFrustum frustum, ref float[] lightColors, ref float[] lightTargets, ref float[] lightPositions, int lightCount)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal override void Draw(GameObject g, ref Matrix4 viewProjection)
         {
             throw new NotImplementedException();
         }

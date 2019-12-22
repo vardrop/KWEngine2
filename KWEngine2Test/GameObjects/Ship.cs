@@ -1,19 +1,21 @@
-﻿using KWEngine2.Collision;
+﻿using KWEngine2;
+using KWEngine2.Collision;
 using KWEngine2.GameObjects;
-using KWEngine2.Helper;
+using KWEngine2.Model;
 using OpenTK;
 using OpenTK.Input;
 using System;
 using System.Collections.Generic;
-
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace KWEngine2Test.GameObjects
 {
-    public class Building : GameObject
+    public class Ship : GameObject
     {
         public override void Act(KeyboardState ks, MouseState ms, float deltaTimeFactor)
         {
-            /*
             if (ks[Key.D])
                 this.MoveOffset(0.1f * deltaTimeFactor, 0, 0);
             if (ks[Key.S])
@@ -27,21 +29,9 @@ namespace KWEngine2Test.GameObjects
                 this.MoveOffset(0, -0.1f * deltaTimeFactor, 0);
             if (ks[Key.E])
                 this.MoveOffset(0, +0.1f * deltaTimeFactor, 0);
-                */
-            /*
-            if (AnimationPercentage >= 1)
-                AnimationPercentage = 0;
-            else
-                AnimationPercentage += (0.005f * deltaTimeFactor);
 
-            //Console.WriteLine(AnimationPercentage);
-            //AnimationPercentage = 0.25f;
-            //AnimationID = 0;
-            */
-
-            /*
             List<Intersection> intersections = GetIntersections();
-            foreach(Intersection i in intersections)
+            foreach (Intersection i in intersections)
             {
                 if (i.IsTerrain)
                 {
@@ -51,27 +41,21 @@ namespace KWEngine2Test.GameObjects
                 {
                     Position += i.MTV;
                 }
-                
-            }
-            */
 
-            /*
-            Console.WriteLine(ms.X + "|" + ms.Y);
-            Vector2 mouse = HelperGL.GetNormalizedMouseCoords(ms.X, ms.Y, CurrentWindow);
-            Console.WriteLine(mouse.X + "|" + mouse.Y);
-            Console.WriteLine("---------");
-            */
-
-            if (ks[Key.M])
-            {
-                if (IsMouseCursorInsideMyHitbox(ms))
-                    SetGlow(1, 0, 0, 1);
-                else
-                    SetGlow(0, 0, 0, 0);
             }
-            else
+
+            Vector3 pos = GetMouseIntersectionPoint(ms, Plane.Y);
+            TurnTowardsXYZ(pos);
+
+            if (ms.LeftButton == ButtonState.Pressed)
             {
-                SetGlow(0, 0, 0, 0);
+                GeoModel shotModel = KWEngine.GetModel("KWCube");
+                Shot s = new Shot();
+                s.SetModel(shotModel);
+                s.SetRotation(Rotation);
+                s.SetPosition(Position);
+                CurrentWorld.AddGameObject(s);
+
             }
         }
     }

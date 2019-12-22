@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace KWEngine2.Helper
 {
@@ -86,6 +87,19 @@ namespace KWEngine2.Helper
             }
 
             return vec.Xyz;
+        }
+
+        internal static Vector2 GetNormalizedMouseCoords(float mousex, float mousey, GLWindow window)
+        {
+            int titlebar = 0;
+            if (window.WindowState != WindowState.Fullscreen)
+            {
+                titlebar = SystemInformation.CaptionHeight;
+            }
+
+            float x = mousex - window.X;
+            float y = mousey - window.Y - titlebar;
+            return new Vector2(x, y);
         }
     }
 }

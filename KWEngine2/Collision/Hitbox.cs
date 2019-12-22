@@ -16,6 +16,7 @@ namespace KWEngine2.Collision
         private Vector3 mCenter = new Vector3(0, 0, 0);
         private Vector3 mDimensions = new Vector3(0, 0, 0);
         private float mLow = 0;
+        private float mHigh = 0;
         private float mAverageDiameter = 0;
         private float mFullDiameter = 0;
         private static Vector3 tmp = new Vector3(0, 0, 0);
@@ -55,13 +56,17 @@ namespace KWEngine2.Collision
         {
             Owner = owner;
             mMesh = mesh;
-            Update();
+            Vector3 sceneCenter = Update(ref owner._sceneDimensions);
+            Owner._sceneCenter = sceneCenter;
         }
 
-        public void Update()
+        public Vector3 Update(ref Vector3 dims)
         {
             if (mOldPosition == Owner.Position && mOldRotation == Owner.Rotation && mOldScale == Owner.Scale)
-                return;
+            {
+                dims = mDimensions;
+                return mCenter;
+            }
             else
             {
                 mOldPosition.X = Owner.Position.X;
@@ -151,8 +156,12 @@ namespace KWEngine2.Collision
             float xWidth = maxX - minX;
             float yWidth = maxY - minY;
             float zWidth = maxZ - minZ;
+            dims.X = xWidth;
+            dims.Y = yWidth;
+            dims.Z = zWidth;
 
             mLow = minY;
+            mHigh = maxY;
 
             mAverageDiameter = (xWidth + yWidth + zWidth) / 3;
             mFullDiameter = -1;
@@ -166,6 +175,8 @@ namespace KWEngine2.Collision
             mDimensions.X = xWidth;
             mDimensions.Y = yWidth;
             mDimensions.Z = zWidth;
+
+            return mCenter;
         }
 
         public Vector3 GetDimensions()
@@ -181,6 +192,11 @@ namespace KWEngine2.Collision
         internal float GetLowestVertexHeight()
         {
             return mLow;
+        }
+
+        internal float GetHighestVertexHeight()
+        {
+            return mHigh;
         }
 
         public static Intersection TestIntersection(Hitbox caller, Hitbox collider)
