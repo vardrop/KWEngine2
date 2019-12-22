@@ -8,6 +8,7 @@ namespace KWEngine2.Model
 {
     public class GeoModel
     {
+        internal Matrix4 PreRotation = Matrix4.Identity;
         public GeoNode Root { get; internal set; } = null;
         public string Path { get; internal set; }
         public string PathAbsolute { get; internal set; }

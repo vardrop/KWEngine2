@@ -16,6 +16,9 @@ namespace KWEngine2Test.GameObjects
     {
         public override void Act(KeyboardState ks, MouseState ms, float deltaTimeFactor)
         {
+            if (!CurrentWindow.Focused || !CurrentWindow.IsMouseInWindow)
+                return;
+
             if (ks[Key.D])
                 this.MoveOffset(0.1f * deltaTimeFactor, 0, 0);
             if (ks[Key.S])
@@ -29,6 +32,9 @@ namespace KWEngine2Test.GameObjects
                 this.MoveOffset(0, -0.1f * deltaTimeFactor, 0);
             if (ks[Key.E])
                 this.MoveOffset(0, +0.1f * deltaTimeFactor, 0);
+
+            if (ks[Key.T])
+                this.AddRotationZ(1, true);
 
             List<Intersection> intersections = GetIntersections();
             foreach (Intersection i in intersections)
@@ -44,8 +50,8 @@ namespace KWEngine2Test.GameObjects
 
             }
 
-            Vector3 pos = GetMouseIntersectionPoint(ms, Plane.Y);
-            TurnTowardsXYZ(pos);
+            Vector3 pos = GetMouseIntersectionPoint(ms, Plane.Z);
+            //TurnTowardsXY(pos);
 
             if (ms.LeftButton == ButtonState.Pressed)
             {

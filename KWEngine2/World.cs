@@ -6,6 +6,7 @@ using OpenTK.Input;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace KWEngine2
 {
@@ -22,7 +23,7 @@ namespace KWEngine2
             }
             set
             {
-                if(value > 0)
+                if (value > 0)
                 {
                     _worldDistance = value;
                 }
@@ -43,7 +44,7 @@ namespace KWEngine2
             }
         }
 
-            
+
         internal List<GameObject> _gameObjects = new List<GameObject>();
         internal List<LightObject> _lightObjects = new List<LightObject>();
 
@@ -56,13 +57,13 @@ namespace KWEngine2
 
         internal int _lightcount = 0;
         public int LightCount
-        { 
+        {
             get
             {
                 return _lightcount;
             }
         }
-            
+
         private List<HUDObject> _hudObjects = new List<HUDObject>();
         private Vector3 _cameraPosition = new Vector3(0, 0, 25);
         private Vector3 _cameraTarget = new Vector3(0, 0, 0);
@@ -210,7 +211,7 @@ namespace KWEngine2
             return _sunColor;
         }
 
-        
+
 
         public abstract void Prepare();
 
@@ -231,16 +232,20 @@ namespace KWEngine2
                     {
                         _gameObjects.Add(g);
                         g.CurrentWorld = this;
+                        g.UpdateModelMatrixAndHitboxes();
                     }
+
                 }
                 _gameObjectsTBA.Clear();
 
-                foreach(GameObject g in _gameObjectsTBR)
+                foreach (GameObject g in _gameObjectsTBR)
                 {
                     g.CurrentWorld = null;
                     _gameObjects.Remove(g);
                 }
                 _gameObjectsTBR.Clear();
+
+                
             }
 
 
@@ -296,7 +301,7 @@ namespace KWEngine2
                 else
                     throw new Exception("GameObject instance " + g.Name + " already in current world.");
             }
-            
+
         }
 
         public void RemoveGameObject(GameObject g)
@@ -308,7 +313,7 @@ namespace KWEngine2
         {
             lock (_gameObjects)
             {
-                foreach(GameObject g in _gameObjects)
+                foreach (GameObject g in _gameObjects)
                 {
                     g.IsValid = false;
                 }
@@ -317,7 +322,7 @@ namespace KWEngine2
 
             lock (KWEngine.Models)
             {
-                foreach(GeoModel m in KWEngine.Models.Values)
+                foreach (GeoModel m in KWEngine.Models.Values)
                 {
                     m.Dispose();
                 }
@@ -337,17 +342,8 @@ namespace KWEngine2
 
         internal void SortByZ()
         {
-            lock (_gameObjects)
-            {
-                try
-                {
-                    _gameObjects.Sort((a, b) => a.CompareTo(b));
-                }
-                catch (Exception)
-                {
-                    Debug.WriteLine("WARNING: Sorting game objects failed due to one instance being null.");
-                }
-            }
+            _gameObjects.Sort((x, y) => x == null ? (y == null ? 0 : -1)
+                : (y == null ? 1 : y.DistanceToCamera.CompareTo(x.DistanceToCamera)));
         }
     }
 }

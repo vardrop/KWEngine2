@@ -33,6 +33,9 @@ namespace KWEngine2
         internal HelperFrustum Frustum = new HelperFrustum();
         internal HelperFrustum FrustumShadowMap = new HelperFrustum();
 
+        internal System.Drawing.Rectangle _windowRect;
+        internal System.Drawing.Point _mousePoint = new System.Drawing.Point(0, 0);
+
         internal GeoModel _bloomQuad;
 
         /// <summary>
@@ -187,6 +190,8 @@ namespace KWEngine2
 
             KeyboardState ks = Keyboard.GetState();
             MouseState ms = Mouse.GetCursorState();
+            _mousePoint.X = ms.X;
+            _mousePoint.Y = ms.Y;
 
             if (ks.IsKeyDown(Key.AltLeft) && ks.IsKeyDown(Key.F4))
             {
@@ -210,14 +215,36 @@ namespace KWEngine2
             DeltaTime.UpdateDeltaTime();
         }
 
+        public bool IsMouseInWindow
+        {
+            get
+            {
+                if (_windowRect.Contains(_mousePoint))
+                {
+                    return true;
+                }
+                return false;
+            }
+        }
+
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            GL.Viewport(ClientRectangle);
 
+            GL.Viewport(ClientRectangle);
+            
             InitializeFramebuffers();
 
             CalculateProjectionMatrix();
+
+            _windowRect = new System.Drawing.Rectangle(this.X, this.Y, this.Width + 16, this.Height + SystemInformation.CaptionHeight * 2);
+        }
+
+        protected override void OnMove(EventArgs e)
+        {
+            base.OnMove(e);
+
+            _windowRect = new System.Drawing.Rectangle(this.X, this.Y, this.Width + 16, this.Height + SystemInformation.CaptionHeight * 2);
         }
 
         private void CalculateProjectionMatrix()

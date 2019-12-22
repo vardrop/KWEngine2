@@ -175,9 +175,9 @@ namespace KWEngine2
 
         }
 
-        public static void LoadModelFromFile(string name, string filename)
+        public static void LoadModelFromFile(string name, string filename, float yRotationInDegrees = 0)
         {
-            GeoModel m = SceneImporter.LoadModel(filename);
+            GeoModel m = SceneImporter.LoadModel(filename, false, yRotationInDegrees);
             m.Name = name;
             lock (KWEngine.Models)
             {

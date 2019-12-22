@@ -187,7 +187,7 @@ namespace KWEngine2.Renderers
                 {
                     GeoMesh mesh = g.Model.Meshes[meshName];
 
-                    bool useMeshTransform = true;
+                    //bool useMeshTransform = true;
 
                     if (g.AnimationID >= 0 && g.Model.Animations != null && g.Model.Animations.Count > 0)
                     {
@@ -208,7 +208,7 @@ namespace KWEngine2.Renderers
                             }
                         }
 
-                        useMeshTransform = false;
+                        //useMeshTransform = false;
                     }
                     else
                     {

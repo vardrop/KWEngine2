@@ -13,20 +13,7 @@ namespace KWEngine2.GameObjects
     public abstract class GameObject : IComparable
     {
         public enum Plane { X, Y, Z, Camera }
-        internal float _baseRotation = 0;
-        public float BaseRotationInDegrees
-        {
-            get
-            {
-                return MathHelper.RadiansToDegrees(_baseRotation);
-            }
-            set
-            {
-                float tmp = value % 360f;
-                _baseRotation = MathHelper.DegreesToRadians(tmp);
-                Rotation = Quaternion.FromAxisAngle(KWEngine.WorldUp, _baseRotation) * Rotation;
-            }
-        }
+        internal uint DistanceToCamera { get; set; } = 100;
         public bool IsShadowCaster { get; set; } = false;
         public bool IsAffectedBySun { get; set; } = true;
         public World CurrentWorld { get; internal set; } = null;
@@ -132,7 +119,7 @@ namespace KWEngine2.GameObjects
             }
             internal set
             {
-                _rotation = _baseRotation * value;
+                _rotation = value;
                 UpdateModelMatrixAndHitboxes();
             }
         }
@@ -200,7 +187,7 @@ namespace KWEngine2.GameObjects
             return Hitboxes[_largestHitboxIndex];
         }
 
-        private void UpdateModelMatrixAndHitboxes()
+        internal void UpdateModelMatrixAndHitboxes()
         {
             //_modelMatrix = Matrix4.CreateScale(_scale) * Matrix4.CreateFromQuaternion(Quaternion.FromAxisAngle(KWEngine.WorldUp, _baseRotation)) * Matrix4.CreateFromQuaternion(_rotation) * Matrix4.CreateTranslation(_position);
             _modelMatrix = Matrix4.CreateScale(_scale) * Matrix4.CreateFromQuaternion(_rotation) * Matrix4.CreateTranslation(_position);
@@ -239,6 +226,9 @@ namespace KWEngine2.GameObjects
             Vector3 downLeftFront = new Vector3(GetGameObjectCenterPoint().X - GetGameObjectMaxDimensions().X / 2, GetGameObjectCenterPoint().Y - GetGameObjectMaxDimensions().Y / 2, GetGameObjectCenterPoint().Z + GetGameObjectMaxDimensions().Z / 2);
             Vector3 upRightBack = new Vector3(GetGameObjectCenterPoint().X + GetGameObjectMaxDimensions().X / 2, GetGameObjectCenterPoint().Y + GetGameObjectMaxDimensions().Y / 2, GetGameObjectCenterPoint().Z - GetGameObjectMaxDimensions().Z / 2);
             _sceneDiameter = (upRightBack - downLeftFront).LengthFast;
+
+            if(CurrentWorld != null)
+                DistanceToCamera = (uint)((CurrentWorld.GetCameraPosition() - GetGameObjectCenterPoint()).LengthSquared * 10000);
         }
 
         public Vector3 GetGameObjectCenterPoint()
@@ -318,6 +308,7 @@ namespace KWEngine2.GameObjects
                         BoneTranslationMatrices[mesh.Name][i] = Matrix4.Identity;
                 }
             }
+            
         }
 
         public abstract void Act(KeyboardState ks, MouseState ms, float deltaTimeFactor);
@@ -361,8 +352,7 @@ namespace KWEngine2.GameObjects
                 Quaternion tmpRotateX = Quaternion.FromAxisAngle(Vector3.UnitX, HelperRotation.CalculateRadiansFromDegrees(x));
                 Quaternion tmpRotateY = Quaternion.FromAxisAngle(Vector3.UnitY, HelperRotation.CalculateRadiansFromDegrees(y));
                 Quaternion tmpRotateZ = Quaternion.FromAxisAngle(Vector3.UnitZ, HelperRotation.CalculateRadiansFromDegrees(z));
-                Rotation = Quaternion.FromAxisAngle(KWEngine.WorldUp, _baseRotation);
-                Rotation = Rotation * tmpRotateZ * tmpRotateY * tmpRotateX;
+                Rotation = tmpRotateZ * tmpRotateY * tmpRotateX;
             }
             else
             {
@@ -511,7 +501,7 @@ namespace KWEngine2.GameObjects
             if (AnimationID >= 0 && AnimationID < Model.Animations.Count)
             {
                 GeoAnimation a = Model.Animations[AnimationID];
-                Matrix4 identity = Matrix4.Identity;
+                Matrix4 identity = Matrix4.Identity * Model.PreRotation;
 
                 float timestamp = a.DurationInTicks * AnimationPercentage;
                 ReadNodeHierarchy(timestamp, ref a, AnimationID, Model.Root, ref identity);
@@ -779,19 +769,13 @@ namespace KWEngine2.GameObjects
                     return true;
             }
         }
-
+        
         public int CompareTo(object obj)
         {
-            if (obj != null && obj is GameObject)
-            {
-                GameObject g = (GameObject)obj;
-                if (g.CurrentWorld == null)
-                    return 0;
-                return (g.Position - CurrentWorld.GetCameraPosition()).LengthSquared > (this.Position - CurrentWorld.GetCameraPosition()).LengthSquared ? 1 : -1;
-            }
-            else
-                return 0;
+            GameObject g = (GameObject)obj;
+            return g.DistanceToCamera > this.DistanceToCamera ? 1 : -1;
         }
+        
 
         public void SetTexture(string texture, CubeSide side, TextureType type = TextureType.Diffuse)
         {
@@ -954,15 +938,7 @@ namespace KWEngine2.GameObjects
         public void TurnTowardsXY(float targetX, float targetY)
         {
             Vector3 target = new Vector3(targetX, targetY, GetGameObjectCenterPoint().Z);
-            if ((target - Position).LengthFast < 0.1f)
-                return;
-
-            Matrix4 lookat = Matrix4.LookAt(GetGameObjectCenterPoint(), target, Vector3.UnitZ);
-            lookat.Transpose();
-            lookat.Invert();
-            Quaternion newRotation = Quaternion.FromMatrix(new Matrix3(lookat));
-            newRotation *= Quaternion.FromAxisAngle(Vector3.UnitY, (float)Math.PI);
-            Rotation = newRotation;
+            TurnTowardsXY(target);
         }
 
         /// <summary>
@@ -993,15 +969,7 @@ namespace KWEngine2.GameObjects
         public void TurnTowardsXZ(float targetX, float targetZ)
         {
             Vector3 target = new Vector3(targetX, GetGameObjectCenterPoint().Y, targetZ);
-            if ((target - Position).LengthFast < 0.1f)
-                return;
-
-            Matrix4 lookat = Matrix4.LookAt(GetGameObjectCenterPoint(), target, Vector3.UnitY);
-            lookat.Transpose();
-            lookat.Invert();
-            Quaternion newRotation = Quaternion.FromMatrix(new Matrix3(lookat));
-            newRotation *= Quaternion.FromAxisAngle(Vector3.UnitY, (float)Math.PI);
-            Rotation = newRotation;
+            TurnTowardsXZ(target);
         }
 
         /// <summary>
