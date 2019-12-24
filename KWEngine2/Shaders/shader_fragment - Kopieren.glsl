@@ -99,7 +99,7 @@ void main()
 	vec3 fragmentToSun = normalize(uSunPosition - vPosition);
 
 	// Shadow mapping:
-	float dotNormalLight = max(dot(theNormal, uSunDirection), 0.0);								
+	float dotNormalLight = max(dot(theNormal, uSunDirection), 0.0);								//  
 	float dotNormalLightShadow = max(dot(theNormal, fragmentToSun), 0.0);
 	float darkeningAbsolute = max(calculateDarkening(dotNormalLightShadow, vShadowCoord), 0.0);
 	float darkening = max(darkeningAbsolute, uSunAmbient);
@@ -113,10 +113,10 @@ void main()
 		specularFactor = texture(uTextureSpecular, vTexture).r;
 	}
 	
-	vec3 reflectionVector = reflect(-uSunDirection, theNormal);
 	if(uSunAffection > 0)
 	{
 		//Specular highlights from sun:
+		vec3 reflectionVector = reflect(-uSunDirection, theNormal);
 		float specular = max(0.0, specularFactor * uSpecularPower * pow(max(0.0, dot(surfaceToCamera, reflectionVector)), uSpecularArea));
 		totalSpecColor += uSunIntensity.xyz * specular * uSunIntensity.w * darkeningAbsolute;
 
@@ -149,21 +149,8 @@ void main()
 		float distance = dot(lightVector, lightVector);
         lightVector = normalize(lightVector);
 
-		// directional light falloff:
-		float differenceLightDirectionAndFragmentDirection = 1.0;
-		if(uLightsTargets[i].w > 0.0){ // directional
-			differenceLightDirectionAndFragmentDirection = max(dot(lightDirection, -lightVector), 0.0);
-		}
-
-		//calculate specular highlights:
-		reflectionVector = reflect(-lightVector, theNormal);
-		float specular = max(0.0, specularFactor * uSpecularPower * pow(max(0.0, dot(surfaceToCamera, reflectionVector)), uSpecularArea) * differenceLightDirectionAndFragmentDirection);
-		totalSpecColor += uLightsColors[i].xyz * specular;
-
-		// Normal light affection:
 		float dotProductNormalLight = max(dot(vNormal, lightVector), 0.0) * (uLightsPositions[i].w / distance);
-
-		colorComponentTotal += lightColor * dotProductNormalLight * uLightsColors[i].w * pow(differenceLightDirectionAndFragmentDirection, 5.0); // .w includes distance multiplier factor
+		colorComponentTotal += lightColor * dotProductNormalLight * uLightsColors[i].w; // .w includes distance multiplier factor;
 	}
 
 	colorComponentTotal += totalSpecColor;
@@ -180,4 +167,8 @@ void main()
 	bloom.y = addedBloom.y + uGlow.y * uGlow.w;
 	bloom.z = addedBloom.z + uGlow.z * uGlow.w;
 	bloom.w = 1.0;
+
+	//color.x = theNormal.x;
+	//color.y = theNormal.y;
+	//color.z = theNormal.z;
 }

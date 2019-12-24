@@ -77,8 +77,8 @@ namespace KWEngine2.Model
                             | PostProcessSteps.ValidateDataStructure
                             | PostProcessSteps.GenerateUVCoords
                             | PostProcessSteps.CalculateTangentSpace
-                            | PostProcessSteps.JoinIdenticalVertices;
-
+                            | PostProcessSteps.JoinIdenticalVertices
+                            ;
                     if (type == FileType.DirectX)
                         steps |= PostProcessSteps.FlipWindingOrder;
 
@@ -95,15 +95,7 @@ namespace KWEngine2.Model
         private static GeoModel ProcessScene(Scene scene, string filename, bool isInAssembly, float yRotationInDegrees = 0)
         {
             GeoModel returnModel = new GeoModel();
-            if (!scene.HasAnimations)
-                returnModel.PreRotation = Matrix4.CreateFromQuaternion(OpenTK.Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(yRotationInDegrees)));
-            else
-            {
-                if(yRotationInDegrees != 0)
-                {
-                    Debug.WriteLine("Ignoring rotation for model " + filename + ": it has animations. Sorry.");
-                }
-            }
+            returnModel.PreRotation = Matrix4.CreateFromQuaternion(OpenTK.Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(yRotationInDegrees)));
             returnModel.Filename = filename;
             returnModel.Name = StripPathFromFile(filename);
             if (isInAssembly)
@@ -177,6 +169,7 @@ namespace KWEngine2.Model
 
         private static void FindRootBone(Scene scene, ref GeoModel model, string boneName)
         {
+            bool found = false;
             foreach (Node child in scene.RootNode.Children)
             {
                 if (child.Name == boneName) // found the anchor
@@ -187,8 +180,59 @@ namespace KWEngine2.Model
                         foreach (GeoNode n in model.NodesWithoutHierarchy)
                         {
                             if (armature.Name == n.Name)
+                            {
                                 model.Armature = n;
+                                found = true;
+                            }
                             return;
+                        }
+                    }
+                }
+            }
+            if (!found)
+            {
+                Node subNode = scene.RootNode.Children[0];
+                foreach (Node child in subNode.Children)
+                {
+                    if (child.Name == boneName) // found the anchor
+                    {
+                        Node armature = child.Parent;
+                        if (armature != null)
+                        {
+                            foreach (GeoNode n in model.NodesWithoutHierarchy)
+                            {
+                                if (armature.Name == n.Name)
+                                {
+                                    model.Armature = n;
+                                    found = true;
+                                    return;
+                                }
+                                
+                            }
+                        }
+                    }
+                }
+            }
+            if (!found && scene.RootNode.Children.Count > 1)
+            {
+                Node subNode = scene.RootNode.Children[1];
+                foreach (Node child in subNode.Children)
+                {
+                    if (child.Name == boneName) // found the anchor
+                    {
+                        Node armature = child.Parent;
+                        if (armature != null)
+                        {
+                            foreach (GeoNode n in model.NodesWithoutHierarchy)
+                            {
+                                if (armature.Name == n.Name)
+                                {
+                                    model.Armature = n;
+                                    found = true;
+                                    return;
+                                }
+                                
+                            }
                         }
                     }
                 }
@@ -226,6 +270,8 @@ namespace KWEngine2.Model
                     geoBone.Index = boneIndexLocal;
                     geoBone.Offset = HelperMatrix.ConvertAssimpToOpenTKMatrix(bone.OffsetMatrix);
                     boneIndexLocal++;
+
+                    
                 }
             }
         }
@@ -311,7 +357,7 @@ namespace KWEngine2.Model
 
             if (currentDir.GetDirectories().Length == 0)
             {
-                throw new Exception("File " + filename + " not found anywhere. Aborting import.");
+                Debug.WriteLine("File " + filename + " not found anywhere.");
             }
             else
             {
@@ -345,7 +391,7 @@ namespace KWEngine2.Model
                     geoMaterial.ColorDiffuse = new Vector4(1, 1, 1, 1);
                     geoMaterial.ColorEmissive = new Vector4(0, 0, 0, 1);
                 }
-                geoMaterial.SpecularArea = 256;
+                geoMaterial.SpecularArea = 1024;
                 geoMaterial.SpecularPower = 0;
             }
             else
@@ -361,7 +407,7 @@ namespace KWEngine2.Model
                         geoMaterial.ColorDiffuse = new Vector4(1, 1, 1, 1);
                         geoMaterial.ColorEmissive = new Vector4(0, 0, 0, 1);
                         geoMaterial.SpecularPower = 0;
-                        geoMaterial.SpecularArea = 256;
+                        geoMaterial.SpecularArea = 1024;
                         geoMaterial.TextureSpecularIsRoughness = false;
                     }
                     else
@@ -382,7 +428,7 @@ namespace KWEngine2.Model
                     geoMaterial.BlendMode = OpenTK.Graphics.OpenGL4.BlendingFactor.OneMinusSrcAlpha;
                     geoMaterial.ColorDiffuse = new Vector4(1, 1, 1, 1);
                     geoMaterial.ColorEmissive = new Vector4(0, 0, 0, 1);
-                    geoMaterial.SpecularArea = 256;
+                    geoMaterial.SpecularArea = 1024;
                     geoMaterial.SpecularPower = 0;
                     geoMaterial.TextureSpecularIsRoughness = false;
                 }
@@ -392,7 +438,6 @@ namespace KWEngine2.Model
             if (material != null)
             {
                 bool roughnessUsed = false;
-                int texturesUsed = 0;
                 TextureSlot[] texturesOfMaterial = material.GetAllMaterialTextures();
                 foreach (TextureSlot slot in texturesOfMaterial)
                 {
@@ -411,14 +456,21 @@ namespace KWEngine2.Model
                             tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
                                     FindTextureInSubs(StripPathFromFile(tex.Filename), model.PathAbsolute), true
                                 );
-                            model.Textures.Add(tex.Filename, tex);
+                            if (tex.OpenGLID > 0)
+                            {
+                                tex.Type = GeoTexture.TexType.Specular;
+                                model.Textures.Add(tex.Filename, tex);
+                                geoMaterial.TextureSpecular = tex;
+                                geoMaterial.TextureSpecularIsRoughness = true;
+                                roughnessUsed = true;
+                            }
+                            else
+                            {
+                                geoMaterial.TextureSpecular = tex;
+                                geoMaterial.TextureSpecularIsRoughness = false;
+                                tex.OpenGLID = KWEngine.TextureBlack;
+                            }
                         }
-                        tex.Type = GeoTexture.TexType.Specular;
-                        geoMaterial.TextureSpecular = tex;
-                        geoMaterial.TextureSpecularIsRoughness = true;
-                        roughnessUsed = true;
-                        texturesUsed++;
-
                         break;
                     }
 
@@ -432,20 +484,29 @@ namespace KWEngine2.Model
                     tex.UVTransform = new OpenTK.Vector2(1, 1);
                     tex.Filename = material.TextureDiffuse.FilePath;
                     tex.UVMapIndex = material.TextureDiffuse.UVIndex;
+                    tex.Type = GeoTexture.TexType.Diffuse;
                     if (model.Textures.ContainsKey(tex.Filename))
                     {
                         tex.OpenGLID = model.Textures[tex.Filename].OpenGLID;
+                        geoMaterial.TextureDiffuse = tex;
                     }
                     else
                     {
                         tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
                                 FindTextureInSubs(StripPathFromFile(tex.Filename), model.PathAbsolute)
                             );
-                        model.Textures.Add(tex.Filename, tex);
+                        if (tex.OpenGLID > 0)
+                        {
+                            geoMaterial.TextureDiffuse = tex;
+                            model.Textures.Add(tex.Filename, tex);
+                        }
+                        else
+                        {
+                            tex.OpenGLID = KWEngine.TextureDefault;
+                            geoMaterial.TextureDiffuse = tex;
+                        }
                     }
-                    tex.Type = GeoTexture.TexType.Diffuse;
-                    geoMaterial.TextureDiffuse = tex;
-                    texturesUsed++;
+                    
                 }
 
                 // Normal map texture
@@ -455,20 +516,29 @@ namespace KWEngine2.Model
                     tex.UVTransform = new OpenTK.Vector2(1, 1);
                     tex.Filename = material.TextureNormal.FilePath;
                     tex.UVMapIndex = material.TextureNormal.UVIndex;
+                    tex.Type = GeoTexture.TexType.Normal;
                     if (model.Textures.ContainsKey(tex.Filename))
                     {
                         tex.OpenGLID = model.Textures[tex.Filename].OpenGLID;
+                        geoMaterial.TextureNormal = tex;
                     }
                     else
                     {
                         tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
                                 FindTextureInSubs(StripPathFromFile(tex.Filename), model.PathAbsolute)
                             );
-                        model.Textures.Add(tex.Filename, tex);
+                        if (tex.OpenGLID > 0)
+                        {
+                            model.Textures.Add(tex.Filename, tex);
+                            geoMaterial.TextureNormal = tex;
+                        }
+                        else
+                        {
+                            tex.OpenGLID = KWEngine.TextureBlack;
+                            //geoMaterial.TextureNormal = tex;
+                        }
                     }
-                    tex.Type = GeoTexture.TexType.Normal;
-                    geoMaterial.TextureNormal = tex;
-                    texturesUsed++;
+                    
                 }
 
                 // Specular map texture
@@ -478,20 +548,29 @@ namespace KWEngine2.Model
                     tex.UVTransform = new OpenTK.Vector2(1, 1);
                     tex.Filename = material.TextureSpecular.FilePath;
                     tex.UVMapIndex = material.TextureSpecular.UVIndex;
+                    tex.Type = GeoTexture.TexType.Specular;
                     if (model.Textures.ContainsKey(tex.Filename))
                     {
                         tex.OpenGLID = model.Textures[tex.Filename].OpenGLID;
+                        geoMaterial.TextureSpecular = tex;
                     }
                     else
                     {
                         tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
                                 FindTextureInSubs(StripPathFromFile(tex.Filename), model.PathAbsolute)
                             );
-                        model.Textures.Add(tex.Filename, tex);
+                        if (tex.OpenGLID > 0)
+                        {
+                            geoMaterial.TextureSpecular = tex;
+
+                            model.Textures.Add(tex.Filename, tex);
+                        }
+                        else
+                        {
+                            tex.OpenGLID = KWEngine.TextureBlack;
+                            geoMaterial.TextureSpecular = tex;
+                        }
                     }
-                    tex.Type = GeoTexture.TexType.Specular;
-                    geoMaterial.TextureSpecular = tex;
-                    texturesUsed++;
                 }
                 else
                 {
@@ -508,20 +587,31 @@ namespace KWEngine2.Model
                     tex.UVTransform = new OpenTK.Vector2(1, 1);
                     tex.Filename = material.TextureEmissive.FilePath;
                     tex.UVMapIndex = material.TextureEmissive.UVIndex;
+                    tex.Type = GeoTexture.TexType.Emissive;
                     if (model.Textures.ContainsKey(tex.Filename))
                     {
                         tex.OpenGLID = model.Textures[tex.Filename].OpenGLID;
+                        geoMaterial.TextureEmissive = tex;
                     }
                     else
                     {
                         tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
                                 FindTextureInSubs(StripPathFromFile(tex.Filename), model.PathAbsolute)
                             );
-                        model.Textures.Add(tex.Filename, tex);
+                        if (tex.OpenGLID > 0)
+                        {
+                            geoMaterial.TextureEmissive = tex;
+
+                            model.Textures.Add(tex.Filename, tex);
+
+                        }
+                        else
+                        {
+                            tex.OpenGLID = KWEngine.TextureBlack;
+                            geoMaterial.TextureEmissive = tex;
+                        }
                     }
-                    tex.Type = GeoTexture.TexType.Emissive;
-                    geoMaterial.TextureEmissive = tex;
-                    texturesUsed++;
+                    
                 }
 
                 // Light map texture
@@ -531,20 +621,28 @@ namespace KWEngine2.Model
                     tex.UVTransform = new OpenTK.Vector2(1, 1);
                     tex.Filename = material.TextureLightMap.FilePath;
                     tex.UVMapIndex = material.TextureLightMap.UVIndex;
+                    tex.Type = GeoTexture.TexType.Light;
                     if (model.Textures.ContainsKey(tex.Filename))
                     {
                         tex.OpenGLID = model.Textures[tex.Filename].OpenGLID;
+                        geoMaterial.TextureLight = tex;
                     }
                     else
                     {
                         tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
                                 FindTextureInSubs(StripPathFromFile(tex.Filename), model.PathAbsolute)
                             );
-                        model.Textures.Add(tex.Filename, tex);
-                    }
-                    tex.Type = GeoTexture.TexType.Light;
-                    geoMaterial.TextureLight = tex;
-                    texturesUsed++;
+                        if (tex.OpenGLID > 0)
+                        {
+                            model.Textures.Add(tex.Filename, tex);
+                            geoMaterial.TextureLight = tex;
+                        }
+                        else
+                        {
+                            tex.OpenGLID = KWEngine.TextureBlack;
+                            //geoMaterial.TextureLight = tex;
+                        }
+                    }                    
                 }
 
             }
@@ -597,14 +695,12 @@ namespace KWEngine2.Model
                 GeoMesh geoMesh = new GeoMesh();
                 bool transformFound = FindTransformForMesh(scene, scene.RootNode, mesh, out nodeTransform, out string nodeName);
                 geoMesh.Transform = nodeTransform;
-                geoMesh.Bones = new Dictionary<string, GeoBone>();
                 geoMesh.Terrain = null;
                 geoMesh.BoneTranslationMatrixCount = mesh.BoneCount;
                 geoMesh.HasPCAHitbox = false; // TODO: Calculate PCA Hitbox
                 geoMesh.Name = mesh.Name + " #" + m.ToString().PadLeft(4, '0') + " (Node: " + nodeName + ")";
                 geoMesh.Vertices = new GeoVertex[mesh.VertexCount];
                 geoMesh.Primitive = OpenTK.Graphics.OpenGL4.PrimitiveType.Triangles;
-                geoMesh.BoneOrder = new List<string>();
                 geoMesh.VAOGenerateAndBind();
 
                 for (int i = 0; i < mesh.VertexCount; i++)
@@ -633,13 +729,10 @@ namespace KWEngine2.Model
                     for (int i = 0; i < mesh.BoneCount; i++)
                     {
                         Bone bone = mesh.Bones[i];
-                        geoMesh.BoneOrder.Add(bone.Name);
 
-                        GeoBone gBone = new GeoBone();
-                        gBone.Offset = HelperMatrix.ConvertAssimpToOpenTKMatrix(bone.OffsetMatrix);
-                        gBone.Index = i;
-                        gBone.Name = bone.Name;
-                        geoMesh.Bones.Add(bone.Name, gBone);
+                        geoMesh.BoneNames.Add(bone.Name);
+                        geoMesh.BoneIndices.Add(i);
+                        geoMesh.BoneOffset.Add(HelperMatrix.ConvertAssimpToOpenTKMatrix(bone.OffsetMatrix));
 
                         foreach (VertexWeight vw in bone.VertexWeights)
                         {

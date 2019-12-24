@@ -14,9 +14,10 @@ namespace KWEngine2Test.GameObjects
 {
     public class Ship : GameObject
     {
+        private float p = 0;
         public override void Act(KeyboardState ks, MouseState ms, float deltaTimeFactor)
         {
-            if (!CurrentWindow.Focused || !CurrentWindow.IsMouseInWindow)
+            if (!CurrentWindow.Focused) // || !CurrentWindow.IsMouseInWindow)
                 return;
 
             if (ks[Key.D])
@@ -62,6 +63,13 @@ namespace KWEngine2Test.GameObjects
                 s.SetPosition(Position);
                 CurrentWorld.AddGameObject(s);
 
+            }
+
+            if (HasAnimations)
+            {
+                AnimationID = 0;
+                AnimationPercentage = p;
+                p = (p + 0.01f) % 1f;
             }
         }
     }

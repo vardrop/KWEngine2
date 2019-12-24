@@ -12,6 +12,8 @@ namespace KWEngine2.Renderers
 {
     internal class RendererStandard : Renderer
     {
+        private Matrix4 _identityMatrix = Matrix4.Identity;
+
         public override void Initialize()
         {
             Name = "Standard";
@@ -82,7 +84,7 @@ namespace KWEngine2.Renderers
             mUniform_TextureSpecularIsRoughness = GL.GetUniformLocation(mProgramId, "uRoughness");
 
             mUniform_TextureLightMap = GL.GetUniformLocation(mProgramId, "uTextureLightmap");
-            mUniform_TextureUseLightMap = GL.GetUniformLocation(mProgramId, "uUseTextureLightMap");
+            mUniform_TextureUseLightMap = GL.GetUniformLocation(mProgramId, "uUseTextureLightmap");
             
             mUniform_TextureShadowMap = GL.GetUniformLocation(mProgramId, "uTextureShadowMap");
             
@@ -157,7 +159,7 @@ namespace KWEngine2.Renderers
 
                 if (mUniform_SunPosition >= 0)
                 {
-                    GL.Uniform3(mUniform_SunPosition, g.CurrentWorld.GetSunPosition().X, g.CurrentWorld.GetSunPosition().Z, g.CurrentWorld.GetSunPosition().Z);
+                    GL.Uniform3(mUniform_SunPosition, g.CurrentWorld.GetSunPosition().X, g.CurrentWorld.GetSunPosition().Y, g.CurrentWorld.GetSunPosition().Z);
                     Vector3 sunDirection = g.CurrentWorld.GetSunPosition() - g.CurrentWorld.GetSunTarget();
                     sunDirection.NormalizeFast();
                     GL.Uniform3(mUniform_SunDirection, ref sunDirection);
@@ -172,7 +174,7 @@ namespace KWEngine2.Renderers
                 // Camera
                 if (mUniform_uCameraPos >= 0)
                 {
-                    GL.Uniform3(mUniform_uCameraPos, g.CurrentWorld.GetCameraPosition().X, g.CurrentWorld.GetCameraPosition().Z, g.CurrentWorld.GetCameraPosition().Z);
+                    GL.Uniform3(mUniform_uCameraPos, g.CurrentWorld.GetCameraPosition().X, g.CurrentWorld.GetCameraPosition().Y, g.CurrentWorld.GetCameraPosition().Z);
                 }
 
                 // Upload depth texture (shadow mapping)
@@ -205,6 +207,11 @@ namespace KWEngine2.Renderers
                                     Matrix4 tmp = g.BoneTranslationMatrices[meshName][i];
                                     GL.UniformMatrix4(mUniform_BoneTransforms + i, false, ref tmp);
                                 }
+                                /*
+                                for(int i = g.BoneTranslationMatrices[meshName].Length; i < KWEngine.MAX_BONES; i++)
+                                {
+                                    GL.UniformMatrix4(mUniform_BoneTransforms + i, false, ref _identityMatrix);
+                                }*/
                             }
                         }
 
@@ -259,6 +266,8 @@ namespace KWEngine2.Renderers
                     if (g._cubeModel != null)
                     {
                         UploadMaterialForKWCube(g._cubeModel, mesh);
+                        if (mUniform_TextureUseLightMap >= 0)
+                            GL.Uniform1(mUniform_TextureUseLightMap, 0);
                     }
                     else
                     {
@@ -330,7 +339,6 @@ namespace KWEngine2.Renderers
                     }
 
                     GL.BindVertexArray(mesh.VAO);
-
                     GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
                     GL.DrawElements(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
                     GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);

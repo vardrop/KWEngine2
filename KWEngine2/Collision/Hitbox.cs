@@ -85,8 +85,8 @@ namespace KWEngine2.Collision
 
             if (Owner.Model.HasBones && Owner.Model.Armature != null)
             {
-                Matrix4.Mult(ref Owner.Model.PreRotation, ref Owner.Model.Armature.Transform, out Matrix4 tmp);
-                Matrix4.Mult(ref tmp, ref mMesh.Transform, out mTempMatrix);
+                Matrix4.Mult(ref Owner.Model.PreRotation, ref Owner.Model.Armature.Transform, out mTempMatrix);
+                //Matrix4.Mult(ref tmp, ref mMesh.Transform, out mTempMatrix);
                 Matrix4.Mult(ref mTempMatrix, ref Owner._modelMatrix, out mModelMatrixFinal);
             }
             else

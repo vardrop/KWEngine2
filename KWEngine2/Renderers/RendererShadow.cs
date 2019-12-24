@@ -15,6 +15,7 @@ namespace KWEngine2.Renderers
 {
     internal class RendererShadow : Renderer
     {
+        private Matrix4 _identityMatrix = Matrix4.Identity;
         public override void Initialize()
         {
             Name = "Shadow";
@@ -62,24 +63,32 @@ namespace KWEngine2.Renderers
             if (g == null || !g.HasModel)
                 return;
 
-
+            GL.UseProgram(mProgramId);
             lock (g)
             {
                 foreach (string meshName in g.Model.Meshes.Keys)
                 {
                     GeoMesh mesh = g.Model.Meshes[meshName];
 
-                    bool useMeshTransform = true;
+                    bool useMeshTransform = !(g.AnimationID >= 0 && g.Model.Animations != null && g.Model.Animations.Count > 0);
 
-                    if (g.AnimationID >= 0 && g.Model.Animations != null && g.Model.Animations.Count > 0)
+                    if (useMeshTransform)
                     {
-                        if (mUniform_UseAnimations >= 0)
+                        Matrix4.Mult(ref g.Model.PreRotation, ref mesh.Transform, out Matrix4 tmp);
+                        Matrix4.Mult(ref tmp, ref g._modelMatrix, out g.ModelMatrixForRenderPass);
+                    }
+                    else
+                    {
+                        Matrix4.Mult(ref g.Model.PreRotation, ref g._modelMatrix, out g.ModelMatrixForRenderPass);
+                    }
+
+                    bool isInsideFrustum = frustum.SphereVsFrustum(g.GetGameObjectCenterPoint(), g.GetGameObjectMaxDiameter() / 2);
+
+                    if (g.IsShadowCaster && isInsideFrustum)
+                    {
+                        if (useMeshTransform == false)
                         {
                             GL.Uniform1(mUniform_UseAnimations, 1);
-                        }
-                        if (mUniform_BoneTransforms >= 0)
-                        {
-
                             lock (g.BoneTranslationMatrices)
                             {
                                 for (int i = 0; i < g.BoneTranslationMatrices[meshName].Length; i++)
@@ -89,32 +98,11 @@ namespace KWEngine2.Renderers
                                 }
                             }
                         }
-
-                        useMeshTransform = false;
-                    }
-                    else
-                    {
-                        if (mUniform_UseAnimations >= 0)
+                        else
                         {
                             GL.Uniform1(mUniform_UseAnimations, 0);
                         }
-                    }
 
-
-                    if (useMeshTransform)
-                    {
-                        Matrix4.Mult(ref g.Model.PreRotation, ref mesh.Transform, out Matrix4 tmp);
-                        Matrix4.Mult(ref tmp, ref g._modelMatrix, out g.ModelMatrixForRenderPass);
-                    }
-                    else
-                    {
-                        g.ModelMatrixForRenderPass = g._modelMatrix;
-                    }
-
-                    bool isInsideFrustum = frustum.SphereVsFrustum(g.GetGameObjectCenterPoint(), g.GetGameObjectMaxDiameter() / 2);
-
-                    if (g.IsShadowCaster && isInsideFrustum)
-                    {
                         Matrix4.Mult(ref g.ModelMatrixForRenderPass, ref viewProjection, out _modelViewProjection);
                         GL.UniformMatrix4(mUniform_MVP, false, ref _modelViewProjection);
                         GL.BindVertexArray(mesh.VAO);
@@ -125,7 +113,7 @@ namespace KWEngine2.Renderers
                     }
                 }
             }
-
+            GL.UseProgram(0);
         }
 
         internal override void Draw(GameObject g, ref Matrix4 viewProjection, ref Matrix4 viewProjectionShadow, HelperFrustum frustum, ref float[] lightColors, ref float[] lightTargets, ref float[] lightPositions, int lightCount)

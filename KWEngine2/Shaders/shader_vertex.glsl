@@ -24,25 +24,44 @@ uniform mat4 uModelMatrix;
 uniform mat4 uMVPShadowMap;
 uniform vec2 uTextureTransform;
 
+mat4 identity = mat4(1.0);
+
 void main()
 {
-	mat4 BoneTransform = mat4(0.0);
+	vec4 totalLocalPos = vec4(0.0);
+	vec4 totalNormal = vec4(0.0);
+	vec4 totalTangent = vec4(0.0);
+	vec4 totalBiTangent = vec4(0.0);
+	
 	if(uUseAnimations > 0)
 	{	
-		BoneTransform += uBoneTransforms[aBoneIds[0]] * aBoneWeights[0];
-		BoneTransform += uBoneTransforms[aBoneIds[1]] * aBoneWeights[1];
-		BoneTransform += uBoneTransforms[aBoneIds[2]] * aBoneWeights[2];
+		for(int i = 0; i < 3; i++)
+		{
+			totalLocalPos += aBoneWeights[i] * uBoneTransforms[aBoneIds[i]] * vec4(aPosition, 1.0);
+			totalNormal  += aBoneWeights[i] * uBoneTransforms[aBoneIds[i]] * vec4(aNormal, 0.0);
+			totalTangent += aBoneWeights[i] * uBoneTransforms[aBoneIds[i]] * vec4(aTangent, 0.0);
+			totalBiTangent  += aBoneWeights[i] * uBoneTransforms[aBoneIds[i]] * vec4(aBiTangent, 0.0);
+
+			//totalLocalPos += aBoneWeights[i] * identity * vec4(aPosition, 1.0);
+			//totalNormal  += aBoneWeights[i] * identity * vec4(aNormal, 0.0);
+			//totalTangent += aBoneWeights[i] * identity* vec4(aTangent, 0.0);
+			//totalBiTangent  += aBoneWeights[i] * identity * vec4(aBiTangent, 0.0);
+
+		}
 	}
 	else
 	{
-		BoneTransform = mat4(1.0);
+		totalLocalPos = vec4(aPosition, 1.0);
+		totalNormal = vec4(aNormal, 0.0);
+		totalTangent = vec4(aTangent, 0.0);
+		totalBiTangent = vec4(aBiTangent, 0.0);
 	}
-	vec4 totalLocalPos = BoneTransform * vec4(aPosition, 1.0);
+
 	
 	// normal mapping:
-	vNormal = (uNormalMatrix * (BoneTransform * vec4(aNormal, 0.0))).xyz;
-	vec3 vTangent = (uNormalMatrix * (BoneTransform * vec4(aTangent, 0.0))).xyz;
-	vec3 vBiTangent = (uNormalMatrix * (BoneTransform * vec4(aBiTangent, 0.0))).xyz;
+	vNormal = normalize((uNormalMatrix * totalNormal).xyz);
+	vec3 vTangent = normalize((uNormalMatrix * totalTangent).xyz);
+	vec3 vBiTangent = normalize((uNormalMatrix * totalBiTangent).xyz);
 
 	// Other pass-throughs:
 	vTexture = aTexture * uTextureTransform;

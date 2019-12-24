@@ -112,10 +112,13 @@
     <EmbeddedResource Include="Shaders\shader_vertex_shadow.glsl" />
     <EmbeddedResource Include="Shaders\shader_fragment_bloom.glsl" />
     <EmbeddedResource Include="Shaders\shader_vertex_bloom.glsl" />
+    <EmbeddedResource Include="Shaders\shader_fragment - Kopieren.glsl" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
     <Content Include="Assets\readme.txt" />
+    <EmbeddedResource Include="Assets\Textures\checkerboard.png" />
+    <EmbeddedResource Include="Assets\Textures\black.png" />
     <Content Include="Assets\Textures\readme.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

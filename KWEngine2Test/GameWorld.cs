@@ -23,10 +23,10 @@ namespace KWEngine2Test
             SetCameraPosition(0, 10, 10);
             SetCameraTarget(0, 0, 0);
 
-            KWEngine.LoadModelFromFile("rect", @".\Models\cubemattest\cubemattest.obj");
-            KWEngine.LoadModelFromFile("ship", @".\Models\spaceship\spaceship5.obj", -90);
+            //KWEngine.LoadModelFromFile("rect", @".\Models\cubemattest\cubemattest.obj");
+            KWEngine.LoadModelFromFile("ship", @".\Models\roboters\trextest.fbx", 0);
             //KWEngine.BuildTerrainModel("terraX", ".\\textures\\heightmap.png", ".\\textures\\asphalt.jpg", 50, 5, 50, 1, 1);
-
+            /*
             Building go = new Building();
             go.SetModel(GetModel("rect"));
             go.SetPosition(0, 0, 0);
@@ -38,12 +38,13 @@ namespace KWEngine2Test
             //go.SetTexture(".\\textures\\holland.jpg", KWEngine.CubeSide.All, KWEngine.TextureType.Diffuse);
             //go.SetTextureRepeat(2, 2, KWEngine.CubeSide.All);
             AddGameObject(go);
-
+            */
+            
             
             Ship ship = new Ship();
             ship.SetModel(GetModel("ship"));
             ship.IsCollisionObject = true;
-            ship.IsShadowCaster = true;
+            ship.IsShadowCaster = false;
             //block.SetTexture(".\\textures\\holland.jpg", KWEngine.CubeSide.All, KWEngine.TextureType.Diffuse);
             //block.SetTextureRepeat(2, 2, KWEngine.CubeSide.All);
             AddGameObject(ship);
@@ -58,7 +59,7 @@ namespace KWEngine2Test
             */
 
             Light l = new Light();
-            l.SetPosition(0, 7, 0);
+            l.SetPosition(0, 3, 0);
             l.SetDistanceMultiplier(2);
             AddLightObject(l);
         }

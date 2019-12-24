@@ -93,7 +93,15 @@ namespace KWEngine2.GameObjects
             }
         }
 
-        private float _animationPercentage = 0f;
+        public bool HasAnimations
+        {
+            get
+            {
+                return Model != null && Model.Animations != null && Model.Animations.Count > 0;
+            }
+        }
+
+        private float _animationPercentage = 0;
         public float AnimationPercentage
         {
             get
@@ -303,8 +311,8 @@ namespace KWEngine2.GameObjects
                 BoneTranslationMatrices = new Dictionary<string, Matrix4[]>();
                 foreach (GeoMesh mesh in m.Meshes.Values)
                 {
-                    BoneTranslationMatrices[mesh.Name] = new Matrix4[mesh.Bones.Count];
-                    for (int i = 0; i < mesh.Bones.Count; i++)
+                    BoneTranslationMatrices[mesh.Name] = new Matrix4[mesh.BoneIndices.Count];
+                    for (int i = 0; i < mesh.BoneIndices.Count; i++)
                         BoneTranslationMatrices[mesh.Name][i] = Matrix4.Identity;
                 }
             }
@@ -501,16 +509,18 @@ namespace KWEngine2.GameObjects
             if (AnimationID >= 0 && AnimationID < Model.Animations.Count)
             {
                 GeoAnimation a = Model.Animations[AnimationID];
-                Matrix4 identity = Matrix4.Identity * Model.PreRotation;
-
+                
+                //Console.WriteLine(AnimationPercentage);
                 float timestamp = a.DurationInTicks * AnimationPercentage;
-                ReadNodeHierarchy(timestamp, ref a, AnimationID, Model.Root, ref identity);
+                foreach (GeoMesh mesh in Model.Meshes.Values)
+                {
+                    Matrix4 identity = Matrix4.Identity;
+                    ReadNodeHierarchy(timestamp, ref a, AnimationID, Model.Root, mesh, ref identity);
+                }
             }
         }
 
-
-
-        private void ReadNodeHierarchy(float timestamp, ref GeoAnimation animation, int animationId, GeoNode node, ref Matrix4 parentTransform, int debugLevel = 0)
+        private void ReadNodeHierarchy(float timestamp, ref GeoAnimation animation, int animationId, GeoNode node, GeoMesh mesh, ref Matrix4 parentTransform, int debugLevel = 0)
         {
             string nodeName = node.Name;
 
@@ -522,7 +532,6 @@ namespace KWEngine2.GameObjects
                 Matrix4 scalingMatrix = Matrix4.CreateScale(CalcInterpolatedScaling(timestamp, ref channel));
                 Matrix4 rotationMatrix = Matrix4.CreateFromQuaternion(CalcInterpolatedRotation(timestamp, ref channel));
                 Matrix4 translationMatrix = Matrix4.CreateTranslation(CalcInterpolatedTranslation(timestamp, ref channel));
-
                 nodeTransformation =
                     scalingMatrix
                     * rotationMatrix
@@ -532,21 +541,20 @@ namespace KWEngine2.GameObjects
 
             Matrix4 globalTransform = nodeTransformation * parentTransform;
 
-            lock (BoneTranslationMatrices)
+            
+            
+            int index = mesh.BoneNames.IndexOf(node.Name);
+            if (index >= 0)
             {
-                foreach (GeoMesh m in Model.Meshes.Values)
+                lock (BoneTranslationMatrices)
                 {
-                    bool found = m.Bones.TryGetValue(node.Name, out GeoBone gBone);
-                    if (found)
-                    {
-                        BoneTranslationMatrices[m.Name][gBone.Index] = gBone.Offset * globalTransform * Model.TransformGlobalInverse;
-                    }
+                    BoneTranslationMatrices[mesh.Name][index] = mesh.BoneOffset[index] * globalTransform * Model.TransformGlobalInverse;
                 }
             }
 
             for (int i = 0; i < node.Children.Count; i++)
             {
-                ReadNodeHierarchy(timestamp, ref animation, animationId, node.Children[i], ref globalTransform, debugLevel + 1);
+                ReadNodeHierarchy(timestamp, ref animation, animationId, node.Children[i], mesh, ref globalTransform, debugLevel + 1);
             }
 
         }
