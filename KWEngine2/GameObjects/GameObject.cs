@@ -17,6 +17,11 @@ namespace KWEngine2.GameObjects
         public bool IsShadowCaster { get; set; } = false;
         public bool IsAffectedBySun { get; set; } = true;
         public World CurrentWorld { get; internal set; } = null;
+
+        internal bool _specularOverride = false;
+        internal float _specularPowerOverride = 0;
+        internal float _specularAreaOverride = 1024;
+
         public GLWindow CurrentWindow
         {
             get
@@ -537,12 +542,8 @@ namespace KWEngine2.GameObjects
                     * rotationMatrix
                     * translationMatrix;
             }
-
-
             Matrix4 globalTransform = nodeTransformation * parentTransform;
 
-            
-            
             int index = mesh.BoneNames.IndexOf(node.Name);
             if (index >= 0)
             {
@@ -1076,6 +1077,144 @@ namespace KWEngine2.GameObjects
         {
             HelperMouseRay r = new HelperMouseRay(mouseCoords.X, mouseCoords.Y, GLWindow.CurrentWindow._viewMatrix, GLWindow.CurrentWindow._projectionMatrix);
             return Vector3.NormalizeFast(r.End - r.Start);
+        }
+
+
+
+        public void SetTextureForModelMesh(string meshName, string texture, TextureType textureType = TextureType.Diffuse)
+        {
+            CheckModel();
+            if (_cubeModel != null)
+            {
+                SetTexture(texture, CubeSide.All, textureType);
+                Debug.WriteLine("Method call forwarded to SetTexture() for KWCube instances. Please use SetTexture() for KWCube instances.");
+                return;
+            }
+
+            if(textureType != TextureType.Diffuse && textureType != TextureType.Normal && textureType != TextureType.Specular)
+            {
+                throw new Exception("SetTextureForMesh() currently supports diffuse, normal and specular texture types only. Sorry.");
+            } 
+
+            foreach (GeoMesh mesh in Model.Meshes.Values)
+            {
+                
+                if (mesh.Name.ToLower().Contains(meshName.ToLower()))
+                {
+                    GeoTexture tex = new GeoTexture();
+                    int texId = -1;
+                    string texName = "";
+                    foreach(string texturefilename in Model.Textures.Keys)
+                    {
+                        string nameStrippedLowered = SceneImporter.StripPathFromFile(texturefilename).ToLower();
+                        if (nameStrippedLowered.Contains(texture.Trim().ToLower()))
+                        {
+                            texId = Model.Textures[texturefilename].OpenGLID;
+                            texName = texturefilename;
+                            break;
+                        }
+                    }
+                    if(texId < 0)
+                    {
+                        texId = HelperTexture.LoadTextureForModelExternal(texture);
+                        texName = texture;
+                    }
+                    
+                    tex.UVMapIndex = 0;
+                    tex.UVTransform = new Vector2(1, 1);
+                    tex.OpenGLID = texId;
+                    tex.Filename = texName;
+                    if(textureType == TextureType.Diffuse)
+                    {
+                        mesh.Material.TextureDiffuse = tex;
+                    }
+                    else if(textureType == TextureType.Normal)
+                    {
+                        mesh.Material.TextureNormal = tex;
+                    }
+                    else
+                    {
+                        mesh.Material.TextureSpecular = tex;
+                    }
+                }
+            }
+        }
+
+        public void SetTextureForModelMesh(int meshID, string texture, TextureType textureType = TextureType.Diffuse)
+        {
+            CheckModel();
+            if (_cubeModel != null)
+            {
+                SetTexture(texture, CubeSide.All, textureType);
+                Debug.WriteLine("Method call forwarded to SetTexture() for KWCube instances. Please use SetTexture() for KWCube instances.");
+                return;
+            }
+
+            if (textureType != TextureType.Diffuse && textureType != TextureType.Normal && textureType != TextureType.Specular)
+            {
+                throw new Exception("SetTextureForMesh() currently supports diffuse, normal and specular texture types only. Sorry.");
+            }
+
+            int counter = 0;
+            foreach (GeoMesh mesh in Model.Meshes.Values)
+            {
+
+                if (counter == meshID)
+                {
+                    GeoTexture tex = new GeoTexture();
+                    int texId = -1;
+                    string texName = "";
+                    foreach (string texturefilename in Model.Textures.Keys)
+                    {
+                        string nameStrippedLowered = SceneImporter.StripPathFromFile(texturefilename).ToLower();
+                        if (nameStrippedLowered.Contains(texture.Trim().ToLower()))
+                        {
+                            texId = Model.Textures[texturefilename].OpenGLID;
+                            texName = texturefilename;
+                            break;
+                        }
+                    }
+                    if (texId < 0)
+                    {
+                        texId = HelperTexture.LoadTextureForModelExternal(texture);
+                        texName = texture;
+                    }
+
+                    tex.UVMapIndex = 0;
+                    tex.UVTransform = new Vector2(1, 1);
+                    tex.OpenGLID = texId;
+                    tex.Filename = texName;
+                    if (textureType == TextureType.Diffuse)
+                    {
+                        mesh.Material.TextureDiffuse = tex;
+                    }
+                    else if (textureType == TextureType.Normal)
+                    {
+                        mesh.Material.TextureNormal = tex;
+                    }
+                    else
+                    {
+                        mesh.Material.TextureSpecular = tex;
+                    }
+
+                    break;
+                }
+                counter++;
+            }
+        }
+
+        public void SetSpecularOverride(bool enable, float power, float area)
+        {
+            if (enable)
+            {
+                _specularOverride = true;
+                _specularPowerOverride = HelperGL.Clamp(power, 0, 100);
+                _specularAreaOverride = HelperGL.Clamp(area, 2, 8192);
+            }
+            else
+            {
+                _specularOverride = false;
+            }
         }
     }
 }

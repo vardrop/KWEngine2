@@ -39,7 +39,9 @@ namespace KWEngine2.Model
             }
         }
 
-        internal static GeoModel LoadModel(string filename, bool isInAssembly = false, float yRotationInDegrees = 0)
+
+
+        internal static GeoModel LoadModel(string filename, OpenTK.Quaternion preRotation, bool isInAssembly = false)
         {
             AssimpContext importer = new AssimpContext();
             importer.SetConfig(new VertexBoneWeightLimitConfig(KWEngine.MAX_BONE_WEIGHTS));
@@ -88,14 +90,14 @@ namespace KWEngine2.Model
             if (scene == null)
                 throw new Exception("Could not load or find model: " + filename);
 
-            GeoModel model = ProcessScene(scene, filename.ToLower().Trim(), isInAssembly, yRotationInDegrees);
+            GeoModel model = ProcessScene(scene, filename.ToLower().Trim(), isInAssembly, preRotation);
             return model;
         }
 
-        private static GeoModel ProcessScene(Scene scene, string filename, bool isInAssembly, float yRotationInDegrees = 0)
+        private static GeoModel ProcessScene(Scene scene, string filename, bool isInAssembly, OpenTK.Quaternion preRotation)
         {
             GeoModel returnModel = new GeoModel();
-            returnModel.PreRotation = Matrix4.CreateFromQuaternion(OpenTK.Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(yRotationInDegrees)));
+            returnModel.PreRotation = Matrix4.CreateFromQuaternion(preRotation);
             returnModel.Filename = filename;
             returnModel.Name = StripPathFromFile(filename);
             if (isInAssembly)

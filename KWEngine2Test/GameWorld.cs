@@ -24,7 +24,7 @@ namespace KWEngine2Test
             SetCameraTarget(0, 0, 0);
 
             //KWEngine.LoadModelFromFile("rect", @".\Models\cubemattest\cubemattest.obj");
-            KWEngine.LoadModelFromFile("ship", @".\Models\roboters\trextest.fbx", 0);
+            KWEngine.LoadModelFromFile("ship", @".\Models\roboters\robotERS.fbx");
             //KWEngine.BuildTerrainModel("terraX", ".\\textures\\heightmap.png", ".\\textures\\asphalt.jpg", 50, 5, 50, 1, 1);
             /*
             Building go = new Building();
@@ -45,6 +45,7 @@ namespace KWEngine2Test
             ship.SetModel(GetModel("ship"));
             ship.IsCollisionObject = true;
             ship.IsShadowCaster = false;
+            ship.SetSpecularOverride(true, 0, 1024);
             //block.SetTexture(".\\textures\\holland.jpg", KWEngine.CubeSide.All, KWEngine.TextureType.Diffuse);
             //block.SetTextureRepeat(2, 2, KWEngine.CubeSide.All);
             AddGameObject(ship);

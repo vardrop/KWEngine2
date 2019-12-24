@@ -100,7 +100,7 @@ namespace KWEngine2.Model
                 VBOBoneIDs = GL.GenBuffer();
                 GL.BindBuffer(BufferTarget.ArrayBuffer, VBOBoneIDs);
                 GL.BufferData(BufferTarget.ArrayBuffer, boneIds.Length * 4, boneIds, BufferUsageHint.StaticDraw);
-                GL.VertexAttribPointer(6, 3, VertexAttribPointerType.Int, false, 0, 0);
+                GL.VertexAttribIPointer(6, 3, VertexAttribIntegerType.Int, 0, IntPtr.Zero);
                 GL.EnableVertexAttribArray(6);
                 GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 

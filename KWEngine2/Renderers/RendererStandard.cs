@@ -185,6 +185,8 @@ namespace KWEngine2.Renderers
                     GL.Uniform1(mUniform_TextureShadowMap, 3);
                 }
 
+                
+
                 foreach (string meshName in g.Model.Meshes.Keys)
                 {
                     GeoMesh mesh = g.Model.Meshes[meshName];
@@ -228,15 +230,20 @@ namespace KWEngine2.Renderers
 
                     if (mUniform_SpecularPower >= 0)
                     {
+                        if (!g._specularOverride)
+                            GL.Uniform1(mUniform_SpecularPower, mesh.Material.SpecularPower);
+                        else
+                            GL.Uniform1(mUniform_SpecularPower, g._specularPowerOverride);
 
-                        GL.Uniform1(mUniform_SpecularPower, mesh.Material.SpecularPower);
-                        
+
+
                     }
                     if (mUniform_SpecularArea >= 0)
                     {
-
-                        GL.Uniform1(mUniform_SpecularArea, mesh.Material.SpecularArea);
-
+                        if (!g._specularOverride)
+                            GL.Uniform1(mUniform_SpecularArea, mesh.Material.SpecularArea);
+                        else
+                            GL.Uniform1(mUniform_SpecularArea, g._specularAreaOverride);
                     }
 
                     // Might not be needed because shadow map pass already calculated it:

@@ -112,7 +112,7 @@
     <EmbeddedResource Include="Shaders\shader_vertex_shadow.glsl" />
     <EmbeddedResource Include="Shaders\shader_fragment_bloom.glsl" />
     <EmbeddedResource Include="Shaders\shader_vertex_bloom.glsl" />
-    <EmbeddedResource Include="Shaders\shader_fragment - Kopieren.glsl" />
+    <None Include="Shaders\shader_fragment.backup" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
