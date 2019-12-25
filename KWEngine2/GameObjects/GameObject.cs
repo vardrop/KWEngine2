@@ -352,6 +352,63 @@ namespace KWEngine2.GameObjects
             Rotation = rotation;
         }
 
+        protected bool IsLookingAt(float x, float y, float z, float diameter)
+        {
+            return IsLookingAt(new Vector3(x, y, z), diameter);
+        }
+
+        protected bool IsLookingAt(Vector3 target, float diameter)
+        {
+            CheckModel();
+
+            if (Model.IsTerrain)
+            {
+                throw new Exception("Terrains cannot 'look' at objects.");
+            }
+
+            Vector3 position = GetGameObjectCenterPoint();
+            Vector3 deltaGO = target - position;
+            Vector3 rayDirection = GetLookAtVector();
+            Vector3[] aabb = new Vector3[] { new Vector3(-0.5f * diameter, -0.5f * diameter, -0.5f * diameter), new Vector3(0.5f * diameter, 0.5f * diameter, 0.5f * diameter) };
+
+            Matrix4 matrix = Matrix4.CreateTranslation(target);
+            Vector3 x = new Vector3(matrix.Row0);
+            x.NormalizeFast();
+            Vector3 y = new Vector3(matrix.Row1);
+            y.NormalizeFast();
+            Vector3 z = new Vector3(matrix.Row2);
+            z.NormalizeFast();
+            Vector3[] axes = new Vector3[] { x, y, z };
+
+            float tMin = 0.0f;
+            float tMax = 100000.0f;
+            for (int i = 0; i < axes.Length; i++)
+            {
+                Vector3 axis = axes[i];
+
+                Vector3.Dot(ref axis, ref deltaGO, out float e);
+                Vector3.Dot(ref rayDirection, ref axis, out float f);
+                float t1 = (e + aabb[0][i]) / f; // Intersection with the "left" plane
+                float t2 = (e + aabb[1][i]) / f; // Intersection with the "right" plane
+                if (t1 > t2)
+                {
+                    float w = t1;
+                    t1 = t2;
+                    t2 = w;
+                }
+                // tMax is the nearest "far" intersection (amongst the X,Y and Z planes pairs)
+                if (t2 < tMax) tMax = t2;
+                // tMin is the farthest "near" intersection (amongst the X,Y and Z planes pairs)
+                if (t1 > tMin) tMin = t1;
+
+
+                if (tMax < tMin)
+                    return false;
+            }
+            return true;
+        }
+
+
         internal void CheckBounds()
         {
             if(_sceneCenter.X > CurrentWorld.WorldCenter.X + CurrentWorld.WorldDistance
@@ -1302,5 +1359,7 @@ namespace KWEngine2.GameObjects
             }
             throw new Exception("Mesh with ID " + meshID + " not found in Model.");
         }
+
+
     }
 }
