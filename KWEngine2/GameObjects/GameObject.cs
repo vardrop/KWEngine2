@@ -15,6 +15,7 @@ namespace KWEngine2.GameObjects
         public enum Plane { X, Y, Z, Camera }
         internal uint DistanceToCamera { get; set; } = 100;
         public bool IsShadowCaster { get; set; } = false;
+        public float FPSEyeOffset { get; set; } = 0;
         public bool IsAffectedBySun { get; set; } = true;
         public World CurrentWorld { get; internal set; } = null;
 
@@ -263,6 +264,20 @@ namespace KWEngine2.GameObjects
             return _sceneDiameter;
         }
 
+        protected void MoveFPSCamera(MouseState ms)
+        {
+            CheckModel();
+
+            if (CurrentWorld.IsFirstPersonMode)
+            {
+                int centerX = CurrentWindow.X + CurrentWindow.Width / 2;
+                int centerY = CurrentWindow.Y + CurrentWindow.Height / 2;
+                HelperCamera.AddRotation(-(ms.X - centerX) * KWEngine.MouseSensitivity, (centerY - ms.Y) * KWEngine.MouseSensitivity);
+            }
+            else
+                throw new Exception("FPS mode is not active.");
+        }
+
         public bool IsValid { get; internal set; } = false;
         public bool HasModel
         {
@@ -369,6 +384,10 @@ namespace KWEngine2.GameObjects
             }
 
             Vector3 position = GetGameObjectCenterPoint();
+            if(CurrentWorld.IsFirstPersonMode && CurrentWorld.GetFirstPersonObject().Equals(this))
+            {
+                position = new Vector3(Position.X, Position.Y + FPSEyeOffset, Position.Z);
+            }
             Vector3 deltaGO = target - position;
             Vector3 rayDirection = GetLookAtVector();
             Vector3[] aabb = new Vector3[] { new Vector3(-0.5f * diameter, -0.5f * diameter, -0.5f * diameter), new Vector3(0.5f * diameter, 0.5f * diameter, 0.5f * diameter) };
@@ -553,19 +572,19 @@ namespace KWEngine2.GameObjects
 
         protected Vector3 GetLookAtVector()
         {
-            /*
-            if (World.GetCurrentWindow().IsFirstPersonMode && World.GetCurrentWindow().GetFirstPersonObject().Equals(this))
+            CheckModelAndWorld();
+
+            if (CurrentWorld.IsFirstPersonMode && CurrentWorld.GetFirstPersonObject().Equals(this))
             {
-                return World.GetCurrentWindow().FirstPersonCamera.GetLookAtVector();
+                return HelperCamera.GetLookAtVector();
             }
             else
-            {*/
-
-            // TODO: FP-View!
-            Vector3 standardOrientation = Vector3.UnitZ;
-            Vector3 rotatedNormal = Vector3.TransformNormal(standardOrientation, _modelMatrix);
-            return rotatedNormal;
-            //}
+            {
+                Vector3 standardOrientation = Vector3.UnitZ;
+                Vector3 rotatedNormal = Vector3.TransformNormal(standardOrientation, _modelMatrix);
+                rotatedNormal.NormalizeFast();
+                return rotatedNormal;
+            }
         }
 
         protected void Move(float amount)
@@ -584,6 +603,52 @@ namespace KWEngine2.GameObjects
         protected void MoveOffset(float x, float y, float z)
         {
             Position = new Vector3(Position.X + x, Position.Y + y, Position.Z + z);
+        }
+
+        protected void MoveAndStrafeFirstPerson(float forward, float strafe, float units)
+        {
+            CheckModel();
+            MoveAndStrafeFirstPerson(new Vector2(forward, strafe), units);
+        }
+
+        private void MoveAndStrafeFirstPerson(Vector2? direction, float units)
+        {
+            CheckModel();
+            if (direction == null || !direction.HasValue)
+                return;
+
+            if (CurrentWorld.IsFirstPersonMode && CurrentWorld.GetFirstPersonObject().Equals(this))
+            {
+                Vector3 moveVector = HelperCamera.MoveXYZ(direction.Value.X, direction.Value.Y, direction.Value.LengthFast);
+
+                MoveOffset(moveVector.X * units, moveVector.Y * units, moveVector.Z * units);
+            }
+            else
+            {
+                throw new Exception("MoveAndStrafeFirstPerson() may only be called from the current FPS object.");
+            }
+        }
+
+
+        protected void MoveAndStrafeFirstPersonXZ(float forward, float strafe, float units)
+        {
+            MoveAndStrafeFirstPersonXZ(new Vector2(forward, strafe), units);
+        }
+
+
+        private void MoveAndStrafeFirstPersonXZ(Vector2 direction, float units)
+        {
+            CheckModel();
+
+            if (CurrentWorld.IsFirstPersonMode && CurrentWorld.GetFirstPersonObject().Equals(this))
+            {
+                Vector3 moveVector = HelperCamera.MoveXZ(direction.X, direction.Y, direction.LengthFast);
+                MoveOffset(moveVector.X * units, moveVector.Y * units, moveVector.Z * units);
+            }
+            else
+            {
+                throw new Exception("MoveAndStrafeFirstPersonXZ() may only be called from the current FPS object.");
+            }
         }
 
         #endregion

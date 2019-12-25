@@ -19,23 +19,41 @@ namespace KWEngine2Test.GameObjects
         {
             if (!CurrentWindow.Focused) // || !CurrentWindow.IsMouseInWindow)
                 return;
+            if (CurrentWorld.IsFirstPersonMode)
+            {
+                float forward = 0;
+                float strafe = 0;
+                if (ks[Key.W])
+                    forward += 1 * deltaTimeFactor;
+                if (ks[Key.S])
+                    forward -= 1 * deltaTimeFactor;
+                if (ks[Key.D])
+                    strafe += 1 * deltaTimeFactor;
+                if (ks[Key.A])
+                    strafe -= 1 * deltaTimeFactor;
 
-            if (ks[Key.D])
-                this.MoveOffset(0.1f * deltaTimeFactor, 0, 0);
-            if (ks[Key.S])
-                this.MoveOffset(0, 0, 0.1f * deltaTimeFactor);
-            if (ks[Key.A])
-                this.MoveOffset(-0.1f * deltaTimeFactor, 0, 0);
-            if (ks[Key.W])
-                this.MoveOffset(0, 0, -0.1f * deltaTimeFactor);
+                MoveAndStrafeFirstPerson(forward, strafe, 0.1f);
+                MoveFPSCamera(ms);
+            }
+            else
+            {
+                if (ks[Key.D])
+                    this.MoveOffset(0.1f * deltaTimeFactor, 0, 0);
+                if (ks[Key.S])
+                    this.MoveOffset(0, 0, 0.1f * deltaTimeFactor);
+                if (ks[Key.A])
+                    this.MoveOffset(-0.1f * deltaTimeFactor, 0, 0);
+                if (ks[Key.W])
+                    this.MoveOffset(0, 0, -0.1f * deltaTimeFactor);
 
-            if (ks[Key.Q])
-                this.MoveOffset(0, -0.1f * deltaTimeFactor, 0);
-            if (ks[Key.E])
-                this.MoveOffset(0, +0.1f * deltaTimeFactor, 0);
+                if (ks[Key.Q])
+                    this.MoveOffset(0, -0.1f * deltaTimeFactor, 0);
+                if (ks[Key.E])
+                    this.MoveOffset(0, +0.1f * deltaTimeFactor, 0);
 
-            if (ks[Key.T])
-                this.AddRotationZ(1, true);
+                if (ks[Key.T])
+                    this.AddRotationZ(1, true);
+            }
 
             List<Intersection> intersections = GetIntersections();
             foreach (Intersection i in intersections)
@@ -51,7 +69,7 @@ namespace KWEngine2Test.GameObjects
 
             }
 
-            Vector3 pos = GetMouseIntersectionPoint(ms, Plane.Z);
+            //Vector3 pos = GetMouseIntersectionPoint(ms, Plane.Z);
             //TurnTowardsXY(pos);
 
             if (ms.LeftButton == ButtonState.Pressed)

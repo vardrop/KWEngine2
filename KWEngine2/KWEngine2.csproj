@@ -61,6 +61,7 @@
     <Compile Include="GameObjects\Explosion.cs" />
     <Compile Include="GameObjects\HUDObject.cs" />
     <Compile Include="GameObjects\LightObject.cs" />
+    <Compile Include="Helper\HelperCamera.cs" />
     <Compile Include="Helper\HelperFrustum.cs" />
     <Compile Include="Helper\HelperMouseRay.cs" />
     <Compile Include="Helper\HelperRotation.cs" />

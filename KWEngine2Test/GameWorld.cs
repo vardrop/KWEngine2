@@ -36,7 +36,7 @@ namespace KWEngine2Test
             //go.SetGlow(1, 0, 0, 1);
             go.IsCollisionObject = true;
             go.IsShadowCaster = true;
-            go.IsAffectedBySun = false;
+            //go.IsAffectedBySun = false;
             //go.SetTexture(".\\textures\\holland.jpg", KWEngine.CubeSide.All, KWEngine.TextureType.Diffuse);
             //go.SetTextureRepeat(2, 2, KWEngine.CubeSide.All);
             AddGameObject(go);
@@ -47,10 +47,12 @@ namespace KWEngine2Test
             ship.SetModel(GetModel("ship"));
             ship.IsCollisionObject = true;
             ship.IsShadowCaster = true;
+
             //ship.SetSpecularOverride(true, 1, 8192);
             //block.SetTexture(".\\textures\\holland.jpg", KWEngine.CubeSide.All, KWEngine.TextureType.Diffuse);
             //block.SetTextureRepeat(2, 2, KWEngine.CubeSide.All);
             AddGameObject(ship);
+            SetFirstPersonObject(ship, 0);
             
 
             Terrain t = new Terrain();

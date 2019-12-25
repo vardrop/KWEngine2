@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
@@ -35,6 +36,7 @@ namespace KWEngine2
 
         internal System.Drawing.Rectangle _windowRect;
         internal System.Drawing.Point _mousePoint = new System.Drawing.Point(0, 0);
+        internal System.Drawing.Point _mousePointFPS = new System.Drawing.Point(0, 0);
 
         internal GeoModel _bloomQuad;
 
@@ -134,7 +136,10 @@ namespace KWEngine2
             {
                 lock (CurrentWorld)
                 {
-                    _viewMatrix = Matrix4.LookAt(CurrentWorld.GetCameraPosition(), CurrentWorld.GetCameraTarget(), KWEngine.WorldUp);
+                    if(CurrentWorld.IsFirstPersonMode)
+                        _viewMatrix = HelperCamera.GetViewMatrix(CurrentWorld.GetFirstPersonObject().Position);
+                    else
+                        _viewMatrix = Matrix4.LookAt(CurrentWorld.GetCameraPosition(), CurrentWorld.GetCameraTarget(), KWEngine.WorldUp);
                     Matrix4 viewProjection = _viewMatrix * _projectionMatrix;
 
                     Matrix4 viewMatrixShadow = Matrix4.LookAt(CurrentWorld.GetSunPosition(), CurrentWorld.GetSunTarget(), KWEngine.WorldUp);
@@ -165,6 +170,8 @@ namespace KWEngine2
                         LightObject.PrepareLightsForRenderPass(CurrentWorld.GetLightObjects(), ref LightColors, ref LightTargets, ref LightPositions, ref CurrentWorld._lightcount);
                         foreach (GameObject g in CurrentWorld.GetGameObjects())
                         {
+                            if (g.CurrentWorld.IsFirstPersonMode && g.CurrentWorld.GetFirstPersonObject().Equals(g))
+                                continue;
                             KWEngine.Renderers["Standard"].Draw(g, ref viewProjection, ref viewProjectionShadowBiased, Frustum, ref LightColors, ref LightTargets, ref LightPositions, CurrentWorld._lightcount);
                         }
                     }
@@ -187,6 +194,9 @@ namespace KWEngine2
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             base.OnUpdateFrame(e);
+
+            _mousePointFPS.X = X + Width / 2;
+            _mousePointFPS.Y = Y + Height / 2;
 
             KeyboardState ks = Keyboard.GetState();
             MouseState ms = Mouse.GetCursorState();
@@ -211,6 +221,11 @@ namespace KWEngine2
             }
             CurrentWorld.AddRemoveObjects();
             CurrentWorld.SortByZ();
+
+            if (CurrentWorld.IsFirstPersonMode)
+            {
+                Mouse.SetPosition(_mousePointFPS.X, _mousePointFPS.Y);
+            }
 
             DeltaTime.UpdateDeltaTime();
         }
@@ -260,6 +275,7 @@ namespace KWEngine2
             if (CurrentWorld == null)
             {
                 CurrentWorld = w;
+                CursorVisible = true;
                 KWEngine.CubeTextures.Add(w, new Dictionary<string, int>());
                 CurrentWorld.Prepare();
                 CalculateProjectionMatrix();
@@ -279,6 +295,7 @@ namespace KWEngine2
                         }
                         KWEngine.CubeTextures.Remove(CurrentWorld);
                     }
+                    CursorVisible = true;
                     CurrentWorld = w;
                     KWEngine.CubeTextures.Add(w, new Dictionary<string, int>());
                     CurrentWorld.Prepare();

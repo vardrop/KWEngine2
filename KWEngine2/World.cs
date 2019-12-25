@@ -44,6 +44,28 @@ namespace KWEngine2
             }
         }
 
+        public GameObject GetFirstPersonObject()
+        {
+            return _firstPersonObject;
+        }
+
+        public void SetFirstPersonObject(GameObject go, float startRotationInDegrees = 0)
+        {
+            if (go != null)
+            {
+                _firstPersonObject = go;
+                CurrentWindow.CursorVisible = false;
+                go.SetRotation(0, startRotationInDegrees, 0);
+                HelperCamera.SetStartRotationY(Quaternion.FromAxisAngle(KWEngine.WorldUp, MathHelper.DegreesToRadians(startRotationInDegrees)), go);
+            }
+            else
+            {
+                CurrentWindow.CursorVisible = true;
+                _firstPersonObject = null;
+                HelperCamera.DeleteFirstPersonObject();
+            }
+        }
+
 
         internal List<GameObject> _gameObjects = new List<GameObject>();
         internal List<LightObject> _lightObjects = new List<LightObject>();

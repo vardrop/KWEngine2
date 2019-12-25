@@ -39,6 +39,8 @@ namespace KWEngine2
         internal static Dictionary<string, Renderer> Renderers { get; set; } = new Dictionary<string, Renderer>();
         internal static Dictionary<string, GeoModel> Models { get; set; } = new Dictionary<string, GeoModel>();
 
+        public static float MouseSensitivity { get; set; } = 0.001f;
+
         internal static void InitializeModels()
         {
             TextureDefault = HelperTexture.LoadTextureInternal("checkerboard.png");
