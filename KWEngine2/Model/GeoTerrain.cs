@@ -29,7 +29,6 @@ namespace KWEngine2.Model
         private Dictionary<int, List<GeoTerrainTriangle>> mSectorTriangleMap = new Dictionary<int, List<GeoTerrainTriangle>>();
         private Dictionary<Sector, List<Sector>> mSectorCoarseMap = new Dictionary<Sector, List<Sector>>();
 
-        private float[,] mHeightMap;
         private float mCompleteDiameter;
         private float mTexX = 1;
         private float mTexY = 1;
@@ -142,7 +141,7 @@ namespace KWEngine2.Model
 
                         }
 
-                        mHeightMap = new float[image.Width, image.Height];
+                        float[,] mHeightMap = new float[image.Width, image.Height];
                         mCompleteDiameter = (float)Math.Sqrt(mWidth * mWidth + mDepth * mDepth + mScaleFactor * mScaleFactor);
 
                         float stepWidth = mWidth / (image.Width - 1);
@@ -195,7 +194,7 @@ namespace KWEngine2.Model
                         }
 
                         mmp = new GeoMesh();
-
+                        mmp.Name = heightMap;
 
                         // Build indices and triangles:
                         mmp.VAO = GL.GenVertexArray();

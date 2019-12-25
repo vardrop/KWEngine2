@@ -74,12 +74,11 @@ namespace KWEngine2.Renderers
 
                     if (useMeshTransform)
                     {
-                        Matrix4.Mult(ref g.Model.PreRotation, ref mesh.Transform, out Matrix4 tmp);
-                        Matrix4.Mult(ref tmp, ref g._modelMatrix, out g.ModelMatrixForRenderPass);
+                        Matrix4.Mult(ref mesh.Transform, ref g._modelMatrix, out g.ModelMatrixForRenderPass);
                     }
                     else
                     {
-                        Matrix4.Mult(ref g.Model.PreRotation, ref g._modelMatrix, out g.ModelMatrixForRenderPass);
+                        g.ModelMatrixForRenderPass = g._modelMatrix;
                     }
 
                     bool isInsideFrustum = frustum.SphereVsFrustum(g.GetGameObjectCenterPoint(), g.GetGameObjectMaxDiameter() / 2);

@@ -40,20 +40,22 @@ namespace KWEngine2.Helper
         /// <param name="degrees">Rotation (in Grad)</param>
         /// <param name="unitVector">Einheitsvektor, um den rotiert wird</param>
         /// <returns>Rotierter Vektor</returns>
-        public static Vector3 RotateVector(Vector3 vector, float degrees, Vector3 unitVector)
+        public static Vector3 RotateVector(Vector3 vector, float degrees, Plane plane)
         {
-            if (unitVector == Vector3.UnitX)
+            if (plane == Plane.X)
             {
                 return Vector3.TransformNormal(vector, Matrix4.CreateRotationX(CalculateRadiansFromDegrees(degrees)));
             }
-            else if (unitVector == Vector3.UnitZ)
+            else if (plane == Plane.Y)
             {
                 return Vector3.TransformNormal(vector, Matrix4.CreateRotationZ(CalculateRadiansFromDegrees(degrees)));
             }
-            else
+            else if (plane == Plane.Z)
             {
                 return Vector3.TransformNormal(vector, Matrix4.CreateRotationY(CalculateRadiansFromDegrees(degrees)));
             }
+            else
+                throw new Exception("Only planes X, Y and Z are allowed for vector rotation.");
         }
 
         /// <summary>

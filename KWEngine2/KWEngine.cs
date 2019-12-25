@@ -44,10 +44,10 @@ namespace KWEngine2
             TextureDefault = HelperTexture.LoadTextureInternal("checkerboard.png");
             TextureBlack = HelperTexture.LoadTextureInternal("black.png");
 
-            Models.Add("KWCube", SceneImporter.LoadModel("kwcube.obj", new Quaternion(0,0,0,1), true));
-            Models.Add("KWCube6", SceneImporter.LoadModel("kwcube6.obj", new Quaternion(0, 0, 0, 1), true));
-            Models.Add("KWRect", SceneImporter.LoadModel("kwrect.obj", new Quaternion(0, 0, 0, 1), true));
-            Models.Add("KWSphere", SceneImporter.LoadModel("kwsphere.obj", new Quaternion(0, 0, 0, 1), true));
+            Models.Add("KWCube", SceneImporter.LoadModel("kwcube.obj", false, true));
+            Models.Add("KWCube6", SceneImporter.LoadModel("kwcube6.obj", false, true));
+            Models.Add("KWRect", SceneImporter.LoadModel("kwrect.obj", false, true));
+            Models.Add("KWSphere", SceneImporter.LoadModel("kwsphere.obj", false, true));
         }
 
         internal static void InitializeShaders()
@@ -88,7 +88,7 @@ namespace KWEngine2
             }
         }
 
-        private static int _shadowMapSize = 2048;
+        private static int _shadowMapSize = 4096;
         public static int ShadowMapSize 
         {
             get
@@ -182,12 +182,12 @@ namespace KWEngine2
 
         public static void LoadModelFromFile(string name, string filename)
         {
-            LoadModelFromFile(name, filename, new Quaternion(0, 0, 0, 1));
+            LoadModelFromFile(name, filename, true);
         }
 
-        public static void LoadModelFromFile(string name, string filename, Quaternion preRotation)
+        public static void LoadModelFromFile(string name, string filename, bool flipTextureCoordinates = true)
         {
-            GeoModel m = SceneImporter.LoadModel(filename, preRotation, false);
+            GeoModel m = SceneImporter.LoadModel(filename, flipTextureCoordinates, false);
             m.Name = name;
             lock (KWEngine.Models)
             {

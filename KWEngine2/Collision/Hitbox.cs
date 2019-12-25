@@ -83,17 +83,8 @@ namespace KWEngine2.Collision
                 mOldScale.Z = Owner.Scale.Z;
             }
 
-            if (Owner.Model.HasBones && Owner.Model.Armature != null)
-            {
-                Matrix4.Mult(ref Owner.Model.PreRotation, ref Owner.Model.Armature.Transform, out mTempMatrix);
-                //Matrix4.Mult(ref tmp, ref mMesh.Transform, out mTempMatrix);
-                Matrix4.Mult(ref mTempMatrix, ref Owner._modelMatrix, out mModelMatrixFinal);
-            }
-            else
-            {
-                Matrix4.Mult(ref Owner.Model.PreRotation, ref mMesh.Transform, out Matrix4 tmp);
-                Matrix4.Mult(ref tmp, ref Owner._modelMatrix, out mModelMatrixFinal);
-            }
+
+            Matrix4.Mult(ref mMesh.Transform, ref Owner._modelMatrix, out mModelMatrixFinal);
 
             float minX = float.MaxValue;
             float maxX = float.MinValue;

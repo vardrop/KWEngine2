@@ -41,7 +41,7 @@ namespace KWEngine2.Model
 
 
 
-        internal static GeoModel LoadModel(string filename, OpenTK.Quaternion preRotation, bool isInAssembly = false)
+        internal static GeoModel LoadModel(string filename, bool flipTextureCoordinates = false,  bool isInAssembly = false)
         {
             AssimpContext importer = new AssimpContext();
             importer.SetConfig(new VertexBoneWeightLimitConfig(KWEngine.MAX_BONE_WEIGHTS));
@@ -83,6 +83,8 @@ namespace KWEngine2.Model
                             ;
                     if (type == FileType.DirectX)
                         steps |= PostProcessSteps.FlipWindingOrder;
+                    if (flipTextureCoordinates)
+                        steps |= PostProcessSteps.FlipUVs;
 
                     scene = importer.ImportFile(filename, steps);
                 }
@@ -90,14 +92,13 @@ namespace KWEngine2.Model
             if (scene == null)
                 throw new Exception("Could not load or find model: " + filename);
 
-            GeoModel model = ProcessScene(scene, filename.ToLower().Trim(), isInAssembly, preRotation);
+            GeoModel model = ProcessScene(scene, filename.ToLower().Trim(), isInAssembly);
             return model;
         }
 
-        private static GeoModel ProcessScene(Scene scene, string filename, bool isInAssembly, OpenTK.Quaternion preRotation)
+        private static GeoModel ProcessScene(Scene scene, string filename, bool isInAssembly)
         {
             GeoModel returnModel = new GeoModel();
-            returnModel.PreRotation = Matrix4.CreateFromQuaternion(preRotation);
             returnModel.Filename = filename;
             returnModel.Name = StripPathFromFile(filename);
             if (isInAssembly)
@@ -124,7 +125,6 @@ namespace KWEngine2.Model
 
             returnModel.IsInAssembly = isInAssembly;
             returnModel.CalculatePath();
-            //returnModel.Bones = new Dictionary<int, GeoBone>();
             returnModel.Meshes = new Dictionary<string, GeoMesh>();
             returnModel.TransformGlobalInverse = Matrix4.Invert(HelperMatrix.ConvertAssimpToOpenTKMatrix(scene.RootNode.Transform));
             returnModel.Textures = new Dictionary<string, GeoTexture>();

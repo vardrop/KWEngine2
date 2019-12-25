@@ -1127,6 +1127,32 @@ namespace KWEngine2.GameObjects
             throw new Exception("Mesh with name " + meshName + " not found.");
         }
 
+        public void SetTextureRepeatForMesh(int meshId, float repeatX, float repeatY)
+        {
+            CheckModel();
+            if (_cubeModel != null)
+            {
+                SetTextureRepeat(repeatX, repeatY, CubeSide.All);
+                Debug.WriteLine("Method call forwarded to SetTextureRepeat() for KWCube instances. Please use SetTextureRepeat() for KWCube instances.");
+                return;
+            }
+
+            int counter = 0;
+            foreach (GeoMesh mesh in Model.Meshes.Values)
+            {
+                if (counter == meshId)
+                {
+                    _overrides[mesh.Name].Remove(Override.TextureDiffuse);
+                    _overrides[mesh.Name].Add(Override.TextureTransform, new Vector2(repeatX, repeatY));
+
+                    return;
+                }
+                counter++;
+            }
+
+            throw new Exception("Mesh id " + meshId + " not found in current model.");
+        }
+
         public void SetTextureForModelMesh(int meshID, string texture, TextureType textureType = TextureType.Diffuse)
         {
             CheckModel();
