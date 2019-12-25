@@ -4,6 +4,7 @@ using KWEngine2.Model;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using static KWEngine2.KWEngine;
@@ -190,69 +191,54 @@ namespace KWEngine2.Renderers
                 foreach (string meshName in g.Model.Meshes.Keys)
                 {
                     GeoMesh mesh = g.Model.Meshes[meshName];
-
-                    //bool useMeshTransform = true;
+                    Dictionary<GameObject.Override, object> overrides = null;
+                    if (g._overrides.ContainsKey(mesh.Name))
+                    {
+                        overrides = g._overrides[mesh.Name];
+                    }
 
                     if (g.AnimationID >= 0 && g.Model.Animations != null && g.Model.Animations.Count > 0)
                     {
-                        if (mUniform_UseAnimations >= 0)
+                        GL.Uniform1(mUniform_UseAnimations, 1);
+                        lock (g.BoneTranslationMatrices)
                         {
-                            GL.Uniform1(mUniform_UseAnimations, 1);
-                        }
-                        if (mUniform_BoneTransforms >= 0)
-                        {
-
-                            lock (g.BoneTranslationMatrices)
+                            for (int i = 0; i < g.BoneTranslationMatrices[meshName].Length; i++)
                             {
-                                for (int i = 0; i < g.BoneTranslationMatrices[meshName].Length; i++)
-                                {
-                                    Matrix4 tmp = g.BoneTranslationMatrices[meshName][i];
-                                    GL.UniformMatrix4(mUniform_BoneTransforms + i, false, ref tmp);
-                                }
-                                /*
-                                for(int i = g.BoneTranslationMatrices[meshName].Length; i < KWEngine.MAX_BONES; i++)
-                                {
-                                    GL.UniformMatrix4(mUniform_BoneTransforms + i, false, ref _identityMatrix);
-                                }*/
+                                Matrix4 tmp = g.BoneTranslationMatrices[meshName][i];
+                                GL.UniformMatrix4(mUniform_BoneTransforms + i, false, ref tmp);
                             }
                         }
-
-                        //useMeshTransform = false;
                     }
                     else
                     {
-                        if (mUniform_UseAnimations >= 0)
-                        {
-                            GL.Uniform1(mUniform_UseAnimations, 0);
-                        }
+                        GL.Uniform1(mUniform_UseAnimations, 0);
                     }
 
 
-                    if (mUniform_SpecularPower >= 0)
+                    if (overrides == null)
+                        GL.Uniform1(mUniform_SpecularPower, mesh.Material.SpecularPower);
+                    else
                     {
-                        if (!g._specularOverride)
+                        bool found = overrides.TryGetValue(GameObject.Override.SpecularPower, out object value);
+                        if (found)
+                            GL.Uniform1(mUniform_SpecularPower, (float)value);
+                        else
                             GL.Uniform1(mUniform_SpecularPower, mesh.Material.SpecularPower);
-                        else
-                            GL.Uniform1(mUniform_SpecularPower, g._specularPowerOverride);
-
-
-
-                    }
-                    if (mUniform_SpecularArea >= 0)
-                    {
-                        if (!g._specularOverride)
-                            GL.Uniform1(mUniform_SpecularArea, mesh.Material.SpecularArea);
-                        else
-                            GL.Uniform1(mUniform_SpecularArea, g._specularAreaOverride);
                     }
 
-                    // Might not be needed because shadow map pass already calculated it:
-                    /*
-                    if (useMeshTransform)
-                        Matrix4.Mult(ref mesh.Transform, ref g._modelMatrix, out _tmpMatrix);
+
+                    if (overrides == null)
+                        GL.Uniform1(mUniform_SpecularArea, mesh.Material.SpecularArea);
                     else
-                        _tmpMatrix = g._modelMatrix;
-                    */
+                    {
+                        bool found = overrides.TryGetValue(GameObject.Override.SpecularArea, out object value);
+                        if(found)
+                            GL.Uniform1(mUniform_SpecularArea, (float)value);
+                        else
+                            GL.Uniform1(mUniform_SpecularArea, mesh.Material.SpecularArea);
+                    }
+                    
+
                     Matrix4.Mult(ref g.ModelMatrixForRenderPass, ref viewProjection, out _modelViewProjection);
                     Matrix4.Transpose(ref g.ModelMatrixForRenderPass, out _normalMatrix);
                     Matrix4.Invert(ref _normalMatrix, out _normalMatrix);
@@ -261,14 +247,10 @@ namespace KWEngine2.Renderers
                     GL.UniformMatrix4(mUniform_NormalMatrix, false, ref _normalMatrix);
                     GL.UniformMatrix4(mUniform_MVP, false, ref _modelViewProjection);
 
-                    
-
                     // Shadow mapping
-                    if (mUniform_MVPShadowMap >= 0)
-                    {
-                        Matrix4 modelViewProjectionMatrixBiased = g.ModelMatrixForRenderPass * viewProjectionShadowBiased;
-                        GL.UniformMatrix4(mUniform_MVPShadowMap, false, ref modelViewProjectionMatrixBiased);
-                    }
+                    Matrix4 modelViewProjectionMatrixBiased = g.ModelMatrixForRenderPass * viewProjectionShadowBiased;
+                    GL.UniformMatrix4(mUniform_MVPShadowMap, false, ref modelViewProjectionMatrixBiased);
+
 
                     if (g._cubeModel != null)
                     {
@@ -279,20 +261,40 @@ namespace KWEngine2.Renderers
                     else
                     {
                         // TODO: Add lightmap feature
-                        if(mUniform_TextureUseLightMap >= 0)
-                        {
-                            GL.Uniform1(mUniform_TextureUseLightMap, 0);
-                        }
+                        GL.Uniform1(mUniform_TextureUseLightMap, 0);
+                        
+                        bool found = false;
+                        object overrideValue = null;
+                        if (overrides != null)
+                            found = overrides.TryGetValue(GameObject.Override.TextureTransform, out overrideValue);
 
-                        GL.Uniform2(mUniform_TextureTransform, mesh.Material.TextureDiffuse.UVTransform.X, mesh.Material.TextureDiffuse.UVTransform.Y);
-                        if (mUniform_Texture >= 0 && mesh.Material.TextureDiffuse.OpenGLID > 0)
+                        if (found)
+                        {
+                            Vector2 uvTransform = (Vector2)overrideValue;
+                            GL.Uniform2(mUniform_TextureTransform, uvTransform.X, uvTransform.Y);
+                        }
+                        else
+                            GL.Uniform2(mUniform_TextureTransform, mesh.Material.TextureDiffuse.UVTransform.X, mesh.Material.TextureDiffuse.UVTransform.Y);
+
+                        // Diffuse texture:
+                        overrideValue = null;
+                        found = false;
+                        int texId = -1;
+                        if (overrides != null)
+                        {
+                            found = overrides.TryGetValue(GameObject.Override.TextureDiffuse, out overrideValue);
+                        }
+                        if (found)
+                            texId = ((GeoTexture)overrideValue).OpenGLID;
+                        else
+                            texId = mesh.Material.TextureDiffuse.OpenGLID;
+
+                        if (texId > 0)
                         {
                             GL.ActiveTexture(TextureUnit.Texture0);
-                            GL.BindTexture(TextureTarget.Texture2D, mesh.Material.TextureDiffuse.OpenGLID);
+                            GL.BindTexture(TextureTarget.Texture2D, texId);
                             GL.Uniform1(mUniform_Texture, 0);
                             GL.Uniform1(mUniform_TextureUse, 1);
-
-                            
                             GL.Uniform3(mUniform_BaseColor, 1f, 1f, 1f);
                         }
                         else
@@ -301,10 +303,21 @@ namespace KWEngine2.Renderers
                             GL.Uniform3(mUniform_BaseColor, mesh.Material.ColorDiffuse.X, mesh.Material.ColorDiffuse.Y, mesh.Material.ColorDiffuse.Z);
                         }
 
-                        if (mUniform_TextureNormalMap >= 0 && mesh.Material.TextureNormal.OpenGLID > 0)
+                        overrideValue = null;
+                        found = false;
+                        texId = -1;
+                        if (overrides != null)
+                        {
+                            found = overrides.TryGetValue(GameObject.Override.TextureNormal, out overrideValue);
+                        }
+                        if (found)
+                            texId = ((GeoTexture)overrideValue).OpenGLID;
+                        else
+                            texId = mesh.Material.TextureNormal.OpenGLID;
+                        if (texId > 0)
                         {
                             GL.ActiveTexture(TextureUnit.Texture1);
-                            GL.BindTexture(TextureTarget.Texture2D, mesh.Material.TextureNormal.OpenGLID);
+                            GL.BindTexture(TextureTarget.Texture2D, texId);
                             GL.Uniform1(mUniform_TextureNormalMap, 1);
                             GL.Uniform1(mUniform_TextureUseNormalMap, 1);
                         }
@@ -313,24 +326,36 @@ namespace KWEngine2.Renderers
                             GL.Uniform1(mUniform_TextureUseNormalMap, 0);
                         }
 
-                        if (mUniform_TextureSpecularMap >= 0 && mesh.Material.TextureSpecular.OpenGLID > 0)
+                        overrideValue = null;
+                        found = false;
+                        texId = -1;
+                        if (overrides != null)
+                        {
+                            found = overrides.TryGetValue(GameObject.Override.TextureSpecular, out overrideValue);
+                        }
+                        if (found)
+                            texId = ((GeoTexture)overrideValue).OpenGLID;
+                        else
+                            texId = mesh.Material.TextureSpecular.OpenGLID;
+                        if (texId > 0)
                         {
                             GL.ActiveTexture(TextureUnit.Texture2);
-                            GL.BindTexture(TextureTarget.Texture2D, mesh.Material.TextureSpecular.OpenGLID);
+                            GL.BindTexture(TextureTarget.Texture2D, texId);
                             GL.Uniform1(mUniform_TextureSpecularMap, 2);
                             GL.Uniform1(mUniform_TextureUseSpecularMap, 1);
-                            if (mesh.Material.TextureSpecularIsRoughness)
-                            {
+                            if (!found && mesh.Material.TextureSpecularIsRoughness)
                                 GL.Uniform1(mUniform_TextureSpecularIsRoughness, mesh.Material.TextureSpecularIsRoughness ? 1 : 0);
-                            }
+                            else
+                                GL.Uniform1(mUniform_TextureSpecularIsRoughness, 0);
                         }
                         else
                         {
                             GL.Uniform1(mUniform_TextureUseSpecularMap, 0);
+                            GL.Uniform1(mUniform_TextureSpecularIsRoughness, 0);
                         }
 
 
-                        if(mUniform_TextureSpecularMap >= 0 && mesh.Material.TextureEmissive.OpenGLID > 0)
+                        if(mesh.Material.TextureEmissive.OpenGLID > 0)
                         {
                             GL.ActiveTexture(TextureUnit.Texture4);
                             GL.BindTexture(TextureTarget.Texture2D, mesh.Material.TextureEmissive.OpenGLID);

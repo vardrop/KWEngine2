@@ -150,9 +150,8 @@ namespace KWEngine2.Model
                 {
                     int[] indices = mesh.GetIndices();
                     List<Vector3D> vertices = mesh.Vertices;
-                    // Override UVs for KWCube:
 
-                    
+                    // Override UVs for KWCube:
                     for (int i = 6; i < values.Length; i++)
                     {
                         values[i] = 1- values[i];
@@ -162,9 +161,6 @@ namespace KWEngine2.Model
                     {
                         values[i] = 1 - values[i];
                     }
-
-
-
                 }
                 else if(isKWCube == 6)
                 {

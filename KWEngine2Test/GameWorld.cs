@@ -45,7 +45,7 @@ namespace KWEngine2Test
             ship.SetModel(GetModel("ship"));
             ship.IsCollisionObject = true;
             ship.IsShadowCaster = false;
-            ship.SetSpecularOverride(true, 0, 1024);
+            //ship.SetSpecularOverride(true, 1, 8192);
             //block.SetTexture(".\\textures\\holland.jpg", KWEngine.CubeSide.All, KWEngine.TextureType.Diffuse);
             //block.SetTextureRepeat(2, 2, KWEngine.CubeSide.All);
             AddGameObject(ship);
