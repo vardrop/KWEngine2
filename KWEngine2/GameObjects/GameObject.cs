@@ -156,11 +156,13 @@ namespace KWEngine2.GameObjects
 
         public void SetScale(float x, float y, float z)
         {
+            CheckModel();
             Scale = new Vector3(x, y, z);
         }
 
         public void SetScale(float scale)
         {
+            CheckModel();
             Scale = new Vector3(scale, scale, scale);
         }
 
@@ -172,6 +174,7 @@ namespace KWEngine2.GameObjects
             }
             set
             {
+                CheckModel();
                 if (value.X > 0 && value.Y > 0 && value.Z > 0)
                 {
                     _scale = value;
@@ -204,7 +207,6 @@ namespace KWEngine2.GameObjects
 
         internal void UpdateModelMatrixAndHitboxes()
         {
-            //_modelMatrix = Matrix4.CreateScale(_scale) * Matrix4.CreateFromQuaternion(Quaternion.FromAxisAngle(KWEngine.WorldUp, _baseRotation)) * Matrix4.CreateFromQuaternion(_rotation) * Matrix4.CreateTranslation(_position);
             _modelMatrix = Matrix4.CreateScale(_scale) * Matrix4.CreateFromQuaternion(_rotation) * Matrix4.CreateTranslation(_position);
             Vector3 sceneCenter = new Vector3(0, 0, 0);
             Vector3 tmpDims = new Vector3(0, 0, 0);
@@ -447,6 +449,7 @@ namespace KWEngine2.GameObjects
 
         public void AddRotation(Quaternion r)
         {
+            CheckModel();
             if (Model.IsTerrain)
             {
                 Debug.WriteLine("Adding rotation for GeoTerrain instance is not supported.");
@@ -459,6 +462,7 @@ namespace KWEngine2.GameObjects
 
         public void AddRotationX(float amount, bool absolute = false)
         {
+            CheckModel();
             if (Model.IsTerrain)
             {
                 Debug.WriteLine("Adding rotation for GeoTerrain instance is not supported.");
@@ -480,6 +484,7 @@ namespace KWEngine2.GameObjects
 
         public void AddRotationY(float amount, bool absolute = false)
         {
+            CheckModel();
             if (Model.IsTerrain)
             {
                 Debug.WriteLine("Adding rotation for GeoTerrain instance is not supported.");
@@ -502,6 +507,7 @@ namespace KWEngine2.GameObjects
 
         public void AddRotationZ(float amount, bool absolute = false)
         {
+            CheckModel();
             if (Model.IsTerrain)
             {
                 Debug.WriteLine("Adding rotation for GeoTerrain instance is not supported.");
@@ -523,6 +529,7 @@ namespace KWEngine2.GameObjects
 
         public void SetPosition(float x, float y, float z)
         {
+            CheckModel();
             SetPosition(new Vector3(x, y, z));
         }
 
@@ -533,7 +540,7 @@ namespace KWEngine2.GameObjects
                 Position = new Vector3(newPosition);
             }
             else
-                throw new Exception("Cannot set position on empty geometry object. Did you assign an instance of GeometryObject to your GameObject?");
+                throw new Exception("Cannot set position on empty model object. Did you assign an instance of GeoModel to your GameObject via SetModel() ?");
 
         }
 
