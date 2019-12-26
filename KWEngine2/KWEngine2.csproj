@@ -64,6 +64,7 @@
     <Compile Include="Helper\HelperCamera.cs" />
     <Compile Include="Helper\HelperFrustum.cs" />
     <Compile Include="Helper\HelperMouseRay.cs" />
+    <Compile Include="Helper\HelperRandom.cs" />
     <Compile Include="Helper\HelperRotation.cs" />
     <Compile Include="Helper\Sector.cs" />
     <Compile Include="KWEngine.cs" />
@@ -93,6 +94,7 @@
     <Compile Include="Renderers\Renderer.cs" />
     <Compile Include="Renderers\RendererBloom.cs" />
     <Compile Include="Renderers\RendererShadow.cs" />
+    <Compile Include="Renderers\RendererExplosion.cs" />
     <Compile Include="Renderers\RendererStandard.cs" />
     <Compile Include="World.cs" />
   </ItemGroup>
@@ -113,7 +115,8 @@
     <EmbeddedResource Include="Shaders\shader_vertex_shadow.glsl" />
     <EmbeddedResource Include="Shaders\shader_fragment_bloom.glsl" />
     <EmbeddedResource Include="Shaders\shader_vertex_bloom.glsl" />
-    <None Include="Shaders\shader_fragment.backup" />
+    <EmbeddedResource Include="Shaders\shader_fragment_explosion.glsl" />
+    <EmbeddedResource Include="Shaders\shader_vertex_explosion.glsl" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

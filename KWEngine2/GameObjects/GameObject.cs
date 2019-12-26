@@ -140,6 +140,25 @@ namespace KWEngine2.GameObjects
             }
         }
 
+        public Quaternion RotationFirstPersonObject
+        {
+            get
+            {
+                if (CurrentWorld != null && CurrentWorld.IsFirstPersonMode && CurrentWorld.GetFirstPersonObject().Equals(this))
+                {
+                    return Quaternion.FromMatrix(HelperCamera.GetViewMatrixInversed());
+                }
+                else
+                    return Rotation;
+                
+            }
+        }
+
+        internal Quaternion GetRotationNoFPSMode()
+        {
+            return _rotation;
+        }
+
         internal Vector3 _sceneCenter = new Vector3(0, 0, 0);
         internal Vector3 _sceneDimensions = new Vector3(0, 0, 0);
         internal float _sceneDiameter = 1;
@@ -362,6 +381,7 @@ namespace KWEngine2.GameObjects
         public Vector3 GetRotationEulerAngles()
         {
             return HelperRotation.ConvertQuaternionToEulerAngles(Rotation);
+            
         }
 
         public void SetRotation(Quaternion rotation)
@@ -847,6 +867,11 @@ namespace KWEngine2.GameObjects
             }
         }
 
+        public long GetCurrentTimeInMilliseconds()
+        {
+            return Stopwatch.GetTimestamp() / TimeSpan.TicksPerMillisecond;
+        }
+
         protected List<Intersection> GetIntersections()
         {
             CheckModelAndWorld(true);
@@ -930,7 +955,7 @@ namespace KWEngine2.GameObjects
         }
         
 
-        public void SetTexture(string texture, CubeSide side, TextureType type = TextureType.Diffuse)
+        public void SetTexture(string texture, CubeSide side = CubeSide.All, TextureType type = TextureType.Diffuse)
         {
             CheckModelAndWorld();
 
@@ -944,11 +969,19 @@ namespace KWEngine2.GameObjects
             }
             else
             {
-                throw new Exception("Cannot set textures for model " + Model.Name + " because it is not a KWCube.");
+                if (Model.Name == "kwsphere.obj" || Model.Name == "kwrect.obj")
+                {
+                    SetTextureForMesh(0, texture, type);
+                }
+                else
+                {
+                    throw new Exception("Cannot set textures for model " + Model.Name + " because it is not a KWCube, KWSphere or KWRect. Use SetTextureForMesh() instead.");
+                }
+                
             }
         }
 
-        public void SetTextureRepeat(float x, float y, CubeSide side)
+        public void SetTextureRepeat(float x, float y, CubeSide side = CubeSide.All)
         {
             CheckModelAndWorld();
 
@@ -968,7 +1001,14 @@ namespace KWEngine2.GameObjects
             }
             else
             {
-                throw new Exception("Cannot set textures for model " + Model.Name + " because it is not a KWCube.");
+                if (Model.Name == "kwsphere.obj" || Model.Name == "kwrect.obj")
+                {
+                    SetTextureRepeatForMesh(0, x, y);
+                }
+                else
+                {
+                    throw new Exception("Cannot set textures for model " + Model.Name + " KWCube, KWSphere or KWRect. Use SetTextureRepeatForMesh() instead.");
+                }
             }
         }
 
@@ -1247,7 +1287,7 @@ namespace KWEngine2.GameObjects
                 
                 if (mesh.Name.ToLower().Contains(meshName.ToLower()))
                 {
-                    SetTextureForModelMesh(id, texture, textureType);
+                    SetTextureForMesh(id, texture, textureType);
                     return;
                 }
 
@@ -1282,7 +1322,7 @@ namespace KWEngine2.GameObjects
             throw new Exception("Mesh id " + meshId + " not found in current model.");
         }
 
-        public void SetTextureForModelMesh(int meshID, string texture, TextureType textureType = TextureType.Diffuse)
+        public void SetTextureForMesh(int meshID, string texture, TextureType textureType = TextureType.Diffuse)
         {
             CheckModel();
             if (_cubeModel != null)

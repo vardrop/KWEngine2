@@ -41,7 +41,27 @@ namespace KWEngine2.Helper
             if (mCurrentGameObject != null)
                 pos.Y += mCurrentGameObject.FPSEyeOffset;
 
-            return Matrix4.LookAt(pos, pos + lookat, Vector3.UnitY);
+            return Matrix4.LookAt(pos, pos + lookat, KWEngine.WorldUp);
+        }
+
+        public static Matrix3 GetViewMatrixInversed()
+        {
+            if(mCurrentGameObject != null)
+            {
+                Vector3 pos = mCurrentGameObject.Position;
+                Vector3 lookat = new Vector3();
+                lookat.X = (float)(Math.Sin((float)mOrientation.X) * Math.Cos((float)mOrientation.Y));
+                lookat.Y = (float)Math.Sin((float)mOrientation.Y);
+                lookat.Z = (float)(Math.Cos((float)mOrientation.X) * Math.Cos((float)mOrientation.Y));
+
+                pos.Y = pos.Y + mCurrentGameObject.FPSEyeOffset;
+
+                return new Matrix3(Matrix4.LookAt(pos, pos - lookat, KWEngine.WorldUp));
+            }
+            else
+            {
+                throw new Exception("No first person object available.");
+            }
         }
 
         /// <summary>
@@ -100,6 +120,17 @@ namespace KWEngine2.Helper
         {
             mCurrentGameObject = fpsObject;
             rotation.ToAxisAngle(out Vector3 yAxis, out float angle);
+            //mOrientation.X = (angle + (float)Math.PI / 2) % ((float)Math.PI * 2);
+            mOrientation.X = angle % ((float)Math.PI * 2);
+            mOrientation.Y = 0;
+            mOrientation.Z = 0;
+
+        }
+
+        internal static void SetStartRotation(GameObject fpsObject)
+        {
+            mCurrentGameObject = fpsObject;
+            fpsObject.GetRotationNoFPSMode().ToAxisAngle(out Vector3 yAxis, out float angle);
             //mOrientation.X = (angle + (float)Math.PI / 2) % ((float)Math.PI * 2);
             mOrientation.X = angle % ((float)Math.PI * 2);
             mOrientation.Y = 0;

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using OpenTK;
 using KWEngine2.Helper;
 using System.Diagnostics;
+using KWEngine2.GameObjects;
 
 namespace KWEngine2
 {
@@ -18,7 +19,7 @@ namespace KWEngine2
 
         internal static int TextureDefault = -1;
         internal static int TextureBlack = -1;
-
+        internal static float TimeElapsed = 0;
 
         public static Dictionary<World, Dictionary<string, int>> CubeTextures { get; internal set; } = new Dictionary<World, Dictionary<string, int>>();
         public enum CubeSide { All, Front, Back, Left, Right, Top, Bottom }
@@ -43,20 +44,27 @@ namespace KWEngine2
 
         internal static void InitializeModels()
         {
-            TextureDefault = HelperTexture.LoadTextureInternal("checkerboard.png");
-            TextureBlack = HelperTexture.LoadTextureInternal("black.png");
+            
 
             Models.Add("KWCube", SceneImporter.LoadModel("kwcube.obj", false, true));
             Models.Add("KWCube6", SceneImporter.LoadModel("kwcube6.obj", false, true));
             Models.Add("KWRect", SceneImporter.LoadModel("kwrect.obj", false, true));
             Models.Add("KWSphere", SceneImporter.LoadModel("kwsphere.obj", false, true));
+
+            for(int i = 0; i < Explosion.Axes.Length; i++)
+            {
+                Explosion.Axes[i] = Vector3.Normalize(Explosion.Axes[i]);
+            }
         }
 
         internal static void InitializeShaders()
         {
+            
+
             Renderers.Add("Standard", new RendererStandard());
             Renderers.Add("Shadow", new RendererShadow());
             Renderers.Add("Bloom", new RendererBloom());
+            Renderers.Add("Explosion", new RendererExplosion());
         }
 
         public static GeoModel GetModel(string name)

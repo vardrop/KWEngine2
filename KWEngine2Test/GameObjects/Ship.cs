@@ -34,6 +34,11 @@ namespace KWEngine2Test.GameObjects
 
                 MoveAndStrafeFirstPerson(forward, strafe, 0.1f);
                 MoveFPSCamera(ms);
+
+                if (ks[Key.Q])
+                    this.MoveOffset(0, -0.1f * deltaTimeFactor, 0);
+                if (ks[Key.E])
+                    this.MoveOffset(0, +0.1f * deltaTimeFactor, 0);
             }
             else
             {
@@ -77,7 +82,7 @@ namespace KWEngine2Test.GameObjects
                 GeoModel shotModel = KWEngine.GetModel("KWCube");
                 Shot s = new Shot();
                 s.SetModel(shotModel);
-                s.SetRotation(Rotation);
+                s.SetRotation(RotationFirstPersonObject);
                 s.SetPosition(Position);
                 CurrentWorld.AddGameObject(s);
 

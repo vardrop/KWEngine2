@@ -13,9 +13,18 @@ namespace KWEngine2Test
 {
     class GameWorld : World
     {
+        private long _timeStamp = 0;
+
         public override void Act(KeyboardState kbs, MouseState ms)
         {
-            
+            long t = GetCurrentTimeInMilliseconds();
+            if (t - _timeStamp > 4000)
+            {
+                Explosion ex = new Explosion(new Vector3(0, 6, 0), 512, 0.25f, 20, 2, ExplosionType.SphereRingY, new Vector4(1, 0, 0, 1f), null);
+                AddGameObject(ex);
+
+                _timeStamp = t;
+            }
         }
 
         public override void Prepare()
@@ -47,7 +56,7 @@ namespace KWEngine2Test
             ship.SetModel(GetModel("ship"));
             ship.IsCollisionObject = true;
             ship.IsShadowCaster = true;
-
+            ship.SetPosition(0, 6, 0);
             //ship.SetSpecularOverride(true, 1, 8192);
             //block.SetTexture(".\\textures\\holland.jpg", KWEngine.CubeSide.All, KWEngine.TextureType.Diffuse);
             //block.SetTextureRepeat(2, 2, KWEngine.CubeSide.All);

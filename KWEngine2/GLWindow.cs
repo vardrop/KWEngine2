@@ -60,7 +60,7 @@ namespace KWEngine2
         /// <param name="antialiasing">FSAA-Wert (Anti-Aliasing)</param>
         /// <param name="vSync">VSync aktivieren</param>
         public GLWindow(int width, int height, GameWindowFlags flag, int antialiasing = 0, bool vSync = true)
-            : base(width, height, GraphicsMode.Default, "KWEngine2 - C# 3D Gaming", flag, DisplayDevice.Default, 4, 5, GraphicsContextFlags.ForwardCompatible, null, false)
+            : base(width, height, GraphicsMode.Default, "KWEngine2 - C# 3D Gaming", flag, DisplayDevice.Default, 4, 5, GraphicsContextFlags.ForwardCompatible, null, true)
         {
             Width = width;
             Height = height;
@@ -172,7 +172,14 @@ namespace KWEngine2
                         {
                             if (g.CurrentWorld.IsFirstPersonMode && g.CurrentWorld.GetFirstPersonObject().Equals(g))
                                 continue;
-                            KWEngine.Renderers["Standard"].Draw(g, ref viewProjection, ref viewProjectionShadowBiased, Frustum, ref LightColors, ref LightTargets, ref LightPositions, CurrentWorld._lightcount);
+                            if (g is Explosion)
+                            {
+                                KWEngine.Renderers["Explosion"].Draw(g, ref viewProjection);
+                            }
+                            else
+                            {
+                                KWEngine.Renderers["Standard"].Draw(g, ref viewProjection, ref viewProjectionShadowBiased, Frustum, ref LightColors, ref LightTargets, ref LightPositions, CurrentWorld._lightcount);
+                            }
                         }
                     }
                     GL.UseProgram(0);
@@ -211,12 +218,16 @@ namespace KWEngine2
 
             lock (CurrentWorld._gameObjects)
             {
-                foreach (GameObject g in CurrentWorld.GetGameObjects())
+                if (CurrentWorld._prepared)
                 {
-                    g.Act(ks, ms, DeltaTime.GetDeltaTimeFactor());
-                    g.ProcessCurrentAnimation();
+                    CurrentWorld.Act(ks, ms);
+                    foreach (GameObject g in CurrentWorld.GetGameObjects())
+                    {
+                        g.Act(ks, ms, DeltaTime.GetDeltaTimeFactor());
+                        g.ProcessCurrentAnimation();
 
-                    g.CheckBounds();
+                        g.CheckBounds();
+                    }
                 }
             }
             CurrentWorld.AddRemoveObjects();
@@ -228,6 +239,7 @@ namespace KWEngine2
             }
 
             DeltaTime.UpdateDeltaTime();
+            KWEngine.TimeElapsed += (float)e.Time;
         }
 
         public bool IsMouseInWindow
@@ -278,6 +290,7 @@ namespace KWEngine2
                 CursorVisible = true;
                 KWEngine.CubeTextures.Add(w, new Dictionary<string, int>());
                 CurrentWorld.Prepare();
+                CurrentWorld._prepared = true;
                 CalculateProjectionMatrix();
                 return;
             }
@@ -288,17 +301,12 @@ namespace KWEngine2
                     if (CurrentWorld != null)
                     {
                         CurrentWorld.Dispose();
-                        Dictionary<string, int> worldTextures = KWEngine.CubeTextures[CurrentWorld];
-                        foreach (int texId in worldTextures.Values)
-                        {
-                            GL.DeleteTexture(texId);
-                        }
-                        KWEngine.CubeTextures.Remove(CurrentWorld);
                     }
                     CursorVisible = true;
                     CurrentWorld = w;
                     KWEngine.CubeTextures.Add(w, new Dictionary<string, int>());
                     CurrentWorld.Prepare();
+                    CurrentWorld._prepared = true;
                     CalculateProjectionMatrix();
                 }
             }

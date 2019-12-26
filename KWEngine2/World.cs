@@ -6,6 +6,7 @@ using OpenTK.Input;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using OpenTK.Graphics.OpenGL4;
 using System.Linq;
 
 namespace KWEngine2
@@ -13,6 +14,7 @@ namespace KWEngine2
     public abstract class World
     {
 
+        internal bool _prepared = false;
         private float _worldDistance = 100;
         public Vector3 WorldCenter { get; set; } = new Vector3(0, 0, 0);
         public float WorldDistance
@@ -49,14 +51,21 @@ namespace KWEngine2
             return _firstPersonObject;
         }
 
+        public long GetCurrentTimeInMilliseconds()
+        {
+            return Stopwatch.GetTimestamp() / TimeSpan.TicksPerMillisecond;
+        }
+
         public void SetFirstPersonObject(GameObject go, float startRotationInDegrees = 0)
         {
             if (go != null)
             {
                 _firstPersonObject = go;
                 CurrentWindow.CursorVisible = false;
+                Mouse.SetPosition(CurrentWindow.X + CurrentWindow.Width / 2, CurrentWindow.Y + CurrentWindow.Height / 2);
                 go.SetRotation(0, startRotationInDegrees, 0);
-                HelperCamera.SetStartRotationY(Quaternion.FromAxisAngle(KWEngine.WorldUp, MathHelper.DegreesToRadians(startRotationInDegrees)), go);
+                HelperCamera.SetStartRotation(go);
+                //HelperCamera.SetStartRotationY(Quaternion.FromAxisAngle(KWEngine.WorldUp, MathHelper.DegreesToRadians(startRotationInDegrees)), go);
             }
             else
             {
@@ -255,6 +264,10 @@ namespace KWEngine2
                         _gameObjects.Add(g);
                         g.CurrentWorld = this;
                         g.UpdateModelMatrixAndHitboxes();
+                        if(g is Explosion)
+                        {
+                            ((Explosion)g)._starttime = Stopwatch.GetTimestamp() / TimeSpan.TicksPerMillisecond;
+                        }
                     }
 
                 }
@@ -349,6 +362,16 @@ namespace KWEngine2
                     m.Dispose();
                 }
                 KWEngine.Models.Clear();
+            }
+
+            if (KWEngine.CubeTextures.ContainsKey(this)) {
+                Dictionary<string, int> dict = KWEngine.CubeTextures[this];
+                foreach(int texId in dict.Values)
+                {
+                    GL.DeleteTexture(texId);
+                }
+                dict.Clear();
+                KWEngine.CubeTextures.Remove(this);
             }
         }
 
