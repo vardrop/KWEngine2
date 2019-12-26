@@ -65,6 +65,8 @@ namespace KWEngine2
             Renderers.Add("Shadow", new RendererShadow());
             Renderers.Add("Bloom", new RendererBloom());
             Renderers.Add("Explosion", new RendererExplosion());
+            Renderers.Add("Background", new RendererBackground());
+            Renderers.Add("Skybox", new RendererSkybox());
         }
 
         public static GeoModel GetModel(string name)
@@ -126,6 +128,14 @@ namespace KWEngine2
             get
             {
                 return GLWindow.CurrentWindow.CurrentWorld;
+            }
+        }
+
+        public static GLWindow CurrentWindow
+        {
+            get
+            {
+                return GLWindow.CurrentWindow;
             }
         }
 

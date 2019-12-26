@@ -77,6 +77,8 @@ namespace KWEngine2Test
             l.SetPosition(0, 3, 0);
             l.SetDistanceMultiplier(2);
             //AddLightObject(l);
+
+            SetTextureSkybox(".\\textures\\skybox1.jpg", 1, 1);
         }
 
     }

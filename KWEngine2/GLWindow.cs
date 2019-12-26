@@ -23,6 +23,7 @@ namespace KWEngine2
 
         public static GLWindow CurrentWindow { get; internal set; }
         internal Matrix4 _viewMatrix = Matrix4.Identity;
+        internal Matrix4 _modelViewProjectionMatrixBackground = Matrix4.Identity;
         internal Matrix4 _modelViewProjectionMatrixBloom = Matrix4.Identity;
         internal Matrix4 _projectionMatrix = Matrix4.Identity;
         internal Matrix4 _projectionMatrixShadow = Matrix4.Identity;
@@ -181,9 +182,24 @@ namespace KWEngine2
                                 KWEngine.Renderers["Standard"].Draw(g, ref viewProjection, ref viewProjectionShadowBiased, Frustum, ref LightColors, ref LightTargets, ref LightPositions, CurrentWorld._lightcount);
                             }
                         }
+                    
+                        GL.UseProgram(0);
+
+
+                        // Background rendering:
+                        if(CurrentWorld._textureBackground > 0)
+                        {
+                            KWEngine.Renderers["Background"].Draw(null, ref _modelViewProjectionMatrixBackground);
+                        }
+                        else if(CurrentWorld._textureSkybox > 0)
+                        {
+                            KWEngine.Renderers["Skybox"].Draw(null, ref _projectionMatrix);
+                        }
+
                     }
-                    GL.UseProgram(0);
                 }
+
+
 
                 DownsampleFramebuffer();
                 ApplyBloom();
@@ -280,6 +296,8 @@ namespace KWEngine2
             _projectionMatrixShadow = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(CurrentWorld != null ? CurrentWorld.FOV / 2 : 45f), Width / (float)Height, 1f, CurrentWorld != null ? CurrentWorld.ZFar : 1000f);
 
             _modelViewProjectionMatrixBloom = Matrix4.CreateScale(Width, Height, 1) * Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographic(Width, Height, 0.1f, 100f);
+
+            _modelViewProjectionMatrixBackground = Matrix4.CreateScale(Width, Height, 1) * Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographic(Width, Height, 0.1f, 100f);
         }
 
         public void SetWorld(World w)

@@ -95,6 +95,46 @@ namespace KWEngine2
             }
         }
 
+        internal int _textureBackground = -1;
+        internal Vector4 _textureBackgroundTint = new Vector4(1, 1, 1, 1);
+        internal Vector2 _textureBackgroundTransform = new Vector2(1, 1);
+        internal int _textureSkybox = -1;
+
+        public void SetTextureBackground(string filename, float repeatX = 1, float repeatY = 1, float red = 1, float green = 1, float blue = 1, float intensity = 1)
+        {
+            if (filename == null || filename.Length < 1)
+            {
+                _textureBackground = -1;
+                _textureBackgroundTint = Vector4.Zero;
+            }
+            else
+            {
+                _textureBackground = HelperTexture.LoadTextureForBackgroundExternal(filename);
+                _textureBackgroundTint.X = HelperGL.Clamp(red, 0, 1);
+                _textureBackgroundTint.Y = HelperGL.Clamp(green, 0, 1);
+                _textureBackgroundTint.Z = HelperGL.Clamp(blue, 0, 1);
+                _textureBackgroundTint.W = HelperGL.Clamp(intensity, 0, 1);
+                _textureBackgroundTransform.X = HelperGL.Clamp(repeatX, 0.001f, 8192);
+                _textureBackgroundTransform.Y = HelperGL.Clamp(repeatY, 0.001f, 8192);
+                _textureSkybox = -1;
+            }
+        }
+
+        public void SetTextureSkybox(string filename, float red = 1, float green = 1, float blue = 1, float intensity = 1)
+        {
+            if (filename == null || filename.Length < 1)
+                _textureSkybox = -1;
+            else
+            {
+                _textureSkybox = HelperTexture.LoadTextureSkybox(filename);
+                _textureBackgroundTint.X = HelperGL.Clamp(red, 0, 1);
+                _textureBackgroundTint.Y = HelperGL.Clamp(green, 0, 1);
+                _textureBackgroundTint.Z = HelperGL.Clamp(blue, 0, 1);
+                _textureBackgroundTint.W = HelperGL.Clamp(intensity, 0, 1);
+                _textureBackground = -1;
+            }
+        }
+
         private List<HUDObject> _hudObjects = new List<HUDObject>();
         private Vector3 _cameraPosition = new Vector3(0, 0, 25);
         private Vector3 _cameraTarget = new Vector3(0, 0, 0);
@@ -264,7 +304,7 @@ namespace KWEngine2
                         _gameObjects.Add(g);
                         g.CurrentWorld = this;
                         g.UpdateModelMatrixAndHitboxes();
-                        if(g is Explosion)
+                        if (g is Explosion)
                         {
                             ((Explosion)g)._starttime = Stopwatch.GetTimestamp() / TimeSpan.TicksPerMillisecond;
                         }
@@ -280,7 +320,7 @@ namespace KWEngine2
                 }
                 _gameObjectsTBR.Clear();
 
-                
+
             }
 
 
@@ -364,9 +404,10 @@ namespace KWEngine2
                 KWEngine.Models.Clear();
             }
 
-            if (KWEngine.CubeTextures.ContainsKey(this)) {
+            if (KWEngine.CubeTextures.ContainsKey(this))
+            {
                 Dictionary<string, int> dict = KWEngine.CubeTextures[this];
-                foreach(int texId in dict.Values)
+                foreach (int texId in dict.Values)
                 {
                     GL.DeleteTexture(texId);
                 }

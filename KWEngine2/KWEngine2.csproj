@@ -92,7 +92,9 @@
     <Compile Include="Model\SceneImporter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Renderers\Renderer.cs" />
+    <Compile Include="Renderers\RendererSkybox.cs" />
     <Compile Include="Renderers\RendererBloom.cs" />
+    <Compile Include="Renderers\RendererBackground.cs" />
     <Compile Include="Renderers\RendererShadow.cs" />
     <Compile Include="Renderers\RendererExplosion.cs" />
     <Compile Include="Renderers\RendererStandard.cs" />
@@ -117,6 +119,10 @@
     <EmbeddedResource Include="Shaders\shader_vertex_bloom.glsl" />
     <EmbeddedResource Include="Shaders\shader_fragment_explosion.glsl" />
     <EmbeddedResource Include="Shaders\shader_vertex_explosion.glsl" />
+    <EmbeddedResource Include="Shaders\shader_fragment_background.glsl" />
+    <EmbeddedResource Include="Shaders\shader_fragment_skybox.glsl" />
+    <EmbeddedResource Include="Shaders\shader_vertex_background.glsl" />
+    <EmbeddedResource Include="Shaders\shader_vertex_skybox.glsl" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
