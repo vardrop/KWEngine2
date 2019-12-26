@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
@@ -20,7 +19,7 @@ namespace KWEngine2
     public abstract class GLWindow : GameWindow
     {
         public World CurrentWorld { get; private set; }
-
+        private GameObject _dummy = null;
         public static GLWindow CurrentWindow { get; internal set; }
         internal Matrix4 _viewMatrix = Matrix4.Identity;
         internal Matrix4 _modelViewProjectionMatrixBackground = Matrix4.Identity;
@@ -102,6 +101,7 @@ namespace KWEngine2
 
             KWEngine.InitializeShaders();
             KWEngine.InitializeModels();
+            KWEngine.InitializeParticles();
 
             _bloomQuad = KWEngine.GetModel("KWRect");
         }
@@ -182,21 +182,27 @@ namespace KWEngine2
                                 KWEngine.Renderers["Standard"].Draw(g, ref viewProjection, ref viewProjectionShadowBiased, Frustum, ref LightColors, ref LightTargets, ref LightPositions, CurrentWorld._lightcount);
                             }
                         }
-                    
-                        GL.UseProgram(0);
-
-
-                        // Background rendering:
-                        if(CurrentWorld._textureBackground > 0)
-                        {
-                            KWEngine.Renderers["Background"].Draw(null, ref _modelViewProjectionMatrixBackground);
-                        }
-                        else if(CurrentWorld._textureSkybox > 0)
-                        {
-                            KWEngine.Renderers["Skybox"].Draw(null, ref _projectionMatrix);
-                        }
-
                     }
+                    GL.UseProgram(0);
+
+                    lock (CurrentWorld._particleObjects)
+                    {
+                        foreach (ParticleObject p in CurrentWorld.GetParticleObjects())
+                            KWEngine.Renderers["Particle"].Draw(p, ref viewProjection);
+                    }
+
+                    // Background rendering:
+                    if(CurrentWorld._textureBackground > 0)
+                    {
+
+                        KWEngine.Renderers["Background"].Draw(_dummy, ref _modelViewProjectionMatrixBackground);
+                    }
+                    else if(CurrentWorld._textureSkybox > 0)
+                    {
+                        KWEngine.Renderers["Skybox"].Draw(_dummy, ref _projectionMatrix);
+                    }
+
+                    
                 }
 
 
@@ -243,6 +249,10 @@ namespace KWEngine2
                         g.ProcessCurrentAnimation();
 
                         g.CheckBounds();
+                    }
+                    foreach(ParticleObject p in CurrentWorld.GetParticleObjects())
+                    {
+                        p.Act();
                     }
                 }
             }

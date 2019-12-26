@@ -93,5 +93,10 @@ namespace KWEngine2.Renderers
             GL.UseProgram(0);
             GL.DepthFunc(DepthFunction.Less);
         }
+
+        internal override void Draw(ParticleObject po, ref Matrix4 viewProjection)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

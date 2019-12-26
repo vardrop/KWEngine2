@@ -20,10 +20,14 @@ namespace KWEngine2Test
             long t = GetCurrentTimeInMilliseconds();
             if (t - _timeStamp > 4000)
             {
-                Explosion ex = new Explosion(new Vector3(0, 6, 0), 512, 0.25f, 20, 2, ExplosionType.SphereRingY, new Vector4(1, 0, 0, 1f), null);
-                AddGameObject(ex);
+                //Explosion ex = new Explosion(new Vector3(0, 6, 0), 512, 0.25f, 20, 2, ExplosionType.SphereRingY, new Vector4(1, 0, 0, 1f), null);
+                //AddGameObject(ex);
 
                 _timeStamp = t;
+
+                ParticleObject p = new ParticleObject(new Vector3(0, 0, 0), new Vector3(5, 5, 5), ParticleType.BurstFire1);
+                AddParticleObject(p);
+
             }
         }
 

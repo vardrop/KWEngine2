@@ -61,11 +61,13 @@
     <Compile Include="GameObjects\Explosion.cs" />
     <Compile Include="GameObjects\HUDObject.cs" />
     <Compile Include="GameObjects\LightObject.cs" />
+    <Compile Include="GameObjects\ParticleObject.cs" />
     <Compile Include="Helper\HelperCamera.cs" />
     <Compile Include="Helper\HelperFrustum.cs" />
     <Compile Include="Helper\HelperMouseRay.cs" />
     <Compile Include="Helper\HelperRandom.cs" />
     <Compile Include="Helper\HelperRotation.cs" />
+    <Compile Include="Helper\ParticleInfo.cs" />
     <Compile Include="Helper\Sector.cs" />
     <Compile Include="KWEngine.cs" />
     <Compile Include="GameObjects\GameObject.cs" />
@@ -92,6 +94,7 @@
     <Compile Include="Model\SceneImporter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Renderers\Renderer.cs" />
+    <Compile Include="Renderers\RendererParticle.cs" />
     <Compile Include="Renderers\RendererSkybox.cs" />
     <Compile Include="Renderers\RendererBloom.cs" />
     <Compile Include="Renderers\RendererBackground.cs" />
@@ -123,10 +126,29 @@
     <EmbeddedResource Include="Shaders\shader_fragment_skybox.glsl" />
     <EmbeddedResource Include="Shaders\shader_vertex_background.glsl" />
     <EmbeddedResource Include="Shaders\shader_vertex_skybox.glsl" />
+    <EmbeddedResource Include="Shaders\shader_fragment_particle.glsl" />
+    <EmbeddedResource Include="Shaders\shader_vertex_particle.glsl" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
     <Content Include="Assets\readme.txt" />
+    <EmbeddedResource Include="Assets\Textures\fire01.png" />
+    <EmbeddedResource Include="Assets\Textures\fire02.png" />
+    <EmbeddedResource Include="Assets\Textures\fire03.png" />
+    <EmbeddedResource Include="Assets\Textures\fire04.png" />
+    <EmbeddedResource Include="Assets\Textures\particleburst_bubbles.png" />
+    <EmbeddedResource Include="Assets\Textures\particleburst_bubbles_unicolor.png" />
+    <EmbeddedResource Include="Assets\Textures\particleburst_explosioncolored.png" />
+    <EmbeddedResource Include="Assets\Textures\particleburst_firework.png" />
+    <EmbeddedResource Include="Assets\Textures\particleburst_hearts.png" />
+    <EmbeddedResource Include="Assets\Textures\particleburst_plusplusplus.png" />
+    <EmbeddedResource Include="Assets\Textures\particleburst_shield.png" />
+    <EmbeddedResource Include="Assets\Textures\particleburst_teleport1.png" />
+    <EmbeddedResource Include="Assets\Textures\particleburst_teleport2.png" />
+    <EmbeddedResource Include="Assets\Textures\particleburst_teleport3.png" />
+    <EmbeddedResource Include="Assets\Textures\smoke01.png" />
+    <EmbeddedResource Include="Assets\Textures\smoke02.png" />
+    <EmbeddedResource Include="Assets\Textures\smoke03.png" />
     <EmbeddedResource Include="Assets\Textures\checkerboard.png" />
     <EmbeddedResource Include="Assets\Textures\black.png" />
     <Content Include="Assets\Textures\readme.txt" />

@@ -78,12 +78,15 @@ namespace KWEngine2
 
         internal List<GameObject> _gameObjects = new List<GameObject>();
         internal List<LightObject> _lightObjects = new List<LightObject>();
+        internal List<ParticleObject> _particleObjects = new List<ParticleObject>();
 
         internal List<GameObject> _gameObjectsTBA = new List<GameObject>();
         internal List<LightObject> _lightObjectsTBA = new List<LightObject>();
+        internal List<ParticleObject> _particleObjectsTBA = new List<ParticleObject>();
 
         internal List<GameObject> _gameObjectsTBR = new List<GameObject>();
         internal List<LightObject> _lightObjectsTBR = new List<LightObject>();
+        internal List<ParticleObject> _particleObjectsTBR = new List<ParticleObject>();
 
 
         internal int _lightcount = 0;
@@ -141,7 +144,6 @@ namespace KWEngine2
                 else
                 {
                     _textureSkybox = HelperTexture.LoadTextureSkybox(filename);
-                    KWEngine.CustomTextures[this].Add(filename, _textureSkybox);
                 }
                 _textureBackgroundTint.X = HelperGL.Clamp(red, 0, 1);
                 _textureBackgroundTint.Y = HelperGL.Clamp(green, 0, 1);
@@ -162,11 +164,6 @@ namespace KWEngine2
 
         private float _fov = 45f;
         private float _zFar = 1000f;
-
-        public IReadOnlyCollection<LightObject> GetLightObjects()
-        {
-            return _lightObjects.AsReadOnly();
-        }
 
         public GLWindow CurrentWindow
         {
@@ -339,6 +336,25 @@ namespace KWEngine2
 
             }
 
+            lock (_particleObjects)
+            {
+                foreach (ParticleObject g in _particleObjectsTBA)
+                {
+                    if (!_particleObjects.Contains(g))
+                    {
+                        g._starttime = Stopwatch.GetTimestamp() / TimeSpan.TicksPerMillisecond;
+                        _particleObjects.Add(g);
+                    }
+                }
+                _particleObjectsTBA.Clear();
+
+                foreach (ParticleObject g in _particleObjectsTBR)
+                {
+                    _particleObjects.Remove(g);
+                }
+                _particleObjectsTBR.Clear();
+            }
+
 
             lock (_lightObjects)
             {
@@ -362,6 +378,12 @@ namespace KWEngine2
                 _lightcount = _lightObjects.Count;
             }
         }
+
+        internal List<ParticleObject> GetParticleObjects()
+        {
+            return _particleObjects;
+        }
+
 
         public void AddLightObject(LightObject l)
         {
@@ -394,6 +416,23 @@ namespace KWEngine2
             }
 
         }
+
+        public void AddParticleObject(ParticleObject g)
+        {
+            lock (_particleObjects)
+            {
+                if (!_particleObjects.Contains(g))
+                {
+                    _particleObjectsTBA.Add(g);
+                }
+            }
+        }
+
+        internal void RemoveParticleObject(ParticleObject g)
+        {
+            _particleObjectsTBR.Add(g);
+        }
+
 
         public void RemoveGameObject(GameObject g)
         {
@@ -438,6 +477,16 @@ namespace KWEngine2
             lock (_gameObjects)
             {
                 returnCollection = _gameObjects.AsReadOnly();
+            }
+            return returnCollection;
+        }
+
+        public IReadOnlyCollection<LightObject> GetLightObjects()
+        {
+            IReadOnlyCollection<LightObject> returnCollection = null;
+            lock (_lightObjects)
+            {
+                returnCollection = _lightObjects.AsReadOnly();
             }
             return returnCollection;
         }

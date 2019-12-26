@@ -11,6 +11,7 @@ namespace KWEngine2.GameObjects
     public abstract class LightObject
     {
 
+        public string Name { get; set; } = "undefined light object.";
         public LightType Type { get; private set; }
         private Vector4 Color { get; set; }
         internal World World { get; set; }

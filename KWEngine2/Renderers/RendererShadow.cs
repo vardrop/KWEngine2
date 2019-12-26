@@ -124,5 +124,10 @@ namespace KWEngine2.Renderers
         {
             throw new NotImplementedException();
         }
+
+        internal override void Draw(ParticleObject po, ref Matrix4 viewProjection)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -21,6 +21,8 @@ namespace KWEngine2
         internal static int TextureBlack = -1;
         internal static float TimeElapsed = 0;
 
+        internal static Dictionary<ParticleType, ParticleInfo> ParticleDictionary = new Dictionary<ParticleType, ParticleInfo>();
+
         public static Dictionary<World, Dictionary<string, int>> CustomTextures { get; internal set; } = new Dictionary<World, Dictionary<string, int>>();
         public enum CubeSide { All, Front, Back, Left, Right, Top, Bottom }
         public enum TextureType { Diffuse, Normal, Specular };
@@ -44,8 +46,6 @@ namespace KWEngine2
 
         internal static void InitializeModels()
         {
-            
-
             Models.Add("KWCube", SceneImporter.LoadModel("kwcube.obj", false, true));
             Models.Add("KWCube6", SceneImporter.LoadModel("kwcube6.obj", false, true));
             Models.Add("KWRect", SceneImporter.LoadModel("kwrect.obj", false, true));
@@ -59,14 +59,78 @@ namespace KWEngine2
 
         internal static void InitializeShaders()
         {
-            
-
             Renderers.Add("Standard", new RendererStandard());
             Renderers.Add("Shadow", new RendererShadow());
             Renderers.Add("Bloom", new RendererBloom());
             Renderers.Add("Explosion", new RendererExplosion());
             Renderers.Add("Background", new RendererBackground());
             Renderers.Add("Skybox", new RendererSkybox());
+            Renderers.Add("Particle", new RendererParticle());
+
+        }
+
+        internal static void InitializeParticles()
+        {
+            int tex;
+            
+            // Bursts:
+            tex = HelperTexture.LoadTextureInternal("fire01.png");
+            ParticleDictionary.Add(ParticleType.BurstFire1, new ParticleInfo(tex, 8, 64));
+
+            tex = HelperTexture.LoadTextureInternal("fire02.png");
+            ParticleDictionary.Add(ParticleType.BurstFire2, new ParticleInfo(tex, 7, 49));
+
+            tex = HelperTexture.LoadTextureInternal("fire03.png");
+            ParticleDictionary.Add(ParticleType.BurstFire3, new ParticleInfo(tex, 9, 81));
+
+            tex = HelperTexture.LoadTextureInternal("fire04.png");
+            ParticleDictionary.Add(ParticleType.BurstElecricity1, new ParticleInfo(tex, 4, 16));
+
+            tex = HelperTexture.LoadTextureInternal("particleburst_bubbles.png");
+            ParticleDictionary.Add(ParticleType.BurstBubblesColored, new ParticleInfo(tex, 6, 36));
+
+            tex = HelperTexture.LoadTextureInternal("particleburst_bubbles_unicolor.png");
+            ParticleDictionary.Add(ParticleType.BurstBubblesMonochrome, new ParticleInfo(tex, 6, 36));
+
+            tex = HelperTexture.LoadTextureInternal("particleburst_explosioncolored.png");
+            ParticleDictionary.Add(ParticleType.BurstFirework1, new ParticleInfo(tex, 7, 49));
+
+            tex = HelperTexture.LoadTextureInternal("particleburst_firework.png");
+            ParticleDictionary.Add(ParticleType.BurstFirework2, new ParticleInfo(tex, 7, 49));
+
+            tex = HelperTexture.LoadTextureInternal("particleburst_hearts.png");
+            ParticleDictionary.Add(ParticleType.BurstHearts, new ParticleInfo(tex, 7, 49));
+
+            tex = HelperTexture.LoadTextureInternal("particleburst_plusplusplus.png");
+            ParticleDictionary.Add(ParticleType.BurstOneUps, new ParticleInfo(tex, 6, 36));
+
+            tex = HelperTexture.LoadTextureInternal("particleburst_shield.png");
+            ParticleDictionary.Add(ParticleType.BurstShield, new ParticleInfo(tex, 6, 36));
+
+            tex = HelperTexture.LoadTextureInternal("particleburst_teleport1.png");
+            ParticleDictionary.Add(ParticleType.BurstTeleport1, new ParticleInfo(tex, 4, 16));
+
+            tex = HelperTexture.LoadTextureInternal("particleburst_teleport2.png");
+            ParticleDictionary.Add(ParticleType.BurstTeleport2, new ParticleInfo(tex, 4, 16));
+
+            tex = HelperTexture.LoadTextureInternal("particleburst_teleport3.png");
+            ParticleDictionary.Add(ParticleType.BurstTeleport3, new ParticleInfo(tex, 4, 16));
+
+            // Loops:
+
+            tex = HelperTexture.LoadTextureInternal("smoke01.png");
+            ParticleDictionary.Add(ParticleType.LoopSmoke1, new ParticleInfo(tex, 4, 16));
+
+            tex = HelperTexture.LoadTextureInternal("smoke02.png");
+            ParticleDictionary.Add(ParticleType.LoopSmoke2, new ParticleInfo(tex, 7, 46));
+
+            tex = HelperTexture.LoadTextureInternal("smoke03.png");
+            ParticleDictionary.Add(ParticleType.LoopSmoke3, new ParticleInfo(tex, 6, 32));
+        }
+
+        public static long GetCurrentTimeInMilliseconds()
+        {
+            return Stopwatch.GetTimestamp() / TimeSpan.TicksPerMillisecond;
         }
 
         public static GeoModel GetModel(string name)

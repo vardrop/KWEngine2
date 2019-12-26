@@ -125,6 +125,30 @@ namespace KWEngine2.Helper
 
             return finalTranslationPoint;
         }
+/*
+        public static Quaternion GetRotationForPoint(Vector3 source, Vector3 target)
+        {
+            Matrix4 lookat = Matrix4.LookAt(source, target, KWEngine.WorldUp);
+            lookat.Transpose();
+            lookat.Invert();
+            //Quaternion rotation = Quaternion.FromAxisAngle(KWEngine.WorldUp, (float)-Math.PI) * Quaternion.FromMatrix(new Matrix3(lookat));
+            return Quaternion.FromAxisAngle(KWEngine.WorldUp, (float)Math.PI * 1.5f) * Quaternion.FromMatrix(new Matrix3(lookat));
+        }
+  */      
+        public static Matrix4 GetRotationForPoint(Vector3 source, Vector3 target)
+        {
+            Matrix4 lookAt = Matrix4.LookAt(source, target, KWEngine.WorldUp);
+            lookAt.Transpose();
+            lookAt.Invert();
+
+            Quaternion newRotation = Quaternion.FromMatrix(new Matrix3(lookAt));
+            //Quaternion quarterRotation = Quaternion.FromAxisAngle(Vector3.UnitY, (float)Math.PI / -2.0f);
+            //newRotation = newRotation * quarterRotation;
+            return Matrix4.CreateFromQuaternion(newRotation);
+
+            //return mOldRotationMatrix;
+        }
+
 
     }
 }

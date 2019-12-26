@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace KWEngine2.GameObjects
 {
-    public class HUDObject
+    public struct HUDObject
     {
     }
 }
