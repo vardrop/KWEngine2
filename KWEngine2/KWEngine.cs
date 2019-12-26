@@ -21,7 +21,7 @@ namespace KWEngine2
         internal static int TextureBlack = -1;
         internal static float TimeElapsed = 0;
 
-        public static Dictionary<World, Dictionary<string, int>> CubeTextures { get; internal set; } = new Dictionary<World, Dictionary<string, int>>();
+        public static Dictionary<World, Dictionary<string, int>> CustomTextures { get; internal set; } = new Dictionary<World, Dictionary<string, int>>();
         public enum CubeSide { All, Front, Back, Left, Right, Top, Bottom }
         public enum TextureType { Diffuse, Normal, Specular };
         public static Vector3 WorldUp
@@ -173,7 +173,7 @@ namespace KWEngine2
             texDiffuse.UVMapIndex = 0;
             texDiffuse.UVTransform = new Vector2(texRepeatX, texRepeatZ);
 
-            bool dictFound = CubeTextures.TryGetValue(CurrentWorld, out Dictionary<string, int> texDict);
+            bool dictFound = CustomTextures.TryGetValue(CurrentWorld, out Dictionary<string, int> texDict);
 
             if (dictFound && texDict.ContainsKey(texture))
             {

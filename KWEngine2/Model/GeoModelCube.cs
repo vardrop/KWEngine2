@@ -117,9 +117,9 @@ namespace KWEngine2.Model
         {
             int texAll = -1;
            
-            if (KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld].ContainsKey(texture))
+            if (KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld].ContainsKey(texture))
             {
-                    texAll = KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld][texture];
+                    texAll = KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld][texture];
             }
             else
             {
@@ -159,17 +159,17 @@ namespace KWEngine2.Model
         private void SetTextureFront(string texture, TextureType type)
         {
             int texId = -1;
-            if (CubeTextures[GLWindow.CurrentWindow.CurrentWorld].ContainsKey(texture))
+            if (CustomTextures[GLWindow.CurrentWindow.CurrentWorld].ContainsKey(texture))
             {
                 
-                    texId = KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld][texture];
+                    texId = KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld][texture];
             }
             else
             {
                
                     texId = HelperTexture.LoadTextureForModelExternal(texture);
 
-                KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld].Add(texture, texId);
+                KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld].Add(texture, texId);
             }
 
             if(type == TextureType.Diffuse)
@@ -186,17 +186,17 @@ namespace KWEngine2.Model
         private void SetTextureBack(string texture, TextureType type)
         {
             int texId = -1;
-            if (KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld].ContainsKey(texture))
+            if (KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld].ContainsKey(texture))
             {
                
-                    texId = KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld][texture];
+                    texId = KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld][texture];
             }
             else
             {
                
                     texId = HelperTexture.LoadTextureForModelExternal(texture);
 
-                KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld].Add(texture, texId);
+                KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld].Add(texture, texId);
             }
 
             if (type == TextureType.Diffuse)
@@ -210,17 +210,17 @@ namespace KWEngine2.Model
         private void SetTextureLeft(string texture, TextureType type)
         {
             int texId = -1;
-            if (KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld].ContainsKey(texture))
+            if (KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld].ContainsKey(texture))
             {
                
-                    texId = KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld][texture];
+                    texId = KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld][texture];
             }
             else
             {
                
                     texId = HelperTexture.LoadTextureForModelExternal(texture);
 
-                KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld].Add(texture, texId);
+                KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld].Add(texture, texId);
             }
 
             if (type == TextureType.Diffuse)
@@ -234,17 +234,17 @@ namespace KWEngine2.Model
         private void SetTextureRight(string texture, TextureType type)
         {
             int texId = -1;
-            if (KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld].ContainsKey(texture))
+            if (KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld].ContainsKey(texture))
             {
                 
-                    texId = KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld][texture];
+                    texId = KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld][texture];
             }
             else
             {
                 
                     texId = HelperTexture.LoadTextureForModelExternal(texture);
 
-                KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld].Add(texture, texId);
+                KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld].Add(texture, texId);
             }
 
             if (type == TextureType.Diffuse)
@@ -258,14 +258,14 @@ namespace KWEngine2.Model
         private void SetTextureTop(string texture, TextureType type)
         {
             int texId = -1;
-            if (KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld].ContainsKey(texture))
+            if (KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld].ContainsKey(texture))
             {
-                texId = KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld][texture];
+                texId = KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld][texture];
             }
             else
             {
                 texId = HelperTexture.LoadTextureForModelExternal(texture);
-                KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld].Add(texture, texId);
+                KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld].Add(texture, texId);
             }
 
             if (type == TextureType.Diffuse)
@@ -279,9 +279,9 @@ namespace KWEngine2.Model
         private void SetTextureBottom(string texture, TextureType type)
         {
             int texId = -1;
-            if (KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld].ContainsKey(texture))
+            if (KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld].ContainsKey(texture))
             {
-                texId = KWEngine.CubeTextures[GLWindow.CurrentWindow.CurrentWorld][texture];
+                texId = KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld][texture];
             }
             else
             {

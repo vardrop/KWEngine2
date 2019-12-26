@@ -109,7 +109,15 @@ namespace KWEngine2
             }
             else
             {
-                _textureBackground = HelperTexture.LoadTextureForBackgroundExternal(filename);
+                if (KWEngine.CustomTextures[this].ContainsKey(filename))
+                {
+                    _textureBackground = KWEngine.CustomTextures[this][filename];
+                }
+                else
+                {
+                    _textureBackground = HelperTexture.LoadTextureForBackgroundExternal(filename);
+                    KWEngine.CustomTextures[this].Add(filename, _textureBackground);
+                }
                 _textureBackgroundTint.X = HelperGL.Clamp(red, 0, 1);
                 _textureBackgroundTint.Y = HelperGL.Clamp(green, 0, 1);
                 _textureBackgroundTint.Z = HelperGL.Clamp(blue, 0, 1);
@@ -126,7 +134,15 @@ namespace KWEngine2
                 _textureSkybox = -1;
             else
             {
-                _textureSkybox = HelperTexture.LoadTextureSkybox(filename);
+                if (KWEngine.CustomTextures[this].ContainsKey(filename))
+                {
+                    _textureSkybox = KWEngine.CustomTextures[this][filename];
+                }
+                else
+                {
+                    _textureSkybox = HelperTexture.LoadTextureSkybox(filename);
+                    KWEngine.CustomTextures[this].Add(filename, _textureSkybox);
+                }
                 _textureBackgroundTint.X = HelperGL.Clamp(red, 0, 1);
                 _textureBackgroundTint.Y = HelperGL.Clamp(green, 0, 1);
                 _textureBackgroundTint.Z = HelperGL.Clamp(blue, 0, 1);
@@ -404,15 +420,15 @@ namespace KWEngine2
                 KWEngine.Models.Clear();
             }
 
-            if (KWEngine.CubeTextures.ContainsKey(this))
+            if (KWEngine.CustomTextures.ContainsKey(this))
             {
-                Dictionary<string, int> dict = KWEngine.CubeTextures[this];
+                Dictionary<string, int> dict = KWEngine.CustomTextures[this];
                 foreach (int texId in dict.Values)
                 {
                     GL.DeleteTexture(texId);
                 }
                 dict.Clear();
-                KWEngine.CubeTextures.Remove(this);
+                KWEngine.CustomTextures.Remove(this);
             }
         }
 

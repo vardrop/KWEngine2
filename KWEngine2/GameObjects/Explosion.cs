@@ -105,7 +105,7 @@ namespace KWEngine2.GameObjects
             bool textureFound = false;
             if (texture != null && texture.Length > 0)
             {
-                textureFound = KWEngine.CubeTextures[w].TryGetValue(texture, out texId);
+                textureFound = KWEngine.CustomTextures[w].TryGetValue(texture, out texId);
             }
             if(textureFound)
                 _textureId = texId;
@@ -113,7 +113,7 @@ namespace KWEngine2.GameObjects
             {
                 _textureId = HelperTexture.LoadTextureForModelExternal(texture);
                 if (_textureId > 0)
-                    KWEngine.CubeTextures[w].Add(texture, _textureId);
+                    KWEngine.CustomTextures[w].Add(texture, _textureId);
             }
         }
 

@@ -178,7 +178,7 @@ namespace KWEngine2.Helper
             if (!filename.ToLower().EndsWith("jpg") && !filename.ToLower().EndsWith("jpeg") && !filename.ToLower().EndsWith("png"))
                 throw new Exception("Only JPG and PNG files are supported.");
 
-            if (!KWEngine.CubeTextures[KWEngine.CurrentWorld].ContainsKey(filename))
+            if (!KWEngine.CustomTextures[KWEngine.CurrentWorld].ContainsKey(filename))
             {
                 try
                 {
@@ -295,7 +295,7 @@ namespace KWEngine2.Helper
                         GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
                         GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
 
-                        KWEngine.CubeTextures[KWEngine.CurrentWorld].Add(filename, newTexture);
+                        KWEngine.CustomTextures[KWEngine.CurrentWorld].Add(filename, newTexture);
 
                         image.Dispose();
                         image_front.Dispose();
@@ -318,7 +318,7 @@ namespace KWEngine2.Helper
             else
             {
                 int id = -1;
-                KWEngine.CubeTextures[KWEngine.CurrentWorld].TryGetValue(filename, out id);
+                KWEngine.CustomTextures[KWEngine.CurrentWorld].TryGetValue(filename, out id);
                 return id;
             }
         }

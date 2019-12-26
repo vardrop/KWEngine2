@@ -306,7 +306,7 @@ namespace KWEngine2
             {
                 CurrentWorld = w;
                 CursorVisible = true;
-                KWEngine.CubeTextures.Add(w, new Dictionary<string, int>());
+                KWEngine.CustomTextures.Add(w, new Dictionary<string, int>());
                 CurrentWorld.Prepare();
                 CurrentWorld._prepared = true;
                 CalculateProjectionMatrix();
@@ -322,7 +322,7 @@ namespace KWEngine2
                     }
                     CursorVisible = true;
                     CurrentWorld = w;
-                    KWEngine.CubeTextures.Add(w, new Dictionary<string, int>());
+                    KWEngine.CustomTextures.Add(w, new Dictionary<string, int>());
                     CurrentWorld.Prepare();
                     CurrentWorld._prepared = true;
                     CalculateProjectionMatrix();
