@@ -17,6 +17,8 @@ namespace KWEngine2.Helper
         private static Matrix4 spinMatrix = Matrix4.Identity;
         private static Vector3 finalTranslationPoint = Vector3.Zero;
         private static Vector3 zeroVector = Vector3.Zero;
+        private static Quaternion Turn180 = Quaternion.FromAxisAngle(KWEngine.WorldUp, (float)Math.PI);
+
 
         public static float CalculateRadiansFromDegrees(float degrees)
         {
@@ -128,14 +130,12 @@ namespace KWEngine2.Helper
 
         public static Quaternion GetRotationForPoint(Vector3 source, Vector3 target)
         {
+            target.X += 0.000001f;
             Matrix4 lookAt = Matrix4.LookAt(source, target, KWEngine.WorldUp);
             lookAt.Transpose();
             lookAt.Invert();
 
-            Quaternion newRotation = Quaternion.FromMatrix(new Matrix3(lookAt));
-            return newRotation;
+            return Quaternion.FromMatrix(new Matrix3(lookAt)) * Turn180;
         }
-
-
     }
 }

@@ -14,7 +14,7 @@ namespace KWEngine2Test
     class GameWorld : World
     {
         private long _timeStamp = 0;
-
+        public Ship ship;
         public override void Act(KeyboardState kbs, MouseState ms)
         {
             long t = GetCurrentTimeInMilliseconds();
@@ -39,13 +39,14 @@ namespace KWEngine2Test
             SetCameraPosition(0, 10, 10);
             SetCameraTarget(0, 0, 0);
 
-            KWEngine.LoadModelFromFile("rect", @".\Models\cubemattest\cubemattest.obj");
+            KWEngine.LoadModelFromFile("rect", @".\Models\spaceship\spaceship5z.obj");
             KWEngine.LoadModelFromFile("ship", @".\Models\roboters\roboters.fbx");
             KWEngine.BuildTerrainModel("terraX", ".\\textures\\heightmap.png", ".\\textures\\asphalt.jpg", 50, 5, 50, 1, 1);
             
             Building go = new Building();
             go.SetModel(GetModel("rect"));
             go.SetPosition(0, 0, 0);
+            go.SetTextureForMesh(0, ".\\models\\spaceship\\spaceship5.jpg");
             go.SetScale(1);
             //go.AddRotationY(0);
             //go.SetGlow(1, 0, 0, 1);
@@ -58,7 +59,7 @@ namespace KWEngine2Test
             
             
             
-            Ship ship = new Ship();
+            ship = new Ship();
             ship.SetModel(GetModel("ship"));
             ship.IsCollisionObject = true;
             ship.IsShadowCaster = true;

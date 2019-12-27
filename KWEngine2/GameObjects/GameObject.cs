@@ -4,6 +4,7 @@ using KWEngine2.Model;
 using OpenTK;
 using OpenTK.Input;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
 using static KWEngine2.KWEngine;
@@ -18,6 +19,7 @@ namespace KWEngine2.GameObjects
         public float FPSEyeOffset { get; set; } = 0;
         public bool IsAffectedBySun { get; set; } = true;
         public World CurrentWorld { get; internal set; } = null;
+        private static Quaternion Turn180 = Quaternion.FromAxisAngle(KWEngine.WorldUp, (float)Math.PI);
 
         private IReadOnlyCollection<string> _meshNameList;
 
@@ -602,7 +604,7 @@ namespace KWEngine2.GameObjects
             {
                 Vector3 standardOrientation = Vector3.UnitZ;
                 Vector3 rotatedNormal = Vector3.TransformNormal(standardOrientation, _modelMatrix);
-                rotatedNormal.NormalizeFast();
+                //rotatedNormal.NormalizeFast();
                 return rotatedNormal;
             }
         }
@@ -1121,16 +1123,16 @@ namespace KWEngine2.GameObjects
             Vector3 dir = target - GetGameObjectCenterPoint();
             if (dir.LengthFast < 0.1f)
                 return;
-          
-            Matrix4 lookat = Matrix4.LookAt(GetGameObjectCenterPoint(), target, -GetCameraLookAtVector());
+            target.Z += 0.00001f;          
+            Matrix4 lookat = Matrix4.LookAt(GetGameObjectCenterPoint(), target, KWEngine.WorldUp);
             lookat.Transpose();
             lookat.Invert();
-            Rotation = Quaternion.FromAxisAngle(KWEngine.WorldUp, (float)Math.PI) * Quaternion.FromMatrix(new Matrix3(lookat));
+            Rotation = Quaternion.FromMatrix(new Matrix3(lookat)) * Turn180;
         }
 
         public void TurnTowardsXY(float targetX, float targetY)
         {
-            Vector3 target = new Vector3(targetX, targetY, GetGameObjectCenterPoint().Z);
+            Vector3 target = new Vector3(targetX, targetY, 0);
             TurnTowardsXY(target);
         }
 
@@ -1142,15 +1144,14 @@ namespace KWEngine2.GameObjects
         public void TurnTowardsXY(Vector3 target)
         {
             target.Z = GetGameObjectCenterPoint().Z;
-            if ((target - Position).LengthFast < 0.1f)
+            if ((target - Position).LengthFast < 0.00001f)
                 return;
 
+            target.X += 0.000001f;
             Matrix4 lookat = Matrix4.LookAt(GetGameObjectCenterPoint(), target, Vector3.UnitZ);
             lookat.Transpose();
             lookat.Invert();
-            Quaternion newRotation = Quaternion.FromMatrix(new Matrix3(lookat));
-            newRotation *= Quaternion.FromAxisAngle(Vector3.UnitY, (float)Math.PI);
-            Rotation = newRotation;
+            Rotation = Quaternion.FromMatrix(new Matrix3(lookat)) * Turn180;
         }
 
         /// <summary>
@@ -1161,7 +1162,7 @@ namespace KWEngine2.GameObjects
         /// <param name="targetZ">Zielkoordinate der z-Achse</param>
         public void TurnTowardsXZ(float targetX, float targetZ)
         {
-            Vector3 target = new Vector3(targetX, GetGameObjectCenterPoint().Y, targetZ);
+            Vector3 target = new Vector3(targetX, 0, targetZ);
             TurnTowardsXZ(target);
         }
 
@@ -1174,15 +1175,14 @@ namespace KWEngine2.GameObjects
         {
             Vector3 currentPos = GetGameObjectCenterPoint();
             target.Y = currentPos.Y;
-            if ((target - currentPos).LengthFast < 0.1f)
+            if ((target - currentPos).LengthFast < 0.0001f)
                 return;
 
-            Matrix4 lookat = Matrix4.LookAt(GetGameObjectCenterPoint(), target, Vector3.UnitY);
+            target.X += 0.000001f;
+            Matrix4 lookat = Matrix4.LookAt(currentPos, target, Vector3.UnitY);
             lookat.Transpose();
             lookat.Invert();
-            Quaternion newRotation = Quaternion.FromMatrix(new Matrix3(lookat));
-            newRotation *= Quaternion.FromAxisAngle(Vector3.UnitY, (float)Math.PI);
-            Rotation = newRotation;
+            Rotation = Quaternion.FromMatrix(new Matrix3(lookat)) * Turn180;
         }
 
         public bool IsInsideScreenSpace
@@ -1284,13 +1284,11 @@ namespace KWEngine2.GameObjects
             int id = 0;
             foreach (GeoMesh mesh in Model.Meshes.Values)
             {
-                
                 if (mesh.Name.ToLower().Contains(meshName.ToLower()))
                 {
                     SetTextureForMesh(id, texture, textureType);
                     return;
                 }
-
                 id++;
             }
             throw new Exception("Mesh with name " + meshName + " not found.");
@@ -1306,20 +1304,12 @@ namespace KWEngine2.GameObjects
                 return;
             }
 
-            int counter = 0;
-            foreach (GeoMesh mesh in Model.Meshes.Values)
+            GeoMesh mesh = Model.Meshes.Values.ElementAt(meshId);
+            if (mesh != null)
             {
-                if (counter == meshId)
-                {
-                    _overrides[mesh.Name].Remove(Override.TextureDiffuse);
-                    _overrides[mesh.Name].Add(Override.TextureTransform, new Vector2(repeatX, repeatY));
-
-                    return;
-                }
-                counter++;
+                _overrides[mesh.Name].Remove(Override.TextureDiffuse);
+                _overrides[mesh.Name].Add(Override.TextureTransform, new Vector2(repeatX, repeatY));
             }
-
-            throw new Exception("Mesh id " + meshId + " not found in current model.");
         }
 
         public void SetTextureForMesh(int meshID, string texture, TextureType textureType = TextureType.Diffuse)
@@ -1337,53 +1327,50 @@ namespace KWEngine2.GameObjects
                 throw new Exception("SetTextureForMesh() currently supports diffuse, normal and specular texture types only. Sorry.");
             }
 
-            int counter = 0;
-            foreach (GeoMesh mesh in Model.Meshes.Values)
+            GeoMesh mesh = Model.Meshes.Values.ElementAt(meshID);
+          
+
+            GeoTexture tex = new GeoTexture();
+            int texId = -1;
+            string texName = "";
+            foreach (string texturefilename in Model.Textures.Keys)
             {
-                if (counter == meshID)
+                string nameStrippedLowered = SceneImporter.StripPathFromFile(texturefilename).ToLower();
+                if (nameStrippedLowered.Contains(texture.Trim().ToLower()))
                 {
-                    GeoTexture tex = new GeoTexture();
-                    int texId = -1;
-                    string texName = "";
-                    foreach (string texturefilename in Model.Textures.Keys)
-                    {
-                        string nameStrippedLowered = SceneImporter.StripPathFromFile(texturefilename).ToLower();
-                        if (nameStrippedLowered.Contains(texture.Trim().ToLower()))
-                        {
-                            texId = Model.Textures[texturefilename].OpenGLID;
-                            texName = texturefilename;
-                            break;
-                        }
-                    }
-                    if (texId < 0)
-                    {
-                        texId = HelperTexture.LoadTextureForModelExternal(texture);
-                        texName = texture;
-                    }
-
-                    tex.UVMapIndex = 0;
-                    tex.UVTransform = new Vector2(1, 1);
-                    tex.OpenGLID = texId;
-                    tex.Filename = texName;
-                    if (textureType == TextureType.Diffuse)
-                    {
-                        _overrides[mesh.Name].Remove(Override.TextureDiffuse);
-                        _overrides[mesh.Name].Add(Override.TextureDiffuse, tex);
-                    }
-                    else if (textureType == TextureType.Normal)
-                    {
-                        _overrides[mesh.Name].Remove(Override.TextureNormal);
-                        _overrides[mesh.Name].Add(Override.TextureNormal, tex);
-                    }
-                    else
-                    {
-                        _overrides[mesh.Name].Remove(Override.TextureSpecular);
-                        _overrides[mesh.Name].Add(Override.TextureSpecular, tex);
-                    }
-
-                    return;
+                    texId = Model.Textures[texturefilename].OpenGLID;
+                    texName = texturefilename;
+                    break;
                 }
-                counter++;
+            }
+            if (texId < 0)
+            {
+                texId = HelperTexture.LoadTextureForModelExternal(texture);
+                if(texId < 0)
+                {
+                    throw new Exception("Cannot find custom texture " + texture + ". Is your path correct?");
+                }
+                texName = texture;
+            }
+
+            tex.UVMapIndex = 0;
+            tex.UVTransform = new Vector2(1, 1);
+            tex.OpenGLID = texId;
+            tex.Filename = texName;
+            if (textureType == TextureType.Diffuse)
+            {
+                _overrides[mesh.Name].Remove(Override.TextureDiffuse);
+                _overrides[mesh.Name].Add(Override.TextureDiffuse, tex);
+            }
+            else if (textureType == TextureType.Normal)
+            {
+                _overrides[mesh.Name].Remove(Override.TextureNormal);
+                _overrides[mesh.Name].Add(Override.TextureNormal, tex);
+            }
+            else
+            {
+                _overrides[mesh.Name].Remove(Override.TextureSpecular);
+                _overrides[mesh.Name].Add(Override.TextureSpecular, tex);
             }
         }
 

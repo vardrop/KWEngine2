@@ -62,6 +62,12 @@ namespace KWEngine2Test.GameObjects
             Console.WriteLine("---------");
             */
 
+            Ship s = ((GameWorld)CurrentWorld).ship;
+            if(s != null)
+            {
+                TurnTowardsXZ(s.Position);
+            }
+
             if (ks[Key.M])
             {
                 if (IsMouseCursorInsideMyHitbox(ms))
