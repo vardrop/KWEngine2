@@ -26,6 +26,7 @@ namespace KWEngine2
         internal Matrix4 _modelViewProjectionMatrixBloom = Matrix4.Identity;
         internal Matrix4 _projectionMatrix = Matrix4.Identity;
         internal Matrix4 _projectionMatrixShadow = Matrix4.Identity;
+        internal Matrix4 _viewProjectionMatrixHUD = Matrix4.Identity;
 
         internal static float[] LightColors = new float[KWEngine.MAX_LIGHTS * 4];
         internal static float[] LightTargets = new float[KWEngine.MAX_LIGHTS * 4];
@@ -99,10 +100,14 @@ namespace KWEngine2
             Console.Write("\n\n\n================================================\n" + "Running KWEngine " + productVersion + " ");
             Console.WriteLine("on OpenGL 4.5 Core Profile.\n" + "================================================\n");
 
+            KWEngine.TextureDefault = HelperTexture.LoadTextureInternal("checkerboard.png");
+            KWEngine.TextureBlack = HelperTexture.LoadTextureInternal("black.png");
+            KWEngine.TextureAlpha = HelperTexture.LoadTextureInternal("alpha.png");
+
             KWEngine.InitializeShaders();
             KWEngine.InitializeModels();
             KWEngine.InitializeParticles();
-
+            KWEngine.InitializeFont("Anonymous.ttf");
             _bloomQuad = KWEngine.GetModel("KWRect");
         }
 
@@ -118,6 +123,8 @@ namespace KWEngine2
 
             // Only needed for tesselation... maybe later?
             //GL.PatchParameter(PatchParameterInt.PatchVertices, 4);
+
+            
 
             HelperGL.CheckGLErrors();
         }
@@ -211,6 +218,13 @@ namespace KWEngine2
 
                 DownsampleFramebuffer();
                 ApplyBloom();
+
+                GL.Enable(EnableCap.Blend);
+                GL.Disable(EnableCap.DepthTest);
+                foreach (HUDObject p in CurrentWorld._hudObjects)
+                    KWEngine.Renderers["HUD"].Draw(p, ref _viewProjectionMatrixHUD);
+                GL.Enable(EnableCap.DepthTest);
+                GL.Disable(EnableCap.Blend);
 
             }
             SwapBuffers();
@@ -310,6 +324,8 @@ namespace KWEngine2
             _modelViewProjectionMatrixBloom = Matrix4.CreateScale(Width, Height, 1) * Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographic(Width, Height, 0.1f, 100f);
 
             _modelViewProjectionMatrixBackground = Matrix4.CreateScale(Width, Height, 1) * Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographic(Width, Height, 0.1f, 100f);
+
+            _viewProjectionMatrixHUD = Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographic(2, (Height / (float)Width) * 2.0f, 0.1f, 100f);
         }
 
         public void SetWorld(World w)

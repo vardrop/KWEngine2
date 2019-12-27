@@ -4,25 +4,25 @@ using KWEngine2.Model;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-
+using System.Text;
+using System.Threading.Tasks;
 
 namespace KWEngine2.Renderers
 {
-    internal class RendererSkybox : Renderer
+    internal class RendererHUD : Renderer
     {
-        private Matrix4 _viewMatrix = Matrix4.Identity;
-
         public override void Initialize()
         {
-            Name = "Skybox";
+            Name = "HUD";
 
             mProgramId = GL.CreateProgram();
 
-            string resourceNameFragmentShader = "KWEngine2.Shaders.shader_fragment_skybox.glsl";
-            string resourceNameVertexShader = "KWEngine2.Shaders.shader_vertex_skybox.glsl";
+            string resourceNameFragmentShader = "KWEngine2.Shaders.shader_fragment_hud.glsl";
+            string resourceNameVertexShader = "KWEngine2.Shaders.shader_vertex_hud.glsl";
             Assembly assembly = Assembly.GetExecutingAssembly();
             using (Stream s = assembly.GetManifestResourceStream(resourceNameVertexShader))
             {
@@ -39,6 +39,7 @@ namespace KWEngine2.Renderers
             if (mShaderFragmentId >= 0 && mShaderVertexId >= 0)
             {
                 GL.BindAttribLocation(mProgramId, 0, "aPosition");
+                GL.BindAttribLocation(mProgramId, 2, "aTexture");
 
                 GL.BindFragDataLocation(mProgramId, 0, "color");
                 GL.BindFragDataLocation(mProgramId, 1, "bloom");
@@ -51,6 +52,7 @@ namespace KWEngine2.Renderers
             }
 
             mAttribute_vpos = GL.GetAttribLocation(mProgramId, "aPosition");
+            mAttribute_vtexture = GL.GetAttribLocation(mProgramId, "aTexture");
 
             mUniform_MVP = GL.GetUniformLocation(mProgramId, "uMVP");
             mUniform_Texture = GL.GetUniformLocation(mProgramId, "uTextureDiffuse");
@@ -69,42 +71,7 @@ namespace KWEngine2.Renderers
 
         internal override void Draw(GameObject g, ref Matrix4 viewProjection)
         {
-
-            if (KWEngine.CurrentWorld.IsFirstPersonMode)
-            {
-                _viewMatrix = HelperCamera.GetViewMatrix(KWEngine.CurrentWorld.GetFirstPersonObject().Position);
-            }
-            else
-            {
-                _viewMatrix = KWEngine.CurrentWindow._viewMatrix;
-            }
-
-            // Clear translation part:
-            _viewMatrix = _viewMatrix.ClearTranslation();
-            Matrix4 MVP = _viewMatrix * viewProjection;
-
-
-            GL.FrontFace(FrontFaceDirection.Cw);
-            GL.DepthFunc(DepthFunction.Lequal);
-            GL.UseProgram(mProgramId);
-            GL.UniformMatrix4(mUniform_MVP, false, ref MVP);
-
-            GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.TextureCubeMap, KWEngine.CurrentWorld._textureSkybox);
-            GL.Uniform1(mUniform_Texture, 0);
-
-            GL.Uniform4(mUniform_TintColor, ref KWEngine.CurrentWorld._textureBackgroundTint);
-
-            GeoMesh mesh = KWEngine.Models["KWCube"].Meshes.Values.ElementAt(0);
-            GL.BindVertexArray(mesh.VAO);
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
-            GL.DrawElements(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-
-            GL.BindTexture(TextureTarget.TextureCubeMap, 0);
-            GL.UseProgram(0);
-            GL.DepthFunc(DepthFunction.Less);
-            GL.FrontFace(FrontFaceDirection.Ccw);
+            
         }
 
         internal override void Draw(ParticleObject po, ref Matrix4 viewProjection)
@@ -114,7 +81,33 @@ namespace KWEngine2.Renderers
 
         internal override void Draw(HUDObject ho, ref Matrix4 viewProjection)
         {
-            throw new NotImplementedException();
+            GL.UseProgram(mProgramId);
+
+            GeoMesh mesh = KWEngine.Models["KWRect"].Meshes.Values.ElementAt(0);
+            GL.BindVertexArray(mesh.VAO);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
+
+            GL.Uniform4(mUniform_TintColor, ho._tint);
+
+            for (int i = 0; i < ho._positions.Length; i++)
+            {
+                Matrix4 mvp = ho._modelMatrices[i] * viewProjection;
+                GL.UniformMatrix4(mUniform_MVP, false, ref mvp);
+
+                GL.ActiveTexture(TextureUnit.Texture0);
+                GL.BindTexture(TextureTarget.Texture2D, ho._textureIds[i]);
+                GL.Uniform1(mUniform_Texture, 0);
+
+                GL.DrawElements(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
+
+                GL.BindTexture(TextureTarget.Texture2D, 0);
+            }
+
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+            GL.BindVertexArray(0);
+
+            GL.UseProgram(0);
+
         }
     }
 }

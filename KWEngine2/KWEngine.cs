@@ -6,6 +6,9 @@ using OpenTK;
 using KWEngine2.Helper;
 using System.Diagnostics;
 using KWEngine2.GameObjects;
+using System.Reflection;
+using System.IO;
+using System.Drawing.Text;
 
 namespace KWEngine2
 {
@@ -19,6 +22,7 @@ namespace KWEngine2
 
         internal static int TextureDefault = -1;
         internal static int TextureBlack = -1;
+        internal static int TextureAlpha = -1;
         internal static float TimeElapsed = 0;
 
         internal static Dictionary<ParticleType, ParticleInfo> ParticleDictionary = new Dictionary<ParticleType, ParticleInfo>();
@@ -37,7 +41,21 @@ namespace KWEngine2
                 _worldUp = Vector3.Normalize(value);
             }
         }
+
+        internal static PrivateFontCollection Collection = new PrivateFontCollection();
+        public static string Font { get; internal set; } = null;
         
+
+        internal static void InitializeFont(string filename)
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var resourceName = "KWEngine2.Assets.Fonts." + filename;
+
+            HelperFont.AddFontFromResource(Collection, assembly, resourceName);
+            Font = "Anonymous";
+
+            HelperFont.GenerateTextures();
+        }
 
         internal static Dictionary<string, Renderer> Renderers { get; set; } = new Dictionary<string, Renderer>();
         internal static Dictionary<string, GeoModel> Models { get; set; } = new Dictionary<string, GeoModel>();
@@ -66,7 +84,7 @@ namespace KWEngine2
             Renderers.Add("Background", new RendererBackground());
             Renderers.Add("Skybox", new RendererSkybox());
             Renderers.Add("Particle", new RendererParticle());
-
+            Renderers.Add("HUD", new RendererHUD());
         }
 
         internal static void InitializeParticles()

@@ -63,6 +63,7 @@
     <Compile Include="GameObjects\LightObject.cs" />
     <Compile Include="GameObjects\ParticleObject.cs" />
     <Compile Include="Helper\HelperCamera.cs" />
+    <Compile Include="Helper\HelperFont.cs" />
     <Compile Include="Helper\HelperFrustum.cs" />
     <Compile Include="Helper\HelperMouseRay.cs" />
     <Compile Include="Helper\HelperRandom.cs" />
@@ -94,6 +95,7 @@
     <Compile Include="Model\SceneImporter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Renderers\Renderer.cs" />
+    <Compile Include="Renderers\RendererHUD.cs" />
     <Compile Include="Renderers\RendererParticle.cs" />
     <Compile Include="Renderers\RendererSkybox.cs" />
     <Compile Include="Renderers\RendererBloom.cs" />
@@ -112,6 +114,7 @@
     <EmbeddedResource Include="Assets\Models\kwcube.mtl" />
     <EmbeddedResource Include="Assets\Models\kwcube6.mtl" />
     <EmbeddedResource Include="Assets\Models\kwcube6.obj" />
+    <EmbeddedResource Include="Assets\Fonts\Anonymous.ttf" />
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
     <EmbeddedResource Include="Shaders\shader_fragment.glsl" />
@@ -128,6 +131,8 @@
     <EmbeddedResource Include="Shaders\shader_vertex_skybox.glsl" />
     <EmbeddedResource Include="Shaders\shader_fragment_particle.glsl" />
     <EmbeddedResource Include="Shaders\shader_vertex_particle.glsl" />
+    <EmbeddedResource Include="Shaders\shader_vertex_hud.glsl" />
+    <EmbeddedResource Include="Shaders\shader_fragment_hud.glsl" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
@@ -151,6 +156,7 @@
     <EmbeddedResource Include="Assets\Textures\smoke03.png" />
     <EmbeddedResource Include="Assets\Textures\checkerboard.png" />
     <EmbeddedResource Include="Assets\Textures\black.png" />
+    <EmbeddedResource Include="Assets\Textures\alpha.png" />
     <Content Include="Assets\Textures\readme.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

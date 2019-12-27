@@ -35,6 +35,10 @@ namespace KWEngine2Test
 
         public override void Prepare()
         {
+            HUDObject hud1 = new HUDObject(HUDObjectType.Text,-1, -0.5f);
+            hud1.SetText("Hello World!");
+            AddHUDObject(hud1);
+
             FOV = 90;
             SetCameraPosition(0, 10, 10);
             SetCameraTarget(0, 0, 0);

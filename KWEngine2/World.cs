@@ -75,6 +75,9 @@ namespace KWEngine2
             }
         }
 
+        internal List<HUDObject> _hudObjects = new List<HUDObject>();
+        internal List<HUDObject> _hudObjectsTBA = new List<HUDObject>();
+        internal List<HUDObject> _hudObjectsTBR = new List<HUDObject>();
 
         internal List<GameObject> _gameObjects = new List<GameObject>();
         internal List<LightObject> _lightObjects = new List<LightObject>();
@@ -153,7 +156,7 @@ namespace KWEngine2
             }
         }
 
-        private List<HUDObject> _hudObjects = new List<HUDObject>();
+        
         private Vector3 _cameraPosition = new Vector3(0, 0, 25);
         private Vector3 _cameraTarget = new Vector3(0, 0, 0);
         private Vector3 _cameraLookAt = new Vector3(0, 0, 1);
@@ -336,6 +339,26 @@ namespace KWEngine2
 
             }
 
+            lock (_hudObjects)
+            {
+                foreach (HUDObject h in _hudObjectsTBA)
+                {
+                    if (!_hudObjects.Contains(h))
+                    {
+                        _hudObjects.Add(h);
+                        h.CurrentWorld = this;
+                    }
+                }
+                _hudObjectsTBA.Clear();
+
+                foreach (HUDObject h in _hudObjectsTBR)
+                {
+                    h.CurrentWorld = null;
+                    _hudObjects.Remove(h);
+                }
+                _hudObjectsTBR.Clear();
+            }
+
             lock (_particleObjects)
             {
                 foreach (ParticleObject g in _particleObjectsTBA)
@@ -382,6 +405,29 @@ namespace KWEngine2
         internal List<ParticleObject> GetParticleObjects()
         {
             return _particleObjects;
+        }
+
+        public IReadOnlyCollection<HUDObject> GetHUDObjects()
+        {
+            return _hudObjects.AsReadOnly();
+        }
+
+
+        public void AddHUDObject(HUDObject h)
+        {
+            if (!_hudObjects.Contains(h))
+            {
+                _hudObjectsTBA.Add(h);
+            }
+            else
+            {
+                throw new Exception("This HUD object already exists in this world.");
+            }
+        }
+
+        public void RemoveHUDObject(HUDObject h)
+        {
+            _hudObjectsTBR.Add(h);
         }
 
 

@@ -110,5 +110,10 @@ namespace KWEngine2.Renderers
 
             GL.UseProgram(0);
         }
+
+        internal override void Draw(HUDObject ho, ref Matrix4 viewProjection)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
