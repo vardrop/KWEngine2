@@ -84,7 +84,7 @@ namespace KWEngine2
             ParticleDictionary.Add(ParticleType.BurstFire3, new ParticleInfo(tex, 9, 81));
 
             tex = HelperTexture.LoadTextureInternal("fire04.png");
-            ParticleDictionary.Add(ParticleType.BurstElecricity1, new ParticleInfo(tex, 4, 16));
+            ParticleDictionary.Add(ParticleType.BurstElectricity, new ParticleInfo(tex, 4, 16));
 
             tex = HelperTexture.LoadTextureInternal("particleburst_bubbles.png");
             ParticleDictionary.Add(ParticleType.BurstBubblesColored, new ParticleInfo(tex, 6, 36));

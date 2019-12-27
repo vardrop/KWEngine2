@@ -95,7 +95,7 @@ namespace KWEngine2.Renderers
                 GL.Uniform1(mUniform_Texture, 0);
 
                 GL.Uniform1(mUniform_AnimationState, po._frame);
-                GL.Uniform1(mUniform_AnimationStates, po._info.Samples);
+                GL.Uniform1(mUniform_AnimationStates, po._info.Images);
 
                 GeoMesh mesh = po._model.Meshes.Values.ElementAt(0);
                 GL.BindVertexArray(mesh.VAO);

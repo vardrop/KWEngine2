@@ -114,6 +114,7 @@ namespace KWEngine2
             GL.ClearColor(0.0f, 0.0f, 0.0f, 1f);
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
             // Only needed for tesselation... maybe later?
             //GL.PatchParameter(PatchParameterInt.PatchVertices, 4);
@@ -185,24 +186,25 @@ namespace KWEngine2
                     }
                     GL.UseProgram(0);
 
-                    lock (CurrentWorld._particleObjects)
-                    {
-                        foreach (ParticleObject p in CurrentWorld.GetParticleObjects())
-                            KWEngine.Renderers["Particle"].Draw(p, ref viewProjection);
-                    }
-
                     // Background rendering:
-                    if(CurrentWorld._textureBackground > 0)
+                    if (CurrentWorld._textureBackground > 0)
                     {
 
                         KWEngine.Renderers["Background"].Draw(_dummy, ref _modelViewProjectionMatrixBackground);
                     }
-                    else if(CurrentWorld._textureSkybox > 0)
+                    else if (CurrentWorld._textureSkybox > 0)
                     {
                         KWEngine.Renderers["Skybox"].Draw(_dummy, ref _projectionMatrix);
                     }
 
-                    
+                    lock (CurrentWorld._particleObjects)
+                    {
+                        GL.Enable(EnableCap.Blend);
+                        
+                        foreach (ParticleObject p in CurrentWorld.GetParticleObjects())
+                            KWEngine.Renderers["Particle"].Draw(p, ref viewProjection);
+                        GL.Disable(EnableCap.Blend);
+                    }
                 }
 
 

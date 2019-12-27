@@ -20,12 +20,14 @@ namespace KWEngine2Test
             long t = GetCurrentTimeInMilliseconds();
             if (t - _timeStamp > 4000)
             {
-                //Explosion ex = new Explosion(new Vector3(0, 6, 0), 512, 0.25f, 20, 2, ExplosionType.SphereRingY, new Vector4(1, 0, 0, 1f), null);
-                //AddGameObject(ex);
+                Explosion ex = new Explosion(new Vector3(0, 6, 0), 512, 0.25f, 20, 2, ExplosionType.SphereRingY, new Vector4(1, 0, 0, 1f), null);
+                AddGameObject(ex);
 
                 _timeStamp = t;
 
-                ParticleObject p = new ParticleObject(new Vector3(0, 0, 0), new Vector3(5, 5, 5), ParticleType.BurstFire1);
+                ParticleObject p = new ParticleObject(new Vector3(-3, 1, 0), new Vector3(5, 5, 5), ParticleType.BurstHearts);
+                //p.SetDuration(3);
+                p.SetColor(1, 1, 1, 1f);
                 AddParticleObject(p);
 
             }
@@ -65,7 +67,7 @@ namespace KWEngine2Test
             //block.SetTexture(".\\textures\\holland.jpg", KWEngine.CubeSide.All, KWEngine.TextureType.Diffuse);
             //block.SetTextureRepeat(2, 2, KWEngine.CubeSide.All);
             AddGameObject(ship);
-            SetFirstPersonObject(ship, 0);
+            //SetFirstPersonObject(ship, 0);
             
 
             Terrain t = new Terrain();

@@ -15,7 +15,7 @@ namespace KWEngine2.GameObjects
         BurstFire1, 
         BurstFire2, 
         BurstFire3, 
-        BurstElecricity1, 
+        BurstElectricity, 
         BurstBubblesColored, 
         BurstBubblesMonochrome,
         BurstFirework1,
@@ -37,20 +37,26 @@ namespace KWEngine2.GameObjects
         internal Vector3 _position = new Vector3(0, 0, 0);
         public Vector3 Position { get; set; } = new Vector3(0, 0, 0);
         private Vector3 _scale = new Vector3(1, 1, 1);
+        private Vector3 _scaleCurrent = new Vector3(1, 1, 1);
         internal Matrix4 _rotation = Matrix4.Identity;
         internal Matrix4 _modelMatrix = Matrix4.Identity;
-        internal Vector4 _tint = new Vector4(0, 0, 0, 0);
+        internal Vector4 _tint = new Vector4(1, 1, 1, 1);
         internal ParticleType _type = ParticleType.BurstFire1;
         internal long _starttime = -1;
         internal long _lastUpdate = -1;
         internal long _durationInMS = 5000;
         internal int _frame = 0;
         internal long _aliveInMS = 0;
+        internal float _scaleFactor = 1;
         internal ParticleInfo _info;
+        private static Quaternion Turn180 = Quaternion.FromAxisAngle(Vector3.UnitZ, (float)Math.PI);
 
         public void SetDuration(float durationInSeconds)
         {
-            _durationInMS = durationInSeconds > 0 ? (int)(durationInSeconds * 1000) : 5000;
+            if (_type == ParticleType.LoopSmoke1 || _type == ParticleType.LoopSmoke2 || _type == ParticleType.LoopSmoke3)
+                _durationInMS = durationInSeconds > 0 ? (int)(durationInSeconds * 1000) : 5000;
+            else
+                throw new Exception("Duration may only be set for loop particles.");
         }
 
         public void SetPosition(Vector3 pos)
@@ -58,16 +64,22 @@ namespace KWEngine2.GameObjects
             Position = pos;
         }
 
-        public ParticleObject(Vector3 position, Vector3 scale, ParticleType type, float red = 1, float green = 1, float blue = 1, float intensity = 1)
+        public void SetColor(float red, float green, float blue, float intensity)
         {
-            _scale.X = HelperGL.Clamp(scale.X, 0.001f, float.MaxValue);
-            _scale.Y = HelperGL.Clamp(scale.Y, 0.001f, float.MaxValue);
-            _scale.Z = HelperGL.Clamp(scale.Z, 0.001f, float.MaxValue);
-
             _tint.X = HelperGL.Clamp(red, 0, 1);
             _tint.Y = HelperGL.Clamp(green, 0, 1);
             _tint.Z = HelperGL.Clamp(blue, 0, 1);
             _tint.W = HelperGL.Clamp(intensity, 0, 1);
+        }
+
+        public ParticleObject(Vector3 position, Vector3 scale, ParticleType type)
+        {
+            _scale.X = HelperGL.Clamp(scale.X, 0.001f, float.MaxValue);
+            _scale.Y = HelperGL.Clamp(scale.Y, 0.001f, float.MaxValue);
+            _scale.Z = HelperGL.Clamp(scale.Z, 0.001f, float.MaxValue);
+            _scaleCurrent.X = HelperGL.Clamp(scale.X, 0.001f, float.MaxValue);
+            _scaleCurrent.Y = HelperGL.Clamp(scale.Y, 0.001f, float.MaxValue);
+            _scaleCurrent.Z = HelperGL.Clamp(scale.Z, 0.001f, float.MaxValue);
 
             Position = position;
 
@@ -83,36 +95,46 @@ namespace KWEngine2.GameObjects
             {
                 Vector3 fpPos = KWEngine.CurrentWorld.GetFirstPersonObject().Position;
                 fpPos.Y += KWEngine.CurrentWorld.GetFirstPersonObject().FPSEyeOffset;
-                _rotation = HelperRotation.GetRotationForPoint(fpPos, Position);
+                Quaternion tmp = HelperRotation.GetRotationForPoint(fpPos, Position);
+                _rotation = Matrix4.CreateFromQuaternion(tmp * Turn180);
             }
             else
             {
-                //_rotation = HelperRotation.GetRotationForPoint(Position, KWEngine.CurrentWorld.GetCameraPosition());
-                _rotation = HelperRotation.GetRotationForPoint(KWEngine.CurrentWorld.GetCameraPosition(), Position);
+                Quaternion tmp = HelperRotation.GetRotationForPoint(KWEngine.CurrentWorld.GetCameraPosition(), Position);
+                _rotation = Matrix4.CreateFromQuaternion(tmp * Turn180);
             }
 
-            _modelMatrix = Matrix4.CreateScale(_scale) * _rotation * Matrix4.CreateTranslation(Position);
+            
             long diff = _lastUpdate < 0 ? 0 : now - _lastUpdate;
             _aliveInMS += diff;
             _frame = (int)(_aliveInMS / 32);
-            //Console.WriteLine("frame: " + _frame);
-            if (_frame > _info.Samples)
-            {
-                if(_type == ParticleType.LoopSmoke1 || _type == ParticleType.LoopSmoke2 || _type == ParticleType.LoopSmoke3)
-                {
-                    _frame = 0;
-                    if(now - _starttime > _durationInMS)
-                    {
-                        KWEngine.CurrentWorld.RemoveParticleObject(this);
-                    }
-                }
-                else
-                    KWEngine.CurrentWorld.RemoveParticleObject(this);
-            }
+            int frameloop = _frame % _info.Samples;
 
+            if (_type == ParticleType.LoopSmoke1 || _type == ParticleType.LoopSmoke2 || _type == ParticleType.LoopSmoke3)
+            {
+                _frame = frameloop;
+                float liveInPercent = _aliveInMS / (float)_durationInMS;
+                // f(x) = -64000(x - 0.5)¹⁶ + 1
+                _scaleFactor = -64000f * (float)Math.Pow(liveInPercent - 0.5f, 16) + 1;
+                _scaleCurrent.X = _scale.X * _scaleFactor;
+                _scaleCurrent.Y = _scale.Y * _scaleFactor;
+                _scaleCurrent.Z = _scale.Z * _scaleFactor;
+
+                if (_aliveInMS > _durationInMS)
+                {
+                    KWEngine.CurrentWorld.RemoveParticleObject(this);
+                }
+            }
+            else
+            {
+                if (_frame > _info.Samples - 1)
+                {
+                    KWEngine.CurrentWorld.RemoveParticleObject(this);
+                }
+            }
+                    
+            _modelMatrix = Matrix4.CreateScale(_scaleCurrent) * _rotation * Matrix4.CreateTranslation(Position);
             _lastUpdate = now;
         }
-
-
     }
 }
