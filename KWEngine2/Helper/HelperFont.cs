@@ -60,7 +60,7 @@ namespace KWEngine2.Helper
             g.FillRectangle(alpha, 0, 0, LETTERSIZE, LETTERSIZE);
             SolidBrush brush = new SolidBrush(Color.FromArgb(255, 255, 255, 255));
             string tmpString = c.ToString();
-            g.DrawString(tmpString, f, brush, 0 + LetterOffsetX, -16 - LetterOffsetY);
+            g.DrawString(tmpString, f, brush, 0 + LetterOffsetX, -15 - LetterOffsetY);
             f.Dispose();
             brush.Dispose();
             alpha.Dispose();

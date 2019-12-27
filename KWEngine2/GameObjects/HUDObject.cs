@@ -7,6 +7,7 @@ using OpenTK;
 using KWEngine2.Helper;
 using KWEngine2;
 using System.IO;
+using OpenTK.Input;
 
 namespace KWEngine2.GameObjects
 {
@@ -14,20 +15,21 @@ namespace KWEngine2.GameObjects
 
     public sealed class HUDObject
     {
+        internal Vector2 _absolute = new Vector2(0, 0);
         internal Vector4 _tint = new Vector4(1, 1, 1, 1);
         internal HUDObjectType _type = HUDObjectType.Image;
         internal int[] _textureIds = new int[] { KWEngine.TextureDefault };
         public Vector3 Position { get; internal set; } = Vector3.Zero;
         public World CurrentWorld { get; internal set; } = null;
-        internal Vector3 _scale = new Vector3(0.1f, 0.1f, 1);
+        internal Vector3 _scale = new Vector3(32f, 32f, 1f);
         
         internal Vector3[] _positions = new Vector3[1];
         internal Matrix4[] _modelMatrices = new Matrix4[1];
-        internal Matrix4 _scaleMatrix = Matrix4.CreateScale(0.1f, 0.1f, 1f);
+        internal Matrix4 _scaleMatrix = Matrix4.CreateScale(32f,32f, 1f);
         internal string _text = null;
         internal int _count = 1;
 
-        internal float _spread = 0.07f;
+        internal float _spread = 28f;
         public float CharacterSpreadFactor
         {
             get
@@ -36,7 +38,7 @@ namespace KWEngine2.GameObjects
             }
             set
             {
-                _spread = HelperGL.Clamp(value, 0.001f, 100f);
+                _spread = HelperGL.Clamp(value, 1f, 1024f);
                 UpdatePositions();
             }
         }
@@ -47,13 +49,6 @@ namespace KWEngine2.GameObjects
             _tint.Y = HelperGL.Clamp(green, 0, 1);
             _tint.Z = HelperGL.Clamp(blue, 0, 1);
             _tint.W = HelperGL.Clamp(intensity, 0, 1);
-        }
-
-        public void SetPosition(float x, float y)
-        {
-            x = HelperGL.Clamp(x, -2, 2);
-            y = HelperGL.Clamp(y, -2, 2) * -1;
-            Position = new Vector3(x, y, 0);
         }
 
         private void UpdateTextures()
@@ -75,8 +70,8 @@ namespace KWEngine2.GameObjects
 
         public void SetScale(float width, float height)
         {
-            _scale.X = HelperGL.Clamp(width, -2, 2);
-            _scale.Y = HelperGL.Clamp(height, -2, 2);
+            _scale.X = HelperGL.Clamp(width, 0.001f, float.MaxValue);
+            _scale.Y = HelperGL.Clamp(height, 0.001f, float.MaxValue);
             _scale.Z = 1;
             _scaleMatrix = Matrix4.CreateScale(_scale);
             UpdatePositions();
@@ -120,13 +115,23 @@ namespace KWEngine2.GameObjects
 
         public HUDObject(HUDObjectType type, float x, float y)
         {
-            x = HelperGL.Clamp(x, -2, 2);
-            y = HelperGL.Clamp(y, -2, 2) * -1;
             _type = type;
-            Position = new Vector3(x, y, 0);
+            Position = new Vector3(x - KWEngine.CurrentWindow.Width / 2, KWEngine.CurrentWindow.Height - y - KWEngine.CurrentWindow.Height / 2, 0);
+            //Position = new Vector3(x, y, 0);
+            _absolute.X = x;
+            _absolute.Y = y;
             
             UpdatePositions();
             
+        }
+
+        public void SetPosition(float x, float y)
+        {
+            Position = new Vector3(x - KWEngine.CurrentWindow.Width / 2, KWEngine.CurrentWindow.Height - y - KWEngine.CurrentWindow.Height / 2, 0);
+            //Position = new Vector3(x, y, 0);
+            _absolute.X = x;
+            _absolute.Y = y;
+            UpdatePositions();
         }
 
         private void SetPosition(int index, Vector3 pos)
@@ -144,6 +149,35 @@ namespace KWEngine2.GameObjects
             {
                 SetPosition(i, Position);
             }
+        }
+
+        public bool IsMouseCursorOnMe(MouseState ms)
+        {
+            
+            GLWindow w = KWEngine.CurrentWindow;
+
+            if (w._windowRect.Contains(ms.X, ms.Y)){
+                Vector2 coords = HelperGL.GetNormalizedMouseCoords(ms.X, ms.Y, w);
+               
+
+                float left = _absolute.X - _scale.X * 0.5f;
+                float right = _absolute.X + ((_count - 1) * _spread) + _scale.X * 0.5f;
+
+                float top = _absolute.Y - _scale.Y * 0.5f;
+                float bottom = _absolute.Y + _scale.Y * 0.5f;
+
+
+                if(coords.X >= left && coords.X <= right && coords.Y >= top && coords.Y <= bottom)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+                return false;
         }
     }
 }

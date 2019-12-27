@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using OpenTK.Graphics.OpenGL4;
 using System.Linq;
+using KWEngine2.Audio;
 
 namespace KWEngine2
 {
@@ -541,6 +542,21 @@ namespace KWEngine2
         {
             _gameObjects.Sort((x, y) => x == null ? (y == null ? 0 : -1)
                 : (y == null ? 1 : y.DistanceToCamera.CompareTo(x.DistanceToCamera)));
+        }
+
+        public void SoundPlay(string audiofile, bool playLooping = false, float volume = 1.0f)
+        {
+            GLAudioEngine.SoundPlay(audiofile, playLooping, volume);
+        }
+
+        public void SoundStop(string audiofile)
+        {
+            GLAudioEngine.SoundStop(audiofile);
+        }
+
+        public void SoundStopAll()
+        {
+            GLAudioEngine.SoundStopAll();
         }
     }
 }

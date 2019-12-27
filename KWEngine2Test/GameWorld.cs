@@ -15,10 +15,13 @@ namespace KWEngine2Test
     {
         private long _timeStamp = 0;
         public Ship ship;
+        private HUDObject hud1;
+        private float y = 0;
+
         public override void Act(KeyboardState kbs, MouseState ms)
         {
             long t = GetCurrentTimeInMilliseconds();
-            if (t - _timeStamp > 4000)
+            if (t - _timeStamp > 32)
             {
                 Explosion ex = new Explosion(new Vector3(0, 6, 0), 512, 0.25f, 20, 2, ExplosionType.SphereRingY, new Vector4(1, 0, 0, 1f), null);
                 AddGameObject(ex);
@@ -29,14 +32,21 @@ namespace KWEngine2Test
                 //p.SetDuration(3);
                 p.SetColor(1, 1, 1, 1f);
                 AddParticleObject(p);
+                
 
+                
             }
+
+            
         }
 
         public override void Prepare()
         {
-            HUDObject hud1 = new HUDObject(HUDObjectType.Text,-1, -0.5f);
+            //SoundPlay(".\\audio\\stage01.ogg", true, 0.3f);
+
+            hud1 = new HUDObject(HUDObjectType.Text,96, 128);
             hud1.SetText("Hello World!");
+            hud1.SetScale(32, 32);
             AddHUDObject(hud1);
 
             FOV = 90;

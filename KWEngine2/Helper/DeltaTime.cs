@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace KWEngine2.Engine
+namespace KWEngine2.Helper
 {
     public static class DeltaTime
     {

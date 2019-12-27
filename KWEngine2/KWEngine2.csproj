@@ -55,9 +55,50 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Audio\CachedSound.cs" />
+    <Compile Include="Audio\CSOgg\Buffer.cs" />
+    <Compile Include="Audio\CSOgg\Packet.cs" />
+    <Compile Include="Audio\CSOgg\Page.cs" />
+    <Compile Include="Audio\CSOgg\StreamState.cs" />
+    <Compile Include="Audio\CSOgg\SyncState.cs" />
+    <Compile Include="Audio\CSVorbis\AllocChain.cs" />
+    <Compile Include="Audio\CSVorbis\Block.cs" />
+    <Compile Include="Audio\CSVorbis\CodeBook.cs" />
+    <Compile Include="Audio\CSVorbis\Comment.cs" />
+    <Compile Include="Audio\CSVorbis\csorbisException.cs" />
+    <Compile Include="Audio\CSVorbis\Drft.cs" />
+    <Compile Include="Audio\CSVorbis\DspState.cs" />
+    <Compile Include="Audio\CSVorbis\EncodeAuxNearestMatch.cs" />
+    <Compile Include="Audio\CSVorbis\EncodeAuxThreshMatch.cs" />
+    <Compile Include="Audio\CSVorbis\Floor0.cs" />
+    <Compile Include="Audio\CSVorbis\Floor1.cs" />
+    <Compile Include="Audio\CSVorbis\FuncFloor.cs" />
+    <Compile Include="Audio\CSVorbis\FuncMapping.cs" />
+    <Compile Include="Audio\CSVorbis\FuncResidue.cs" />
+    <Compile Include="Audio\CSVorbis\FuncTime.cs" />
+    <Compile Include="Audio\CSVorbis\Info.cs" />
+    <Compile Include="Audio\CSVorbis\InfoMode.cs" />
+    <Compile Include="Audio\CSVorbis\Lookup.cs" />
+    <Compile Include="Audio\CSVorbis\Lpc.cs" />
+    <Compile Include="Audio\CSVorbis\Lsp.cs" />
+    <Compile Include="Audio\CSVorbis\Mapping0.cs" />
+    <Compile Include="Audio\CSVorbis\Mdct.cs" />
+    <Compile Include="Audio\CSVorbis\PsyInfo.cs" />
+    <Compile Include="Audio\CSVorbis\PsyLook.cs" />
+    <Compile Include="Audio\CSVorbis\Residue0.cs" />
+    <Compile Include="Audio\CSVorbis\Residue1.cs" />
+    <Compile Include="Audio\CSVorbis\Residue2.cs" />
+    <Compile Include="Audio\CSVorbis\StaticCodeBook.cs" />
+    <Compile Include="Audio\CSVorbis\Time0.cs" />
+    <Compile Include="Audio\CSVorbis\VorbisFile.cs" />
+    <Compile Include="Audio\GLAudioEngine.cs" />
+    <Compile Include="Audio\GLAudioPlayThread.cs" />
+    <Compile Include="Audio\GLAudioSource.cs" />
+    <Compile Include="Audio\OggDecoder\OggDecodeStream.cs" />
+    <Compile Include="Audio\WaveFormat.cs" />
     <Compile Include="Collision\Hitbox.cs" />
     <Compile Include="Collision\Intersection.cs" />
-    <Compile Include="Engine\DeltaTime.cs" />
+    <Compile Include="Helper\DeltaTime.cs" />
     <Compile Include="GameObjects\Explosion.cs" />
     <Compile Include="GameObjects\HUDObject.cs" />
     <Compile Include="GameObjects\LightObject.cs" />
@@ -134,9 +175,12 @@
     <EmbeddedResource Include="Shaders\shader_vertex_hud.glsl" />
     <EmbeddedResource Include="Shaders\shader_fragment_hud.glsl" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Engine\" />
+  </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\readme.txt" />
+    <Content Include="OpenAL32.dll" />
     <EmbeddedResource Include="Assets\Textures\fire01.png" />
     <EmbeddedResource Include="Assets\Textures\fire02.png" />
     <EmbeddedResource Include="Assets\Textures\fire03.png" />

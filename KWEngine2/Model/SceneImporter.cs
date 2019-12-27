@@ -6,7 +6,6 @@ using System.Reflection;
 using Assimp;
 using Assimp.Configs;
 using KWEngine2.Collision;
-using KWEngine2.Engine;
 using KWEngine2.Helper;
 using OpenTK;
 

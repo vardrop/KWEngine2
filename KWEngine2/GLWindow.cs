@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
-using KWEngine2.Engine;
+using KWEngine2.Audio;
 using KWEngine2.GameObjects;
 using KWEngine2.Helper;
 using KWEngine2.Model;
@@ -66,7 +66,9 @@ namespace KWEngine2
             Width = width;
             Height = height;
 
-            if(antialiasing >= 0 && antialiasing <= 8)
+            GLAudioEngine.InitAudioEngine();
+
+            if (antialiasing >= 0 && antialiasing <= 8)
             {
                 if (antialiasing == 1 || antialiasing == 3 || antialiasing == 5 || antialiasing == 6 || antialiasing == 7)
                     antialiasing = 0;
@@ -109,6 +111,8 @@ namespace KWEngine2
             KWEngine.InitializeParticles();
             KWEngine.InitializeFont("Anonymous.ttf");
             _bloomQuad = KWEngine.GetModel("KWRect");
+
+            
         }
 
         
@@ -131,7 +135,11 @@ namespace KWEngine2
 
         protected override void Dispose(bool manual)
         {
+            GLAudioEngine.SoundStopAll();
+            GLAudioEngine.Dispose();
+            
             base.Dispose(manual);
+
 
         }
 
@@ -325,7 +333,8 @@ namespace KWEngine2
 
             _modelViewProjectionMatrixBackground = Matrix4.CreateScale(Width, Height, 1) * Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographic(Width, Height, 0.1f, 100f);
 
-            _viewProjectionMatrixHUD = Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographic(2, (Height / (float)Width) * 2.0f, 0.1f, 100f);
+            //_viewProjectionMatrixHUD = Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographicOffCenter(0, Width, Height, 0, 0.1f, 100f);
+            _viewProjectionMatrixHUD = Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographic(Width, Height, 0.1f, 100f);
         }
 
         public void SetWorld(World w)

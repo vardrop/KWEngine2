@@ -8,6 +8,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
 using static KWEngine2.KWEngine;
+using KWEngine2.Audio;
 
 namespace KWEngine2.GameObjects
 {
@@ -1459,6 +1460,19 @@ namespace KWEngine2.GameObjects
             throw new Exception("Mesh with ID " + meshID + " not found in Model.");
         }
 
+        public void SoundPlay(string audiofile, bool playLooping = false, float volume = 1.0f)
+        {
+            GLAudioEngine.SoundPlay(audiofile, playLooping, volume);
+        }
 
+        public void SoundStop(string audiofile)
+        {
+            GLAudioEngine.SoundStop(audiofile);
+        }
+
+        public void SoundStopAll()
+        {
+            GLAudioEngine.SoundStopAll();
+        }
     }
 }
