@@ -174,9 +174,13 @@ namespace KWEngine2.Renderers
                 }
 
                 // Camera
-                if (mUniform_uCameraPos >= 0)
+                if (!CurrentWorld.IsFirstPersonMode)
                 {
                     GL.Uniform3(mUniform_uCameraPos, g.CurrentWorld.GetCameraPosition().X, g.CurrentWorld.GetCameraPosition().Y, g.CurrentWorld.GetCameraPosition().Z);
+                }
+                else
+                {
+                    GL.Uniform3(mUniform_uCameraPos, g.CurrentWorld.GetFirstPersonObject().Position.X, g.CurrentWorld.GetFirstPersonObject().Position.Y + g.CurrentWorld.GetFirstPersonObject().FPSEyeOffset, g.CurrentWorld.GetFirstPersonObject().Position.Z);
                 }
 
                 // Upload depth texture (shadow mapping)
@@ -187,7 +191,6 @@ namespace KWEngine2.Renderers
                     GL.Uniform1(mUniform_TextureShadowMap, 3);
                 }
 
-                
 
                 foreach (string meshName in g.Model.Meshes.Keys)
                 {
@@ -216,30 +219,38 @@ namespace KWEngine2.Renderers
                         GL.Uniform1(mUniform_UseAnimations, 0);
                     }
 
-
-                    if (overrides == null)
-                        GL.Uniform1(mUniform_SpecularPower, mesh.Material.SpecularPower);
+                    if (g._cubeModel != null)
+                    {
+                        GL.Uniform1(mUniform_SpecularPower, g._cubeModel.SpecularPower);
+                        GL.Uniform1(mUniform_SpecularArea, g._cubeModel.SpecularArea);
+                    }
                     else
                     {
-                        bool found = overrides.TryGetValue(GameObject.Override.SpecularPower, out object value);
-                        if (found)
-                            GL.Uniform1(mUniform_SpecularPower, (float)value);
-                        else
+                        if (overrides == null)
                             GL.Uniform1(mUniform_SpecularPower, mesh.Material.SpecularPower);
-                    }
-
-
-                    if (overrides == null)
-                        GL.Uniform1(mUniform_SpecularArea, mesh.Material.SpecularArea);
-                    else
-                    {
-                        bool found = overrides.TryGetValue(GameObject.Override.SpecularArea, out object value);
-                        if(found)
-                            GL.Uniform1(mUniform_SpecularArea, (float)value);
                         else
+                        {
+                            bool found = overrides.TryGetValue(GameObject.Override.SpecularPower, out object value);
+                            if (found)
+                                GL.Uniform1(mUniform_SpecularPower, (float)value);
+                            else
+                                GL.Uniform1(mUniform_SpecularPower, mesh.Material.SpecularPower);
+
+
+                        }
+
+                        if (overrides == null)
                             GL.Uniform1(mUniform_SpecularArea, mesh.Material.SpecularArea);
+                        else
+                        {
+                            bool found = overrides.TryGetValue(GameObject.Override.SpecularArea, out object value);
+                            if (found)
+                                GL.Uniform1(mUniform_SpecularArea, (float)value);
+                            else
+                                GL.Uniform1(mUniform_SpecularArea, mesh.Material.SpecularArea);
+                        }
                     }
-                    
+
                     Matrix4.Mult(ref g.ModelMatrixForRenderPass, ref viewProjection, out _modelViewProjection);
                     Matrix4.Transpose(ref g.ModelMatrixForRenderPass, out _normalMatrix);
                     Matrix4.Invert(ref _normalMatrix, out _normalMatrix);

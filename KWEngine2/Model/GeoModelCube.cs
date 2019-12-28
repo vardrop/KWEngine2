@@ -8,6 +8,9 @@ namespace KWEngine2.Model
 {
     internal class GeoModelCube
     {
+        public float SpecularPower = 0;
+        public float SpecularArea = 512;
+
         public GeoTexture GeoTextureFront = new GeoTexture("");
         public GeoTexture GeoTextureBack = new GeoTexture("");
         public GeoTexture GeoTextureLeft = new GeoTexture("");
@@ -115,15 +118,16 @@ namespace KWEngine2.Model
 
         private void SetTextureAll(string texture, TextureType type)
         {
-            int texAll = -1;
+            int texAll;
            
             if (KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld].ContainsKey(texture))
             {
-                    texAll = KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld][texture];
+                texAll = KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld][texture];
             }
             else
             {
-                    texAll = HelperTexture.LoadTextureForModelExternal(texture);
+                texAll = HelperTexture.LoadTextureForModelExternal(texture);
+                KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld].Add(texture, texAll);
             }
 
             if (type == TextureType.Diffuse)

@@ -144,46 +144,21 @@ namespace KWEngine2.Model
                 {
                     if (isKWCube == 2)
                     {
-                        values[arrayIndex] = 1 - mesh.TextureCoordinateChannels[0][i].X;
+                        //values[arrayIndex] = 1 - mesh.TextureCoordinateChannels[0][i].X;
+                        //values[arrayIndex + 1] = 1 - mesh.TextureCoordinateChannels[0][i].Y;
 
+                        values[arrayIndex] = mesh.TextureCoordinateChannels[0][i].X;
+                        values[arrayIndex + 1] = mesh.TextureCoordinateChannels[0][i].Y;
+                    }
+                    else if (isKWCube == 6)
+                    {
+                        values[arrayIndex] = mesh.TextureCoordinateChannels[0][i].X;
                         values[arrayIndex + 1] = 1 - mesh.TextureCoordinateChannels[0][i].Y;
                     }
                     else
                     {
                         values[arrayIndex] = mesh.TextureCoordinateChannels[0][i].X;
                         values[arrayIndex + 1] = mesh.TextureCoordinateChannels[0][i].Y;
-                    }
-                }
-
-                if (isKWCube == 1)
-                {
-                    int[] indices = mesh.GetIndices();
-                    List<Vector3D> vertices = mesh.Vertices;
-
-                    // Override UVs for KWCube:
-                    for (int i = 6; i < values.Length; i++)
-                    {
-                        values[i] = 1- values[i];
-                    }
-
-                    for (int i = 18 * 2; i < 18 * 2 + 6; i++)
-                    {
-                        values[i] = 1 - values[i];
-                    }
-                }
-                else if(isKWCube == 6)
-                {
-                    string matName = scene.Materials[mesh.MaterialIndex].Name;
-                    if (matName == "Front" || matName == "Right" || matName == "Left" || matName == "Back")
-                    {
-                        values[0] = 1;
-                        values[1] = 0;
-                        values[2] = 0;
-                        values[3] = 1;
-                        values[4] = 1;
-                        values[5] = 1;
-                        values[6] = 0;
-                        values[7] = 0;
                     }
                 }
 

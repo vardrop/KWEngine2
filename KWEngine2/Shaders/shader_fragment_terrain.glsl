@@ -67,8 +67,8 @@ void main()
 	vec3 theNormal = vec3(0);
 	if(uUseTextureNormal > 0)
     {
-            theNormal = texture(uTextureNormal, vTexture).xyz * 2.0 - 1.0;
-            theNormal = vTBN * theNormal;
+            theNormal = normalize(texture(uTextureNormal, vTexture).xyz * 2.0 - 1.0);
+            theNormal = normalize(vTBN * theNormal);
     }
     else
     {

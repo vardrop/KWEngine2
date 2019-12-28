@@ -88,8 +88,8 @@ void main()
 	vec3 theNormal = vec3(0);
 	if(uUseTextureNormal > 0)
     {
-            theNormal = texture(uTextureNormal, vTexture).xyz * 2.0 - 1.0;
-            theNormal = vTBN * theNormal;
+            theNormal = normalize(texture(uTextureNormal, vTexture).xyz * 2.0 - 1.0);
+            theNormal = normalize(vTBN * theNormal);
     }
     else
     {
@@ -117,7 +117,7 @@ void main()
 			specularFactor = texture(uTextureSpecular, vTexture).r;
 	}
 	
-	vec3 reflectionVector = reflect(-uSunDirection, theNormal);
+	vec3 reflectionVector = reflect(-uSunDirection, vNormal);
 	if(uSunAffection > 0)
 	{
 		//Specular highlights from sun:
@@ -160,12 +160,12 @@ void main()
 		}
 
 		//calculate specular highlights:
-		reflectionVector = reflect(-lightVector, theNormal);
+		reflectionVector = reflect(-lightVector, vNormal);
 		float specular = max(0.0, specularFactor * uSpecularPower * pow(max(0.0, dot(surfaceToCamera, reflectionVector)), uSpecularArea) * differenceLightDirectionAndFragmentDirection);
 		totalSpecColor += uLightsColors[i].xyz * specular;
 
 		// Normal light affection:
-		float dotProductNormalLight = max(dot(vNormal, lightVector), 0.0) * (uLightsPositions[i].w / distance);
+		float dotProductNormalLight = max(dot(theNormal, lightVector), 0.0) * (uLightsPositions[i].w / distance);
 
 		colorComponentTotal += lightColor * dotProductNormalLight * uLightsColors[i].w * pow(differenceLightDirectionAndFragmentDirection, 5.0); // .w includes distance multiplier factor
 	}

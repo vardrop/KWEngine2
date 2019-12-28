@@ -153,7 +153,6 @@
     <EmbeddedResource Include="Assets\Models\kwrect.obj" />
     <EmbeddedResource Include="Assets\Models\kwsphere.obj" />
     <EmbeddedResource Include="Assets\Models\littlegirl.fbx" />
-    <EmbeddedResource Include="Assets\Models\kwcube.mtl" />
     <EmbeddedResource Include="Assets\Models\kwcube6.mtl" />
     <EmbeddedResource Include="Assets\Models\kwcube6.obj" />
     <EmbeddedResource Include="Assets\Fonts\Anonymous.ttf" />

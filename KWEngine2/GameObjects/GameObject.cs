@@ -983,15 +983,18 @@ namespace KWEngine2.GameObjects
                     GeoTexture newTex = new GeoTexture(texture);
                     newTex.Filename = texture;
 
-                    if (KWEngine.CustomTextures[CurrentWorld].ContainsKey(texture))
+                    if (KWEngine.CustomTextures[KWEngine.CurrentWorld].ContainsKey(texture))
                     {
-                        newTex.OpenGLID = KWEngine.CustomTextures[CurrentWorld][texture];
+                        newTex.OpenGLID = KWEngine.CustomTextures[KWEngine.CurrentWorld][texture];
                     }
                     else
                     {
                         int id = HelperTexture.LoadTextureForModelExternal(texture);
                         if (id > 0)
+                        {
                             newTex.OpenGLID = id;
+                            KWEngine.CustomTextures[KWEngine.CurrentWorld].Add(texture, id);
+                        }
                         else
                         {
                             newTex.OpenGLID = KWEngine.TextureDefault;
@@ -1355,7 +1358,8 @@ namespace KWEngine2.GameObjects
             GeoMesh mesh = Model.Meshes.Values.ElementAt(meshId);
             if (mesh != null)
             {
-                _overrides[mesh.Name].Remove(Override.TextureDiffuse);
+                if(_overrides[mesh.Name].ContainsKey(Override.TextureTransform))
+                    _overrides[mesh.Name].Remove(Override.TextureTransform);
                 _overrides[mesh.Name].Add(Override.TextureTransform, new Vector2(repeatX, repeatY));
             }
         }
@@ -1484,7 +1488,17 @@ namespace KWEngine2.GameObjects
             }
             if (texId < 0)
             {
-                texId = HelperTexture.LoadTextureForModelExternal(texture);
+                if (KWEngine.CustomTextures[KWEngine.CurrentWorld].ContainsKey(texture))
+                {
+                    texId = KWEngine.CustomTextures[KWEngine.CurrentWorld][texture];
+                }
+                else
+                {
+                    texId = HelperTexture.LoadTextureForModelExternal(texture);
+                    if (texId > 0)
+                        KWEngine.CustomTextures[KWEngine.CurrentWorld].Add(texture, texId);
+                }
+                
                 if(texId < 0)
                 {
                     throw new Exception("Cannot find custom texture " + texture + ". Is your path correct?");
@@ -1498,17 +1512,20 @@ namespace KWEngine2.GameObjects
             tex.Filename = texName;
             if (textureType == TextureType.Diffuse)
             {
-                _overrides[mesh.Name].Remove(Override.TextureDiffuse);
+                if(_overrides[mesh.Name].ContainsKey(Override.TextureDiffuse))
+                    _overrides[mesh.Name].Remove(Override.TextureDiffuse);
                 _overrides[mesh.Name].Add(Override.TextureDiffuse, tex);
             }
             else if (textureType == TextureType.Normal)
             {
-                _overrides[mesh.Name].Remove(Override.TextureNormal);
+                if (_overrides[mesh.Name].ContainsKey(Override.TextureNormal))
+                    _overrides[mesh.Name].Remove(Override.TextureNormal);
                 _overrides[mesh.Name].Add(Override.TextureNormal, tex);
             }
             else
             {
-                _overrides[mesh.Name].Remove(Override.TextureSpecular);
+                if (_overrides[mesh.Name].ContainsKey(Override.TextureSpecular))
+                    _overrides[mesh.Name].Remove(Override.TextureSpecular);
                 _overrides[mesh.Name].Add(Override.TextureSpecular, tex);
             }
         }
@@ -1533,28 +1550,39 @@ namespace KWEngine2.GameObjects
                 Model.Meshes.Values.ElementAt(0).Material.SpecularArea = HelperGL.Clamp(area, 2, 8192);
                 Model.Meshes.Values.ElementAt(0).Material.SpecularPower = enable ? HelperGL.Clamp(power, 0, 2048) : 0;
             }
+            else if(_cubeModel != null)
+            {
+                _cubeModel.SpecularPower = enable ? HelperGL.Clamp(power, 0, 2048) : 0;
+                _cubeModel.SpecularArea = HelperGL.Clamp(area, 2, 8192);            
+            }
             else
             {
                 foreach (GeoMesh mesh in Model.Meshes.Values)
                 {
                     if (enable)
                     {
-                        _overrides[mesh.Name].Remove(Override.SpecularPower);
+                        if(_overrides[mesh.Name].ContainsKey(Override.SpecularPower))
+                            _overrides[mesh.Name].Remove(Override.SpecularPower);
                         _overrides[mesh.Name].Add(Override.SpecularPower, HelperGL.Clamp(power, 0, 100));
 
-                        _overrides[mesh.Name].Remove(Override.SpecularEnable);
+                        if (_overrides[mesh.Name].ContainsKey(Override.SpecularEnable))
+                            _overrides[mesh.Name].Remove(Override.SpecularEnable);
                         _overrides[mesh.Name].Add(Override.SpecularEnable, enable);
 
-                        _overrides[mesh.Name].Remove(Override.SpecularArea);
+                        if (_overrides[mesh.Name].ContainsKey(Override.SpecularArea))
+                            _overrides[mesh.Name].Remove(Override.SpecularArea);
                         _overrides[mesh.Name].Add(Override.SpecularArea, HelperGL.Clamp(area, 2, 8192));
 
 
                     }
                     else
                     {
-                        _overrides[mesh.Name].Remove(Override.SpecularPower);
-                        _overrides[mesh.Name].Remove(Override.SpecularEnable);
-                        _overrides[mesh.Name].Remove(Override.SpecularArea);
+                        if (_overrides[mesh.Name].ContainsKey(Override.SpecularPower))
+                            _overrides[mesh.Name].Remove(Override.SpecularPower);
+                        if (_overrides[mesh.Name].ContainsKey(Override.SpecularEnable))
+                            _overrides[mesh.Name].Remove(Override.SpecularEnable);
+                        if (_overrides[mesh.Name].ContainsKey(Override.SpecularArea))
+                            _overrides[mesh.Name].Remove(Override.SpecularArea);
                     }
                 }
             }
@@ -1564,6 +1592,11 @@ namespace KWEngine2.GameObjects
         {
             CheckModel();
             CheckIfNotTerrain();
+            if (_cubeModel != null)
+            {
+                SetSpecularOverride(enable, power, area);
+                return;
+            }
 
             foreach (GeoMesh mesh in Model.Meshes.Values)
             {
@@ -1595,6 +1628,12 @@ namespace KWEngine2.GameObjects
 
         public void SetSpecularOverrideForMesh(int meshID, bool enable, float power = 1, float area = 1024)
         {
+            if (_cubeModel != null)
+            {
+                SetSpecularOverride(enable, power, area);
+                return;
+            }
+
             int c = 0;
             foreach (GeoMesh mesh in Model.Meshes.Values)
             {

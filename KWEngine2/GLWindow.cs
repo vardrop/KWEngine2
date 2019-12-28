@@ -263,8 +263,7 @@ namespace KWEngine2
         {
             base.OnUpdateFrame(e);
 
-            _mousePointFPS.X = X + Width / 2;
-            _mousePointFPS.Y = Y + Height / 2;
+            
 
             KeyboardState ks = Keyboard.GetState();
             MouseState ms = Mouse.GetCursorState();
@@ -293,12 +292,16 @@ namespace KWEngine2
                     {
                         p.Act();
                     }
+                    foreach (LightObject l in CurrentWorld.GetLightObjects())
+                    {
+                        l.Act(ks, ms, DeltaTime.GetDeltaTimeFactor());
+                    }
                 }
             }
             CurrentWorld.AddRemoveObjects();
             CurrentWorld.SortByZ();
 
-            if (CurrentWorld.IsFirstPersonMode)
+            if (CurrentWorld.IsFirstPersonMode && Focused)
             {
                 Mouse.SetPosition(_mousePointFPS.X, _mousePointFPS.Y);
             }
@@ -319,6 +322,19 @@ namespace KWEngine2
             }
         }
 
+        protected override void OnFocusedChanged(EventArgs e)
+        {
+            base.OnFocusedChanged(e);
+            if (Focused)
+            { 
+                if(CurrentWorld != null && CurrentWorld.IsFirstPersonMode)
+                {
+                    Mouse.SetPosition(_mousePointFPS.X, _mousePointFPS.Y);
+                }
+            }
+                
+        }
+
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
@@ -326,6 +342,9 @@ namespace KWEngine2
             GL.Viewport(ClientRectangle);
             
             InitializeFramebuffers();
+
+            _mousePointFPS.X = X + Width / 2;
+            _mousePointFPS.Y = Y + Height / 2;
 
             CalculateProjectionMatrix();
 
@@ -335,7 +354,8 @@ namespace KWEngine2
         protected override void OnMove(EventArgs e)
         {
             base.OnMove(e);
-
+            _mousePointFPS.X = X + Width / 2;
+            _mousePointFPS.Y = Y + Height / 2;
             _windowRect = new System.Drawing.Rectangle(this.X, this.Y, this.Width + 16, this.Height + SystemInformation.CaptionHeight * 2);
         }
 

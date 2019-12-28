@@ -20,6 +20,7 @@ namespace KWEngine2Test
 
         public override void Act(KeyboardState kbs, MouseState ms)
         {
+            /*
             long t = GetCurrentTimeInMilliseconds();
             if (t - _timeStamp > 4000)
             {
@@ -36,10 +37,10 @@ namespace KWEngine2Test
 
                 
             }
-
+            */
             
         }
-
+        /*
         public override void Prepare()
         {
             //SoundPlay(".\\audio\\stage01.ogg", true, 0.3f);
@@ -111,6 +112,64 @@ namespace KWEngine2Test
             SetTextureSkybox(".\\textures\\skybox1.jpg", 1, 1);
 
             //DebugShadowCaster = true;
+        }
+        */
+
+        public override void Prepare()
+        {
+            SetCameraPosition(0, 0, 3);
+            /*
+            WuerfelTest wt1 = new WuerfelTest();
+            wt1.SetModel(KWEngine.GetModel("KWCube"));
+            wt1.SetScale(10, 1, 10);
+            //wt1.SetScale(1, 1, 1);
+            //wt1.SetSpecularOverride(true, 5, 256);
+            wt1.SetTextureRepeat(4, 4);
+            wt1.SetTexture(".\\textures\\pavement01.jpg", KWEngine.TextureType.Diffuse);
+            wt1.SetTexture(".\\textures\\pavement01_normal.jpg", KWEngine.TextureType.Normal);
+            //wt1.SetTexture(".\\textures\\mpanel_specular.jpg", KWEngine.TextureType.Specular);
+            wt1.IsAffectedBySun = true;
+            AddGameObject(wt1);
+            */
+
+            /*
+            WuerfelTest wt6 = new WuerfelTest();
+            wt6.SetModel(KWEngine.GetModel("KWCube6"));
+            wt6.SetTexture(".\\textures\\pavement01.jpg", KWEngine.TextureType.Diffuse, KWEngine.CubeSide.All);
+            wt6.SetTexture(".\\textures\\pavement01_normal.jpg", KWEngine.TextureType.Normal, KWEngine.CubeSide.All);
+
+            wt6.SetTexture(".\\textures\\asphalt.jpg", KWEngine.TextureType.Diffuse, KWEngine.CubeSide.Top);
+            AddGameObject(wt6);
+            */
+
+            /*
+            KWEngine.BuildTerrainModel("terraX", ".\\textures\\heightmap.png", ".\\textures\\pavement01.jpg", 50, 5, 50, 10, 10);
+            TerrainTest t = new TerrainTest();
+            t.SetModel(KWEngine.GetModel("terraX"));
+            t.SetTexture(".\\textures\\pavement01_normal.jpg", KWEngine.TextureType.Normal);
+            t.SetTexture(".\\textures\\asphalt_specular.jpg", KWEngine.TextureType.Specular);
+            t.SetSpecularOverride(true, 5, 256);
+            AddGameObject(t);
+            */
+
+            Sphere sp = new Sphere();
+            sp.SetModel(KWEngine.GetModel("KWSphere"));
+            sp.SetTexture(".\\textures\\mpanel_diffuse.jpg");
+            sp.SetTexture(".\\textures\\mpanel_normal.jpg", KWEngine.TextureType.Normal);
+            sp.SetTexture(".\\textures\\asphalt_specular.jpg", KWEngine.TextureType.Specular);
+            sp.SetTextureRepeat(20, 20);
+            AddGameObject(sp);
+
+            Ship s = new Ship();
+            s.SetModel(KWEngine.GetModel("KWCube"));
+            s.SetPosition(0, 0, 5);
+            AddGameObject(s);
+            SetFirstPersonObject(s, 180);
+
+            Light l = new Light();
+            l.SetPosition(0, 2, 0);
+            l.SetDistanceMultiplier(10);
+            AddLightObject(l);
         }
 
     }

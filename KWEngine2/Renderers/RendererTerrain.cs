@@ -143,9 +143,16 @@ namespace KWEngine2.Renderers
                 GL.Uniform3(mUniform_SunDirection, ref sunDirection);
                 GL.Uniform1(mUniform_SunAmbient, g.CurrentWorld.SunAmbientFactor);
                 GL.Uniform1(mUniform_SunAffection, g.IsAffectedBySun ? 1 : 0);
-                
+
                 // Camera
-                GL.Uniform3(mUniform_uCameraPos, g.CurrentWorld.GetCameraPosition().X, g.CurrentWorld.GetCameraPosition().Y, g.CurrentWorld.GetCameraPosition().Z);
+                if (!CurrentWorld.IsFirstPersonMode)
+                {
+                    GL.Uniform3(mUniform_uCameraPos, g.CurrentWorld.GetCameraPosition().X, g.CurrentWorld.GetCameraPosition().Y, g.CurrentWorld.GetCameraPosition().Z);
+                }
+                else
+                {
+                    GL.Uniform3(mUniform_uCameraPos, g.CurrentWorld.GetFirstPersonObject().Position.X, g.CurrentWorld.GetFirstPersonObject().Position.Y + g.CurrentWorld.GetFirstPersonObject().FPSEyeOffset, g.CurrentWorld.GetFirstPersonObject().Position.Z);
+                }
 
                 // Upload depth texture (shadow mapping)
                 GL.ActiveTexture(TextureUnit.Texture3);

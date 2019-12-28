@@ -61,7 +61,7 @@ namespace KWEngine2.Model
                         | PostProcessSteps.ValidateDataStructure
                         | PostProcessSteps.GenerateUVCoords
                         | PostProcessSteps.CalculateTangentSpace;
-                    if(filename != "kwcube.obj")
+                    if(filename != "kwcube.obj" && filename !="kwcube6.obj")
                         steps |= PostProcessSteps.JoinIdenticalVertices;
                     scene = importer.ImportFileFromStream(s, steps);
                 }
