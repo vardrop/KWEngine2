@@ -24,14 +24,19 @@ namespace KWEngine2.Model
         private float mSectorWidthCoarse = 0;
         private float mSectorDepthCoarse = 0;
 
+        internal int _texBlend = KWEngine.TextureBlack;
+        internal int _texR = KWEngine.TextureAlpha;
+        internal int _texG = KWEngine.TextureAlpha;
+        internal int _texB = KWEngine.TextureAlpha;
+
         private List<Sector> mSectors = new List<Sector>();
         private List<Sector> mSectorsCoarse = new List<Sector>();
         private Dictionary<int, List<GeoTerrainTriangle>> mSectorTriangleMap = new Dictionary<int, List<GeoTerrainTriangle>>();
         private Dictionary<Sector, List<Sector>> mSectorCoarseMap = new Dictionary<Sector, List<Sector>>();
 
         private float mCompleteDiameter;
-        private float mTexX = 1;
-        private float mTexY = 1;
+        internal float mTexX = 1;
+        internal float mTexY = 1;
 
         public float GetScaleFactor()
         {
@@ -178,8 +183,8 @@ namespace KWEngine2.Model
                                 VBOVerticesBuffer[cFBuffer + 1] = points[c].Y;
                                 VBOVerticesBuffer[cFBuffer + 2] = points[c].Z;
 
-                                VBOUVBuffer[cFBufferUV + 0] = i * (1f / (image.Width - 1)) * mTexX;
-                                VBOUVBuffer[cFBufferUV + 1] = j * (1f / (image.Height - 1)) * mTexY;
+                                VBOUVBuffer[cFBufferUV + 0] = i * (1f / (image.Width - 1));  //* mTexX;
+                                VBOUVBuffer[cFBufferUV + 1] = j * (1f / (image.Height - 1)); // * mTexY;
 
                                 normalMapping.Add(c, new Vector3(0, 0, 0));
                                 tangentMapping.Add(c, new Vector3(0, 0, 0));

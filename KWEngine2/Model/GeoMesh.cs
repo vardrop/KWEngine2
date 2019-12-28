@@ -142,8 +142,17 @@ namespace KWEngine2.Model
 
                 for (int i = 0, arrayIndex = 0; i < mesh.TextureCoordinateChannels[0].Count; i++, arrayIndex += 2)
                 {
-                    values[arrayIndex] = mesh.TextureCoordinateChannels[0][i].X;
-                    values[arrayIndex + 1] = mesh.TextureCoordinateChannels[0][i].Y;
+                    if (isKWCube == 2)
+                    {
+                        values[arrayIndex] = 1 - mesh.TextureCoordinateChannels[0][i].X;
+
+                        values[arrayIndex + 1] = 1 - mesh.TextureCoordinateChannels[0][i].Y;
+                    }
+                    else
+                    {
+                        values[arrayIndex] = mesh.TextureCoordinateChannels[0][i].X;
+                        values[arrayIndex + 1] = mesh.TextureCoordinateChannels[0][i].Y;
+                    }
                 }
 
                 if (isKWCube == 1)

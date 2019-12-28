@@ -65,6 +65,7 @@ namespace KWEngine2.Renderers
             mAttribute_vweights = GL.GetAttribLocation(mProgramId, "aBoneWeights");
             mAttribute_vtexture2 = GL.GetAttribLocation(mProgramId, "aTexture2");
 
+            mUniform_Opacity = GL.GetUniformLocation(mProgramId, "uOpacity");
 
             mUniform_MVP = GL.GetUniformLocation(mProgramId, "uMVP");
             mUniform_MVPShadowMap = GL.GetUniformLocation(mProgramId, "uMVPShadowMap");
@@ -190,6 +191,7 @@ namespace KWEngine2.Renderers
 
                 foreach (string meshName in g.Model.Meshes.Keys)
                 {
+                    GL.Disable(EnableCap.Blend);
                     GeoMesh mesh = g.Model.Meshes[meshName];
                     Dictionary<GameObject.Override, object> overrides = null;
                     if (g._overrides.ContainsKey(mesh.Name))
@@ -238,7 +240,6 @@ namespace KWEngine2.Renderers
                             GL.Uniform1(mUniform_SpecularArea, mesh.Material.SpecularArea);
                     }
                     
-
                     Matrix4.Mult(ref g.ModelMatrixForRenderPass, ref viewProjection, out _modelViewProjection);
                     Matrix4.Transpose(ref g.ModelMatrixForRenderPass, out _normalMatrix);
                     Matrix4.Invert(ref _normalMatrix, out _normalMatrix);
@@ -260,9 +261,25 @@ namespace KWEngine2.Renderers
                     }
                     else
                     {
-                        // TODO: Add lightmap feature
-                        GL.Uniform1(mUniform_TextureUseLightMap, 0);
-                        
+                        if (mesh.Material.TextureLight.OpenGLID > 0)
+                        {
+                            GL.ActiveTexture(TextureUnit.Texture8);
+                            GL.BindTexture(TextureTarget.Texture2D, mesh.Material.TextureLight.OpenGLID);
+                            GL.Uniform1(mUniform_TextureLightMap, 8);
+                            GL.Uniform1(mUniform_TextureUseLightMap, 1);
+                        }
+                        else
+                        {
+                            GL.Uniform1(mUniform_TextureUseLightMap, 0);
+                        }
+
+
+                        if(mesh.Material.Opacity < 1)
+                        {
+                            GL.Enable(EnableCap.Blend);
+                        }
+                        GL.Uniform1(mUniform_Opacity, mesh.Material.Opacity);
+
                         bool found = false;
                         object overrideValue = null;
                         if (overrides != null)

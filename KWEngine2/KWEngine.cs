@@ -84,6 +84,7 @@ namespace KWEngine2
             Renderers.Add("Background", new RendererBackground());
             Renderers.Add("Skybox", new RendererSkybox());
             Renderers.Add("Particle", new RendererParticle());
+            Renderers.Add("Terrain", new RendererTerrain());
             Renderers.Add("HUD", new RendererHUD());
         }
 
@@ -250,7 +251,7 @@ namespace KWEngine2
             mat.SpecularPower = 0;
 
             GeoTexture texDiffuse = new GeoTexture(name + "-TextureDiffuse");
-            texDiffuse.Filename = heightmap;
+            texDiffuse.Filename = texture;
             texDiffuse.Type = GeoTexture.TexType.Diffuse;
             texDiffuse.UVMapIndex = 0;
             texDiffuse.UVTransform = new Vector2(texRepeatX, texRepeatZ);
@@ -273,13 +274,8 @@ namespace KWEngine2
 
 
             terrainMesh.Material = mat;
-
-
-            //terrainModel._terrain = t;
             terrainModel.Meshes.Add("Terrain", terrainMesh);
-
             KWEngine.Models.Add(name, terrainModel);
-
         }
 
         public static void LoadModelFromFile(string name, string filename)

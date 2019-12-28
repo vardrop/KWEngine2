@@ -25,6 +25,7 @@ uniform int uUseTextureLightmap;
 
 uniform sampler2DShadow uTextureShadowMap;
 
+uniform float uOpacity;
 uniform vec3 uBaseColor;
 uniform vec4 uGlow;
 uniform vec3 uTintColor;
@@ -110,7 +111,10 @@ void main()
 	float specularFactor = 1.0;
 	if(uUseTextureSpecular > 0)
 	{
-		specularFactor = texture(uTextureSpecular, vTexture).r;
+		if(uRoughness > 0)
+			specularFactor = 1.0 - texture(uTextureSpecular, vTexture).r;
+		else
+			specularFactor = texture(uTextureSpecular, vTexture).r;
 	}
 	
 	vec3 reflectionVector = reflect(-uSunDirection, theNormal);
@@ -173,7 +177,7 @@ void main()
     color.x = finalColor.x;
 	color.y = finalColor.y;
 	color.z = finalColor.z;
-	color.w = 1.0;
+	color.w = uOpacity;
 
 	vec3 addedBloom = vec3(max(finalColor.x - 1.0, 0.0), max(finalColor.y - 1.0, 0.0), max(finalColor.z - 1.0, 0.0)) + (uEmissiveColor.xyz * 0.5);
 	bloom.x = addedBloom.x + uGlow.x * uGlow.w;

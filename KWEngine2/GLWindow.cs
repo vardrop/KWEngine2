@@ -153,10 +153,16 @@ namespace KWEngine2
             {
                 lock (CurrentWorld)
                 {
-                    if(CurrentWorld.IsFirstPersonMode)
-                        _viewMatrix = HelperCamera.GetViewMatrix(CurrentWorld.GetFirstPersonObject().Position);
-                    else
-                        _viewMatrix = Matrix4.LookAt(CurrentWorld.GetCameraPosition(), CurrentWorld.GetCameraTarget(), KWEngine.WorldUp);
+                    if (CurrentWorld.DebugShadowCaster)
+                    {
+                        _viewMatrix = Matrix4.LookAt(CurrentWorld.GetSunPosition(), CurrentWorld.GetSunTarget(), KWEngine.WorldUp);
+                    }
+                    else { 
+                        if (CurrentWorld.IsFirstPersonMode)
+                            _viewMatrix = HelperCamera.GetViewMatrix(CurrentWorld.GetFirstPersonObject().Position);
+                        else
+                            _viewMatrix = Matrix4.LookAt(CurrentWorld.GetCameraPosition(), CurrentWorld.GetCameraTarget(), KWEngine.WorldUp);
+                    }
                     Matrix4 viewProjection = _viewMatrix * _projectionMatrix;
 
                     Matrix4 viewMatrixShadow = Matrix4.LookAt(CurrentWorld.GetSunPosition(), CurrentWorld.GetSunTarget(), KWEngine.WorldUp);
@@ -181,6 +187,20 @@ namespace KWEngine2
 
                     SwitchToBufferAndClear(FramebufferMainMultisample);
                     GL.Viewport(ClientRectangle);
+
+
+                    // Background rendering:
+                    if (CurrentWorld._textureBackground > 0)
+                    {
+
+                        KWEngine.Renderers["Background"].Draw(_dummy, ref _modelViewProjectionMatrixBackground);
+                    }
+                    else if (CurrentWorld._textureSkybox > 0)
+                    {
+                        KWEngine.Renderers["Skybox"].Draw(_dummy, ref _projectionMatrix);
+                    }
+
+
                     Matrix4 viewProjectionShadowBiased = viewProjectionShadow * HelperMatrix.BiasedMatrixForShadowMapping;
                     lock (CurrentWorld._gameObjects)
                     {
@@ -193,6 +213,10 @@ namespace KWEngine2
                             {
                                 KWEngine.Renderers["Explosion"].Draw(g, ref viewProjection);
                             }
+                            else if (g.Model.IsTerrain)
+                            {
+                                KWEngine.Renderers["Terrain"].Draw(g, ref viewProjection, ref viewProjectionShadowBiased, Frustum, ref LightColors, ref LightTargets, ref LightPositions, CurrentWorld._lightcount);
+                            }
                             else
                             {
                                 KWEngine.Renderers["Standard"].Draw(g, ref viewProjection, ref viewProjectionShadowBiased, Frustum, ref LightColors, ref LightTargets, ref LightPositions, CurrentWorld._lightcount);
@@ -201,16 +225,7 @@ namespace KWEngine2
                     }
                     GL.UseProgram(0);
 
-                    // Background rendering:
-                    if (CurrentWorld._textureBackground > 0)
-                    {
-
-                        KWEngine.Renderers["Background"].Draw(_dummy, ref _modelViewProjectionMatrixBackground);
-                    }
-                    else if (CurrentWorld._textureSkybox > 0)
-                    {
-                        KWEngine.Renderers["Skybox"].Draw(_dummy, ref _projectionMatrix);
-                    }
+                    
 
                     lock (CurrentWorld._particleObjects)
                     {

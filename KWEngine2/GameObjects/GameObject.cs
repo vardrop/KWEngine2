@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using static KWEngine2.KWEngine;
 using KWEngine2.Audio;
+using System.IO;
 
 namespace KWEngine2.GameObjects
 {
@@ -958,7 +959,7 @@ namespace KWEngine2.GameObjects
         }
         
 
-        public void SetTexture(string texture, CubeSide side = CubeSide.All, TextureType type = TextureType.Diffuse)
+        public void SetTexture(string texture, TextureType type = TextureType.Diffuse, CubeSide side = CubeSide.All)
         {
             CheckModelAndWorld();
 
@@ -976,6 +977,44 @@ namespace KWEngine2.GameObjects
                 {
                     SetTextureForMesh(0, texture, type);
                 }
+                else if (Model.IsTerrain)
+                {
+                    GeoMesh terrainMesh = Model.Meshes.Values.ElementAt(0);
+                    GeoTexture newTex = new GeoTexture(texture);
+                    newTex.Filename = texture;
+
+                    if (KWEngine.CustomTextures[CurrentWorld].ContainsKey(texture))
+                    {
+                        newTex.OpenGLID = KWEngine.CustomTextures[CurrentWorld][texture];
+                    }
+                    else
+                    {
+                        int id = HelperTexture.LoadTextureForModelExternal(texture);
+                        if (id > 0)
+                            newTex.OpenGLID = id;
+                        else
+                        {
+                            newTex.OpenGLID = KWEngine.TextureDefault;
+                            Debug.WriteLine("Error loading " + type + " texture for terrain '" + Model.Name + "': " + texture);
+                        }
+                    }
+
+                    if (type == TextureType.Diffuse)
+                    {
+                        newTex.Type = GeoTexture.TexType.Diffuse;
+                        terrainMesh.Material.TextureDiffuse = newTex;
+                    }
+                    else if (type == TextureType.Normal)
+                    {
+                        newTex.Type = GeoTexture.TexType.Normal;
+                        terrainMesh.Material.TextureNormal = newTex;
+                    }
+                    else
+                    {
+                        newTex.Type = GeoTexture.TexType.Specular;
+                        terrainMesh.Material.TextureSpecular = newTex;
+                    }
+                }
                 else
                 {
                     throw new Exception("Cannot set textures for model " + Model.Name + " because it is not a KWCube, KWSphere or KWRect. Use SetTextureForMesh() instead.");
@@ -987,6 +1026,7 @@ namespace KWEngine2.GameObjects
         public void SetTextureRepeat(float x, float y, CubeSide side = CubeSide.All)
         {
             CheckModelAndWorld();
+            CheckIfNotTerrain();
 
             if (_cubeModel != null)
             {
@@ -998,8 +1038,6 @@ namespace KWEngine2.GameObjects
                 {
                     throw new Exception("Texture repeat values must be > 0.");
                 }
-                
-
                 _cubeModel.SetTextureRepeat(x, y, side);
             }
             else
@@ -1266,12 +1304,13 @@ namespace KWEngine2.GameObjects
 
 
 
-        public void SetTextureForModelMesh(string meshName, string texture, TextureType textureType = TextureType.Diffuse)
+        public void SetTextureForMesh(string meshName, string texture, TextureType textureType = TextureType.Diffuse)
         {
             CheckModel();
+            CheckIfNotTerrain();
             if (_cubeModel != null)
             {
-                SetTexture(texture, CubeSide.All, textureType);
+                SetTexture(texture, textureType, CubeSide.All);
                 Debug.WriteLine("Method call forwarded to SetTexture() for KWCube instances. Please use SetTexture() for KWCube instances.");
                 return;
             }
@@ -1295,9 +1334,17 @@ namespace KWEngine2.GameObjects
             throw new Exception("Mesh with name " + meshName + " not found.");
         }
 
+        private void CheckIfNotTerrain()
+        {
+            if (Model != null && Model.IsTerrain)
+                throw new Exception("Not a valid call for Terrain objects.");
+        }
+
         public void SetTextureRepeatForMesh(int meshId, float repeatX, float repeatY)
         {
             CheckModel();
+            CheckIfNotTerrain();
+            
             if (_cubeModel != null)
             {
                 SetTextureRepeat(repeatX, repeatY, CubeSide.All);
@@ -1313,12 +1360,103 @@ namespace KWEngine2.GameObjects
             }
         }
 
+        public void SetTextureTerrainBlendMapping(string blendTexture, string redTexture, string greenTexture = null, string blueTexture = null)
+        {
+            if (blendTexture != null && !File.Exists(blendTexture))
+                throw new Exception("Blend texture not found.");
+
+            if (redTexture != null && !File.Exists(redTexture))
+                throw new Exception("Red texture not found.");
+
+            if (greenTexture != null && !File.Exists(greenTexture))
+                throw new Exception("Green texture not found.");
+
+            if (blueTexture != null && !File.Exists(blueTexture))
+                throw new Exception("Blue texture not found.");
+
+
+            if (Model != null && Model.IsTerrain)
+            {
+                GeoTerrain terrain = Model.Meshes.Values.ElementAt(0).Terrain;
+                if (blendTexture != null && redTexture != null)
+                {
+                    if (KWEngine.CustomTextures[KWEngine.CurrentWorld].ContainsKey(blendTexture))
+                    {
+                        terrain._texBlend = KWEngine.CustomTextures[KWEngine.CurrentWorld][blendTexture];
+                    }
+                    else
+                    {
+                        terrain._texBlend = HelperTexture.LoadTextureForModelExternal(blendTexture);
+                        if (terrain._texBlend < 0)
+                            terrain._texBlend = KWEngine.TextureBlack;
+
+                        if (terrain._texBlend > 0 && terrain._texBlend != KWEngine.TextureBlack)
+                        {
+                            KWEngine.CustomTextures[KWEngine.CurrentWorld].Add(blendTexture, terrain._texBlend);
+                        }
+                    }
+
+                    if (KWEngine.CustomTextures[KWEngine.CurrentWorld].ContainsKey(redTexture))
+                    {
+                        terrain._texR = KWEngine.CustomTextures[KWEngine.CurrentWorld][redTexture];
+                    }
+                    else
+                    {
+                        terrain._texR = HelperTexture.LoadTextureForModelExternal(redTexture);
+                        if (terrain._texR > 0 && terrain._texR != KWEngine.TextureAlpha)
+                        {
+                            KWEngine.CustomTextures[KWEngine.CurrentWorld].Add(redTexture, terrain._texR);
+                        }
+                    }
+
+                    if (greenTexture != null && KWEngine.CustomTextures[KWEngine.CurrentWorld].ContainsKey(greenTexture))
+                    {
+                        terrain._texG = KWEngine.CustomTextures[KWEngine.CurrentWorld][greenTexture];
+                    }
+                    else
+                    {
+                        terrain._texG = greenTexture == null ? KWEngine.TextureAlpha : HelperTexture.LoadTextureForModelExternal(greenTexture);
+                        if (terrain._texG > 0 && terrain._texG != KWEngine.TextureAlpha)
+                        {
+                            KWEngine.CustomTextures[KWEngine.CurrentWorld].Add(greenTexture, terrain._texG);
+                        }
+                    }
+
+                    if (blueTexture != null && KWEngine.CustomTextures[KWEngine.CurrentWorld].ContainsKey(blueTexture))
+                    {
+                        terrain._texB = KWEngine.CustomTextures[KWEngine.CurrentWorld][blueTexture];
+                    }
+                    else
+                    {
+                        terrain._texB = blueTexture == null ? KWEngine.TextureAlpha : HelperTexture.LoadTextureForModelExternal(blueTexture);
+                        if(terrain._texB > 0 && terrain._texB != KWEngine.TextureAlpha)
+                        {
+                            KWEngine.CustomTextures[KWEngine.CurrentWorld].Add(blueTexture, terrain._texB);
+                        }
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine("No valid blend and red textures chosen. Please check your image files.");
+                    terrain._texBlend = KWEngine.TextureBlack;
+                    terrain._texR = KWEngine.TextureAlpha;
+                    terrain._texG = KWEngine.TextureAlpha;
+                    terrain._texB = KWEngine.TextureAlpha;
+                }
+            }
+            else
+            {
+                throw new Exception("Method SetTextureTerrainBlendMapping() may only be called from a GameObject that has a terrain attached to it.");
+            }
+        }
+
         public void SetTextureForMesh(int meshID, string texture, TextureType textureType = TextureType.Diffuse)
         {
             CheckModel();
+            CheckIfNotTerrain();
             if (_cubeModel != null)
             {
-                SetTexture(texture, CubeSide.All, textureType);
+                SetTexture(texture, textureType, CubeSide.All);
                 Debug.WriteLine("Method call forwarded to SetTexture() for KWCube instances. Please use SetTexture() for KWCube instances.");
                 return;
             }
@@ -1390,32 +1528,43 @@ namespace KWEngine2.GameObjects
         public void SetSpecularOverride(bool enable, float power = 1, float area = 1024)
         {
             CheckModel();
-            foreach(GeoMesh mesh in Model.Meshes.Values)
+            if (Model.IsTerrain)
             {
-                if (enable)
+                Model.Meshes.Values.ElementAt(0).Material.SpecularArea = HelperGL.Clamp(area, 2, 8192);
+                Model.Meshes.Values.ElementAt(0).Material.SpecularPower = enable ? HelperGL.Clamp(power, 0, 2048) : 0;
+            }
+            else
+            {
+                foreach (GeoMesh mesh in Model.Meshes.Values)
                 {
-                    _overrides[mesh.Name].Remove(Override.SpecularPower);
-                    _overrides[mesh.Name].Add(Override.SpecularPower, HelperGL.Clamp(power, 0, 100));
+                    if (enable)
+                    {
+                        _overrides[mesh.Name].Remove(Override.SpecularPower);
+                        _overrides[mesh.Name].Add(Override.SpecularPower, HelperGL.Clamp(power, 0, 100));
 
-                    _overrides[mesh.Name].Remove(Override.SpecularEnable);
-                    _overrides[mesh.Name].Add(Override.SpecularEnable, enable);
+                        _overrides[mesh.Name].Remove(Override.SpecularEnable);
+                        _overrides[mesh.Name].Add(Override.SpecularEnable, enable);
 
-                    _overrides[mesh.Name].Remove(Override.SpecularArea);
-                    _overrides[mesh.Name].Add(Override.SpecularArea, HelperGL.Clamp(area, 2, 8192));
+                        _overrides[mesh.Name].Remove(Override.SpecularArea);
+                        _overrides[mesh.Name].Add(Override.SpecularArea, HelperGL.Clamp(area, 2, 8192));
 
-                    
-                }
-                else
-                {
-                    _overrides[mesh.Name].Remove(Override.SpecularPower);
-                    _overrides[mesh.Name].Remove(Override.SpecularEnable);
-                    _overrides[mesh.Name].Remove(Override.SpecularArea);
+
+                    }
+                    else
+                    {
+                        _overrides[mesh.Name].Remove(Override.SpecularPower);
+                        _overrides[mesh.Name].Remove(Override.SpecularEnable);
+                        _overrides[mesh.Name].Remove(Override.SpecularArea);
+                    }
                 }
             }
         }
 
         public void SetSpecularOverrideForMesh(string meshName, bool enable, float power = 1, float area = 1024)
         {
+            CheckModel();
+            CheckIfNotTerrain();
+
             foreach (GeoMesh mesh in Model.Meshes.Values)
             {
                 if (mesh.Name.ToLower().Contains(meshName.Trim().ToLower()))
@@ -1454,7 +1603,6 @@ namespace KWEngine2.GameObjects
                     SetSpecularOverrideForMesh(mesh.Name, enable, power, area);
                     return;
                 }
-
                 c++;
             }
             throw new Exception("Mesh with ID " + meshID + " not found in Model.");

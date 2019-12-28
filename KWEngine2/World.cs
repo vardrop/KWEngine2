@@ -14,7 +14,7 @@ namespace KWEngine2
 {
     public abstract class World
     {
-
+        public bool DebugShadowCaster { get; set; } = false;
         internal bool _prepared = false;
         private float _worldDistance = 100;
         public Vector3 WorldCenter { get; set; } = new Vector3(0, 0, 0);

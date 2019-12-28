@@ -74,7 +74,7 @@ namespace KWEngine2.Model
                     PostProcessSteps steps =
                               PostProcessSteps.LimitBoneWeights
                             | PostProcessSteps.Triangulate
-                            | PostProcessSteps.FixInFacingNormals
+                            //| PostProcessSteps.FixInFacingNormals
                             | PostProcessSteps.ValidateDataStructure
                             | PostProcessSteps.GenerateUVCoords
                             | PostProcessSteps.CalculateTangentSpace
@@ -277,14 +277,15 @@ namespace KWEngine2.Model
             }
         }
 
-        private static bool FindTransformForMesh(Scene scene, Node currentNode, Mesh mesh, out Matrix4 transform, out string nodeName)
+        private static bool FindTransformForMesh(Scene scene, Node currentNode, Mesh mesh, out Matrix4 transform, out string nodeName, ref Matrix4 parentTransform)
         {
+            Matrix4 currentNodeTransform = parentTransform * HelperMatrix.ConvertAssimpToOpenTKMatrix(currentNode.Transform);
             for (int i = 0; i < currentNode.MeshIndices.Count; i++)
             {
                 Mesh tmpMesh = scene.Meshes[currentNode.MeshIndices[i]];
                 if (tmpMesh.Name == mesh.Name)
                 {
-                    transform = HelperMatrix.ConvertAssimpToOpenTKMatrix(currentNode.Transform);
+                    transform = currentNodeTransform;
                     nodeName = currentNode.Name;
                     return true;
                 }
@@ -293,7 +294,7 @@ namespace KWEngine2.Model
             for (int i = 0; i < currentNode.ChildCount; i++)
             {
                 Node child = currentNode.Children[i];
-                bool found = FindTransformForMesh(scene, child, mesh, out Matrix4 t, out string nName);
+                bool found = FindTransformForMesh(scene, child, mesh, out Matrix4 t, out string nName, ref currentNodeTransform);
                 if (found)
                 {
                     transform = t;
@@ -419,6 +420,7 @@ namespace KWEngine2.Model
                         geoMaterial.SpecularPower = material.ShininessStrength;
                         geoMaterial.SpecularArea = material.Shininess;
                         geoMaterial.TextureSpecularIsRoughness = false;
+                        geoMaterial.Opacity = material.HasOpacity ? material.Opacity : 1;
                     }
 
                     
@@ -694,7 +696,8 @@ namespace KWEngine2.Model
                 currentMeshName = mesh.Name;
 
                 GeoMesh geoMesh = new GeoMesh();
-                bool transformFound = FindTransformForMesh(scene, scene.RootNode, mesh, out nodeTransform, out string nodeName);
+                Matrix4 parentTransform = Matrix4.Identity;
+                bool transformFound = FindTransformForMesh(scene, scene.RootNode, mesh, out nodeTransform, out string nodeName, ref parentTransform);
                 geoMesh.Transform = nodeTransform;
                 geoMesh.Terrain = null;
                 geoMesh.BoneTranslationMatrixCount = mesh.BoneCount;
@@ -760,6 +763,8 @@ namespace KWEngine2.Model
                     geoMesh.VBOGenerateTextureCoords1(mesh, scene, 1);
                 else if(model.Filename == "kwcube6.obj")
                     geoMesh.VBOGenerateTextureCoords1(mesh, scene, 6);
+                else if (model.Filename == "kwsphere.obj")
+                    geoMesh.VBOGenerateTextureCoords1(mesh, scene, 2);
                 else
                     geoMesh.VBOGenerateTextureCoords1(mesh, scene);
                 geoMesh.VBOGenerateTextureCoords2(mesh);

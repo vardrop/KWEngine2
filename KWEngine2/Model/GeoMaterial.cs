@@ -10,6 +10,7 @@ namespace KWEngine2.Model
         public Vector4 ColorEmissive { get; internal set; } = new Vector4(0, 0, 0, 0);
         public Vector4 ColorDiffuse { get; internal set; } = new Vector4(1, 1, 1, 1);
 
+        public float Opacity { get; internal set; } = 1;
         public float SpecularPower { get; internal set; } = 0;
         public float SpecularArea { get; internal set; } = 256;
 
