@@ -14,7 +14,7 @@ float weight[11] = float[] (0.4, 0.2, 0.10, 0.075, 0.05, 0.03, 0.01 , 0.0075, 0.
 vec2 tex_offset = vec2(1.0, 1.0);
 
 
-float bloomSizeFactor = 0.0003; // the bigger, the wider the bloom
+float bloomSizeFactor = 0.0004; // the bigger, the wider the bloom
 float multiplier = 1.0; // the bigger, the stronger the bloom
 
 void main()

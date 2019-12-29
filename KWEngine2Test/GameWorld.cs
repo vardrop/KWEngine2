@@ -121,6 +121,7 @@ namespace KWEngine2Test
 
         public override void Prepare()
         {
+            KWEngine.LoadModelFromFile("Lambo", @".\Models\lambo\Lamborghini_Aventador.fbx");
             SoundPlay(".\\audio\\stage01.ogg", true, 0.3f);
             SetCameraPosition(0, 25, 25);
             /*
@@ -156,20 +157,23 @@ namespace KWEngine2Test
             t.SetSpecularOverride(true, 5, 256);
             AddGameObject(t);
             */
-            
+
+            DebugShowCoordinateSystem = true;
+
             Sphere sp = new Sphere();
-            sp.SetModel(KWEngine.GetModel("KWSphere"));
-            sp.SetTexture(".\\textures\\mpanel_diffuse.jpg");
+            sp.SetModel(KWEngine.GetModel("Lambo"));
+            /*sp.SetTexture(".\\textures\\mpanel_diffuse.jpg");
             sp.SetTexture(".\\textures\\mpanel_normal.jpg", KWEngine.TextureType.Normal);
             sp.SetTexture(".\\textures\\asphalt_specular.jpg", KWEngine.TextureType.Specular);
-            sp.SetTextureRepeat(20, 20);
+            sp.SetTextureRepeat(20, 20);*/
+            sp.SetPosition(5, 0, -5);
             AddGameObject(sp);
             
-            Ship s = new Ship();
-            s.SetModel(KWEngine.GetModel("KWSphere"));
-            s.SetPosition(0, 0, 0);
-            AddGameObject(s);
-            SetFirstPersonObject(s, 180);
+            ship = new Ship();
+            ship.SetModel(KWEngine.GetModel("KWSphere"));
+            ship.SetPosition(0, 0, 25);
+            AddGameObject(ship);
+            SetFirstPersonObject(ship, 180);
 
             Light l = new Light();
             l.SetPosition(0, 2, 0);

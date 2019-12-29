@@ -284,25 +284,25 @@ namespace KWEngine2.GameObjects
             _sceneCenter.Y = sceneCenter.Y / Hitboxes.Count;
             _sceneCenter.Z = sceneCenter.Z / Hitboxes.Count;
             _sceneDimensions = new Vector3(maxX - minX, maxY - minY, maxZ - minZ);
-            Vector3 downLeftFront = new Vector3(GetGameObjectCenterPoint().X - GetGameObjectMaxDimensions().X / 2, GetGameObjectCenterPoint().Y - GetGameObjectMaxDimensions().Y / 2, GetGameObjectCenterPoint().Z + GetGameObjectMaxDimensions().Z / 2);
-            Vector3 upRightBack = new Vector3(GetGameObjectCenterPoint().X + GetGameObjectMaxDimensions().X / 2, GetGameObjectCenterPoint().Y + GetGameObjectMaxDimensions().Y / 2, GetGameObjectCenterPoint().Z - GetGameObjectMaxDimensions().Z / 2);
+            Vector3 downLeftFront = new Vector3(GetCenterPointForAllHitboxes().X - GetMaxDimensions().X / 2, GetCenterPointForAllHitboxes().Y - GetMaxDimensions().Y / 2, GetCenterPointForAllHitboxes().Z + GetMaxDimensions().Z / 2);
+            Vector3 upRightBack = new Vector3(GetCenterPointForAllHitboxes().X + GetMaxDimensions().X / 2, GetCenterPointForAllHitboxes().Y + GetMaxDimensions().Y / 2, GetCenterPointForAllHitboxes().Z - GetMaxDimensions().Z / 2);
             _sceneDiameter = (upRightBack - downLeftFront).LengthFast;
 
             if(KWEngine.CurrentWorld != null)
-                DistanceToCamera = (uint)((KWEngine.CurrentWorld.GetCameraPosition() - GetGameObjectCenterPoint()).LengthSquared * 10000);
+                DistanceToCamera = (uint)((KWEngine.CurrentWorld.GetCameraPosition() - GetCenterPointForAllHitboxes()).LengthSquared * 10000);
         }
 
-        public Vector3 GetGameObjectCenterPoint()
+        public Vector3 GetCenterPointForAllHitboxes()
         {
             return _sceneCenter;
         }
 
-        public Vector3 GetGameObjectMaxDimensions()
+        public Vector3 GetMaxDimensions()
         {
             return _sceneDimensions;
         }
 
-        public float GetGameObjectMaxDiameter()
+        public float GetMaxDiameter()
         {
             return _sceneDiameter;
         }
@@ -427,7 +427,7 @@ namespace KWEngine2.GameObjects
                 throw new Exception("Terrains cannot 'look' at objects.");
             }
 
-            Vector3 position = GetGameObjectCenterPoint();
+            Vector3 position = GetCenterPointForAllHitboxes();
             if(CurrentWorld.IsFirstPersonMode && CurrentWorld.GetFirstPersonObject().Equals(this))
             {
                 position = new Vector3(Position.X, Position.Y + FPSEyeOffset, Position.Z);
@@ -966,11 +966,11 @@ namespace KWEngine2.GameObjects
                 float back = go.Position.Z - terra.GetDepth() / 2f;
                 float front = go.Position.Z + terra.GetDepth() / 2f;
 
-                Vector3 hbCaller = caller.GetGameObjectCenterPoint();
+                Vector3 hbCaller = caller.GetCenterPointForAllHitboxes();
                 if (hbCaller.X >= left && hbCaller.X <= right
                     && hbCaller.Z >= back && hbCaller.Z <= front
-                    && hbCaller.Y + caller.GetGameObjectMaxDiameter() / 2 >= terraLow
-                    && hbCaller.Y - caller.GetGameObjectMaxDiameter() / 2 <= (terraHigh * 1.5f))
+                    && hbCaller.Y + caller.GetMaxDiameter() / 2 >= terraLow
+                    && hbCaller.Y - caller.GetMaxDiameter() / 2 <= (terraHigh * 1.5f))
                 {
                     return true;
                 }
@@ -978,7 +978,7 @@ namespace KWEngine2.GameObjects
             }
             else
             {
-                float distance = (caller.GetGameObjectCenterPoint() - go.GetGameObjectCenterPoint()).LengthFast;
+                float distance = (caller.GetCenterPointForAllHitboxes() - go.GetCenterPointForAllHitboxes()).LengthFast;
                 float rad1 = caller._sceneDiameter / 2;
                 float rad2 = go._sceneDiameter / 2;
                 if (distance - (rad1 + rad2) > 0)
@@ -1123,7 +1123,7 @@ namespace KWEngine2.GameObjects
                 normal = -GetCameraLookAtVector();
             }
 
-            bool result = LinePlaneIntersection(out Vector3 intersection, worldRay, CurrentWorld.GetCameraPosition(), normal, GetGameObjectCenterPoint());
+            bool result = LinePlaneIntersection(out Vector3 intersection, worldRay, CurrentWorld.GetCameraPosition(), normal, GetCenterPointForAllHitboxes());
             if (result)
             {
                 return intersection;
@@ -1134,16 +1134,39 @@ namespace KWEngine2.GameObjects
 
         protected bool IsMouseCursorInsideMyHitbox(MouseState ms)
         {
-            if (CurrentWorld.IsFirstPersonMode)
-                throw new Exception("Method GetMouseIntersectionPoint2() may not be called from First Person Mode object.");
-
             Vector3 worldRay = Get3DMouseCoords(HelperGL.GetNormalizedMouseCoords(ms.X, ms.Y, CurrentWindow));
-            Vector3 normal = -GetCameraLookAtVector();
-            normal.Y += 0.000001f;
-            normal.Z += 0.000001f;
-            bool result = LinePlaneIntersection(out Vector3 intersection, worldRay, CurrentWorld.GetCameraPosition(), normal, GetGameObjectCenterPoint());
+            Vector3 normal;
+            bool result;
+            Vector3 intersection;
+            if (CurrentWorld != null && CurrentWorld.IsFirstPersonMode)
+            {
+                Vector3 fpPos = CurrentWorld.GetFirstPersonObject().Position;
+                fpPos.Y += CurrentWorld.GetFirstPersonObject().FPSEyeOffset;
+                normal = HelperCamera.GetLookAtVector();
+                normal.Y += 0.000001f;
+                normal.Z += 0.000001f;
+                result = LinePlaneIntersection(out intersection, worldRay, fpPos, normal, GetCenterPointForAllHitboxes());
+            }
+            else
+            {
+                normal = -GetCameraLookAtVector();
+                normal.Y += 0.000001f;
+                normal.Z += 0.000001f;
+                result = LinePlaneIntersection(out intersection, worldRay, CurrentWorld.GetCameraPosition(), normal, GetCenterPointForAllHitboxes());
+            }
+            
+            
             if (result)
-                return IsPointInsideBox(intersection, GetGameObjectCenterPoint(), GetGameObjectMaxDimensions());
+            {
+                foreach(Hitbox hb in Hitboxes)
+                {
+                    if(IsPointInsideBox(intersection, hb.GetCenter(), hb.DiameterAveraged))
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
             else
                 return false;
         }
@@ -1157,6 +1180,18 @@ namespace KWEngine2.GameObjects
                 pos.Y <= center.Y + dimensions.Y / 2 &&
                 pos.Z >= center.Z - dimensions.Z / 2 &&
                 pos.Z <= center.Z + dimensions.Z / 2
+                );
+        }
+
+        private bool IsPointInsideBox(Vector3 pos, Vector3 center, float diameter)
+        {
+            return (
+                pos.X >= center.X - diameter/ 2 &&
+                pos.X <= center.X + diameter / 2 &&
+                pos.Y >= center.Y - diameter / 2 &&
+                pos.Y <= center.Y + diameter / 2 &&
+                pos.Z >= center.Z - diameter / 2 &&
+                pos.Z <= center.Z + diameter / 2
                 );
         }
 
@@ -1189,7 +1224,7 @@ namespace KWEngine2.GameObjects
                 normal = -GetCameraLookAtVector();
             }
 
-            Matrix4 lookat = Matrix4.LookAt(GetGameObjectCenterPoint(), position, normal);
+            Matrix4 lookat = Matrix4.LookAt(GetCenterPointForAllHitboxes(), position, normal);
             lookat.Transpose();
             lookat.Invert();
             return Quaternion.FromMatrix(new Matrix3(lookat));
@@ -1198,11 +1233,11 @@ namespace KWEngine2.GameObjects
        
         public void TurnTowardsXYZ(Vector3 target)
         {
-            Vector3 dir = target - GetGameObjectCenterPoint();
+            Vector3 dir = target - GetCenterPointForAllHitboxes();
             if (dir.LengthFast < 0.1f)
                 return;
             target.Z += 0.00001f;          
-            Matrix4 lookat = Matrix4.LookAt(GetGameObjectCenterPoint(), target, KWEngine.WorldUp);
+            Matrix4 lookat = Matrix4.LookAt(GetCenterPointForAllHitboxes(), target, KWEngine.WorldUp);
             lookat.Transpose();
             lookat.Invert();
             Rotation = Quaternion.FromMatrix(new Matrix3(lookat)) * Turn180;
@@ -1221,12 +1256,12 @@ namespace KWEngine2.GameObjects
         /// <param name="target">Zielkoordinaten</param>
         public void TurnTowardsXY(Vector3 target)
         {
-            target.Z = GetGameObjectCenterPoint().Z;
+            target.Z = GetCenterPointForAllHitboxes().Z;
             if ((target - Position).LengthFast < 0.00001f)
                 return;
 
             target.X += 0.000001f;
-            Matrix4 lookat = Matrix4.LookAt(GetGameObjectCenterPoint(), target, Vector3.UnitZ);
+            Matrix4 lookat = Matrix4.LookAt(GetCenterPointForAllHitboxes(), target, Vector3.UnitZ);
             lookat.Transpose();
             lookat.Invert();
             Rotation = Quaternion.FromMatrix(new Matrix3(lookat)) * Turn180;
@@ -1251,7 +1286,7 @@ namespace KWEngine2.GameObjects
         /// <param name="target">Zielkoordinaten</param>
         public void TurnTowardsXZ(Vector3 target)
         {
-            Vector3 currentPos = GetGameObjectCenterPoint();
+            Vector3 currentPos = GetCenterPointForAllHitboxes();
             target.Y = currentPos.Y;
             if ((target - currentPos).LengthFast < 0.0001f)
                 return;
@@ -1269,7 +1304,7 @@ namespace KWEngine2.GameObjects
             {
                 if(CurrentWorld != null)
                 {
-                    return CurrentWindow.Frustum.SphereVsFrustum(this.GetGameObjectCenterPoint(), this.GetGameObjectMaxDiameter() / 2);
+                    return CurrentWindow.Frustum.SphereVsFrustum(this.GetCenterPointForAllHitboxes(), this.GetMaxDiameter() / 2);
                 }
                 else
                 {
@@ -1290,9 +1325,9 @@ namespace KWEngine2.GameObjects
             {
                 if (go.IsPickable && go.IsInsideScreenSpace)
                 {
-                    if (IntersectRaySphere(pos, ray, go.GetGameObjectCenterPoint(), GetGameObjectMaxDiameter() / 2)) // GetDiameterFromDimensions(go.GetGameObjectCenterPoint(), go.GetGameObjectMaxDimensions())))
+                    if (IntersectRaySphere(pos, ray, go.GetCenterPointForAllHitboxes(), GetMaxDiameter() / 2)) // GetDiameterFromDimensions(go.GetGameObjectCenterPoint(), go.GetGameObjectMaxDimensions())))
                     {
-                        float distance = (go.GetGameObjectCenterPoint() - pos).LengthSquared;
+                        float distance = (go.GetCenterPointForAllHitboxes() - pos).LengthSquared;
                         if (distance < pickedDistance)
                         {
                             pickedDistance = distance;

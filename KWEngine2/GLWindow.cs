@@ -149,8 +149,11 @@ namespace KWEngine2
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
+
+            
             if (CurrentWorld != null)
             {
+                
                 lock (CurrentWorld)
                 {
                     if (CurrentWorld.DebugShadowCaster)
@@ -164,6 +167,8 @@ namespace KWEngine2
                             _viewMatrix = Matrix4.LookAt(CurrentWorld.GetCameraPosition(), CurrentWorld.GetCameraTarget(), KWEngine.WorldUp);
                     }
                     Matrix4 viewProjection = _viewMatrix * _projectionMatrix;
+
+                    
 
                     Matrix4 viewMatrixShadow = Matrix4.LookAt(CurrentWorld.GetSunPosition(), CurrentWorld.GetSunTarget(), KWEngine.WorldUp);
                     Matrix4 viewProjectionShadow = viewMatrixShadow * _projectionMatrixShadow;
@@ -198,6 +203,11 @@ namespace KWEngine2
                     else if (CurrentWorld._textureSkybox > 0)
                     {
                         KWEngine.Renderers["Skybox"].Draw(_dummy, ref _projectionMatrix);
+                    }
+
+                    if (CurrentWorld.DebugShowCoordinateSystem)
+                    {
+                        KWEngine.DrawCoordinateSystem(ref viewProjection);
                     }
 
 

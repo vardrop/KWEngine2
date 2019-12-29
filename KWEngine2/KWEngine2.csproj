@@ -143,6 +143,7 @@
     <Compile Include="Renderers\RendererBackground.cs" />
     <Compile Include="Renderers\RendererShadow.cs" />
     <Compile Include="Renderers\RendererExplosion.cs" />
+    <Compile Include="Renderers\RendererSimple.cs" />
     <Compile Include="Renderers\RendererTerrain.cs" />
     <Compile Include="Renderers\RendererStandard.cs" />
     <Compile Include="World.cs" />
@@ -156,6 +157,8 @@
     <EmbeddedResource Include="Assets\Models\kwcube6.mtl" />
     <EmbeddedResource Include="Assets\Models\kwcube6.obj" />
     <EmbeddedResource Include="Assets\Fonts\Anonymous.ttf" />
+    <EmbeddedResource Include="Assets\Models\csystem.mtl" />
+    <EmbeddedResource Include="Assets\Models\csystem.obj" />
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
     <EmbeddedResource Include="Shaders\shader_fragment.glsl" />
@@ -176,6 +179,8 @@
     <EmbeddedResource Include="Shaders\shader_fragment_hud.glsl" />
     <EmbeddedResource Include="Shaders\shader_fragment_terrain.glsl" />
     <EmbeddedResource Include="Shaders\shader_vertex_terrain.glsl" />
+    <EmbeddedResource Include="Shaders\shader_vertex_simple.glsl" />
+    <EmbeddedResource Include="Shaders\shader_fragment_simple.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Engine\" />

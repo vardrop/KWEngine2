@@ -81,7 +81,7 @@ namespace KWEngine2.Renderers
                         g.ModelMatrixForRenderPass = g._modelMatrix;
                     }
 
-                    bool isInsideFrustum = frustum.SphereVsFrustum(g.GetGameObjectCenterPoint(), g.GetGameObjectMaxDiameter() / 2);
+                    bool isInsideFrustum = frustum.SphereVsFrustum(g.GetCenterPointForAllHitboxes(), g.GetMaxDiameter() / 2);
 
                     if (g.IsShadowCaster && isInsideFrustum)
                     {

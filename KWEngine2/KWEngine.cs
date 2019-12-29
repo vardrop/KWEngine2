@@ -9,6 +9,7 @@ using KWEngine2.GameObjects;
 using System.Reflection;
 using System.IO;
 using System.Drawing.Text;
+using OpenTK.Graphics.OpenGL4;
 
 namespace KWEngine2
 {
@@ -66,14 +67,42 @@ namespace KWEngine2
 
         public static float MouseSensitivity { get; set; } = 0.001f;
 
+        internal static GeoModel CoordinateSystem;
+        internal static RendererSimple RendererSimple;
+        internal static Matrix4 CoordinateSystemMatrix = Matrix4.CreateScale(10);
+
+        internal static void DrawCoordinateSystem(ref Matrix4 viewProjection)
+        {
+            GL.UseProgram(RendererSimple.GetProgramId());
+            GL.Disable(EnableCap.Blend);
+            Matrix4.Mult(ref CoordinateSystemMatrix, ref viewProjection, out Matrix4 _modelViewProjection);
+            GL.UniformMatrix4(RendererSimple.GetUniformHandleMVP(), false, ref _modelViewProjection);
+
+            foreach (string meshName in CoordinateSystem.Meshes.Keys)
+            {
+                GeoMesh mesh = CoordinateSystem.Meshes[meshName];
+
+                GL.Uniform3(RendererSimple.GetUniformBaseColor(), mesh.Material.ColorDiffuse.X, mesh.Material.ColorDiffuse.Y, mesh.Material.ColorDiffuse.Z);
+
+                GL.BindVertexArray(mesh.VAO);
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
+                GL.DrawElements(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+
+                GL.BindVertexArray(0);
+            }
+            GL.UseProgram(0);
+        }
+
         internal static void InitializeModels()
         {
             Models.Add("KWCube", SceneImporter.LoadModel("kwcube.obj", false, true));
             Models.Add("KWCube6", SceneImporter.LoadModel("kwcube6.obj", false, true));
             Models.Add("KWRect", SceneImporter.LoadModel("kwrect.obj", false, true));
             Models.Add("KWSphere", SceneImporter.LoadModel("kwsphere.obj", false, true));
+            CoordinateSystem = SceneImporter.LoadModel("csystem.obj", false, true);
 
-            for(int i = 0; i < Explosion.Axes.Length; i++)
+            for (int i = 0; i < Explosion.Axes.Length; i++)
             {
                 Explosion.Axes[i] = Vector3.Normalize(Explosion.Axes[i]);
             }
@@ -90,6 +119,8 @@ namespace KWEngine2
             Renderers.Add("Particle", new RendererParticle());
             Renderers.Add("Terrain", new RendererTerrain());
             Renderers.Add("HUD", new RendererHUD());
+
+            RendererSimple = new RendererSimple();
         }
 
         internal static void InitializeParticles()
@@ -290,10 +321,11 @@ namespace KWEngine2
         public static void LoadModelFromFile(string name, string filename, bool flipTextureCoordinates = true)
         {
             GeoModel m = SceneImporter.LoadModel(filename, flipTextureCoordinates, false);
+            name = name.Trim();
             m.Name = name;
             lock (KWEngine.Models)
             {
-                name = name.ToLower();
+                //name = name.ToLower();
                 if (!KWEngine.Models.ContainsKey(name))
                     KWEngine.Models.Add(name, m);
                 else

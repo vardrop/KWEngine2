@@ -415,7 +415,26 @@ namespace KWEngine2.Model
                     else
                     {
                         geoMaterial.BlendMode = material.BlendMode == BlendMode.Default ? OpenTK.Graphics.OpenGL4.BlendingFactor.OneMinusSrcAlpha : OpenTK.Graphics.OpenGL4.BlendingFactor.One; // TODO: Check if this is correct!
-                        geoMaterial.ColorDiffuse = material.HasColorDiffuse ? new Vector4(material.ColorDiffuse.R, material.ColorDiffuse.G, material.ColorDiffuse.B, material.ColorDiffuse.A) : new Vector4(1, 1, 1, 1);
+                        if (model.IsInAssembly && material.Name == "System")
+                        {
+                            geoMaterial.ColorDiffuse = new Vector4(1, 1, 1, 1);
+                        }
+                        else if (model.IsInAssembly && material.Name == "X")
+                        {
+                            geoMaterial.ColorDiffuse = new Vector4(1, 0, 0, 1);
+                        }
+                        else if (model.IsInAssembly && material.Name == "Y")
+                        {
+                            geoMaterial.ColorDiffuse = new Vector4(0, 1, 0, 1);
+                        }
+                        else if (model.IsInAssembly && material.Name == "Z")
+                        {
+                            geoMaterial.ColorDiffuse = new Vector4(0, 0, 1, 1);
+                        }
+                        else
+                        {
+                            geoMaterial.ColorDiffuse = material.HasColorDiffuse ? new Vector4(material.ColorDiffuse.R, material.ColorDiffuse.G, material.ColorDiffuse.B, material.ColorDiffuse.A) : new Vector4(1, 1, 1, 1);
+                        }
                         geoMaterial.ColorEmissive = material.HasColorEmissive ? new Vector4(material.ColorEmissive.R, material.ColorEmissive.G, material.ColorEmissive.B, material.ColorEmissive.A) : new Vector4(0, 0, 0, 1);
                         geoMaterial.SpecularPower = material.ShininessStrength;
                         geoMaterial.SpecularArea = material.Shininess;
