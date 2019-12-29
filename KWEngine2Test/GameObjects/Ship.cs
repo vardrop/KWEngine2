@@ -7,13 +7,12 @@ using OpenTK.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KWEngine2Test.GameObjects
 {
     public class Ship : GameObject
     {
+        private long last = 0;
         private float p = 0;
         public override void Act(KeyboardState ks, MouseState ms, float deltaTimeFactor)
         {
@@ -80,13 +79,24 @@ namespace KWEngine2Test.GameObjects
 
             if (ms.LeftButton == ButtonState.Pressed)
             {
-                GeoModel shotModel = KWEngine.GetModel("KWCube");
-                Shot s = new Shot();
-                s.SetModel(shotModel);
-                s.SetRotation(RotationFirstPersonObject);
-                s.SetPosition(Position);
-                CurrentWorld.AddGameObject(s);
+                long now = GetCurrentTimeInMilliseconds();
+                if (now - last > 500)
+                {
 
+
+                    Shot s = new Shot();
+                    s.SetModel(KWEngine.GetModel("KWCube"));
+                    s.SetScale(0.1f,0.1f,1);
+                    s.SetRotation(RotationFirstPersonObject);
+                    s.SetPosition(Position);
+                    s.ColorEmissive = new Vector4(0.5f, 0.1f, 0.1f, 1);
+                    s.IsAffectedByLight = false;
+                    s.IsAffectedBySun = false;
+                    CurrentWorld.AddGameObject(s);
+
+                    last = now;
+                }
+                
             }
 
             if (HasAnimations)

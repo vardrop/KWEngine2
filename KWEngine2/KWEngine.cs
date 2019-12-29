@@ -20,10 +20,14 @@ namespace KWEngine2
         internal static Matrix4 Identity = Matrix4.Identity;
         private static Vector3 _worldUp = new Vector3(0, 1, 0);
 
+        public enum PostProcessingQuality {High, Low };
+
         internal static int TextureDefault = -1;
         internal static int TextureBlack = -1;
         internal static int TextureAlpha = -1;
         internal static float TimeElapsed = 0;
+
+        public static PostProcessingQuality PostProcessQuality = PostProcessingQuality.Low;
 
         internal static Dictionary<ParticleType, ParticleInfo> ParticleDictionary = new Dictionary<ParticleType, ParticleInfo>();
 

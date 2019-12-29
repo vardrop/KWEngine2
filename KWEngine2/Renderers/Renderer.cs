@@ -43,6 +43,7 @@ namespace KWEngine2.Renderers
         protected int mUniform_SunIntensity = -1;
         protected int mUniform_SunAmbient = -1;
         protected int mUniform_SunAffection = -1;
+        protected int mUniform_LightAffection = -1;
 
         protected int mUniform_BloomStep = -1;
         protected int mUniform_BloomTextureScene = -1;

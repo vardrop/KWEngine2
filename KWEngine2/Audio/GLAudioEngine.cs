@@ -24,6 +24,7 @@ namespace KWEngine2.Audio
         public bool CurrentlyLooping { get; private set; } = false;
         internal static Dictionary<string, CachedSound> CachedSounds { get; private set; } = new Dictionary<string, CachedSound>();
 
+        internal static bool IsInitializing = true;
         private static IntPtr mDeviceID = (IntPtr)0;
         private static ContextHandle mContext;
         private static bool mAudioOn = false;
@@ -33,13 +34,12 @@ namespace KWEngine2.Audio
         {
             int tries = 0;
             
-            while (mAudioOn == false && tries < 3)
+            while (mAudioOn == false && tries < 10)
             {
                 try
                 {
                     mDeviceID = Alc.OpenDevice(null);
-                    Console.Write("Initializing audio engine OpenAL: ");
-                    Console.WriteLine("Attempt #" + tries + "...");
+                    Console.WriteLine("Initializing audio engine OpenAL (Attempt #" + tries + ")... ");
                     int[] attributes = new int[0];
                     mContext = Alc.CreateContext(mDeviceID, attributes);
                     Alc.MakeContextCurrent(mContext);
@@ -48,26 +48,25 @@ namespace KWEngine2.Audio
                     
                     if (version == null)
                     {
-                        //Console.WriteLine("failed. No audio devices found.");
                         throw new Exception("No Audio devices found.");
                     }
 
-                    Console.WriteLine('\t' + version + " " + vendor);
-                    Console.WriteLine("\t\tInit complete.");
+                    Console.Write('\t' + version + " " + vendor);
+                    Console.WriteLine(" Init complete.");
                     mAudioOn = true;
                     
                 }
 
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    Console.WriteLine("\tError initializing audio engine: " + ex.Message);
+                    //Console.WriteLine("\tError initializing audio engine: " + ex.Message);
                     mAudioOn = false;
                 }
 
                 tries++;
-                Thread.Sleep(2000);
+                Thread.Sleep(500);
             }
-
+            IsInitializing = false;
 
             if (mAudioOn)
             {
@@ -79,7 +78,7 @@ namespace KWEngine2.Audio
             }
             else
             {
-                Console.WriteLine("\t\t(Giving up on initializing audio engine. Sorry.)");
+                Console.WriteLine("\t\t(Giving up on initializing the audio engine. Sorry.)");
             }
         }
 

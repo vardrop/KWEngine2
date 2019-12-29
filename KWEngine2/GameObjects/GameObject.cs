@@ -20,6 +20,7 @@ namespace KWEngine2.GameObjects
         public bool IsShadowCaster { get; set; } = false;
         public float FPSEyeOffset { get; set; } = 0;
         public bool IsAffectedBySun { get; set; } = true;
+        public bool IsAffectedByLight { get; set; } = true;
         public World CurrentWorld { get; internal set; } = null;
         private static Quaternion Turn180 = Quaternion.FromAxisAngle(KWEngine.WorldUp, (float)Math.PI);
 
@@ -57,10 +58,31 @@ namespace KWEngine2.GameObjects
             }
             set
             {
+                CheckModel();
+
                 _tintColor.X = HelperGL.Clamp(value.X, 0, 1);
                 _tintColor.Y = HelperGL.Clamp(value.Y, 0, 1);
                 _tintColor.Z = HelperGL.Clamp(value.Z, 0, 1);
                
+            }
+        }
+
+        private Vector4 _emissiveColor = new Vector4(0,0,0,0);
+        public Vector4 ColorEmissive
+        {
+            get
+            {
+                return _emissiveColor;
+            }
+            set
+            {
+                CheckModel();
+                CheckIfNotTerrain();
+                _emissiveColor.X = HelperGL.Clamp(value.X, 0, 1);
+                _emissiveColor.Y = HelperGL.Clamp(value.Y, 0, 1);
+                _emissiveColor.Z = HelperGL.Clamp(value.Z, 0, 1);
+                _emissiveColor.W = HelperGL.Clamp(value.W, 0, 1);
+
             }
         }
 
@@ -180,13 +202,11 @@ namespace KWEngine2.GameObjects
 
         public void SetScale(float x, float y, float z)
         {
-            CheckModel();
             Scale = new Vector3(x, y, z);
         }
 
         public void SetScale(float scale)
         {
-            CheckModel();
             Scale = new Vector3(scale, scale, scale);
         }
 
@@ -268,8 +288,8 @@ namespace KWEngine2.GameObjects
             Vector3 upRightBack = new Vector3(GetGameObjectCenterPoint().X + GetGameObjectMaxDimensions().X / 2, GetGameObjectCenterPoint().Y + GetGameObjectMaxDimensions().Y / 2, GetGameObjectCenterPoint().Z - GetGameObjectMaxDimensions().Z / 2);
             _sceneDiameter = (upRightBack - downLeftFront).LengthFast;
 
-            if(CurrentWorld != null)
-                DistanceToCamera = (uint)((CurrentWorld.GetCameraPosition() - GetGameObjectCenterPoint()).LengthSquared * 10000);
+            if(KWEngine.CurrentWorld != null)
+                DistanceToCamera = (uint)((KWEngine.CurrentWorld.GetCameraPosition() - GetGameObjectCenterPoint()).LengthSquared * 10000);
         }
 
         public Vector3 GetGameObjectCenterPoint()
@@ -477,6 +497,10 @@ namespace KWEngine2.GameObjects
             {
                 Debug.WriteLine("Setting rotation on a GeoTerrain instance is not supported.");
             }
+            else if (CurrentWorld != null && CurrentWorld.IsFirstPersonMode && CurrentWorld.GetFirstPersonObject().Equals(this))
+            {
+                Debug.WriteLine("Setting rotation on a first person instance is not supported.");
+            }
             else if (Model != null)
             {
                 Quaternion tmpRotateX = Quaternion.FromAxisAngle(Vector3.UnitX, HelperRotation.CalculateRadiansFromDegrees(x));
@@ -497,6 +521,10 @@ namespace KWEngine2.GameObjects
             {
                 Debug.WriteLine("Adding rotation for GeoTerrain instance is not supported.");
             }
+            else if (CurrentWorld != null && CurrentWorld.IsFirstPersonMode && CurrentWorld.GetFirstPersonObject().Equals(this))
+            {
+                Debug.WriteLine("Setting rotation on a first person instance is not supported.");
+            }
             else
             {
                 Rotation = Rotation * r;
@@ -509,6 +537,10 @@ namespace KWEngine2.GameObjects
             if (Model.IsTerrain)
             {
                 Debug.WriteLine("Adding rotation for GeoTerrain instance is not supported.");
+            }
+            else if (CurrentWorld != null && CurrentWorld.IsFirstPersonMode && CurrentWorld.GetFirstPersonObject().Equals(this))
+            {
+                Debug.WriteLine("Setting rotation on a first person instance is not supported.");
             }
             else
             {
@@ -554,6 +586,10 @@ namespace KWEngine2.GameObjects
             if (Model.IsTerrain)
             {
                 Debug.WriteLine("Adding rotation for GeoTerrain instance is not supported.");
+            }
+            else if (CurrentWorld != null && CurrentWorld.IsFirstPersonMode && CurrentWorld.GetFirstPersonObject().Equals(this))
+            {
+                Debug.WriteLine("Setting rotation on a first person instance is not supported.");
             }
             else
             {
@@ -606,7 +642,7 @@ namespace KWEngine2.GameObjects
             {
                 Vector3 standardOrientation = Vector3.UnitZ;
                 Vector3 rotatedNormal = Vector3.TransformNormal(standardOrientation, _modelMatrix);
-                //rotatedNormal.NormalizeFast();
+                rotatedNormal.NormalizeFast();
                 return rotatedNormal;
             }
         }

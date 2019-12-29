@@ -27,13 +27,13 @@ namespace KWEngine2.Renderers
             using (Stream s = assembly.GetManifestResourceStream(resourceNameVertexShader))
             {
                 mShaderVertexId = LoadShader(s, ShaderType.VertexShader, mProgramId);
-                Console.WriteLine(GL.GetShaderInfoLog(mShaderVertexId));
+                //Console.WriteLine(GL.GetShaderInfoLog(mShaderVertexId));
             }
 
             using (Stream s = assembly.GetManifestResourceStream(resourceNameFragmentShader))
             {
                 mShaderFragmentId = LoadShader(s, ShaderType.FragmentShader, mProgramId);
-                Console.WriteLine(GL.GetShaderInfoLog(mShaderFragmentId));
+                //Console.WriteLine(GL.GetShaderInfoLog(mShaderFragmentId));
             }
 
             if (mShaderFragmentId >= 0 && mShaderVertexId >= 0)
@@ -77,19 +77,19 @@ namespace KWEngine2.Renderers
             // Textures:
             mUniform_Texture = GL.GetUniformLocation(mProgramId, "uTextureDiffuse");
             mUniform_TextureUse = GL.GetUniformLocation(mProgramId, "uUseTextureDiffuse");
-            
+
             mUniform_TextureNormalMap = GL.GetUniformLocation(mProgramId, "uTextureNormal");
             mUniform_TextureUseNormalMap = GL.GetUniformLocation(mProgramId, "uUseTextureNormal");
-            
+
             mUniform_TextureSpecularMap = GL.GetUniformLocation(mProgramId, "uTextureSpecular");
             mUniform_TextureUseSpecularMap = GL.GetUniformLocation(mProgramId, "uUseTextureSpecular");
             mUniform_TextureSpecularIsRoughness = GL.GetUniformLocation(mProgramId, "uRoughness");
 
             mUniform_TextureLightMap = GL.GetUniformLocation(mProgramId, "uTextureLightmap");
             mUniform_TextureUseLightMap = GL.GetUniformLocation(mProgramId, "uUseTextureLightmap");
-            
+
             mUniform_TextureShadowMap = GL.GetUniformLocation(mProgramId, "uTextureShadowMap");
-            
+
             mUniform_TextureUseEmissiveMap = GL.GetUniformLocation(mProgramId, "uUseTextureEmissive");
             mUniform_TextureEmissiveMap = GL.GetUniformLocation(mProgramId, "uTextureEmissive");
 
@@ -97,20 +97,21 @@ namespace KWEngine2.Renderers
             mUniform_Glow = GL.GetUniformLocation(mProgramId, "uGlow");
             mUniform_BaseColor = GL.GetUniformLocation(mProgramId, "uBaseColor");
             mUniform_TintColor = GL.GetUniformLocation(mProgramId, "uTintColor");
-            mUniform_EmissiveColor = GL.GetUniformLocation(mProgramId, "uEmissiveColor");            
+            mUniform_EmissiveColor = GL.GetUniformLocation(mProgramId, "uEmissiveColor");
 
             mUniform_SpecularArea = GL.GetUniformLocation(mProgramId, "uSpecularArea");
             mUniform_SpecularPower = GL.GetUniformLocation(mProgramId, "uSpecularPower");
-            
+
             mUniform_uCameraPos = GL.GetUniformLocation(mProgramId, "uCameraPos");
             mUniform_BiasCoefficient = GL.GetUniformLocation(mProgramId, "uBiasCoefficient");
-           
+
 
             mUniform_SunPosition = GL.GetUniformLocation(mProgramId, "uSunPosition");
             mUniform_SunDirection = GL.GetUniformLocation(mProgramId, "uSunDirection");
             mUniform_SunIntensity = GL.GetUniformLocation(mProgramId, "uSunIntensity");
             mUniform_SunAffection = GL.GetUniformLocation(mProgramId, "uSunAffection");
             mUniform_SunAmbient = GL.GetUniformLocation(mProgramId, "uSunAmbient");
+            mUniform_LightAffection = GL.GetUniformLocation(mProgramId, "uLightAffection");
 
             mUniform_LightsColors = GL.GetUniformLocation(mProgramId, "uLightsColors");
             mUniform_LightsPositions = GL.GetUniformLocation(mProgramId, "uLightsPositions");
@@ -129,49 +130,32 @@ namespace KWEngine2.Renderers
 
             lock (g)
             {
-                if(mUniform_BiasCoefficient >= 0)
-                {
-                    GL.Uniform1(mUniform_BiasCoefficient, KWEngine.ShadowMapCoefficient);
-                }
+               
+                GL.Uniform1(mUniform_BiasCoefficient, KWEngine.ShadowMapCoefficient);
 
-                if (mUniform_Glow >= 0)
-                {
-                    GL.Uniform4(mUniform_Glow, g.Glow.X, g.Glow.Y, g.Glow.Z, g.Glow.W);
-                }
+                GL.Uniform4(mUniform_Glow, g.Glow.X, g.Glow.Y, g.Glow.Z, g.Glow.W);
 
-                if(mUniform_TintColor >= 0)
-                {
-                    GL.Uniform3(mUniform_TintColor, g.Color.X, g.Color.Y, g.Color.Z);
-                }
 
-                if (mUniform_LightCount >= 0)
-                {
-                    // How many lights are there?
-                    GL.Uniform1(mUniform_LightCount, lightCount);
-                    GL.Uniform4(mUniform_LightsColors, KWEngine.MAX_LIGHTS, lightColors);
-                    GL.Uniform4(mUniform_LightsTargets, KWEngine.MAX_LIGHTS, lightTargets);
-                    GL.Uniform4(mUniform_LightsPositions, KWEngine.MAX_LIGHTS, lightPositions);
-                }
+                GL.Uniform3(mUniform_TintColor, g.Color.X, g.Color.Y, g.Color.Z);
+
+
+
+                // How many lights are there?
+                GL.Uniform1(mUniform_LightCount, lightCount);
+                GL.Uniform4(mUniform_LightsColors, KWEngine.MAX_LIGHTS, lightColors);
+                GL.Uniform4(mUniform_LightsTargets, KWEngine.MAX_LIGHTS, lightTargets);
+                GL.Uniform4(mUniform_LightsPositions, KWEngine.MAX_LIGHTS, lightPositions);
 
                 // Sun
-                if(mUniform_SunIntensity >= 0)
-                {
-                    GL.Uniform4(mUniform_SunIntensity, g.CurrentWorld.GetSunColor());
-                }
+                GL.Uniform4(mUniform_SunIntensity, g.CurrentWorld.GetSunColor());
+                GL.Uniform3(mUniform_SunPosition, g.CurrentWorld.GetSunPosition().X, g.CurrentWorld.GetSunPosition().Y, g.CurrentWorld.GetSunPosition().Z);
+                Vector3 sunDirection = g.CurrentWorld.GetSunPosition() - g.CurrentWorld.GetSunTarget();
+                sunDirection.NormalizeFast();
+                GL.Uniform3(mUniform_SunDirection, ref sunDirection);
+                GL.Uniform1(mUniform_SunAmbient, g.CurrentWorld.SunAmbientFactor);
 
-                if (mUniform_SunPosition >= 0)
-                {
-                    GL.Uniform3(mUniform_SunPosition, g.CurrentWorld.GetSunPosition().X, g.CurrentWorld.GetSunPosition().Y, g.CurrentWorld.GetSunPosition().Z);
-                    Vector3 sunDirection = g.CurrentWorld.GetSunPosition() - g.CurrentWorld.GetSunTarget();
-                    sunDirection.NormalizeFast();
-                    GL.Uniform3(mUniform_SunDirection, ref sunDirection);
-                    GL.Uniform1(mUniform_SunAmbient, g.CurrentWorld.SunAmbientFactor);
-                }
-
-                if (mUniform_SunAffection >= 0)
-                {
-                    GL.Uniform1(mUniform_SunAffection, g.IsAffectedBySun ? 1 : 0);
-                }
+                GL.Uniform1(mUniform_SunAffection, g.IsAffectedBySun ? 1 : 0);
+                GL.Uniform1(mUniform_LightAffection, g.IsAffectedByLight ? 1 : 0);
 
                 // Camera
                 if (!CurrentWorld.IsFirstPersonMode)
@@ -184,12 +168,9 @@ namespace KWEngine2.Renderers
                 }
 
                 // Upload depth texture (shadow mapping)
-                if (mUniform_TextureShadowMap >= 0)
-                {
-                    GL.ActiveTexture(TextureUnit.Texture3);
-                    GL.BindTexture(TextureTarget.Texture2D, GLWindow.CurrentWindow.TextureShadowMap);
-                    GL.Uniform1(mUniform_TextureShadowMap, 3);
-                }
+                GL.ActiveTexture(TextureUnit.Texture3);
+                GL.BindTexture(TextureTarget.Texture2D, GLWindow.CurrentWindow.TextureShadowMap);
+                GL.Uniform1(mUniform_TextureShadowMap, 3);
 
 
                 foreach (string meshName in g.Model.Meshes.Keys)
@@ -266,9 +247,8 @@ namespace KWEngine2.Renderers
 
                     if (g._cubeModel != null)
                     {
-                        UploadMaterialForKWCube(g._cubeModel, mesh);
-                        if (mUniform_TextureUseLightMap >= 0)
-                            GL.Uniform1(mUniform_TextureUseLightMap, 0);
+                        UploadMaterialForKWCube(g._cubeModel, mesh, g);
+                        GL.Uniform1(mUniform_TextureUseLightMap, 0);
                     }
                     else
                     {
@@ -285,7 +265,7 @@ namespace KWEngine2.Renderers
                         }
 
 
-                        if(mesh.Material.Opacity < 1)
+                        if (mesh.Material.Opacity < 1)
                         {
                             GL.Enable(EnableCap.Blend);
                         }
@@ -383,7 +363,7 @@ namespace KWEngine2.Renderers
                         }
 
 
-                        if(mesh.Material.TextureEmissive.OpenGLID > 0)
+                        if (mesh.Material.TextureEmissive.OpenGLID > 0)
                         {
                             GL.ActiveTexture(TextureUnit.Texture4);
                             GL.BindTexture(TextureTarget.Texture2D, mesh.Material.TextureEmissive.OpenGLID);
@@ -394,8 +374,15 @@ namespace KWEngine2.Renderers
                         {
                             GL.Uniform1(mUniform_TextureUseEmissiveMap, 0);
                         }
-                        
-                        GL.Uniform4(mUniform_EmissiveColor, mesh.Material.ColorEmissive);
+
+                        if (g.ColorEmissive.W > 0)
+                        {
+                            GL.Uniform4(mUniform_EmissiveColor, g.ColorEmissive);
+                        }
+                        else
+                        {
+                            GL.Uniform4(mUniform_EmissiveColor, mesh.Material.ColorEmissive);
+                        }
                     }
 
                     GL.BindVertexArray(mesh.VAO);
@@ -430,16 +417,25 @@ namespace KWEngine2.Renderers
             throw new NotImplementedException();
         }
 
-        private void UploadMaterialForKWCube(GeoModelCube cubeModel, GeoMesh mesh)
+        private void UploadMaterialForKWCube(GeoModelCube cubeModel, GeoMesh mesh, GameObject g)
         {
-            
+
+            if (g.ColorEmissive.W > 0)
+            {
+                GL.Uniform4(mUniform_EmissiveColor, g.ColorEmissive);
+            }
+            else
+            {
+                GL.Uniform4(mUniform_EmissiveColor, Vector4.Zero);
+            }
+
             if (mesh.Material.Name == "KWCube")
             {
                 UploadMaterialForSide(CubeSide.Front, cubeModel, mesh);
             }
             else
             {
-                if(mesh.Material.Name == "Front")
+                if (mesh.Material.Name == "Front")
                 {
                     UploadMaterialForSide(CubeSide.Front, cubeModel, mesh);
                 }
@@ -464,24 +460,24 @@ namespace KWEngine2.Renderers
                     UploadMaterialForSide(CubeSide.Bottom, cubeModel, mesh);
                 }
             }
-            
+
 
         }
 
         private void UploadMaterialForSide(CubeSide side, GeoModelCube cubeModel, GeoMesh mesh)
         {
-            
+
             if (side == CubeSide.Front)
             {
                 GL.Uniform2(mUniform_TextureTransform, cubeModel.GeoTextureFront.UVTransform.X, cubeModel.GeoTextureFront.UVTransform.Y);
-                if (mUniform_Texture >= 0 && cubeModel.GeoTextureFront.OpenGLID > 0)
+                if (cubeModel.GeoTextureFront.OpenGLID > 0)
                 {
                     GL.ActiveTexture(TextureUnit.Texture0);
                     GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureFront.OpenGLID);
                     GL.Uniform1(mUniform_Texture, 0);
                     GL.Uniform1(mUniform_TextureUse, 1);
                     GL.Uniform3(mUniform_BaseColor, 1f, 1f, 1f);
-                    
+
                 }
                 else
                 {
@@ -489,7 +485,7 @@ namespace KWEngine2.Renderers
                     GL.Uniform3(mUniform_BaseColor, mesh.Material.ColorDiffuse.X, mesh.Material.ColorDiffuse.Y, mesh.Material.ColorDiffuse.Z);
                 }
 
-                if (mUniform_TextureNormalMap >= 0 && cubeModel.GeoTextureFrontNormal.OpenGLID > 0)
+                if (cubeModel.GeoTextureFrontNormal.OpenGLID > 0)
                 {
                     GL.ActiveTexture(TextureUnit.Texture1);
                     GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureFrontNormal.OpenGLID);
@@ -501,7 +497,7 @@ namespace KWEngine2.Renderers
                     GL.Uniform1(mUniform_TextureUseNormalMap, 0);
                 }
 
-                if (mUniform_TextureSpecularMap >= 0 && cubeModel.GeoTextureFrontSpecular.OpenGLID > 0)
+                if (cubeModel.GeoTextureFrontSpecular.OpenGLID > 0)
                 {
                     GL.ActiveTexture(TextureUnit.Texture2);
                     GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureFrontSpecular.OpenGLID);
@@ -513,10 +509,10 @@ namespace KWEngine2.Renderers
                     GL.Uniform1(mUniform_TextureUseSpecularMap, 0);
                 }
             }
-            else if(side == CubeSide.Back)
+            else if (side == CubeSide.Back)
             {
                 GL.Uniform2(mUniform_TextureTransform, cubeModel.GeoTextureBack.UVTransform.X, cubeModel.GeoTextureBack.UVTransform.Y);
-                if (mUniform_Texture >= 0 && cubeModel.GeoTextureBack.OpenGLID > 0)
+                if (cubeModel.GeoTextureBack.OpenGLID > 0)
                 {
                     GL.ActiveTexture(TextureUnit.Texture0);
                     GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureBack.OpenGLID);
@@ -530,7 +526,7 @@ namespace KWEngine2.Renderers
                     GL.Uniform3(mUniform_BaseColor, mesh.Material.ColorDiffuse.X, mesh.Material.ColorDiffuse.Y, mesh.Material.ColorDiffuse.Z);
                 }
 
-                if (mUniform_TextureNormalMap >= 0 && cubeModel.GeoTextureBackNormal.OpenGLID > 0)
+                if (cubeModel.GeoTextureBackNormal.OpenGLID > 0)
                 {
                     GL.ActiveTexture(TextureUnit.Texture1);
                     GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureBackNormal.OpenGLID);
@@ -542,7 +538,7 @@ namespace KWEngine2.Renderers
                     GL.Uniform1(mUniform_TextureUseNormalMap, 0);
                 }
 
-                if (mUniform_TextureSpecularMap >= 0 && cubeModel.GeoTextureBackSpecular.OpenGLID > 0)
+                if (cubeModel.GeoTextureBackSpecular.OpenGLID > 0)
                 {
                     GL.ActiveTexture(TextureUnit.Texture2);
                     GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureBackSpecular.OpenGLID);
@@ -558,7 +554,7 @@ namespace KWEngine2.Renderers
             {
                 GL.Uniform2(mUniform_TextureTransform, cubeModel.GeoTextureLeft.UVTransform.X, cubeModel.GeoTextureLeft.UVTransform.Y);
 
-                if (mUniform_Texture >= 0 && cubeModel.GeoTextureLeft.OpenGLID > 0)
+                if (cubeModel.GeoTextureLeft.OpenGLID > 0)
                 {
                     GL.ActiveTexture(TextureUnit.Texture0);
                     GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureLeft.OpenGLID);
@@ -572,7 +568,7 @@ namespace KWEngine2.Renderers
                     GL.Uniform3(mUniform_BaseColor, mesh.Material.ColorDiffuse.X, mesh.Material.ColorDiffuse.Y, mesh.Material.ColorDiffuse.Z);
                 }
 
-                if (mUniform_TextureNormalMap >= 0 && cubeModel.GeoTextureLeftNormal.OpenGLID > 0)
+                if (cubeModel.GeoTextureLeftNormal.OpenGLID > 0)
                 {
                     GL.ActiveTexture(TextureUnit.Texture1);
                     GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureLeftNormal.OpenGLID);
@@ -584,7 +580,7 @@ namespace KWEngine2.Renderers
                     GL.Uniform1(mUniform_TextureUseNormalMap, 0);
                 }
 
-                if (mUniform_TextureSpecularMap >= 0 && cubeModel.GeoTextureLeftSpecular.OpenGLID > 0)
+                if (cubeModel.GeoTextureLeftSpecular.OpenGLID > 0)
                 {
                     GL.ActiveTexture(TextureUnit.Texture2);
                     GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureLeftSpecular.OpenGLID);
@@ -601,7 +597,7 @@ namespace KWEngine2.Renderers
                 GL.Uniform2(mUniform_TextureTransform, cubeModel.GeoTextureRight.UVTransform.X, cubeModel.GeoTextureRight.UVTransform.Y);
 
 
-                if (mUniform_Texture >= 0 && cubeModel.GeoTextureRight.OpenGLID > 0)
+                if (cubeModel.GeoTextureRight.OpenGLID > 0)
                 {
                     GL.ActiveTexture(TextureUnit.Texture0);
                     GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureRight.OpenGLID);
@@ -615,7 +611,7 @@ namespace KWEngine2.Renderers
                     GL.Uniform3(mUniform_BaseColor, mesh.Material.ColorDiffuse.X, mesh.Material.ColorDiffuse.Y, mesh.Material.ColorDiffuse.Z);
                 }
 
-                if (mUniform_TextureNormalMap >= 0 && cubeModel.GeoTextureRightNormal.OpenGLID > 0)
+                if (cubeModel.GeoTextureRightNormal.OpenGLID > 0)
                 {
                     GL.ActiveTexture(TextureUnit.Texture1);
                     GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureRightNormal.OpenGLID);
@@ -627,7 +623,7 @@ namespace KWEngine2.Renderers
                     GL.Uniform1(mUniform_TextureUseNormalMap, 0);
                 }
 
-                if (mUniform_TextureSpecularMap >= 0 && cubeModel.GeoTextureRightSpecular.OpenGLID > 0)
+                if (cubeModel.GeoTextureRightSpecular.OpenGLID > 0)
                 {
                     GL.ActiveTexture(TextureUnit.Texture2);
                     GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureRightSpecular.OpenGLID);
@@ -644,7 +640,7 @@ namespace KWEngine2.Renderers
                 GL.Uniform2(mUniform_TextureTransform, cubeModel.GeoTextureTop.UVTransform.X, cubeModel.GeoTextureTop.UVTransform.Y);
 
 
-                if (mUniform_Texture >= 0 && cubeModel.GeoTextureTop.OpenGLID > 0)
+                if (cubeModel.GeoTextureTop.OpenGLID > 0)
                 {
                     GL.ActiveTexture(TextureUnit.Texture0);
                     GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureTop.OpenGLID);
@@ -658,7 +654,7 @@ namespace KWEngine2.Renderers
                     GL.Uniform3(mUniform_BaseColor, mesh.Material.ColorDiffuse.X, mesh.Material.ColorDiffuse.Y, mesh.Material.ColorDiffuse.Z);
                 }
 
-                if (mUniform_TextureNormalMap >= 0 && cubeModel.GeoTextureTopNormal.OpenGLID > 0)
+                if (cubeModel.GeoTextureTopNormal.OpenGLID > 0)
                 {
                     GL.ActiveTexture(TextureUnit.Texture1);
                     GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureTopNormal.OpenGLID);
@@ -670,7 +666,7 @@ namespace KWEngine2.Renderers
                     GL.Uniform1(mUniform_TextureUseNormalMap, 0);
                 }
 
-                if (mUniform_TextureSpecularMap >= 0 && cubeModel.GeoTextureTopSpecular.OpenGLID > 0)
+                if (cubeModel.GeoTextureTopSpecular.OpenGLID > 0)
                 {
                     GL.ActiveTexture(TextureUnit.Texture2);
                     GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureTopSpecular.OpenGLID);
@@ -687,7 +683,7 @@ namespace KWEngine2.Renderers
                 GL.Uniform2(mUniform_TextureTransform, cubeModel.GeoTextureBottom.UVTransform.X, cubeModel.GeoTextureBottom.UVTransform.Y);
 
 
-                if (mUniform_Texture >= 0 && cubeModel.GeoTextureBottom.OpenGLID > 0)
+                if (cubeModel.GeoTextureBottom.OpenGLID > 0)
                 {
                     GL.ActiveTexture(TextureUnit.Texture0);
                     GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureBottom.OpenGLID);
@@ -701,7 +697,7 @@ namespace KWEngine2.Renderers
                     GL.Uniform3(mUniform_BaseColor, mesh.Material.ColorDiffuse.X, mesh.Material.ColorDiffuse.Y, mesh.Material.ColorDiffuse.Z);
                 }
 
-                if (mUniform_TextureNormalMap >= 0 && cubeModel.GeoTextureBottomNormal.OpenGLID > 0)
+                if (cubeModel.GeoTextureBottomNormal.OpenGLID > 0)
                 {
                     GL.ActiveTexture(TextureUnit.Texture1);
                     GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureBottomNormal.OpenGLID);
@@ -713,7 +709,7 @@ namespace KWEngine2.Renderers
                     GL.Uniform1(mUniform_TextureUseNormalMap, 0);
                 }
 
-                if (mUniform_TextureSpecularMap >= 0 && cubeModel.GeoTextureBottomSpecular.OpenGLID > 0)
+                if (cubeModel.GeoTextureBottomSpecular.OpenGLID > 0)
                 {
                     GL.ActiveTexture(TextureUnit.Texture2);
                     GL.BindTexture(TextureTarget.Texture2D, cubeModel.GeoTextureBottomSpecular.OpenGLID);

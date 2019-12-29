@@ -117,7 +117,8 @@ namespace KWEngine2Test
 
         public override void Prepare()
         {
-            SetCameraPosition(0, 0, 3);
+            SoundPlay(".\\audio\\stage01.ogg", true, 0.3f);
+            SetCameraPosition(0, 25, 25);
             /*
             WuerfelTest wt1 = new WuerfelTest();
             wt1.SetModel(KWEngine.GetModel("KWCube"));
@@ -151,7 +152,7 @@ namespace KWEngine2Test
             t.SetSpecularOverride(true, 5, 256);
             AddGameObject(t);
             */
-
+            
             Sphere sp = new Sphere();
             sp.SetModel(KWEngine.GetModel("KWSphere"));
             sp.SetTexture(".\\textures\\mpanel_diffuse.jpg");
@@ -159,17 +160,19 @@ namespace KWEngine2Test
             sp.SetTexture(".\\textures\\asphalt_specular.jpg", KWEngine.TextureType.Specular);
             sp.SetTextureRepeat(20, 20);
             AddGameObject(sp);
-
+            
             Ship s = new Ship();
-            s.SetModel(KWEngine.GetModel("KWCube"));
-            s.SetPosition(0, 0, 5);
+            s.SetModel(KWEngine.GetModel("KWSphere"));
+            s.SetPosition(0, 0, 0);
             AddGameObject(s);
             SetFirstPersonObject(s, 180);
 
             Light l = new Light();
             l.SetPosition(0, 2, 0);
             l.SetDistanceMultiplier(10);
-            AddLightObject(l);
+            //AddLightObject(l);
+
+            SetTextureSkybox(".\\textures\\skybox1.jpg", 1, 1);
         }
 
     }

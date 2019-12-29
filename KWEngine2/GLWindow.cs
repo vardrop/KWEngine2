@@ -379,6 +379,10 @@ namespace KWEngine2
                 CurrentWorld = w;
                 CursorVisible = true;
                 KWEngine.CustomTextures.Add(w, new Dictionary<string, int>());
+                while (GLAudioEngine.IsInitializing)
+                {
+                    Thread.Sleep(10);
+                }
                 CurrentWorld.Prepare();
                 CurrentWorld._prepared = true;
                 CalculateProjectionMatrix();
@@ -407,7 +411,7 @@ namespace KWEngine2
             RendererBloom r = (RendererBloom)KWEngine.Renderers["Bloom"];
             GL.UseProgram(r.GetProgramId());
 
-            int loopCount = 4; // must 2, 4, 6 or 8, but 4 will suffice
+            int loopCount = KWEngine.PostProcessQuality == KWEngine.PostProcessingQuality.High ? 4 : 2; // must 2, 4, 6 or 8, but 4 will suffice
             int sourceTex; // this is the texture that the bloom will be read from
             for (int i = 0; i < loopCount; i++)
             {

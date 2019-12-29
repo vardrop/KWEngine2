@@ -31,7 +31,7 @@ namespace KWEngine2Test.GameObjects
                 if (x < -4)
                     right = !right;
             }
-            SetPosition(x, 0, 2.5f);
+            SetPosition(x, 0, 2);
         }
     }
 }

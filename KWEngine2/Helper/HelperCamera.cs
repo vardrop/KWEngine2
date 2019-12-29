@@ -131,11 +131,11 @@ namespace KWEngine2.Helper
         {
             mCurrentGameObject = fpsObject;
             fpsObject.GetRotationNoFPSMode().ToAxisAngle(out Vector3 yAxis, out float angle);
-            //mOrientation.X = (angle + (float)Math.PI / 2) % ((float)Math.PI * 2);
             mOrientation.X = angle % ((float)Math.PI * 2);
             mOrientation.Y = 0;
             mOrientation.Z = 0;
 
+            mCurrentGameObject.SetRotation(Quaternion.FromAxisAngle(KWEngine.WorldUp, mOrientation.X));
         }
 
         /// <summary>

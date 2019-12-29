@@ -381,7 +381,7 @@ namespace KWEngine2.Model
                 if (mesh.MaterialIndex >= 0)
                 {
                     material = scene.Materials[mesh.MaterialIndex];
-                    geoMaterial.Name = material.Name;
+                    geoMaterial.Name = model.Filename == "kwcube.obj" ? "KWCube" : material.Name;
                     geoMaterial.BlendMode = material.BlendMode == BlendMode.Default ? OpenTK.Graphics.OpenGL4.BlendingFactor.OneMinusSrcAlpha : OpenTK.Graphics.OpenGL4.BlendingFactor.One; // TODO: Check if this is correct!
                     geoMaterial.ColorDiffuse = new Vector4(1, 1, 1, 1);
                     geoMaterial.ColorEmissive = new Vector4(0, 0, 0, 1);
