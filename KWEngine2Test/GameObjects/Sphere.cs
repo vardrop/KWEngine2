@@ -12,11 +12,11 @@ namespace KWEngine2Test.GameObjects
     {
         public override void Act(KeyboardState ks, MouseState ms, float deltaTimeFactor)
         {
-            Ship s = ((GameWorld)CurrentWorld).ship;
+            /*Ship s = ((GameWorld)CurrentWorld).ship;
             if (s != null)
             {
                 TurnTowardsXZ(s.Position);
-            }
+            }*/
 
         }
     }

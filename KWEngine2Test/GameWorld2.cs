@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace KWEngine2Test
 {
-    class GameWorld : World
+    class GameWorld2 : World
     {
         private long _timeStamp = 0;
         public Ship ship;
@@ -38,9 +38,9 @@ namespace KWEngine2Test
                 
             }
             */
-            if (kb[Key.O])
+            if (kb[Key.P])
             {
-                CurrentWindow.SetWorld(new GameWorld2());
+                CurrentWindow.SetWorld(new GameWorld());
 
             }
         }
@@ -121,7 +121,7 @@ namespace KWEngine2Test
 
         public override void Prepare()
         {
-            SoundPlay(".\\audio\\stage01.ogg", true, 0.3f);
+            //SoundPlay(".\\audio\\stage01.ogg", true, 0.3f);
             SetCameraPosition(0, 25, 25);
             /*
             WuerfelTest wt1 = new WuerfelTest();
@@ -163,20 +163,21 @@ namespace KWEngine2Test
             sp.SetTexture(".\\textures\\mpanel_normal.jpg", KWEngine.TextureType.Normal);
             sp.SetTexture(".\\textures\\asphalt_specular.jpg", KWEngine.TextureType.Specular);
             sp.SetTextureRepeat(20, 20);
+            sp.SetPosition(-5, 0, 0);
             AddGameObject(sp);
             
             Ship s = new Ship();
             s.SetModel(KWEngine.GetModel("KWSphere"));
             s.SetPosition(0, 0, 0);
             AddGameObject(s);
-            SetFirstPersonObject(s, 180);
+            //SetFirstPersonObject(s, 180);
 
             Light l = new Light();
             l.SetPosition(0, 2, 0);
             l.SetDistanceMultiplier(10);
             //AddLightObject(l);
 
-            SetTextureSkybox(".\\textures\\skybox1.jpg", 1, 1);
+            SetTextureSkybox(".\\textures\\blendmap.jpg", 1, 1);
         }
 
     }

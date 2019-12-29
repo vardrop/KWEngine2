@@ -303,7 +303,7 @@ namespace KWEngine2
 
         public abstract void Prepare();
 
-        public abstract void Act(KeyboardState kbs, MouseState ms);
+        public abstract void Act(KeyboardState kb, MouseState ms, float deltaTimeFactor);
 
         public GeoModel GetModel(string name)
         {
@@ -488,6 +488,7 @@ namespace KWEngine2
 
         internal void Dispose()
         {
+            GLAudioEngine.SoundStopAll();
             lock (_gameObjects)
             {
                 foreach (GameObject g in _gameObjects)
@@ -499,11 +500,17 @@ namespace KWEngine2
 
             lock (KWEngine.Models)
             {
-                foreach (GeoModel m in KWEngine.Models.Values)
+                List<string> removableModels = new List<string>();
+                foreach (string m in KWEngine.Models.Keys)
                 {
-                    m.Dispose();
+                    if (!KWEngine.Models[m].IsInAssembly)
+                    {
+                        KWEngine.Models[m].Dispose();
+                        removableModels.Add(m);
+                    }
                 }
-                KWEngine.Models.Clear();
+                foreach (string m in removableModels)
+                    KWEngine.Models.Remove(m);
             }
 
             if (KWEngine.CustomTextures.ContainsKey(this))

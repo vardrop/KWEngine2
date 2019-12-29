@@ -19,7 +19,7 @@ namespace KWEngine2
     public abstract class GLWindow : GameWindow
     {
         public World CurrentWorld { get; private set; }
-        private GameObject _dummy = null;
+        internal GameObject _dummy = null;
         public static GLWindow CurrentWindow { get; internal set; }
         internal Matrix4 _viewMatrix = Matrix4.Identity;
         internal Matrix4 _modelViewProjectionMatrixBackground = Matrix4.Identity;
@@ -50,7 +50,7 @@ namespace KWEngine2
 
         }
 
-        private int _fsaa = 0;
+        internal int _fsaa = 0;
 
         /// <summary>
         /// Konstruktormethode
@@ -280,7 +280,7 @@ namespace KWEngine2
             {
                 if (CurrentWorld._prepared)
                 {
-                    CurrentWorld.Act(ks, ms);
+                    CurrentWorld.Act(ks, ms, DeltaTime.GetDeltaTimeFactor());
                     foreach (GameObject g in CurrentWorld.GetGameObjects())
                     {
                         g.Act(ks, ms, DeltaTime.GetDeltaTimeFactor());

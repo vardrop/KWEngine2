@@ -57,6 +57,7 @@
     <Compile Include="GameObjects\TerrainTest.cs" />
     <Compile Include="GameObjects\WuerfelTest.cs" />
     <Compile Include="GameWindow.cs" />
+    <Compile Include="GameWorld2.cs" />
     <Compile Include="GameWorld.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
