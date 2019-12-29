@@ -92,6 +92,7 @@ namespace KWEngine2Test.GameObjects
                     s.ColorEmissive = new Vector4(0.5f, 0.1f, 0.1f, 1);
                     s.IsAffectedByLight = false;
                     s.IsAffectedBySun = false;
+                    s.Opacity = 0.25f;
                     CurrentWorld.AddGameObject(s);
 
                     last = now;

@@ -265,11 +265,14 @@ namespace KWEngine2.Renderers
                         }
 
 
-                        if (mesh.Material.Opacity < 1)
+                        if (mesh.Material.Opacity < 1 || g.Opacity < 1)
                         {
                             GL.Enable(EnableCap.Blend);
                         }
-                        GL.Uniform1(mUniform_Opacity, mesh.Material.Opacity);
+                        if (g.Opacity < mesh.Material.Opacity)
+                            GL.Uniform1(mUniform_Opacity, g.Opacity);
+                        else
+                            GL.Uniform1(mUniform_Opacity, mesh.Material.Opacity);
 
                         bool found = false;
                         object overrideValue = null;
@@ -427,6 +430,12 @@ namespace KWEngine2.Renderers
             else
             {
                 GL.Uniform4(mUniform_EmissiveColor, Vector4.Zero);
+            }
+
+            GL.Uniform1(mUniform_Opacity, g.Opacity);
+            if (g.Opacity < 1)
+            {
+                GL.Enable(EnableCap.Blend);
             }
 
             if (mesh.Material.Name == "KWCube")

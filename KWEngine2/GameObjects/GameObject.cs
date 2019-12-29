@@ -49,7 +49,20 @@ namespace KWEngine2.GameObjects
 
         private Vector3 _tintColor = new Vector3(1, 1, 1);
         private Vector4 _glow = new Vector4(0, 0, 0, 0);
-        
+        private float _opacity = 1;
+
+        public float Opacity
+        {
+            get
+            {
+                return _opacity;
+            }
+            set
+            {
+                _opacity = HelperGL.Clamp(value, 0, 1);
+            }
+        }
+
         public Vector3 Color
         {
             get
@@ -1313,9 +1326,14 @@ namespace KWEngine2.GameObjects
             }
         }
 
-        protected GameObject PickGameObject(float x, float y)
+        protected GameObject PickGameObject(MouseState ms)
         {
-            Vector3 ray = Get3DMouseCoords(x, y);
+            if (!CurrentWindow.Focused)
+            {
+                return null;
+            }
+
+            Vector3 ray = Get3DMouseCoords(ms.X, ms.Y);
             Vector3 pos = CurrentWorld.GetCameraPosition() + ray;
 
             GameObject pickedObject = null;
