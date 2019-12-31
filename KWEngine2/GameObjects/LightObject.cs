@@ -12,7 +12,7 @@ namespace KWEngine2.GameObjects
     {
 
         public string Name { get; set; } = "undefined light object.";
-        public LightType Type { get; private set; }
+        public LightType Type { get; set; }
         private Vector4 Color { get; set; }
         internal World World { get; set; }
 
@@ -28,7 +28,7 @@ namespace KWEngine2.GameObjects
 
         public Vector3 Position { get; set; }
         public Vector3 Target { get; set; }
-        public float DistanceMultiplier { get; private set; }
+        public float DistanceMultiplier { get;  private set; }
 
         public abstract void Act(KeyboardState ks, MouseState ms, float deltaTimeFactor);
 
@@ -38,16 +38,7 @@ namespace KWEngine2.GameObjects
             Target = new Vector3(0, 0, 0);
             Color = new Vector4(1, 1, 1, 1);
             Type = LightType.Point;
-            DistanceMultiplier = 1;
-        }
-
-        public LightObject(LightType type)
-        {
-            Position = new Vector3(0, 0, 0);
-            Target = new Vector3(0, 0, 0);
-            Color = new Vector4(1, 1, 1, 1);
-            Type = type;
-            DistanceMultiplier = 1;
+            DistanceMultiplier = 10;
         }
 
         public void SetDistanceMultiplier(float multiplier)

@@ -28,11 +28,11 @@ namespace KWEngine2
         internal static int TextureAlpha = -1;
         internal static float TimeElapsed = 0;
 
-        public static PostProcessingQuality PostProcessQuality = PostProcessingQuality.Low;
+        public static PostProcessingQuality PostProcessQuality { get; set; } = PostProcessingQuality.Low;
 
         internal static Dictionary<ParticleType, ParticleInfo> ParticleDictionary = new Dictionary<ParticleType, ParticleInfo>();
 
-        public static Dictionary<World, Dictionary<string, int>> CustomTextures { get; internal set; } = new Dictionary<World, Dictionary<string, int>>();
+        internal static Dictionary<World, Dictionary<string, int>> CustomTextures { get; set; } = new Dictionary<World, Dictionary<string, int>>();
         public enum CubeSide { All, Front, Back, Left, Right, Top, Bottom }
         public enum TextureType { Diffuse, Normal, Specular };
         public static Vector3 WorldUp
