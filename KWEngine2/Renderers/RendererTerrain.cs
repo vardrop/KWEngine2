@@ -116,7 +116,11 @@ namespace KWEngine2.Renderers
 
         internal override void Draw(GameObject g, ref Matrix4 viewProjection, ref Matrix4 viewProjectionShadowBiased, HelperFrustum frustum, ref float[] lightColors, ref float[] lightTargets, ref float[] lightPositions, int lightCount)
         {
-            if (g == null || !g.HasModel || g.CurrentWorld == null || !frustum.SphereVsFrustum(g.GetCenterPointForAllHitboxes(), g.GetMaxDiameter() / 2))
+            if (g == null || !g.HasModel || g.CurrentWorld == null || g.Opacity <= 0)
+                return;
+
+            g.IsInsideScreenSpace = frustum.SphereVsFrustum(g.GetCenterPointForAllHitboxes(), g.GetMaxDiameter() / 2);
+            if (!g.IsInsideScreenSpace)
                 return;
 
             GL.UseProgram(mProgramId);

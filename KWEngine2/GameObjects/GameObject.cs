@@ -257,6 +257,8 @@ namespace KWEngine2.GameObjects
             }
         }
 
+
+
         internal Hitbox GetLargestHitbox()
         {
             return Hitboxes[_largestHitboxIndex];
@@ -682,6 +684,11 @@ namespace KWEngine2.GameObjects
         {
             CheckModel();
             MoveAndStrafeFirstPerson(new Vector2(forward, strafe), units);
+        }
+
+        public void MoveAlongVector(Vector3 v, float units)
+        {
+            Position = new Vector3(Position.X + v.X * units, Position.Y + v.Y * units, Position.Z + v.Z * units);
         }
 
         private void MoveAndStrafeFirstPerson(Vector2? direction, float units)
@@ -1311,20 +1318,17 @@ namespace KWEngine2.GameObjects
             Rotation = Quaternion.FromMatrix(new Matrix3(lookat)) * Turn180;
         }
 
-        public bool IsInsideScreenSpace
+        public float GetDistanceTo(Vector3 position)
         {
-            get
-            {
-                if(CurrentWorld != null)
-                {
-                    return CurrentWindow.Frustum.SphereVsFrustum(this.GetCenterPointForAllHitboxes(), this.GetMaxDiameter() / 2);
-                }
-                else
-                {
-                    return false;
-                }
-            }
+            return (GetCenterPointForAllHitboxes() - position).LengthFast;
         }
+
+        public float GetDistanceTo(GameObject g)
+        {
+            return (GetCenterPointForAllHitboxes() - g.GetCenterPointForAllHitboxes()).LengthFast;
+        }
+
+        public bool IsInsideScreenSpace { get; internal set; } = false;
 
         protected GameObject PickGameObject(MouseState ms)
         {

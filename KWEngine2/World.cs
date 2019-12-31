@@ -168,6 +168,7 @@ namespace KWEngine2
         private float _sunAmbient = 0.25f;
 
         private float _fov = 45f;
+        private float _fovShadow = 45f;
         private float _zFar = 1000f;
 
         public GLWindow CurrentWindow
@@ -187,6 +188,7 @@ namespace KWEngine2
             set
             {
                 _zFar = value >= 50f ? value : 1000f;
+                CurrentWindow.CalculateProjectionMatrix();
             }
         }
 
@@ -199,8 +201,23 @@ namespace KWEngine2
             set
             {
                 _fov = value > 0 && value <= 120 ? value : 45f;
+                CurrentWindow.CalculateProjectionMatrix();
             }
         }
+
+        public float FOVShadow
+        {
+            get
+            {
+                return _fovShadow;
+            }
+            set
+            {
+                _fovShadow = value > 0 && value <= 120 ? value : 45f;
+                CurrentWindow.CalculateProjectionMatrix();
+            }
+        }
+
         public Vector3 GetCameraPosition()
         {
             return _cameraPosition;
@@ -565,6 +582,22 @@ namespace KWEngine2
         public void SoundStopAll()
         {
             GLAudioEngine.SoundStopAll();
+        }
+
+        public List<GameObject> GetGameObjectsByName(string name)
+        {
+            List<GameObject> os = new List<GameObject>();
+            lock (_gameObjects)
+            {
+                foreach (GameObject g in _gameObjects)
+                {
+                    if (g.Name == name)
+                    {
+                        os.Add(g);
+                    }
+                }
+            }
+            return os;
         }
     }
 }

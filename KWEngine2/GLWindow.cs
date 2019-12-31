@@ -369,10 +369,10 @@ namespace KWEngine2
             _windowRect = new System.Drawing.Rectangle(this.X, this.Y, this.Width + 16, this.Height + SystemInformation.CaptionHeight * 2);
         }
 
-        private void CalculateProjectionMatrix()
+        internal void CalculateProjectionMatrix()
         {
             _projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(CurrentWorld != null ? CurrentWorld.FOV / 2: 45f), Width / (float)Height, 0.1f, CurrentWorld != null ? CurrentWorld.ZFar : 1000f);
-            _projectionMatrixShadow = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(CurrentWorld != null ? CurrentWorld.FOV / 2 : 45f), Width / (float)Height, 1f, CurrentWorld != null ? CurrentWorld.ZFar : 1000f);
+            _projectionMatrixShadow = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(CurrentWorld != null ? CurrentWorld.FOVShadow / 2 : 45f), Width / (float)Height, 1f, CurrentWorld != null ? CurrentWorld.ZFar : 1000f);
 
             _modelViewProjectionMatrixBloom = Matrix4.CreateScale(Width, Height, 1) * Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographic(Width, Height, 0.1f, 100f);
 

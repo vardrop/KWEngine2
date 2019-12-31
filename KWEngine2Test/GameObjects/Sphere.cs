@@ -17,7 +17,7 @@ namespace KWEngine2Test.GameObjects
                 Ship s = ((GameWorld)CurrentWorld).ship;
                 if (s != null)
                 {
-                    TurnTowardsXZ(s.Position);
+                    TurnTowardsXYZ(s.Position);
                 }
             }
 
