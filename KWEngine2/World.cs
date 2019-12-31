@@ -689,10 +689,6 @@ namespace KWEngine2
             GLAudioEngine.SoundStopAll();
             lock (_gameObjects)
             {
-                foreach (GameObject g in _gameObjects)
-                {
-                    g.IsValid = false;
-                }
                 _gameObjects.Clear();
                 _gameObjectsTBA.Clear();
                 _gameObjectsTBR.Clear();

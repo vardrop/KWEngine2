@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace KWEngine2.Model
 {
-    internal enum GeoKeyframeType { Rotation, Translation, Scale }
+    public enum GeoKeyframeType { Rotation, Translation, Scale }
 
-    internal struct GeoAnimationKeyframe
+    public struct GeoAnimationKeyframe
     {
         public GeoKeyframeType Type { get; internal set; }
 
