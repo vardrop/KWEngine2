@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace KWEngine2.Model
 {
-    public struct GeoTexture
+    internal struct GeoTexture
     {
         public enum TexType { Diffuse, Specular, Normal, Skybox, Emissive, Light, AmbientOcclusion}
 

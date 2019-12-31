@@ -51,6 +51,9 @@ namespace KWEngine2
         internal static int TextureAlpha = -1;
         internal static float TimeElapsed = 0;
 
+        /// <summary>
+        /// Qualität der Post-Processing-Effekte (Glühen)
+        /// </summary>
         public static PostProcessingQuality PostProcessQuality { get; set; } = PostProcessingQuality.Low;
 
         internal static Dictionary<ParticleType, ParticleInfo> ParticleDictionary = new Dictionary<ParticleType, ParticleInfo>();
@@ -60,7 +63,35 @@ namespace KWEngine2
         /// <summary>
         /// Seite des KWCube
         /// </summary>
-        public enum CubeSide { All, Front, Back, Left, Right, Top, Bottom }
+        public enum CubeSide {
+            /// <summary>
+            /// Alle Würfelseiten
+            /// </summary>
+            All, 
+            /// <summary>
+            /// Frontseite (+Z)
+            /// </summary>
+            Front, 
+            /// <summary>
+            /// Rückseite (-Z)
+            /// </summary>
+            Back, 
+            /// <summary>
+            /// Links (-X)
+            /// </summary>
+            Left, 
+            /// <summary>
+            /// Rechts (+X)
+            /// </summary>
+            Right, 
+            /// <summary>
+            /// Oben (+Y)
+            /// </summary>
+            Top, 
+            /// <summary>
+            /// Unten (-Y)
+            /// </summary>
+            Bottom }
         /// <summary>
         /// Art der Textur (Standard: Diffuse)
         /// </summary>

@@ -10,7 +10,7 @@ using System.IO;
 
 namespace KWEngine2.Model
 {
-    public class GeoTerrain
+    internal class GeoTerrain
     {
         private float mWidth = 0;
         private float mDepth = 0;

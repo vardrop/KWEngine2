@@ -2,7 +2,7 @@
 
 namespace KWEngine2.Model
 {
-    public struct GeoVertex
+    internal struct GeoVertex
     {
         public override string ToString()
         {

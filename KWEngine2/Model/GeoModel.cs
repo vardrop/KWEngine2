@@ -14,7 +14,7 @@ namespace KWEngine2.Model
         /// <summary>
         /// Wurzelknoten
         /// </summary>
-        public GeoNode Root { get; internal set; } = null;
+        internal GeoNode Root { get; set; } = null;
         /// <summary>
         /// Pfad zur Modelldatei
         /// </summary>
@@ -40,7 +40,7 @@ namespace KWEngine2.Model
         /// <summary>
         /// Knoten des Skeletts
         /// </summary>
-        public GeoNode Armature { get; internal set; }
+        internal GeoNode Armature { get; set; }
 
         /// <summary>
         /// Validität des Modells

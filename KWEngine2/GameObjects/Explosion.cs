@@ -10,7 +10,32 @@ namespace KWEngine2.GameObjects
     /// <summary>
     /// Art der Explosion
     /// </summary>
-    public enum ExplosionType { Cube, CubeRingY, CubeRingZ, Sphere, SphereRingY, SphereRingZ }
+    public enum ExplosionType { 
+        /// <summary>
+        /// Würfelpartikel in alle Richtungen
+        /// </summary>
+        Cube, 
+        /// <summary>
+        /// Würfelpartikel um die Y-Achse
+        /// </summary>
+        CubeRingY, 
+        /// <summary>
+        /// Würfelpartikel um die Z-Achse
+        /// </summary>
+        CubeRingZ,
+        /// <summary>
+        /// Kugelpartikel in alle Richtungen
+        /// </summary>
+        Sphere,
+        /// <summary>
+        /// Kugelpartikel um die Y-Achse
+        /// </summary>
+        SphereRingY,
+        /// <summary>
+        /// Kugelpartikel um die Z-Achse
+        /// </summary>
+        SphereRingZ
+    }
 
     /// <summary>
     /// Explosionsklasse

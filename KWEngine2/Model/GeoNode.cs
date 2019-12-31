@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace KWEngine2.Model
 {
-    public class GeoNode
+    internal class GeoNode
     {
         public override string ToString()
         {

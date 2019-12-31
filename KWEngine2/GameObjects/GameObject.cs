@@ -13,14 +13,51 @@ using System.IO;
 
 namespace KWEngine2.GameObjects
 {
+    /// <summary>
+    /// Spielobjekte-Klasse
+    /// </summary>
     public abstract class GameObject : IComparable
     {
-        public enum Plane { X, Y, Z, Camera }
+        /// <summary>
+        /// Ebene
+        /// </summary>
+        public enum Plane {
+            /// <summary>
+            /// X
+            /// </summary>
+            X, 
+            /// <summary>
+            /// Y
+            /// </summary>
+            Y, 
+            /// <summary>
+            /// Z
+            /// </summary>
+            Z, 
+            /// <summary>
+            /// Kamerablickebene
+            /// </summary>
+            Camera }
         internal uint DistanceToCamera { get; set; } = 100;
+        /// <summary>
+        /// Gibt an, ob das Objekt Schatten wirft und empfängt
+        /// </summary>
         public bool IsShadowCaster { get; set; } = false;
+        /// <summary>
+        /// Höhenkorrektur für den First-Person-Modus (Standard: 0)
+        /// </summary>
         public float FPSEyeOffset { get; set; } = 0;
+        /// <summary>
+        /// Gibt an, ob das Objekt von der Sonne beschienen wird
+        /// </summary>
         public bool IsAffectedBySun { get; set; } = true;
+        /// <summary>
+        /// Gibt an, ob das Objekt von anderen Lichtquellen betroffen ist
+        /// </summary>
         public bool IsAffectedByLight { get; set; } = true;
+        /// <summary>
+        /// Aktuelle Spielwelt
+        /// </summary>
         public World CurrentWorld { get; internal set; } = null;
         private static Quaternion Turn180 = Quaternion.FromAxisAngle(KWEngine.WorldUp, (float)Math.PI);
 
@@ -30,6 +67,9 @@ namespace KWEngine2.GameObjects
 
         internal Dictionary<string, Dictionary<Override, object>> _overrides = new Dictionary<string, Dictionary<Override, object>>();        
 
+        /// <summary>
+        /// Aktuelles Fenster
+        /// </summary>
         public GLWindow CurrentWindow
         {
             get
@@ -51,6 +91,9 @@ namespace KWEngine2.GameObjects
         private Vector4 _glow = new Vector4(0, 0, 0, 0);
         private float _opacity = 1;
 
+        /// <summary>
+        /// Sichtbarkeit (0 = Unsichtbar, 1 = Sichtbar)
+        /// </summary>
         public float Opacity
         {
             get
@@ -63,6 +106,9 @@ namespace KWEngine2.GameObjects
             }
         }
 
+        /// <summary>
+        /// Färbung
+        /// </summary>
         public Vector3 Color
         {
             get
@@ -81,6 +127,9 @@ namespace KWEngine2.GameObjects
         }
 
         private Vector4 _emissiveColor = new Vector4(0,0,0,0);
+        /// <summary>
+        /// Strahlfarbe
+        /// </summary>
         public Vector4 ColorEmissive
         {
             get
@@ -99,6 +148,9 @@ namespace KWEngine2.GameObjects
             }
         }
 
+        /// <summary>
+        /// Glühfarbe
+        /// </summary>
         public Vector4 Glow
         {
             get
@@ -114,13 +166,25 @@ namespace KWEngine2.GameObjects
             }
         }
         
-
+        /// <summary>
+        /// Setzt die Glühfarbe
+        /// </summary>
+        /// <param name="red">Rot</param>
+        /// <param name="green">Grün</param>
+        /// <param name="blue">Blau</param>
+        /// <param name="intensity">Helligkeit</param>
         public void SetGlow(float red, float green, float blue, float intensity)
         {
             Glow = new Vector4(red, green, blue, intensity);
         }
 
+        /// <summary>
+        /// Gibt an, ob das Objekt per Maus wählbar sein soll
+        /// </summary>
         public bool IsPickable { get; set; } = false;
+        /// <summary>
+        /// ID der Animation
+        /// </summary>
         public int AnimationID
         {
             get
@@ -140,6 +204,9 @@ namespace KWEngine2.GameObjects
             }
         }
 
+        /// <summary>
+        /// Gibt an, ob das Objekt über Animationen verfügt
+        /// </summary>
         public bool HasAnimations
         {
             get
@@ -149,6 +216,9 @@ namespace KWEngine2.GameObjects
         }
 
         private float _animationPercentage = 0;
+        /// <summary>
+        /// Prozent der Animation (0 bis 1)
+        /// </summary>
         public float AnimationPercentage
         {
             get
@@ -160,12 +230,21 @@ namespace KWEngine2.GameObjects
                 _animationPercentage = HelperGL.Clamp(value, 0f, 1f);
             }
         }
+        /// <summary>
+        /// Gibt an ob mit dem Objekt kollidiert werde kann
+        /// </summary>
         public bool IsCollisionObject { get; set; } = false;
+        /// <summary>
+        /// Optionales Speicherfeld
+        /// </summary>
         public object Tag { get; protected set; } = null;
         private GeoModel _model;
         internal Matrix4 _modelMatrix = Matrix4.Identity;
         private Quaternion _rotation = new Quaternion(0, 0, 0, 1);
         private Vector3 _scale = new Vector3(1, 1, 1);
+        /// <summary>
+        /// Rotation (als Quaternion)
+        /// </summary>
         public Quaternion Rotation
         {
             get
@@ -179,6 +258,9 @@ namespace KWEngine2.GameObjects
             }
         }
 
+        /// <summary>
+        /// Gibt die Rotation des First-Person-Objekts zurück
+        /// </summary>
         public Quaternion RotationFirstPersonObject
         {
             get
@@ -203,6 +285,9 @@ namespace KWEngine2.GameObjects
         internal float _sceneDiameter = 1;
 
         private Vector3 _position = new Vector3(0, 0, 0);
+        /// <summary>
+        /// Position des Objekts
+        /// </summary>
         public Vector3 Position
         {
             get { return _position; }
@@ -213,16 +298,29 @@ namespace KWEngine2.GameObjects
             }
         }
 
+        /// <summary>
+        /// Setzt die Skalierung des Objekts
+        /// </summary>
+        /// <param name="x">X</param>
+        /// <param name="y">Y</param>
+        /// <param name="z">Z</param>
         public void SetScale(float x, float y, float z)
         {
             Scale = new Vector3(x, y, z);
         }
 
+        /// <summary>
+        /// Setzt die Skalierung des Objekts
+        /// </summary>
+        /// <param name="scale"></param>
         public void SetScale(float scale)
         {
             Scale = new Vector3(scale, scale, scale);
         }
 
+        /// <summary>
+        /// Skalierung des Objekts
+        /// </summary>
         public Vector3 Scale
         {
             get
@@ -245,6 +343,9 @@ namespace KWEngine2.GameObjects
             }
         }
         private string _name = "undefined gameobject name";
+        /// <summary>
+        /// Name des Objekts
+        /// </summary>
         public string Name
         {
             get
@@ -307,21 +408,37 @@ namespace KWEngine2.GameObjects
                 DistanceToCamera = (uint)((KWEngine.CurrentWorld.GetCameraPosition() - GetCenterPointForAllHitboxes()).LengthSquared * 10000);
         }
 
+        /// <summary>
+        /// Berechnet das Zentrum des Objekts (über alle Hitboxen)
+        /// </summary>
+        /// <returns>Zentrum</returns>
         public Vector3 GetCenterPointForAllHitboxes()
         {
             return _sceneCenter;
         }
 
+        /// <summary>
+        /// Erfragt die Maße des Objekts
+        /// </summary>
+        /// <returns>Maße (Breite, Höhe, Tiefe)</returns>
         public Vector3 GetMaxDimensions()
         {
             return _sceneDimensions;
         }
 
+        /// <summary>
+        /// Erfragt den maximalen Durchmesser des Objekts
+        /// </summary>
+        /// <returns>Durchmesser</returns>
         public float GetMaxDiameter()
         {
             return _sceneDiameter;
         }
 
+        /// <summary>
+        /// Bewegt das Blickfeld des FP-Objekts gemäß der Mauszeigerposition
+        /// </summary>
+        /// <param name="ms">Mausinformation</param>
         protected void MoveFPSCamera(MouseState ms)
         {
             CheckModel();
@@ -336,7 +453,9 @@ namespace KWEngine2.GameObjects
                 throw new Exception("FPS mode is not active.");
         }
 
-        public bool IsValid { get; internal set; } = false;
+        /// <summary>
+        /// Gibt an, ob das Objekt ein Modell hat
+        /// </summary>
         public bool HasModel
         {
             get
@@ -345,6 +464,9 @@ namespace KWEngine2.GameObjects
             }
         }
 
+        /// <summary>
+        /// Gibt das aktuelle Modell zurück
+        /// </summary>
         public GeoModel Model
         {
             get
@@ -353,6 +475,10 @@ namespace KWEngine2.GameObjects
             }
         }
 
+        /// <summary>
+        /// Setzt das Modell des Objekts
+        /// </summary>
+        /// <param name="m">Modell-Instanz</param>
         public void SetModel(GeoModel m)
         {
             if (m == null)
@@ -414,25 +540,53 @@ namespace KWEngine2.GameObjects
             
         }
 
+        /// <summary>
+        /// Act-Methode
+        /// </summary>
+        /// <param name="ks">Keyboardinfos</param>
+        /// <param name="ms">Mausinfos</param>
+        /// <param name="deltaTimeFactor">Delta-Zeit-Faktor (Standard: 1.0)</param>
         public abstract void Act(KeyboardState ks, MouseState ms, float deltaTimeFactor);
 
         #region Gameplay
+        /// <summary>
+        /// Erfragt die aktuelle Rotation in Eulerschen Winkeln
+        /// </summary>
+        /// <returns>Euler-Winkel</returns>
         public Vector3 GetRotationEulerAngles()
         {
             return HelperRotation.ConvertQuaternionToEulerAngles(Rotation);
             
         }
 
+        /// <summary>
+        /// Setzt die Rotation des Objekts
+        /// </summary>
+        /// <param name="rotation">Rotation (als Quaternion)</param>
         public void SetRotation(Quaternion rotation)
         {
             Rotation = rotation;
         }
 
+        /// <summary>
+        /// Prüft, ob das Objekt in Richtung des gegebenen Punkts blickt
+        /// </summary>
+        /// <param name="x">x</param>
+        /// <param name="y">y</param>
+        /// <param name="z">z</param>
+        /// <param name="diameter">Durchmesser um den Punkt</param>
+        /// <returns></returns>
         protected bool IsLookingAt(float x, float y, float z, float diameter)
         {
             return IsLookingAt(new Vector3(x, y, z), diameter);
         }
 
+        /// <summary>
+        /// Prüft, ob das Objekt in Richtung des gegebenen Punkts blickt
+        /// </summary>
+        /// <param name="target">Zielposition</param>
+        /// <param name="diameter">Durchmesser um das Ziel</param>
+        /// <returns></returns>
         protected bool IsLookingAt(Vector3 target, float diameter)
         {
             CheckModel();
@@ -506,6 +660,12 @@ namespace KWEngine2.GameObjects
             }
         }
 
+        /// <summary>
+        /// Setzt die Rotation des Objekts (Reihenfolge: Z->Y->X)
+        /// </summary>
+        /// <param name="x">X in Grad</param>
+        /// <param name="y">Y in Grad</param>
+        /// <param name="z">Z in Grad</param>
         public void SetRotation(float x, float y, float z)
         {
             if (Model.IsTerrain)
@@ -529,6 +689,10 @@ namespace KWEngine2.GameObjects
             }
         }
 
+        /// <summary>
+        /// Addiert eine Rotation hinzu
+        /// </summary>
+        /// <param name="r">Rotation (als Quaternion)</param>
         public void AddRotation(Quaternion r)
         {
             CheckModel();
@@ -546,6 +710,11 @@ namespace KWEngine2.GameObjects
             }
         }
 
+        /// <summary>
+        /// Fügt eine Rotation um die X-Achse hinzu
+        /// </summary>
+        /// <param name="amount">Rotation in Grad</param>
+        /// <param name="absolute">false für relative Drehung, true für eine Rotation um die Weltachse</param>
         public void AddRotationX(float amount, bool absolute = false)
         {
             CheckModel();
@@ -572,6 +741,11 @@ namespace KWEngine2.GameObjects
             }
         }
 
+        /// <summary>
+        /// Fügt eine Rotation um die Y-Achse hinzu
+        /// </summary>
+        /// <param name="amount">Rotation in Grad</param>
+        /// <param name="absolute">false für relative Drehung, true für eine Rotation um die Weltachse</param>
         public void AddRotationY(float amount, bool absolute = false)
         {
             CheckModel();
@@ -595,6 +769,11 @@ namespace KWEngine2.GameObjects
             }
         }
 
+        /// <summary>
+        /// Fügt eine Rotation um die Z-Achse hinzu
+        /// </summary>
+        /// <param name="amount">Rotation in Grad</param>
+        /// <param name="absolute">false für relative Drehung, true für eine Rotation um die Weltachse</param>
         public void AddRotationZ(float amount, bool absolute = false)
         {
             CheckModel();
@@ -621,12 +800,22 @@ namespace KWEngine2.GameObjects
             }
         }
 
+        /// <summary>
+        /// Setzt die Position des Objekts
+        /// </summary>
+        /// <param name="x">x</param>
+        /// <param name="y">y</param>
+        /// <param name="z">z</param>
         public void SetPosition(float x, float y, float z)
         {
             CheckModel();
             SetPosition(new Vector3(x, y, z));
         }
 
+        /// <summary>
+        /// Setzt die Position des Objekts
+        /// </summary>
+        /// <param name="newPosition">neue Position</param>
         public void SetPosition(Vector3 newPosition)
         {
             if (Model != null)
@@ -638,6 +827,12 @@ namespace KWEngine2.GameObjects
 
         }
 
+        /// <summary>
+        /// Setzt die Färbung des Objekts
+        /// </summary>
+        /// <param name="red">Rot</param>
+        /// <param name="green">Grün</param>
+        /// <param name="blue">Blau</param>
         protected void SetColor(float red, float green, float blue)
         {
             _tintColor.X = red >= 0 && red <= 1 ? red : 1;
@@ -645,6 +840,10 @@ namespace KWEngine2.GameObjects
             _tintColor.Z = blue >= 0 && blue <= 1 ? blue : 1;
         }
 
+        /// <summary>
+        /// Erfragt den normalisierten Blickrichtungsvektor
+        /// </summary>
+        /// <returns>Blickrichtungsvektor (normalisiert)</returns>
         protected Vector3 GetLookAtVector()
         {
             CheckModelAndWorld();
@@ -662,11 +861,19 @@ namespace KWEngine2.GameObjects
             }
         }
 
+        /// <summary>
+        /// Bewegt das Objekt in Blickrichtung
+        /// </summary>
+        /// <param name="amount">Anzahl der Bewegungseinheiten</param>
         protected void Move(float amount)
         {
             Position += Vector3.Multiply(GetLookAtVector(), amount);
         }
 
+        /// <summary>
+        /// Bewegt das Objekt in Blickrichtung (ohne Höhenunterschied)
+        /// </summary>
+        /// <param name="amount">Anzahl der Bewegungseinheiten</param>
         protected void MoveXZ(float amount)
         {
             Vector3 tmp = GetLookAtVector();
@@ -675,17 +882,34 @@ namespace KWEngine2.GameObjects
             Position += Vector3.Multiply(tmp, amount);
         }
 
+        /// <summary>
+        /// Bewegt das Objekt relativ zur aktuellen Position entlang der gegebenen Achsen
+        /// </summary>
+        /// <param name="x">x</param>
+        /// <param name="y">y</param>
+        /// <param name="z">z</param>
         protected void MoveOffset(float x, float y, float z)
         {
             Position = new Vector3(Position.X + x, Position.Y + y, Position.Z + z);
         }
 
+        /// <summary>
+        /// Führt Bewegungen für den First-Person-Modus aus
+        /// </summary>
+        /// <param name="forward">Vorwärtsanteil (-1 bis +1)</param>
+        /// <param name="strafe">Seitwärtsanteil (-1 bis +1)</param>
+        /// <param name="units">Einheitenmultiplikator (z.B. 0.5)</param>
         protected void MoveAndStrafeFirstPersonXYZ(float forward, float strafe, float units)
         {
             CheckModel();
             MoveAndStrafeFirstPersonXYZ(new Vector2(forward, strafe), units);
         }
 
+        /// <summary>
+        /// Bewegt das Objekt um die gegebenen Einheiten entlang eines Vektors
+        /// </summary>
+        /// <param name="v">Richtungsvektor</param>
+        /// <param name="units">Bewegungseinheiten</param>
         protected void MoveAlongVector(Vector3 v, float units)
         {
             Position = new Vector3(Position.X + v.X * units, Position.Y + v.Y * units, Position.Z + v.Z * units);
@@ -709,7 +933,12 @@ namespace KWEngine2.GameObjects
             }
         }
 
-
+        /// <summary>
+        /// Führt Bewegungen für den First-Person-Modus aus (ohne Höhenveränderung)
+        /// </summary>
+        /// <param name="forward">Vorwärtsanteil (-1 bis +1)</param>
+        /// <param name="strafe">Seitwärtsanteil (-1 bis +1)</param>
+        /// <param name="units">Einheitenmultiplikator (z.B. 0.5)</param>
         protected void MoveAndStrafeFirstPerson(float forward, float strafe, float units)
         {
             MoveAndStrafeFirstPerson(new Vector2(forward, strafe), units);
@@ -927,11 +1156,22 @@ namespace KWEngine2.GameObjects
             }
         }
 
+        /// <summary>
+        /// Aktuelle Systemzeit in Millisekunden
+        /// </summary>
+        /// <returns>Systemzeit in ms</returns>
         public long GetCurrentTimeInMilliseconds()
         {
             return Stopwatch.GetTimestamp() / TimeSpan.TicksPerMillisecond;
         }
 
+        /// <summary>
+        /// Erfragt eine Liste aller Objekte, die mit dem aufrufenden Objekt kollidieren
+        /// </summary>
+        /// <param name="offsetX">Versatz in X-Richtung (optional)</param>
+        /// <param name="offsetY">Versatz in Y-Richtung (optional)</param>
+        /// <param name="offsetZ">Versatz in Z-Richtung (optional)</param>
+        /// <returns></returns>
         protected List<Intersection> GetIntersections(float offsetX = 0, float offsetY = 0, float offsetZ = 0)
         {
             CheckModelAndWorld(true);
@@ -1010,6 +1250,11 @@ namespace KWEngine2.GameObjects
             }
         }
         
+        /// <summary>
+        /// Vergleichsmethode für den Tiefenpuffer
+        /// </summary>
+        /// <param name="obj">zu vergleichendes Objekt</param>
+        /// <returns>1, wenn das zu vergleichende Objekt weiter weg von der Kamera ist als das aufrufende Objekt</returns>
         public int CompareTo(object obj)
         {
             GameObject g = (GameObject)obj;
@@ -1017,6 +1262,12 @@ namespace KWEngine2.GameObjects
         }
         
 
+        /// <summary>
+        /// Setzt die Textur für das Objekt (KWCube und KWCube6)
+        /// </summary>
+        /// <param name="texture">Texturdatei</param>
+        /// <param name="type">Art der Textur (Standard: Diffuse)</param>
+        /// <param name="side">Seite des Würfels (für KWCube-Modelle)</param>
         public void SetTexture(string texture, TextureType type = TextureType.Diffuse, CubeSide side = CubeSide.All)
         {
             CheckModelAndWorld();
@@ -1084,6 +1335,12 @@ namespace KWEngine2.GameObjects
             }
         }
 
+        /// <summary>
+        /// Setzt die Texturwiederholungen für das Objekt
+        /// </summary>
+        /// <param name="x">Breitenwiederholungen</param>
+        /// <param name="y">Höhenwiederholungen</param>
+        /// <param name="side">Seite des Würfels (für KWCube)</param>
         public void SetTextureRepeat(float x, float y, CubeSide side = CubeSide.All)
         {
             CheckModelAndWorld();
@@ -1114,6 +1371,10 @@ namespace KWEngine2.GameObjects
             }
         }
 
+        /// <summary>
+        /// Erfragt den Blickrichtungsvektor der Kamera
+        /// </summary>
+        /// <returns>Blickrichtung</returns>
         protected Vector3 GetCameraLookAtVector()
         {
             if(CurrentWorld != null)
@@ -1126,7 +1387,12 @@ namespace KWEngine2.GameObjects
             }
         }
 
-
+        /// <summary>
+        /// Erfragt den Kollisionspunkt des Mauszeigers mit der 3D-Welt (auf Höhe des Aufrufers)
+        /// </summary>
+        /// <param name="ms">Mausinformationen</param>
+        /// <param name="plane">Kollisionsebene (Standard: Camera)</param>
+        /// <returns></returns>
         protected Vector3 GetMouseIntersectionPoint(MouseState ms, Plane plane = Plane.Camera)
         {
             if (CurrentWorld.IsFirstPersonMode)
@@ -1154,6 +1420,11 @@ namespace KWEngine2.GameObjects
                 return Position;
         }
 
+        /// <summary>
+        /// Erfragt, ob der Mauszeiger (näherungsweise) auf dem Objekt liegt 
+        /// </summary>
+        /// <param name="ms">Mausinformationen</param>
+        /// <returns>true, wenn der Mauszeiger auf dem Objekt liegt</returns>
         protected bool IsMouseCursorInsideMyHitbox(MouseState ms)
         {
             Vector3 worldRay = Get3DMouseCoords(HelperGL.GetNormalizedMouseCoords(ms.X, ms.Y, CurrentWindow));
@@ -1232,6 +1503,12 @@ namespace KWEngine2.GameObjects
             return true;
         }
 
+        /// <summary>
+        /// Erfragt die Rotation, die zu einem bestimmten Ziel notwendig wäre
+        /// </summary>
+        /// <param name="position">Ziel</param>
+        /// <param name="plane">Rotationsebene (Standard: Camera)</param>
+        /// <returns>Rotation (als Quaternion)</returns>
         protected Quaternion GetRotationToTarget(Vector3 position, Plane plane = Plane.Camera)
         {
             Vector3 normal;
@@ -1252,7 +1529,10 @@ namespace KWEngine2.GameObjects
             return Quaternion.FromMatrix(new Matrix3(lookat));
         }
 
-       
+       /// <summary>
+       /// Dreht das Objekt, so dass es zur Zielkoordinate blickt
+       /// </summary>
+       /// <param name="target">Zielkoordinate</param>
         public void TurnTowardsXYZ(Vector3 target)
         {
             Vector3 dir = target - GetCenterPointForAllHitboxes();
@@ -1265,6 +1545,11 @@ namespace KWEngine2.GameObjects
             Rotation = Quaternion.FromMatrix(new Matrix3(lookat)) * Turn180;
         }
 
+        /// <summary>
+        /// Dreht das Objekt, so dass es zur Zielkoordinate blickt
+        /// </summary>
+        /// <param name="targetX">X-Koordinate</param>
+        /// <param name="targetY">Y-Koordinate</param>
         public void TurnTowardsXY(float targetX, float targetY)
         {
             Vector3 target = new Vector3(targetX, targetY, 0);
@@ -1320,18 +1605,36 @@ namespace KWEngine2.GameObjects
             Rotation = Quaternion.FromMatrix(new Matrix3(lookat)) * Turn180;
         }
 
+        /// <summary>
+        /// Misst die Distanz zu einem Punkt
+        /// </summary>
+        /// <param name="position">Zielpunkt</param>
+        /// <returns>Distanz</returns>
         public float GetDistanceTo(Vector3 position)
         {
             return (GetCenterPointForAllHitboxes() - position).LengthFast;
         }
 
+        /// <summary>
+        /// Misst die Distanz zu einem GameObject
+        /// </summary>
+        /// <param name="g">GameObject-Instanz</param>
+        /// <returns>Distanz</returns>
         public float GetDistanceTo(GameObject g)
         {
             return (GetCenterPointForAllHitboxes() - g.GetCenterPointForAllHitboxes()).LengthFast;
         }
 
+        /// <summary>
+        /// Erfragt, ob das Objekt (mit kompletter Hitbox) noch von der Kamera gesehen werde kann
+        /// </summary>
         public bool IsInsideScreenSpace { get; internal set; } = false;
 
+        /// <summary>
+        /// Gibt das GameObject zurück, das unter dem Mauszeiger liegt
+        /// </summary>
+        /// <param name="ms">Mausinformationen</param>
+        /// <returns>Gewähltes GameObject</returns>
         protected GameObject PickGameObject(MouseState ms)
         {
             if (!CurrentWindow.Focused)
@@ -1401,7 +1704,12 @@ namespace KWEngine2.GameObjects
         }
 
 
-
+        /// <summary>
+        /// Setzt die Textur für einen bestimmtem Mesh-Namen (Teil des Modells)
+        /// </summary>
+        /// <param name="meshName">Mesh</param>
+        /// <param name="texture">Texturdatei</param>
+        /// <param name="textureType">Texturtyp (Standard: Diffuse)</param>
         public void SetTextureForMesh(string meshName, string texture, TextureType textureType = TextureType.Diffuse)
         {
             CheckModel();
@@ -1438,6 +1746,12 @@ namespace KWEngine2.GameObjects
                 throw new Exception("Not a valid call for Terrain objects.");
         }
 
+        /// <summary>
+        /// Setzt die Texturwiederholungen für eine bestimmte Mesh-ID (Teil des Modells)
+        /// </summary>
+        /// <param name="meshId">Mesh-ID (bei 0 beginnend)</param>
+        /// <param name="repeatX">Breitenwiederholungen</param>
+        /// <param name="repeatY">Höhenwiederholungen</param>
         public void SetTextureRepeatForMesh(int meshId, float repeatX, float repeatY)
         {
             CheckModel();
@@ -1459,6 +1773,13 @@ namespace KWEngine2.GameObjects
             }
         }
 
+        /// <summary>
+        /// Setzt Blendmapping für Terrains
+        /// </summary>
+        /// <param name="blendTexture">Blend Map (schwarz, rot, grün, blau)</param>
+        /// <param name="redTexture">Rottextur</param>
+        /// <param name="greenTexture">Grüntextur</param>
+        /// <param name="blueTexture">Blautextur</param>
         public void SetTextureTerrainBlendMapping(string blendTexture, string redTexture, string greenTexture = null, string blueTexture = null)
         {
             if (blendTexture != null && !File.Exists(blendTexture))
@@ -1549,6 +1870,12 @@ namespace KWEngine2.GameObjects
             }
         }
 
+        /// <summary>
+        /// Setzt die Textur für eine bestimmte Mesh-ID (Teil des Modells)
+        /// </summary>
+        /// <param name="meshID">ID</param>
+        /// <param name="texture">Texturdatei</param>
+        /// <param name="textureType">Texturtyp</param>
         public void SetTextureForMesh(int meshID, string texture, TextureType textureType = TextureType.Diffuse)
         {
             CheckModel();
@@ -1625,6 +1952,10 @@ namespace KWEngine2.GameObjects
             }
         }
 
+        /// <summary>
+        /// Erfragt eine Liste aller Mesh-Namen des Objekts
+        /// </summary>
+        /// <returns></returns>
         public IReadOnlyCollection<string> GetMeshNameList()
         {
             CheckModel();
@@ -1637,6 +1968,12 @@ namespace KWEngine2.GameObjects
             return _meshNameList;
         }
 
+        /// <summary>
+        /// Setzt die Spiegelungsstärke des Objekts
+        /// </summary>
+        /// <param name="enable">an/aus</param>
+        /// <param name="power">Intensität (Standard: 1)</param>
+        /// <param name="area">Fläche (je größer der Wert, desto kleiner die Reflektionsfläche)</param>
         public void SetSpecularOverride(bool enable, float power = 1, float area = 1024)
         {
             CheckModel();
@@ -1683,6 +2020,13 @@ namespace KWEngine2.GameObjects
             }
         }
 
+        /// <summary>
+        ///  Setzt die Spiegelungsstärke für einen Teil des 3D-Modells (Mesh)
+        /// </summary>
+        /// <param name="meshName">Name des Meshs</param>
+        /// <param name="enable">an/aus</param>
+        /// <param name="power">Intensität (Standard: 1)</param>
+        /// <param name="area">Fläche (je größer der Wert, desto kleiner die Reflektionsfläche)</param>
         public void SetSpecularOverrideForMesh(string meshName, bool enable, float power = 1, float area = 1024)
         {
             CheckModel();
@@ -1721,6 +2065,13 @@ namespace KWEngine2.GameObjects
             throw new Exception("Mesh " + meshName + " not found in Model.");
         }
 
+        /// <summary>
+        ///  Setzt die Spiegelungsstärke für einen Teil des 3D-Modells (Mesh)
+        /// </summary>
+        /// <param name="meshID">ID des Meshs</param>
+        /// <param name="enable">an/aus</param>
+        /// <param name="power">Intensität (Standard: 1)</param>
+        /// <param name="area">Fläche (je größer der Wert, desto kleiner die Reflektionsfläche)</param>
         public void SetSpecularOverrideForMesh(int meshID, bool enable, float power = 1, float area = 1024)
         {
             if (_cubeModel != null)
@@ -1742,16 +2093,29 @@ namespace KWEngine2.GameObjects
             throw new Exception("Mesh with ID " + meshID + " not found in Model.");
         }
 
+        /// <summary>
+        /// Spielt einen Ton ab
+        /// </summary>
+        /// <param name="audiofile">Audiodatei</param>
+        /// <param name="playLooping">looped playback?</param>
+        /// <param name="volume">Lautstärke</param>
         public void SoundPlay(string audiofile, bool playLooping = false, float volume = 1.0f)
         {
             GLAudioEngine.SoundPlay(audiofile, playLooping, volume);
         }
 
+        /// <summary>
+        /// Stoppt einen Ton
+        /// </summary>
+        /// <param name="audiofile">Audiodatei</param>
         public void SoundStop(string audiofile)
         {
             GLAudioEngine.SoundStop(audiofile);
         }
 
+        /// <summary>
+        /// Stoppt alle Töne
+        /// </summary>
         public void SoundStopAll()
         {
             GLAudioEngine.SoundStopAll();
