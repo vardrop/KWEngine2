@@ -11,15 +11,35 @@ using OpenTK.Input;
 
 namespace KWEngine2.GameObjects
 {
-    public enum HUDObjectType { Image, Text }
+    /// <summary>
+    /// Art des HUD-Objekts
+    /// </summary>
+    public enum HUDObjectType { 
+        /// <summary>
+        /// Bild
+        /// </summary>
+        Image, 
+        /// <summary>
+        /// Text
+        /// </summary>
+        Text }
 
+    /// <summary>
+    /// HUD-Klasse
+    /// </summary>
     public sealed class HUDObject
     {
         internal Vector2 _absolute = new Vector2(0, 0);
         internal Vector4 _tint = new Vector4(1, 1, 1, 1);
         internal HUDObjectType _type = HUDObjectType.Image;
         internal int[] _textureIds = new int[] { KWEngine.TextureDefault };
+        /// <summary>
+        /// Position
+        /// </summary>
         public Vector3 Position { get; internal set; } = Vector3.Zero;
+        /// <summary>
+        /// Aktuelle Welt
+        /// </summary>
         public World CurrentWorld { get; internal set; } = null;
         internal Vector3 _scale = new Vector3(32f, 32f, 1f);
         
@@ -29,7 +49,10 @@ namespace KWEngine2.GameObjects
         internal string _text = null;
         internal int _count = 1;
 
-        internal float _spread = 28f;
+        internal float _spread = 26f;
+        /// <summary>
+        /// Laufweite der Buchstaben (Standard: 26)
+        /// </summary>
         public float CharacterSpreadFactor
         {
             get
@@ -43,6 +66,13 @@ namespace KWEngine2.GameObjects
             }
         }
 
+        /// <summary>
+        /// Färbung des Objekts
+        /// </summary>
+        /// <param name="red">Rot</param>
+        /// <param name="green">Grün</param>
+        /// <param name="blue">Blau</param>
+        /// <param name="intensity">Helligkeit</param>
         public void SetColor(float red, float green, float blue, float intensity)
         {
             _tint.X = HelperGL.Clamp(red, 0, 1);
@@ -68,6 +98,11 @@ namespace KWEngine2.GameObjects
             }
         }
 
+        /// <summary>
+        /// Setzt die Größe
+        /// </summary>
+        /// <param name="width">Breite</param>
+        /// <param name="height">Höhe</param>
         public void SetScale(float width, float height)
         {
             _scale.X = HelperGL.Clamp(width, 0.001f, float.MaxValue);
@@ -77,6 +112,10 @@ namespace KWEngine2.GameObjects
             UpdatePositions();
         }
 
+        /// <summary>
+        /// Setzt den Text
+        /// </summary>
+        /// <param name="text">Text</param>
         public void SetText(string text)
         {
             if(_type == HUDObjectType.Text && text != null)
@@ -92,6 +131,10 @@ namespace KWEngine2.GameObjects
             }
         }
 
+        /// <summary>
+        /// Setzt die Textur
+        /// </summary>
+        /// <param name="filename">Bilddatei</param>
         public void SetTexture(string filename)
         {
             if (File.Exists(filename) && _type == HUDObjectType.Image)
@@ -113,6 +156,12 @@ namespace KWEngine2.GameObjects
             }
         }
 
+        /// <summary>
+        /// Konstruktormethode
+        /// </summary>
+        /// <param name="type">Art des Objekts </param>
+        /// <param name="x">Breitenposition</param>
+        /// <param name="y">Höhenposition</param>
         public HUDObject(HUDObjectType type, float x, float y)
         {
             _type = type;
@@ -125,6 +174,11 @@ namespace KWEngine2.GameObjects
             
         }
 
+        /// <summary>
+        /// Setzt die Position
+        /// </summary>
+        /// <param name="x">Breite in Pixeln</param>
+        /// <param name="y">Höhe in Pixeln</param>
         public void SetPosition(float x, float y)
         {
             Position = new Vector3(x - KWEngine.CurrentWindow.Width / 2, KWEngine.CurrentWindow.Height - y - KWEngine.CurrentWindow.Height / 2, 0);
@@ -151,6 +205,11 @@ namespace KWEngine2.GameObjects
             }
         }
 
+        /// <summary>
+        /// Prüft, ob der Mauszeiger auf dem HUD-Objekt ist
+        /// </summary>
+        /// <param name="ms">Mausinfo</param>
+        /// <returns>true, wenn die Maus auf dem HUD-Objekt ist</returns>
         public bool IsMouseCursorOnMe(MouseState ms)
         {
             

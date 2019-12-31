@@ -3,7 +3,7 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace KWEngine2.Model
 {
-    public class GeoMaterial
+    internal class GeoMaterial
     {
         public string Name { get; internal set; }
         public BlendingFactor BlendMode { get; internal set; } = BlendingFactor.OneMinusSrcAlpha;

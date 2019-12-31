@@ -12,13 +12,28 @@ using KWEngine2.Audio;
 
 namespace KWEngine2
 {
+    /// <summary>
+    /// Welt-Klasse
+    /// </summary>
     public abstract class World
     {
+        /// <summary>
+        /// Zeige die Welt aus der Sicht der Sonne
+        /// </summary>
         public bool DebugShadowCaster { get; set; } = false;
+        /// <summary>
+        /// Zeige Koordinatensystem
+        /// </summary>
         public bool DebugShowCoordinateSystem { get; set; } = false;
         internal bool _prepared = false;
         private float _worldDistance = 100;
+        /// <summary>
+        /// Zentrum der Welt
+        /// </summary>
         public Vector3 WorldCenter { get; set; } = new Vector3(0, 0, 0);
+        /// <summary>
+        /// Radius der Welt
+        /// </summary>
         public float WorldDistance
         {
             get
@@ -40,6 +55,9 @@ namespace KWEngine2
         }
         private GameObject _firstPersonObject = null;
 
+        /// <summary>
+        /// Gibt an, ob der First-Person-Modus aktiv ist
+        /// </summary>
         public bool IsFirstPersonMode
         {
             get
@@ -48,16 +66,29 @@ namespace KWEngine2
             }
         }
 
+        /// <summary>
+        /// Erfragt das aktuelle FP-Objekt
+        /// </summary>
+        /// <returns>FP-Objekt</returns>
         public GameObject GetFirstPersonObject()
         {
             return _firstPersonObject;
         }
 
+        /// <summary>
+        /// Aktuelle Zeit in Millisekunden
+        /// </summary>
+        /// <returns>Zeit (in ms)</returns>
         public long GetCurrentTimeInMilliseconds()
         {
             return Stopwatch.GetTimestamp() / TimeSpan.TicksPerMillisecond;
         }
 
+        /// <summary>
+        /// Startet den FP-Modus mit dem übergebenen Objekt
+        /// </summary>
+        /// <param name="go">FP-Objekt</param>
+        /// <param name="startRotationInDegrees">Startrotation (z.B. 180 Grad)</param>
         public void SetFirstPersonObject(GameObject go, float startRotationInDegrees = 0)
         {
             if (go != null)
@@ -95,6 +126,9 @@ namespace KWEngine2
 
 
         internal int _lightcount = 0;
+        /// <summary>
+        /// Anzahl der Lichter in der Welt
+        /// </summary>
         public int LightCount
         {
             get
@@ -108,6 +142,16 @@ namespace KWEngine2
         internal Vector2 _textureBackgroundTransform = new Vector2(1, 1);
         internal int _textureSkybox = -1;
 
+        /// <summary>
+        /// Setzt das Hintergrundbild (2D)
+        /// </summary>
+        /// <param name="filename">Textur</param>
+        /// <param name="repeatX">Wiederholung Breite</param>
+        /// <param name="repeatY">Wiederholung Höhe</param>
+        /// <param name="red">Rotfärbung</param>
+        /// <param name="green">Grünfärbung</param>
+        /// <param name="blue">Blaufärbung</param>
+        /// <param name="intensity">Helligkeit</param>
         public void SetTextureBackground(string filename, float repeatX = 1, float repeatY = 1, float red = 1, float green = 1, float blue = 1, float intensity = 1)
         {
             if (filename == null || filename.Length < 1)
@@ -136,6 +180,14 @@ namespace KWEngine2
             }
         }
 
+        /// <summary>
+        /// Setzt das 3D-Hintergrundbild
+        /// </summary>
+        /// <param name="filename">Skybox-Textur</param>
+        /// <param name="red">Rotfärbung</param>
+        /// <param name="green">Grünfärbung</param>
+        /// <param name="blue">Blaufärbung</param>
+        /// <param name="intensity">Helligkeit</param>
         public void SetTextureSkybox(string filename, float red = 1, float green = 1, float blue = 1, float intensity = 1)
         {
             if (filename == null || filename.Length < 1)
@@ -171,6 +223,9 @@ namespace KWEngine2
         private float _fovShadow = 45f;
         private float _zFar = 1000f;
 
+        /// <summary>
+        /// Aktuelles Fenster
+        /// </summary>
         public GLWindow CurrentWindow
         {
             get
@@ -179,6 +234,9 @@ namespace KWEngine2
             }
         }
 
+        /// <summary>
+        /// Entfernung bis zu der die Kamera noch Objekte wahrnimmt
+        /// </summary>
         public float ZFar
         {
             get
@@ -192,6 +250,9 @@ namespace KWEngine2
             }
         }
 
+        /// <summary>
+        /// Field of View (Standard: 45 Grad)
+        /// </summary>
         public float FOV
         {
             get
@@ -200,11 +261,14 @@ namespace KWEngine2
             }
             set
             {
-                _fov = value > 0 && value <= 120 ? value : 45f;
+                _fov = value > 0 && value <= 90 ? value : 45f;
                 CurrentWindow.CalculateProjectionMatrix();
             }
         }
 
+        /// <summary>
+        /// Field of View (Standard: 45 Grad)
+        /// </summary>
         public float FOVShadow
         {
             get
@@ -213,38 +277,66 @@ namespace KWEngine2
             }
             set
             {
-                _fovShadow = value > 0 && value <= 120 ? value : 45f;
+                _fovShadow = value > 0 && value <= 90 ? value : 45f;
                 CurrentWindow.CalculateProjectionMatrix();
             }
         }
 
+        /// <summary>
+        /// Kameraposition
+        /// </summary>
+        /// <returns>Positionswert</returns>
         public Vector3 GetCameraPosition()
         {
             return _cameraPosition;
         }
 
+        /// <summary>
+        /// Zielposition
+        /// </summary>
+        /// <returns>Positionswert</returns>
         public Vector3 GetCameraTarget()
         {
             return _cameraTarget;
         }
 
+        /// <summary>
+        /// Setzt die Kameraposition
+        /// </summary>
+        /// <param name="x">x</param>
+        /// <param name="y">y</param>
+        /// <param name="z">z</param>
         public void SetCameraPosition(float x, float y, float z)
         {
             _cameraPosition = new Vector3(x, y, z);
             UpdateCameraLookAtVector();
         }
 
+        /// <summary>
+        /// Setzt die Kameraposition
+        /// </summary>
+        /// <param name="p">Position</param>
         public void SetCameraPosition(Vector3 p)
         {
             _cameraPosition = p;
             UpdateCameraLookAtVector();
         }
 
+        /// <summary>
+        /// Setzt das Blickziel der Kamera
+        /// </summary>
+        /// <param name="x">x</param>
+        /// <param name="y">y</param>
+        /// <param name="z">z</param>
         public void SetCameraTarget(float x, float y, float z)
         {
             _cameraTarget = new Vector3(x, y, z);
             UpdateCameraLookAtVector();
         }
+        /// <summary>
+        /// Setzt das Blickziel der Kamera
+        /// </summary>
+        /// <param name="p">Zielkoordinaten</param>
         public void SetCameraTarget(Vector3 p)
         {
             _cameraTarget = p;
@@ -257,41 +349,76 @@ namespace KWEngine2
             _cameraLookAt.NormalizeFast();
         }
 
+        /// <summary>
+        /// Erfragt den normalisierten Sichtvektor der Kamera
+        /// </summary>
+        /// <returns></returns>
         public Vector3 GetCameraLookAtVector()
         {
             return _cameraLookAt;
         }
 
-        // Sun
+        /// <summary>
+        /// Erfragt die Position der Sonne
+        /// </summary>
+        /// <returns>Position</returns>
         public Vector3 GetSunPosition()
         {
             return _sunPosition;
         }
 
+        /// <summary>
+        /// Erfragt das Blickziel der Sonne
+        /// </summary>
+        /// <returns>Position</returns>
         public Vector3 GetSunTarget()
         {
             return _sunTarget;
         }
 
+        /// <summary>
+        /// Setzt die Position der Sonne
+        /// </summary>
+        /// <param name="x">x</param>
+        /// <param name="y">y</param>
+        /// <param name="z">z</param>
         public void SetSunPosition(float x, float y, float z)
         {
             SetSunPosition(new Vector3(x, y, z));
         }
 
+        /// <summary>
+        /// Setzt die Position der Sonne
+        /// </summary>
+        /// <param name="p">Position</param>
         public void SetSunPosition(Vector3 p)
         {
             _sunPosition = p;
         }
 
+        /// <summary>
+        /// Setzt das Blickziel der Sonne
+        /// </summary>
+        /// <param name="x">x</param>
+        /// <param name="y">y</param>
+        /// <param name="z">z</param>
         public void SetSunTarget(float x, float y, float z)
         {
             SetSunTarget(new Vector3(x, y, z));
         }
+
+        /// <summary>
+        /// Setzt das Blickziel der Sonne
+        /// </summary>
+        /// <param name="p">Position</param>
         public void SetSunTarget(Vector3 p)
         {
             _sunTarget = p;
         }
 
+        /// <summary>
+        /// Helligkeit des Umgebungslichts (dort wo die Sonne nicht scheint)
+        /// </summary>
         public float SunAmbientFactor
         {
             get
@@ -304,6 +431,13 @@ namespace KWEngine2
             }
         }
 
+        /// <summary>
+        /// Setzt die Farbe des Sonnenlichts
+        /// </summary>
+        /// <param name="red">Rotanteil</param>
+        /// <param name="green">Grünanteil</param>
+        /// <param name="blue">Blauanteil</param>
+        /// <param name="intensity">Helligkeitsanteil</param>
         public void SetSunColor(float red, float green, float blue, float intensity)
         {
             _sunColor.X = HelperGL.Clamp(red, 0, 1);
@@ -312,17 +446,34 @@ namespace KWEngine2
             _sunColor.W = HelperGL.Clamp(intensity, 0, 1);
         }
 
+        /// <summary>
+        /// Erfragt die Farbe der Sonne
+        /// </summary>
+        /// <returns>Farbinfos</returns>
         public Vector4 GetSunColor()
         {
             return _sunColor;
         }
 
 
-
+        /// <summary>
+        /// Vorbereitungsmethode
+        /// </summary>
         public abstract void Prepare();
 
+        /// <summary>
+        /// Act-Methode
+        /// </summary>
+        /// <param name="kb">Keyboardinfos</param>
+        /// <param name="ms">Mausinfos</param>
+        /// <param name="deltaTimeFactor">Delta-Time-Faktor (Standard: 1.0)</param>
         public abstract void Act(KeyboardState kb, MouseState ms, float deltaTimeFactor);
 
+        /// <summary>
+        /// Erfragt ein Modell aus der Engine-Datenbank
+        /// </summary>
+        /// <param name="name">Modellname</param>
+        /// <returns>Modelldaten</returns>
         public GeoModel GetModel(string name)
         {
             return KWEngine.GetModel(name);
@@ -426,12 +577,19 @@ namespace KWEngine2
             return _particleObjects;
         }
 
+        /// <summary>
+        /// Erfragt eine Liste der HUD-Objekte
+        /// </summary>
+        /// <returns>HUD-Objekte der Welt</returns>
         public IReadOnlyCollection<HUDObject> GetHUDObjects()
         {
             return _hudObjects.AsReadOnly();
         }
 
-
+        /// <summary>
+        /// Fügt ein HUD-Objekt hinzu
+        /// </summary>
+        /// <param name="h">Objekt</param>
         public void AddHUDObject(HUDObject h)
         {
             if (!_hudObjects.Contains(h))
@@ -444,12 +602,19 @@ namespace KWEngine2
             }
         }
 
+        /// <summary>
+        /// Löscht ein HUD-Objekt
+        /// </summary>
+        /// <param name="h">Objekt</param>
         public void RemoveHUDObject(HUDObject h)
         {
             _hudObjectsTBR.Add(h);
         }
 
-
+        /// <summary>
+        /// Fügt ein Lichtobjekt hinzu
+        /// </summary>
+        /// <param name="l">Objekt</param>
         public void AddLightObject(LightObject l)
         {
             if (!_lightObjects.Contains(l))
@@ -463,11 +628,19 @@ namespace KWEngine2
 
         }
 
+        /// <summary>
+        /// Löscht ein Lichtobjekt
+        /// </summary>
+        /// <param name="l">Objekt</param>
         public void RemoveLightObject(LightObject l)
         {
             _lightObjectsTBR.Add(l);
         }
 
+        /// <summary>
+        /// Fügt ein neues GameObject der Welt hinzu
+        /// </summary>
+        /// <param name="g">Objekt</param>
         public void AddGameObject(GameObject g)
         {
             lock (_gameObjects)
@@ -482,6 +655,10 @@ namespace KWEngine2
 
         }
 
+        /// <summary>
+        /// Fügt ein neues Partikelobjekt hinzu
+        /// </summary>
+        /// <param name="g">Objekt</param>
         public void AddParticleObject(ParticleObject g)
         {
             lock (_particleObjects)
@@ -498,7 +675,10 @@ namespace KWEngine2
             _particleObjectsTBR.Add(g);
         }
 
-
+        /// <summary>
+        /// Löscht ein GameObject aus der Welt
+        /// </summary>
+        /// <param name="g">Objekt</param>
         public void RemoveGameObject(GameObject g)
         {
             _gameObjectsTBR.Add(g);
@@ -566,6 +746,10 @@ namespace KWEngine2
             }
         }
 
+        /// <summary>
+        /// Erfragt eine Liste mit aktuellen GameObjekt-Instanzen
+        /// </summary>
+        /// <returns>Instanzen</returns>
         public IReadOnlyCollection<GameObject> GetGameObjects()
         {
             IReadOnlyCollection<GameObject> returnCollection = null;
@@ -576,6 +760,10 @@ namespace KWEngine2
             return returnCollection;
         }
 
+        /// <summary>
+        /// Erfragt eine Liste mit aktuellen LightObject-Instanzen
+        /// </summary>
+        /// <returns>Instanzen</returns>
         public IReadOnlyCollection<LightObject> GetLightObjects()
         {
             IReadOnlyCollection<LightObject> returnCollection = null;
@@ -592,21 +780,39 @@ namespace KWEngine2
                 : (y == null ? 1 : y.DistanceToCamera.CompareTo(x.DistanceToCamera)));
         }
 
+        /// <summary>
+        /// Spielt einen Ton ab (ogg)
+        /// </summary>
+        /// <param name="audiofile">Audiodatei (ogg)</param>
+        /// <param name="playLooping">Looped playback?</param>
+        /// <param name="volume">Lautstärke</param>
         public void SoundPlay(string audiofile, bool playLooping = false, float volume = 1.0f)
         {
             GLAudioEngine.SoundPlay(audiofile, playLooping, volume);
         }
 
+        /// <summary>
+        /// Stoppt einen bestimmten Ton
+        /// </summary>
+        /// <param name="audiofile">zu stoppender Ton</param>
         public void SoundStop(string audiofile)
         {
             GLAudioEngine.SoundStop(audiofile);
         }
 
+        /// <summary>
+        /// Stoppt die Wiedergabe aller Töne
+        /// </summary>
         public void SoundStopAll()
         {
             GLAudioEngine.SoundStopAll();
         }
 
+        /// <summary>
+        /// Erstellt eine Liste aller GameObject-Instanzen mit einem bestimmten Namen
+        /// </summary>
+        /// <param name="name">gesuchter Name</param>
+        /// <returns>Liste</returns>
         public List<GameObject> GetGameObjectsByName(string name)
         {
             List<GameObject> os = new List<GameObject>();

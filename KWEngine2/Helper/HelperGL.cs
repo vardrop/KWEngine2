@@ -10,8 +10,18 @@ using System.Windows.Forms;
 
 namespace KWEngine2.Helper
 {
+    /// <summary>
+    /// Helferklasse für Mathefunktionen
+    /// </summary>
     public static class HelperGL
     {
+        /// <summary>
+        /// Beschneidet Werte
+        /// </summary>
+        /// <param name="v">Wert</param>
+        /// <param name="l">Untergrenze</param>
+        /// <param name="u">Obergrenze</param>
+        /// <returns></returns>
         public static float Clamp(float v, float l, float u)
         {
             if (v < l)
@@ -20,28 +30,6 @@ namespace KWEngine2.Helper
                 return u;
             else
                 return v;
-        }
-        public static void SetAlphaBlendingEnabled(bool enabled)
-        {
-            if (!enabled)
-            {
-                GL.Disable(EnableCap.Blend);
-                GL.Enable(EnableCap.DepthTest);
-            }
-            else
-            {
-                GL.Enable(EnableCap.Blend);
-                GL.Disable(EnableCap.DepthTest);
-                GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
-            }
-        }
-
-        public static void SwitchToBufferAndClear(int id)
-        {
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, id);
-            GL.ClearColor(0, 0, 0, 1);
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
         }
 
         public static bool CheckGLErrors()
@@ -56,7 +44,7 @@ namespace KWEngine2.Helper
             return hasError;
         }
 
-        public static Vector3 UnProject(this Vector3 mouse, Matrix4 projection, Matrix4 view, int width, int height)
+        internal static Vector3 UnProject(this Vector3 mouse, Matrix4 projection, Matrix4 view, int width, int height)
         {
             Vector4 vec;
 

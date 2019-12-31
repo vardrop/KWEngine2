@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace KWEngine2.Helper
 {
-    public static class DeltaTime
+    internal static class DeltaTime
     {
         private static float smoothedDeltaRealTime_ms = 16.666666f; // initial value, Optionally you can save the new computed value (will change with each hardware) in Preferences to optimize the first drawing frames 
         private static float movAverageDeltaTime_ms = 16.6666666f; // mov Average start with default value
@@ -14,7 +14,7 @@ namespace KWEngine2.Helper
 
         private static float deltaTimeFactor = 1;
         
-        public static float GetDeltaTimeFactor()
+        internal static float GetDeltaTimeFactor()
         {
             return deltaTimeFactor;
         }

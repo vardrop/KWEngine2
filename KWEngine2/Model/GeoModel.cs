@@ -6,27 +6,63 @@ using System.IO;
 
 namespace KWEngine2.Model
 {
+    /// <summary>
+    /// Modellklasse
+    /// </summary>
     public class GeoModel
     {
+        /// <summary>
+        /// Wurzelknoten
+        /// </summary>
         public GeoNode Root { get; internal set; } = null;
+        /// <summary>
+        /// Pfad zur Modelldatei
+        /// </summary>
         public string Path { get; internal set; }
+        /// <summary>
+        /// Absoluter Pfad zur Modelldatei
+        /// </summary>
         public string PathAbsolute { get; internal set; }
         internal bool IsInAssembly { get; set; }
+        /// <summary>
+        /// Animationsliste
+        /// </summary>
         public List<GeoAnimation> Animations { get; internal set; }
+        /// <summary>
+        /// Verfügt das Modell über Knochen für Animationen?
+        /// </summary>
         public bool HasBones
         {
             get; internal set;
 
         } = false;
         
+        /// <summary>
+        /// Knoten des Skeletts
+        /// </summary>
         public GeoNode Armature { get; internal set; }
 
+        /// <summary>
+        /// Validität des Modells
+        /// </summary>
         public bool IsValid { get; internal set; }
+        /// <summary>
+        /// Name
+        /// </summary>
         public string Name { get; internal set; }
+        /// <summary>
+        /// Dateiname
+        /// </summary>
         public string Filename { get; internal set; }
+        /// <summary>
+        /// Globale Transformationsinvers-Matrix
+        /// </summary>
         public Matrix4 TransformGlobalInverse { get; internal set; }
-        public Dictionary<string, GeoMesh> Meshes { get; internal set; }
-        public List<GeoMeshHitbox> MeshHitboxes { get; internal set; }
+        internal Dictionary<string, GeoMesh> Meshes { get; set; }
+        internal List<GeoMeshHitbox> MeshHitboxes { get; set; }
+        /// <summary>
+        /// Handelt es sich bei dem Modell um Terrain?
+        /// </summary>
         public bool IsTerrain
         { 
             get
@@ -45,9 +81,9 @@ namespace KWEngine2.Model
 
         //internal GeoTerrain _terrain { get; set; } = null;
 
-        public List<string> BoneNames { get; internal set; } = new List<string>();
-        public List<GeoNode> NodesWithoutHierarchy = new List<GeoNode>();
-        public Dictionary<string, GeoTexture> Textures { get; internal set; }
+        internal List<string> BoneNames { get; set; } = new List<string>();
+        internal List<GeoNode> NodesWithoutHierarchy = new List<GeoNode>();
+        internal Dictionary<string, GeoTexture> Textures { get; set; }
 
         internal void Dispose()
         {

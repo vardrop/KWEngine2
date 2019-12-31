@@ -6,13 +6,29 @@ using System.Threading.Tasks;
 
 namespace KWEngine2.Model
 {
+    /// <summary>
+    /// Animationsklasse
+    /// </summary>
     public struct GeoAnimation
     {
+        /// <summary>
+        /// Name der Animation
+        /// </summary>
         public string Name { get; internal set; }
+        /// <summary>
+        /// Dauer der Animation
+        /// </summary>
         public float DurationInTicks { get; internal set; }
+        /// <summary>
+        /// Ticks pro Sekunde
+        /// </summary>
         public float TicksPerSecond { get; internal set; }
+        /// <summary>
+        /// Animationskanäle
+        /// </summary>
         public Dictionary<string, GeoNodeAnimationChannel> AnimationChannels { get; internal set; }
 
+        /*
         public GeoNodeAnimationChannel GetBoneForNodeName(string nodeName)
         {
 
@@ -23,5 +39,6 @@ namespace KWEngine2.Model
 
             return null;
         }
+        */
     }
 }

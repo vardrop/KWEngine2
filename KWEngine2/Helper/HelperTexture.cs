@@ -8,7 +8,7 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace KWEngine2.Helper
 {
-    public static class HelperTexture
+    internal static class HelperTexture
     {
 
         public static int RoundToPowerOf2(int value)

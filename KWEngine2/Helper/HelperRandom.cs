@@ -2,6 +2,9 @@
 
 namespace KWEngine2.Helper
 {
+    /// <summary>
+    /// Helferklasse für Zufallszahlen
+    /// </summary>
     public static class HelperRandom
     {
         /// <summary>

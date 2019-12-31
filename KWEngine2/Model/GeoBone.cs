@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace KWEngine2.Model
 {
-    public class GeoBone
+    internal class GeoBone
     {
         public override string ToString()
         {

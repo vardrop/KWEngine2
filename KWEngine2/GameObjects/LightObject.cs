@@ -5,33 +5,76 @@ using OpenTK.Input;
 
 namespace KWEngine2.GameObjects
 {
+    /// <summary>
+    /// Lichttyp
+    /// </summary>
+    public enum LightType {
+        /// <summary>
+        /// Punktlicht
+        /// </summary>
+        Point, 
+        /// <summary>
+        /// Gerichtetes Licht
+        /// </summary>
+        Directional };
 
-    public enum LightType { Point, Directional };
-
+    /// <summary>
+    /// Lichtklasse
+    /// </summary>
     public abstract class LightObject
     {
-
+        /// <summary>
+        /// Name
+        /// </summary>
         public string Name { get; set; } = "undefined light object.";
+        /// <summary>
+        /// Art des Lichts
+        /// </summary>
         public LightType Type { get; set; }
         private Vector4 Color { get; set; }
         internal World World { get; set; }
 
+        /// <summary>
+        /// Aktuelle Welt
+        /// </summary>
+        /// <returns>Instanz</returns>
         public World GetCurrentWorld()
         {
             return World;
         }
 
+        /// <summary>
+        /// Aktuelle Welt
+        /// </summary>
         public World CurrentWorld
         {
             get; internal set;
         }
 
+        /// <summary>
+        /// Position des Lichts
+        /// </summary>
         public Vector3 Position { get; set; }
+        /// <summary>
+        /// Ziel des Lichts
+        /// </summary>
         public Vector3 Target { get; set; }
-        public float DistanceMultiplier { get;  private set; }
+        /// <summary>
+        /// Distanzmultiplikator (Standard: 10)
+        /// </summary>
+        public float DistanceMultiplier { get; private set; } = 10;
 
+        /// <summary>
+        /// Act
+        /// </summary>
+        /// <param name="ks">Keyboardinfos</param>
+        /// <param name="ms">Mausinfos</param>
+        /// <param name="deltaTimeFactor">Delta-Time-Faktor (Standard: 1.0)</param>
         public abstract void Act(KeyboardState ks, MouseState ms, float deltaTimeFactor);
 
+        /// <summary>
+        /// Konstruktormethode
+        /// </summary>
         public LightObject()
         {
             Position = new Vector3(0, 0, 0);
@@ -41,6 +84,10 @@ namespace KWEngine2.GameObjects
             DistanceMultiplier = 10;
         }
 
+        /// <summary>
+        /// Ändert den Distanzmultiplikator des Lichts
+        /// </summary>
+        /// <param name="multiplier">Multiplikator (Standard: 10)</param>
         public void SetDistanceMultiplier(float multiplier)
         {
             if (multiplier > 0)
@@ -51,7 +98,13 @@ namespace KWEngine2.GameObjects
                 DistanceMultiplier = 1;
         }
 
-
+        /// <summary>
+        /// Setzt die Lichtfarbe
+        /// </summary>
+        /// <param name="red">Rot</param>
+        /// <param name="green">Grün</param>
+        /// <param name="blue">Blau</param>
+        /// <param name="intensity">Helligkeit</param>
         public void SetColor(float red, float green, float blue, float intensity)
         {
             Color = new Vector4(
@@ -62,16 +115,32 @@ namespace KWEngine2.GameObjects
                 );
         }
 
+        /// <summary>
+        /// Setzt die Position des Lichts
+        /// </summary>
+        /// <param name="x">x</param>
+        /// <param name="y">y</param>
+        /// <param name="z">z</param>
         public void SetPosition(float x, float y, float z)
         {
             Position = new Vector3(x, y, z);
         }
 
+        /// <summary>
+        /// Setzt die Position des Lichts
+        /// </summary>
+        /// <param name="position">Positionsdaten</param>
         public void SetPosition(Vector3 position)
         {
             Position = position;
         }
 
+        /// <summary>
+        /// Setzt das Ziel des gerichteten Lichts
+        /// </summary>
+        /// <param name="x">x</param>
+        /// <param name="y">y</param>
+        /// <param name="z">z</param>
         public void SetTarget(float x, float y, float z)
         {
             if (Type == LightType.Point)
@@ -79,6 +148,10 @@ namespace KWEngine2.GameObjects
             Target = new Vector3(x, y, z);
         }
 
+        /// <summary>
+        /// Setzt das Ziel des gerichteten Lichts
+        /// </summary>
+        /// <param name="target">Zielkoordinaten</param>
         public void SetTarget(Vector3 target)
         {
             if (Type == LightType.Point)

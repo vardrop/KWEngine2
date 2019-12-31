@@ -16,10 +16,19 @@ using OpenTK.Input;
 
 namespace KWEngine2
 {
+    /// <summary>
+    /// Fensterklasse
+    /// </summary>
     public abstract class GLWindow : GameWindow
     {
+        /// <summary>
+        /// Aktuelle Welt
+        /// </summary>
         public World CurrentWorld { get; private set; }
         internal GameObject _dummy = null;
+        /// <summary>
+        /// Aktuelles Fenster
+        /// </summary>
         public static GLWindow CurrentWindow { get; internal set; }
         internal Matrix4 _viewMatrix = Matrix4.Identity;
         internal Matrix4 _modelViewProjectionMatrixBackground = Matrix4.Identity;
@@ -116,7 +125,10 @@ namespace KWEngine2
         }
 
         
-
+        /// <summary>
+        /// EventHandler für das erste Laden des Fensters
+        /// </summary>
+        /// <param name="e">Parameter</param>
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
@@ -133,6 +145,10 @@ namespace KWEngine2
             HelperGL.CheckGLErrors();
         }
 
+        /// <summary>
+        /// Schließt das Fenster
+        /// </summary>
+        /// <param name="manual">true, wenn manuell herbeigeführt</param>
         protected override void Dispose(bool manual)
         {
             GLAudioEngine.SoundStopAll();
@@ -143,6 +159,10 @@ namespace KWEngine2
 
         }
 
+        /// <summary>
+        /// EventHandler für den Render-Thread
+        /// </summary>
+        /// <param name="e">Parameter</param>
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             base.OnRenderFrame(e);
@@ -269,6 +289,10 @@ namespace KWEngine2
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         }
 
+        /// <summary>
+        /// EventHandler für den Gameplay-Thread
+        /// </summary>
+        /// <param name="e">Parameter</param>
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             base.OnUpdateFrame(e);
@@ -320,6 +344,9 @@ namespace KWEngine2
             KWEngine.TimeElapsed += (float)e.Time;
         }
 
+        /// <summary>
+        /// Prüft, ob sich der Mauszeiger im Fenster befindet
+        /// </summary>
         public bool IsMouseInWindow
         {
             get
@@ -332,6 +359,10 @@ namespace KWEngine2
             }
         }
 
+        /// <summary>
+        /// EventHandler für Fokuswechsel
+        /// </summary>
+        /// <param name="e">Parameter</param>
         protected override void OnFocusedChanged(EventArgs e)
         {
             base.OnFocusedChanged(e);
@@ -345,6 +376,10 @@ namespace KWEngine2
                 
         }
 
+        /// <summary>
+        /// EventHandler für Größenanpassung des Fensters
+        /// </summary>
+        /// <param name="e">Parameter</param>
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
@@ -361,6 +396,10 @@ namespace KWEngine2
             _windowRect = new System.Drawing.Rectangle(this.X, this.Y, this.Width + 16, this.Height + SystemInformation.CaptionHeight * 2);
         }
 
+        /// <summary>
+        /// EventHandler für das Bewegen des Fensters
+        /// </summary>
+        /// <param name="e">Parameter</param>
         protected override void OnMove(EventArgs e)
         {
             base.OnMove(e);
@@ -382,6 +421,10 @@ namespace KWEngine2
             _viewProjectionMatrixHUD = Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographic(Width, Height, 0.1f, 100f);
         }
 
+        /// <summary>
+        /// Setzt die aktuelle Welt
+        /// </summary>
+        /// <param name="w">Welt-Instanz</param>
         public void SetWorld(World w)
         {
             if (CurrentWorld == null)

@@ -13,15 +13,38 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace KWEngine2
 {
+    /// <summary>
+    /// Kernbibliothek der Engine
+    /// </summary>
     public class KWEngine
     {
+        /// <summary>
+        /// Anzahl der Gewichte pro Knochen
+        /// </summary>
         public const int MAX_BONE_WEIGHTS = 3;
+        /// <summary>
+        /// Anzahl der Knochen pro GameObject
+        /// </summary>
         public const int MAX_BONES = 36;
+        /// <summary>
+        /// Anzahl der Lichter pro Welt
+        /// </summary>
         public const int MAX_LIGHTS = 10;
         internal static Matrix4 Identity = Matrix4.Identity;
         private static Vector3 _worldUp = new Vector3(0, 1, 0);
 
-        public enum PostProcessingQuality {High, Low };
+        /// <summary>
+        /// Qualität des Glow-Effekts
+        /// </summary>
+        public enum PostProcessingQuality {
+            /// <summary>
+            /// Hoch
+            /// </summary>
+            High, 
+            /// <summary>
+            /// Niedrig (Standard)
+            /// </summary>
+            Low };
 
         internal static int TextureDefault = -1;
         internal static int TextureBlack = -1;
@@ -33,8 +56,32 @@ namespace KWEngine2
         internal static Dictionary<ParticleType, ParticleInfo> ParticleDictionary = new Dictionary<ParticleType, ParticleInfo>();
 
         internal static Dictionary<World, Dictionary<string, int>> CustomTextures { get; set; } = new Dictionary<World, Dictionary<string, int>>();
+
+        /// <summary>
+        /// Seite des KWCube
+        /// </summary>
         public enum CubeSide { All, Front, Back, Left, Right, Top, Bottom }
-        public enum TextureType { Diffuse, Normal, Specular };
+        /// <summary>
+        /// Art der Textur (Standard: Diffuse)
+        /// </summary>
+        public enum TextureType { 
+            /// <summary>
+            /// Standardtexture
+            /// </summary>
+            Diffuse, 
+            /// <summary>
+            /// Normal Map
+            /// </summary>
+            Normal, 
+            /// <summary>
+            /// Specular Map
+            /// </summary>
+            Specular
+        };
+
+        /// <summary>
+        /// Welt-Vektor, der angibt, wo 'oben' ist
+        /// </summary>
         public static Vector3 WorldUp
         {
             get
@@ -48,6 +95,10 @@ namespace KWEngine2
         }
 
         internal static PrivateFontCollection Collection = new PrivateFontCollection();
+
+        /// <summary>
+        /// Schriftart der Engine
+        /// </summary>
         public static string Font { get; internal set; } = null;
         
 
@@ -65,6 +116,9 @@ namespace KWEngine2
         internal static Dictionary<string, Renderer> Renderers { get; set; } = new Dictionary<string, Renderer>();
         internal static Dictionary<string, GeoModel> Models { get; set; } = new Dictionary<string, GeoModel>();
 
+        /// <summary>
+        /// Empfindlichkeit des Mauszeigers im First-Person-Modus (Standard: 0.001f)
+        /// </summary>
         public static float MouseSensitivity { get; set; } = 0.001f;
 
         internal static GeoModel CoordinateSystem;
@@ -183,11 +237,20 @@ namespace KWEngine2
             ParticleDictionary.Add(ParticleType.LoopSmoke3, new ParticleInfo(tex, 6, 32));
         }
 
+        /// <summary>
+        /// Aktuelle Systemzeit in Millisekunden
+        /// </summary>
+        /// <returns></returns>
         public static long GetCurrentTimeInMilliseconds()
         {
             return Stopwatch.GetTimestamp() / TimeSpan.TicksPerMillisecond;
         }
 
+        /// <summary>
+        /// Erfragt ein 3D-Modell aus der Engine-Datenbank
+        /// </summary>
+        /// <param name="name">Name des Modells</param>
+        /// <returns>Modell</returns>
         public static GeoModel GetModel(string name)
         {
             bool modelFound = Models.TryGetValue(name, out GeoModel m);
@@ -198,6 +261,9 @@ namespace KWEngine2
 
         private static float _shadowmapbiascoefficient = 0.001f;
 
+        /// <summary>
+        /// Koeffizient der Schattenberechnung (Standard: 0.001f);
+        /// </summary>
         public static float ShadowMapCoefficient
         {
             get
@@ -220,6 +286,9 @@ namespace KWEngine2
         }
 
         private static int _shadowMapSize = 4096;
+        /// <summary>
+        /// Größe der Shadow Map (Standard: 4096)
+        /// </summary>
         public static int ShadowMapSize 
         {
             get
@@ -242,6 +311,9 @@ namespace KWEngine2
             }
         }
 
+        /// <summary>
+        /// Aktuelle Welt
+        /// </summary>
         public static World CurrentWorld 
         {
             get
@@ -250,6 +322,9 @@ namespace KWEngine2
             }
         }
 
+        /// <summary>
+        /// Fenster
+        /// </summary>
         public static GLWindow CurrentWindow
         {
             get
@@ -258,6 +333,17 @@ namespace KWEngine2
             }
         }
 
+        /// <summary>
+        /// Baut ein Terrain-Modell
+        /// </summary>
+        /// <param name="name">Name des Modells</param>
+        /// <param name="heightmap">Height Map Textur</param>
+        /// <param name="texture">Textur der Oberfläche</param>
+        /// <param name="width">Breite</param>
+        /// <param name="height">Höhe</param>
+        /// <param name="depth">Tiefe</param>
+        /// <param name="texRepeatX">Texturwiederholung Breite</param>
+        /// <param name="texRepeatZ">Texturwiederholung Tiefe</param>
         public static void BuildTerrainModel(string name, string heightmap, string texture, float width, float height, float depth, float texRepeatX = 1, float texRepeatZ = 1)
         {
             if (Models.ContainsKey(name)){
@@ -314,11 +400,22 @@ namespace KWEngine2
             KWEngine.Models.Add(name, terrainModel);
         }
 
+        /// <summary>
+        /// Lädt ein Modell aus einer Datei
+        /// </summary>
+        /// <param name="name">Name des Modells</param>
+        /// <param name="filename">Datei des Modells</param>
         public static void LoadModelFromFile(string name, string filename)
         {
             LoadModelFromFile(name, filename, true);
         }
 
+        /// <summary>
+        /// Lädt ein Modell aus einer Datei
+        /// </summary>
+        /// <param name="name">Name des Modells</param>
+        /// <param name="filename">Datei des Modells</param>
+        /// <param name="flipTextureCoordinates">UV-Map umdrehen (Standard: true)</param>
         public static void LoadModelFromFile(string name, string filename, bool flipTextureCoordinates = true)
         {
             GeoModel m = SceneImporter.LoadModel(filename, flipTextureCoordinates, false);

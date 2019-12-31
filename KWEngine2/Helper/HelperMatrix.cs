@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace KWEngine2.Helper
 {
-    public static class HelperMatrix
+    internal static class HelperMatrix
     {
         public static Matrix4 BiasedMatrixForShadowMapping = new Matrix4(
             0.5f, 0.0f, 0.0f, 0.0f,

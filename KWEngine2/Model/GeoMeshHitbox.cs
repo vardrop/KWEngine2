@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace KWEngine2.Model
 {
-    public class GeoMeshHitbox
+    internal class GeoMeshHitbox
     {
         public override string ToString()
         {

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace KWEngine2.Model
 {
-    public class GeoMesh
+    internal class GeoMesh
     {
         public override string ToString()
         {

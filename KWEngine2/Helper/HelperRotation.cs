@@ -8,6 +8,9 @@ using static KWEngine2.GameObjects.GameObject;
 
 namespace KWEngine2.Helper
 {
+    /// <summary>
+    /// Helferklasse für Rotationsberechnungen
+    /// </summary>
     public static class HelperRotation
     {
         private static Matrix4 translationPointMatrix = Matrix4.Identity;
@@ -19,20 +22,14 @@ namespace KWEngine2.Helper
         private static Vector3 zeroVector = Vector3.Zero;
         private static Quaternion Turn180 = Quaternion.FromAxisAngle(KWEngine.WorldUp, (float)Math.PI);
 
-
-        public static float CalculateRadiansFromDegrees(float degrees)
+        internal static float CalculateRadiansFromDegrees(float degrees)
         {
             return (float)Math.PI * degrees / 180f;
         }
 
-        public static float CalculateDegreesFromRadians(float radiant)
+        internal static float CalculateDegreesFromRadians(float radiant)
         {
             return (180f * radiant) / (float)Math.PI;
-        }
-
-        public static Vector3 RotateVector(Vector3 vector, float degrees)
-        {
-            return Vector3.TransformNormal(vector, Matrix4.CreateRotationY(CalculateRadiansFromDegrees(degrees)));
         }
 
         /// <summary>
@@ -40,7 +37,7 @@ namespace KWEngine2.Helper
         /// </summary>
         /// <param name="vector">zu rotierender Vektor</param>
         /// <param name="degrees">Rotation (in Grad)</param>
-        /// <param name="unitVector">Einheitsvektor, um den rotiert wird</param>
+        /// <param name="plane">Einheitsvektor, um den rotiert wird</param>
         /// <returns>Rotierter Vektor</returns>
         public static Vector3 RotateVector(Vector3 vector, float degrees, Plane plane)
         {
@@ -94,7 +91,15 @@ namespace KWEngine2.Helper
             return result;
         }
 
-        public static Vector3 CalculateRotationAroundPointOnAxis(Vector3 point, float distance, float degrees, Plane plane)
+        /// <summary>
+        /// Berechnet die Position eines Punkts, der um einen angegeben Punkt rotiert wird
+        /// </summary>
+        /// <param name="point">Mittelpunkt der Rotation</param>
+        /// <param name="distance">Distanz zum Mittelpunkt</param>
+        /// <param name="degrees">Grad der Rotation</param>
+        /// <param name="plane">Ebene der Rotation (Standard: Y)</param>
+        /// <returns>Position des rotierten Punkts</returns>
+        public static Vector3 CalculateRotationAroundPointOnAxis(Vector3 point, float distance, float degrees, Plane plane = Plane.Y)
         {
             float radians = MathHelper.DegreesToRadians(degrees % 360);
             Matrix4.CreateTranslation(ref point, out translationPointMatrix);
@@ -128,6 +133,12 @@ namespace KWEngine2.Helper
             return finalTranslationPoint;
         }
 
+        /// <summary>
+        /// Erfragt die Rotation, die nötig wäre, damit eine Quelle zu einem Ziel guckt
+        /// </summary>
+        /// <param name="source">Quellposition</param>
+        /// <param name="target">Zielposition</param>
+        /// <returns>Rotation</returns>
         public static Quaternion GetRotationForPoint(Vector3 source, Vector3 target)
         {
             target.X += 0.000001f;

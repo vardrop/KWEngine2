@@ -11,30 +11,90 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace KWEngine2.GameObjects
 {
+    /// <summary>
+    /// Art der Partikel
+    /// </summary>
     public enum ParticleType { 
-        BurstFire1, 
-        BurstFire2, 
-        BurstFire3, 
-        BurstElectricity, 
+        /// <summary>
+        /// Feuer 1
+        /// </summary>
+        BurstFire1,
+        /// <summary>
+        /// Feuer 2
+        /// </summary>
+        BurstFire2,
+        /// <summary>
+        /// Feuer 3
+        /// </summary>
+        BurstFire3,
+        /// <summary>
+        /// Elektroschock
+        /// </summary>
+        BurstElectricity,
+        /// <summary>
+        /// Bälle
+        /// </summary>
         BurstBubblesColored, 
+        /// <summary>
+        /// Bälle (farblos)
+        /// </summary>
         BurstBubblesMonochrome,
+        /// <summary>
+        /// Feuerwerk 1
+        /// </summary>
         BurstFirework1,
+        /// <summary>
+        /// Feuerwerk 2
+        /// </summary>
         BurstFirework2,
+        /// <summary>
+        /// Herzen
+        /// </summary>
         BurstHearts,
+        /// <summary>
+        /// Pluszeichen
+        /// </summary>
         BurstOneUps,
+        /// <summary>
+        /// Schild
+        /// </summary>
         BurstShield,
+        /// <summary>
+        /// Teleport 1
+        /// </summary>
         BurstTeleport1,
+        /// <summary>
+        /// Teleport 2
+        /// </summary>
         BurstTeleport2,
+        /// <summary>
+        /// Teleport 3
+        /// </summary>
         BurstTeleport3,
+        /// <summary>
+        /// Rauch 1 (Loop)
+        /// </summary>
         LoopSmoke1,
+        /// <summary>
+        /// Rauch 2 (Loop)
+        /// </summary>
         LoopSmoke2,
+        /// <summary>
+        /// Rauch 3 (Loop)
+        /// </summary>
         LoopSmoke3
     }
 
+    /// <summary>
+    /// Partikelklasse
+    /// </summary>
     public sealed class ParticleObject
     {
         internal GeoModel _model = KWEngine.KWRect;
         internal Vector3 _position = new Vector3(0, 0, 0);
+        /// <summary>
+        /// Position des Partikels
+        /// </summary>
         public Vector3 Position { get; set; } = new Vector3(0, 0, 0);
         private Vector3 _scale = new Vector3(1, 1, 1);
         private Vector3 _scaleCurrent = new Vector3(1, 1, 1);
@@ -51,6 +111,10 @@ namespace KWEngine2.GameObjects
         internal ParticleInfo _info;
         private static Quaternion Turn180 = Quaternion.FromAxisAngle(Vector3.UnitZ, (float)Math.PI);
 
+        /// <summary>
+        /// Setzt die Dauer der Loop-Partikel
+        /// </summary>
+        /// <param name="durationInSeconds">Dauer (in Sekunden)</param>
         public void SetDuration(float durationInSeconds)
         {
             if (_type == ParticleType.LoopSmoke1 || _type == ParticleType.LoopSmoke2 || _type == ParticleType.LoopSmoke3)
@@ -59,11 +123,22 @@ namespace KWEngine2.GameObjects
                 throw new Exception("Duration may only be set for loop particles.");
         }
 
+        /// <summary>
+        /// Setzt die Positon
+        /// </summary>
+        /// <param name="pos">Positionsdaten</param>
         public void SetPosition(Vector3 pos)
         {
             Position = pos;
         }
 
+        /// <summary>
+        /// Setzt die Partikelfärbung
+        /// </summary>
+        /// <param name="red">Rot</param>
+        /// <param name="green">Grün</param>
+        /// <param name="blue">Blau</param>
+        /// <param name="intensity">Helligkeit</param>
         public void SetColor(float red, float green, float blue, float intensity)
         {
             _tint.X = HelperGL.Clamp(red, 0, 1);
@@ -72,6 +147,12 @@ namespace KWEngine2.GameObjects
             _tint.W = HelperGL.Clamp(intensity, 0, 1);
         }
 
+        /// <summary>
+        /// Konstruktormethode für Partikel
+        /// </summary>
+        /// <param name="position">Position</param>
+        /// <param name="scale">Größe in x-, y- und z-Richtung</param>
+        /// <param name="type">Art</param>
         public ParticleObject(Vector3 position, Vector3 scale, ParticleType type)
         {
             _scale.X = HelperGL.Clamp(scale.X, 0.001f, float.MaxValue);

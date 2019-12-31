@@ -7,8 +7,14 @@ using System.Diagnostics;
 
 namespace KWEngine2.GameObjects
 {
+    /// <summary>
+    /// Art der Explosion
+    /// </summary>
     public enum ExplosionType { Cube, CubeRingY, CubeRingZ, Sphere, SphereRingY, SphereRingZ }
 
+    /// <summary>
+    /// Explosionsklasse
+    /// </summary>
     public sealed class Explosion : GameObject
     {
         internal static Vector3[] Axes = new Vector3[] {
@@ -50,6 +56,17 @@ namespace KWEngine2.GameObjects
         internal float _particleSize = 0.5f;
         internal float[] _directions;
 
+        /// <summary>
+        /// Explosionskonstruktormethode
+        /// </summary>
+        /// <param name="position">Position der Explosion</param>
+        /// <param name="particleCount">Anzahl der Partikel</param>
+        /// <param name="particleSize">Größe der Partikel</param>
+        /// <param name="radius">Radius der Explosion</param>
+        /// <param name="durationInSeconds">Dauer der Explosion in Sekunden</param>
+        /// <param name="type">Art der Explosion</param>
+        /// <param name="glow">Glühfarbe der Explosion</param>
+        /// <param name="texture">Textur der Explosion (optional)</param>
         public Explosion(Vector3 position, int particleCount, float particleSize, float radius, float durationInSeconds, ExplosionType type, Vector4 glow, string texture = null)
         {
             World w = GLWindow.CurrentWindow.CurrentWorld;
@@ -117,6 +134,12 @@ namespace KWEngine2.GameObjects
             }
         }
 
+        /// <summary>
+        /// Act-Methode der Explosion
+        /// </summary>
+        /// <param name="ks">Keyboardinfos</param>
+        /// <param name="ms">MAusinfos</param>
+        /// <param name="deltaTimeFactor">Delta-Faktor</param>
         public override void Act(KeyboardState ks, MouseState ms, float deltaTimeFactor)
         {
             if(_starttime >= 0)
