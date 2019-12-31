@@ -83,7 +83,7 @@ namespace KWEngine2.Renderers
             GL.Uniform4(mUniform_TintColor, ref KWEngine.CurrentWorld._textureBackgroundTint);
             GL.Uniform2(mUniform_TextureTransform, ref KWEngine.CurrentWorld._textureBackgroundTransform);
 
-            GeoMesh mesh = KWEngine.Models["KWRect"].Meshes.Values.ElementAt(0);
+            GeoMesh mesh = KWEngine.KWRect.Meshes.Values.ElementAt(0);
             GL.BindVertexArray(mesh.VAO);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
             GL.DrawElements(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);

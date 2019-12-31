@@ -149,6 +149,9 @@
     <Compile Include="World.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\.editorconfig">
+      <Link>.editorconfig</Link>
+    </None>
     <None Include="App.config" />
     <EmbeddedResource Include="Assets\Models\kwcube.obj" />
     <EmbeddedResource Include="Assets\Models\kwrect.obj" />

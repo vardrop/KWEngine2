@@ -514,6 +514,29 @@ namespace KWEngine2
                     g.IsValid = false;
                 }
                 _gameObjects.Clear();
+                _gameObjectsTBA.Clear();
+                _gameObjectsTBR.Clear();
+            }
+
+            lock (_particleObjects)
+            {
+                _particleObjects.Clear();
+                _particleObjectsTBA.Clear();
+                _particleObjectsTBR.Clear();
+            }
+
+            lock (_hudObjects)
+            {
+                _hudObjects.Clear();
+                _hudObjectsTBA.Clear();
+                _hudObjectsTBR.Clear();
+            }
+
+            lock (_lightObjects)
+            {
+                _lightObjects.Clear();
+                _lightObjectsTBA.Clear();
+                _lightObjectsTBR.Clear();
             }
 
             lock (KWEngine.Models)

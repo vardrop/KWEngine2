@@ -680,18 +680,18 @@ namespace KWEngine2.GameObjects
             Position = new Vector3(Position.X + x, Position.Y + y, Position.Z + z);
         }
 
-        protected void MoveAndStrafeFirstPerson(float forward, float strafe, float units)
+        protected void MoveAndStrafeFirstPersonXYZ(float forward, float strafe, float units)
         {
             CheckModel();
-            MoveAndStrafeFirstPerson(new Vector2(forward, strafe), units);
+            MoveAndStrafeFirstPersonXYZ(new Vector2(forward, strafe), units);
         }
 
-        public void MoveAlongVector(Vector3 v, float units)
+        protected void MoveAlongVector(Vector3 v, float units)
         {
             Position = new Vector3(Position.X + v.X * units, Position.Y + v.Y * units, Position.Z + v.Z * units);
         }
 
-        private void MoveAndStrafeFirstPerson(Vector2? direction, float units)
+        private void MoveAndStrafeFirstPersonXYZ(Vector2? direction, float units)
         {
             CheckModel();
             if (direction == null || !direction.HasValue)
@@ -710,13 +710,13 @@ namespace KWEngine2.GameObjects
         }
 
 
-        protected void MoveAndStrafeFirstPersonXZ(float forward, float strafe, float units)
+        protected void MoveAndStrafeFirstPerson(float forward, float strafe, float units)
         {
-            MoveAndStrafeFirstPersonXZ(new Vector2(forward, strafe), units);
+            MoveAndStrafeFirstPerson(new Vector2(forward, strafe), units);
         }
 
 
-        private void MoveAndStrafeFirstPersonXZ(Vector2 direction, float units)
+        private void MoveAndStrafeFirstPerson(Vector2 direction, float units)
         {
             CheckModel();
 
@@ -932,7 +932,7 @@ namespace KWEngine2.GameObjects
             return Stopwatch.GetTimestamp() / TimeSpan.TicksPerMillisecond;
         }
 
-        protected List<Intersection> GetIntersections()
+        protected List<Intersection> GetIntersections(float offsetX = 0, float offsetY = 0, float offsetZ = 0)
         {
             CheckModelAndWorld(true);
             List<Intersection> intersections = new List<Intersection>();
@@ -947,7 +947,9 @@ namespace KWEngine2.GameObjects
                 {
                     continue;
                 }
-                if (ConsiderForMeasurement(go, this))
+                Vector3 offset = new Vector3(offsetX, offsetY, offsetZ);
+                bool considerForMeasurement = ConsiderForMeasurement(go, this, ref offset);
+                if (considerForMeasurement)
                 {
                     foreach (Hitbox hbother in go.Hitboxes)
                     {
@@ -956,11 +958,11 @@ namespace KWEngine2.GameObjects
                             Intersection i = null;
                             if (hbother.Owner.Model.IsTerrain)
                             {
-                                i = Hitbox.TestIntersectionTerrain(hbcaller, hbother);
+                                i = Hitbox.TestIntersectionTerrain(hbcaller, hbother, offset);
                             }
                             else
                             {
-                                i = Hitbox.TestIntersection(hbcaller, hbother);
+                                i = Hitbox.TestIntersection(hbcaller, hbother, offset);
                             }
 
                             if (i != null)
@@ -973,7 +975,7 @@ namespace KWEngine2.GameObjects
             return intersections;
         }
 
-        private static bool ConsiderForMeasurement(GameObject go, GameObject caller)
+        private static bool ConsiderForMeasurement(GameObject go, GameObject caller, ref Vector3 callerOffset)
         {
             if (go.Model.IsTerrain)
             {
@@ -987,10 +989,10 @@ namespace KWEngine2.GameObjects
                 float front = go.Position.Z + terra.GetDepth() / 2f;
 
                 Vector3 hbCaller = caller.GetCenterPointForAllHitboxes();
-                if (hbCaller.X >= left && hbCaller.X <= right
-                    && hbCaller.Z >= back && hbCaller.Z <= front
-                    && hbCaller.Y + caller.GetMaxDiameter() / 2 >= terraLow
-                    && hbCaller.Y - caller.GetMaxDiameter() / 2 <= (terraHigh * 1.5f))
+                if (hbCaller.X + callerOffset.X >= left && hbCaller.X + callerOffset.X <= right
+                    && hbCaller.Z + callerOffset.Z >= back && hbCaller.Z + callerOffset.Z <= front
+                    && hbCaller.Y + callerOffset.Y + caller.GetMaxDiameter() / 2 >= terraLow
+                    && hbCaller.Y + callerOffset.Y - caller.GetMaxDiameter() / 2 <= (terraHigh * 1.5f))
                 {
                     return true;
                 }
@@ -998,9 +1000,9 @@ namespace KWEngine2.GameObjects
             }
             else
             {
-                float distance = (caller.GetCenterPointForAllHitboxes() - go.GetCenterPointForAllHitboxes()).LengthFast;
-                float rad1 = caller._sceneDiameter / 2;
-                float rad2 = go._sceneDiameter / 2;
+                float distance = ((caller.GetCenterPointForAllHitboxes() + callerOffset) - go.GetCenterPointForAllHitboxes()).LengthFast;
+                float rad1 = caller.GetMaxDiameter() / 2;
+                float rad2 = go.GetMaxDiameter() / 2;
                 if (distance - (rad1 + rad2) > 0)
                     return false;
                 else

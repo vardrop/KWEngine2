@@ -33,7 +33,7 @@ namespace KWEngine2.GameObjects
 
     public sealed class ParticleObject
     {
-        internal GeoModel _model = KWEngine.Models["KWRect"];
+        internal GeoModel _model = KWEngine.KWRect;
         internal Vector3 _position = new Vector3(0, 0, 0);
         public Vector3 Position { get; set; } = new Vector3(0, 0, 0);
         private Vector3 _scale = new Vector3(1, 1, 1);
@@ -95,12 +95,12 @@ namespace KWEngine2.GameObjects
             {
                 Vector3 fpPos = KWEngine.CurrentWorld.GetFirstPersonObject().Position;
                 fpPos.Y += KWEngine.CurrentWorld.GetFirstPersonObject().FPSEyeOffset;
-                Quaternion tmp = HelperRotation.GetRotationForPoint(fpPos, Position);
+                Quaternion tmp = HelperRotation.GetRotationForPoint(Position, fpPos);
                 _rotation = Matrix4.CreateFromQuaternion(tmp * Turn180);
             }
             else
             {
-                Quaternion tmp = HelperRotation.GetRotationForPoint(KWEngine.CurrentWorld.GetCameraPosition(), Position);
+                Quaternion tmp = HelperRotation.GetRotationForPoint(Position, KWEngine.CurrentWorld.GetCameraPosition());
                 _rotation = Matrix4.CreateFromQuaternion(tmp * Turn180);
             }
 

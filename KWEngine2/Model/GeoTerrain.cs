@@ -494,22 +494,23 @@ namespace KWEngine2.Model
         private Vector3 hbTestVector = Vector3.Zero;
 
 
-        internal List<GeoTerrainTriangle> GetTrianglesForHitbox(Hitbox hb, Vector3 offset)
+        internal List<GeoTerrainTriangle> GetTrianglesForHitbox(Hitbox hb, Vector3 offset, Vector3 collisionOffset)
         {
             resultlist.Clear();
             coarse.Clear();
-            hbTestVector.X = hb.GetCenter().X;
+
+            hbTestVector.X = hb.GetCenter().X + collisionOffset.X;
             hbTestVector.Y = 0;
-            hbTestVector.Z = hb.GetCenter().Z;
+            hbTestVector.Z = hb.GetCenter().Z + collisionOffset.Z;
             collisionSectors.Clear();
             fineSectors.Clear();
 
             foreach (Sector coarseSector in mSectorsCoarse)
             {
-                if (hb.GetCenter().X >= coarseSector.Left + offset.X
-                    && hb.GetCenter().X <= coarseSector.Right + offset.X
-                    && hb.GetCenter().Z >= coarseSector.Back + offset.Z
-                    && hb.GetCenter().Z <= coarseSector.Front + offset.Z)
+                if (hbTestVector.X >= coarseSector.Left + offset.X
+                    && hbTestVector.X <= coarseSector.Right + offset.X
+                    && hbTestVector.Z >= coarseSector.Back + offset.Z
+                    && hbTestVector.Z <= coarseSector.Front + offset.Z)
                 {
                     if (!coarse.Contains(coarseSector))
                     {
@@ -526,10 +527,10 @@ namespace KWEngine2.Model
                     fineSectors.AddRange(mSectorCoarseMap[cs]);
                     foreach (Sector fineSector in fineSectors)
                     {
-                        if (hb.GetCenter().X >= fineSector.Left + offset.X
-                            && hb.GetCenter().X <= fineSector.Right + offset.X
-                            && hb.GetCenter().Z >= fineSector.Back + offset.Z
-                            && hb.GetCenter().Z <= fineSector.Front + offset.Z)
+                        if (hbTestVector.X >= fineSector.Left + offset.X
+                            && hbTestVector.X <= fineSector.Right + offset.X
+                            && hbTestVector.Z >= fineSector.Back + offset.Z
+                            && hbTestVector.Z <= fineSector.Front + offset.Z)
                         {
                             foreach (GeoTerrainTriangle t in mSectorTriangleMap[fineSector.ID])
                             {

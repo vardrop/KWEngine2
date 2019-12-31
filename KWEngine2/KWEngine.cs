@@ -41,7 +41,7 @@ namespace KWEngine2
             {
                 return _worldUp;
             }
-            set
+            internal set
             {
                 _worldUp = Vector3.Normalize(value);
             }
@@ -68,6 +68,7 @@ namespace KWEngine2
         public static float MouseSensitivity { get; set; } = 0.001f;
 
         internal static GeoModel CoordinateSystem;
+        internal static GeoModel KWRect;
         internal static RendererSimple RendererSimple;
         internal static Matrix4 CoordinateSystemMatrix = Matrix4.CreateScale(10);
 
@@ -98,7 +99,7 @@ namespace KWEngine2
         {
             Models.Add("KWCube", SceneImporter.LoadModel("kwcube.obj", false, true));
             Models.Add("KWCube6", SceneImporter.LoadModel("kwcube6.obj", false, true));
-            Models.Add("KWRect", SceneImporter.LoadModel("kwrect.obj", false, true));
+            KWRect = SceneImporter.LoadModel("kwrect.obj", false, true);
             Models.Add("KWSphere", SceneImporter.LoadModel("kwsphere.obj", false, true));
             CoordinateSystem = SceneImporter.LoadModel("csystem.obj", false, true);
 

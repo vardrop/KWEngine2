@@ -110,7 +110,7 @@ namespace KWEngine2
             KWEngine.InitializeModels();
             KWEngine.InitializeParticles();
             KWEngine.InitializeFont("Anonymous.ttf");
-            _bloomQuad = KWEngine.GetModel("KWRect");
+            _bloomQuad = KWEngine.KWRect;
 
             
         }

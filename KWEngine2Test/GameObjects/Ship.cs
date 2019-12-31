@@ -58,8 +58,8 @@ namespace KWEngine2Test.GameObjects
                 if (ks[Key.T])
                     this.AddRotationZ(1, true);
             }
-            /*
-            List<Intersection> intersections = GetIntersections();
+            
+            List<Intersection> intersections = GetIntersections(5, -2, 0);
             foreach (Intersection i in intersections)
             {
                 if (i.IsTerrain)
@@ -72,7 +72,7 @@ namespace KWEngine2Test.GameObjects
                 }
 
             }
-            */
+            
 
             //Vector3 pos = GetMouseIntersectionPoint(ms, Plane.Z);
             //TurnTowardsXY(pos);
@@ -99,6 +99,9 @@ namespace KWEngine2Test.GameObjects
                 }
                 
             }
+
+            if (ks[Key.Space])
+                SetPosition(-2, 0, 0);
 
             if (HasAnimations)
             {

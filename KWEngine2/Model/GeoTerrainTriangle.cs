@@ -95,7 +95,7 @@ namespace KWEngine2.Model
             Vector3 dir, w0, w;           // ray vectors
             float r, a, b;              // params to calc ray-plane intersect
 
-            dir = shootFromBelow ? Vector3.UnitY : -Vector3.UnitY;              // ray direction vector
+            dir = shootFromBelow ? KWEngine.WorldUp : -KWEngine.WorldUp;              // ray direction vector
             w0 = origin - (v1 + offset); // R.P0 - T.V0;
             a = -Vector3.Dot(Normal, w0);
             b = Vector3.Dot(Normal, dir);

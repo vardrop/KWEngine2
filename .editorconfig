@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# CS0169: Das Feld "DspState.envelope_current" wird nie verwendet.
+dotnet_diagnostic.CS0169.severity = none

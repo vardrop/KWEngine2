@@ -83,7 +83,7 @@ namespace KWEngine2.Renderers
         {
             GL.UseProgram(mProgramId);
 
-            GeoMesh mesh = KWEngine.Models["KWRect"].Meshes.Values.ElementAt(0);
+            GeoMesh mesh = KWEngine.KWRect.Meshes.Values.ElementAt(0);
             GL.BindVertexArray(mesh.VAO);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
 

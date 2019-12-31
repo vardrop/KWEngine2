@@ -36,7 +36,7 @@ namespace KWEngine2.Helper
             smoothedDeltaRealTime_ms = smoothedDeltaRealTime_ms + (movAverageDeltaTime_ms - smoothedDeltaRealTime_ms) * smoothFactor;
 
             deltaTimeFactor = smoothedDeltaRealTime_ms / TargetFrameTime;
-
+          //  Debug.WriteLine("dT: " + deltaTimeFactor);
             lastRealTimeMeasurement_ms = currTimePick_ms;
         }
     }
