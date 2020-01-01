@@ -559,13 +559,18 @@ namespace KWEngine2
                     _lightObjects.Remove(g);
                 }
                 _lightObjectsTBR.Clear();
+                _lightcount = _lightObjects.Count;
 
                 foreach (LightObject g in _lightObjectsTBA)
                 {
-                    if (!_lightObjects.Contains(g))
+                    if (!_lightObjects.Contains(g) && _lightcount <= 10)
                     {
                         _lightObjects.Add(g);
                         g.CurrentWorld = this;
+                    }
+                    else
+                    {
+                        throw new Exception("Please do not add more lights than 10.");
                     }
                 }
                 _lightObjectsTBA.Clear();
