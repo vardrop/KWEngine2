@@ -81,9 +81,14 @@ namespace KWEngine2.Renderers
                         g.ModelMatrixForRenderPass = g._modelMatrix;
                     }
 
+                    if (mesh.Material.Opacity <= 0)
+                    {
+                        continue;
+                    }
+
                     bool isInsideFrustum = frustum.SphereVsFrustum(g.GetCenterPointForAllHitboxes(), g.GetMaxDiameter() / 2);
 
-                    if (g.IsShadowCaster && isInsideFrustum)
+                    if (g.IsShadowCaster && isInsideFrustum && g.Opacity > 0.01f)
                     {
                         if (useMeshTransform == false)
                         {

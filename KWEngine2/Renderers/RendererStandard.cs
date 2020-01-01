@@ -181,6 +181,20 @@ namespace KWEngine2.Renderers
                 {
                     GL.Disable(EnableCap.Blend);
                     GeoMesh mesh = g.Model.Meshes[meshName];
+                    if(mesh.Material.Opacity <= 0)
+                    {
+                        continue;
+                    }
+
+                    if (mesh.Material.Opacity < 1 || g.Opacity < 1)
+                    {
+                        GL.Enable(EnableCap.Blend);
+                    }
+                    if (g.Opacity < mesh.Material.Opacity)
+                        GL.Uniform1(mUniform_Opacity, g.Opacity);
+                    else
+                        GL.Uniform1(mUniform_Opacity, mesh.Material.Opacity);
+
                     Dictionary<GameObject.Override, object> overrides = null;
                     if (g._overrides.ContainsKey(mesh.Name))
                     {
@@ -269,14 +283,7 @@ namespace KWEngine2.Renderers
                         }
 
 
-                        if (mesh.Material.Opacity < 1 || g.Opacity < 1)
-                        {
-                            GL.Enable(EnableCap.Blend);
-                        }
-                        if (g.Opacity < mesh.Material.Opacity)
-                            GL.Uniform1(mUniform_Opacity, g.Opacity);
-                        else
-                            GL.Uniform1(mUniform_Opacity, mesh.Material.Opacity);
+                        
 
                         bool found = false;
                         object overrideValue = null;
