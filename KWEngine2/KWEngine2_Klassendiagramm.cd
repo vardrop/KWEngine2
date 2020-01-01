@@ -1,0 +1,341 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="KWEngine2.Collision.Intersection">
+    <Position X="17.75" Y="3.25" Width="2.25" />
+    <Members>
+      <Field Name="mMTV" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>CAAAAEAAAAAAAAAgAAIEAAAAAAAAAAAAAAIAABAAAAA=</HashCode>
+      <FileName>Collision\Intersection.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KWEngine2.KWEngine">
+    <Position X="7.5" Y="3.25" Width="2.75" />
+    <Members>
+      <Field Name="_shadowmapbiascoefficient" Hidden="true" />
+      <Field Name="_shadowMapSize" Hidden="true" />
+      <Field Name="_worldUp" Hidden="true" />
+      <Field Name="Collection" Hidden="true" />
+      <Field Name="CoordinateSystem" Hidden="true" />
+      <Field Name="CoordinateSystemMatrix" Hidden="true" />
+      <Method Name="DrawCoordinateSystem" Hidden="true" />
+      <Field Name="Identity" Hidden="true" />
+      <Method Name="InitializeFont" Hidden="true" />
+      <Method Name="InitializeModels" Hidden="true" />
+      <Method Name="InitializeParticles" Hidden="true" />
+      <Method Name="InitializeShaders" Hidden="true" />
+      <Field Name="KWRect" Hidden="true" />
+      <Field Name="ParticleDictionary" Hidden="true" />
+      <Field Name="RendererSimple" Hidden="true" />
+      <Field Name="TextureAlpha" Hidden="true" />
+      <Field Name="TextureBlack" Hidden="true" />
+      <Field Name="TextureDefault" Hidden="true" />
+      <Field Name="TimeElapsed" Hidden="true" />
+    </Members>
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Enum Name="KWEngine2.KWEngine.PostProcessingQuality" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>KWEngine.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+      <Enum Name="KWEngine2.KWEngine.CubeSide" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>KWEngine.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+      <Enum Name="KWEngine2.KWEngine.TextureType" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>KWEngine.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>ARIIZBgFAICAYCAQIACAARAAACAEAAAACUiQSAECiAA=</HashCode>
+      <FileName>KWEngine.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KWEngine2.GLWindow">
+    <Position X="10.75" Y="3.25" Width="2.75" />
+    <Members>
+      <Field Name="_bloomQuad" Hidden="true" />
+      <Field Name="_dummy" Hidden="true" />
+      <Field Name="_fsaa" Hidden="true" />
+      <Field Name="_modelViewProjectionMatrixBackground" Hidden="true" />
+      <Field Name="_modelViewProjectionMatrixBloom" Hidden="true" />
+      <Field Name="_mousePoint" Hidden="true" />
+      <Field Name="_mousePointFPS" Hidden="true" />
+      <Field Name="_projectionMatrix" Hidden="true" />
+      <Field Name="_projectionMatrixShadow" Hidden="true" />
+      <Field Name="_viewMatrix" Hidden="true" />
+      <Field Name="_viewProjectionMatrixHUD" Hidden="true" />
+      <Field Name="_windowRect" Hidden="true" />
+      <Method Name="CalculateProjectionMatrix" Hidden="true" />
+      <Method Name="DownsampleFramebuffer" Hidden="true" />
+      <Field Name="FramebufferBloom1" Hidden="true" />
+      <Field Name="FramebufferBloom2" Hidden="true" />
+      <Field Name="FramebufferMainFinal" Hidden="true" />
+      <Field Name="FramebufferMainMultisample" Hidden="true" />
+      <Field Name="FramebufferShadowMap" Hidden="true" />
+      <Field Name="Frustum" Hidden="true" />
+      <Field Name="FrustumShadowMap" Hidden="true" />
+      <Method Name="InitFramebufferBloom" Hidden="true" />
+      <Method Name="InitFramebufferOriginal" Hidden="true" />
+      <Method Name="InitFramebufferOriginalDownsampled" Hidden="true" />
+      <Method Name="InitFramebufferShadowMap" Hidden="true" />
+      <Field Name="LightColors" Hidden="true" />
+      <Field Name="LightPositions" Hidden="true" />
+      <Field Name="LightTargets" Hidden="true" />
+      <Method Name="SwitchToBufferAndClear" Hidden="true" />
+      <Field Name="TextureBloom" Hidden="true" />
+      <Field Name="TextureBloom1" Hidden="true" />
+      <Field Name="TextureBloom2" Hidden="true" />
+      <Field Name="TextureBloomFinal" Hidden="true" />
+      <Field Name="TextureMain" Hidden="true" />
+      <Field Name="TextureMainDepth" Hidden="true" />
+      <Field Name="TextureMainFinal" Hidden="true" />
+      <Field Name="TextureShadowMap" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>EAQBAQSBgiAgkYAAQAiCEQAiiAxCQWDAAQBpEBABggo=</HashCode>
+      <FileName>GLWindow.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KWEngine2.World">
+    <Position X="10.75" Y="8" Width="2.75" />
+    <Members>
+      <Field Name="_cameraLookAt" Hidden="true" />
+      <Field Name="_cameraPosition" Hidden="true" />
+      <Field Name="_cameraTarget" Hidden="true" />
+      <Field Name="_firstPersonObject" Hidden="true" />
+      <Field Name="_fov" Hidden="true" />
+      <Field Name="_fovShadow" Hidden="true" />
+      <Field Name="_gameObjects" Hidden="true" />
+      <Field Name="_gameObjectsTBA" Hidden="true" />
+      <Field Name="_gameObjectsTBR" Hidden="true" />
+      <Field Name="_hudObjects" Hidden="true" />
+      <Field Name="_hudObjectsTBA" Hidden="true" />
+      <Field Name="_hudObjectsTBR" Hidden="true" />
+      <Field Name="_lightcount" Hidden="true" />
+      <Field Name="_lightObjects" Hidden="true" />
+      <Field Name="_lightObjectsTBA" Hidden="true" />
+      <Field Name="_lightObjectsTBR" Hidden="true" />
+      <Field Name="_particleObjects" Hidden="true" />
+      <Field Name="_particleObjectsTBA" Hidden="true" />
+      <Field Name="_particleObjectsTBR" Hidden="true" />
+      <Field Name="_prepared" Hidden="true" />
+      <Field Name="_sunAmbient" Hidden="true" />
+      <Field Name="_sunColor" Hidden="true" />
+      <Field Name="_sunPosition" Hidden="true" />
+      <Field Name="_sunTarget" Hidden="true" />
+      <Field Name="_textureBackground" Hidden="true" />
+      <Field Name="_textureBackgroundTint" Hidden="true" />
+      <Field Name="_textureBackgroundTransform" Hidden="true" />
+      <Field Name="_textureSkybox" Hidden="true" />
+      <Field Name="_worldDistance" Hidden="true" />
+      <Field Name="_zFar" Hidden="true" />
+      <Method Name="AddRemoveObjects" Hidden="true" />
+      <Method Name="Dispose" Hidden="true" />
+      <Method Name="GetParticleObjects" Hidden="true" />
+      <Method Name="RemoveParticleObject" Hidden="true" />
+      <Method Name="SortByZ" Hidden="true" />
+      <Method Name="UpdateCameraLookAtVector" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>BIBgUEKCIDiBQgAIAWWQAABDaAIUiyIUKRDFAkDubMY=</HashCode>
+      <FileName>World.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KWEngine2.GameObjects.GameObject">
+    <Position X="14" Y="3.25" Width="3.25" />
+    <Members>
+      <Field Name="_animationId" Hidden="true" />
+      <Field Name="_animationPercentage" Hidden="true" />
+      <Field Name="_cubeModel" Hidden="true" />
+      <Field Name="_emissiveColor" Hidden="true" />
+      <Field Name="_glow" Hidden="true" />
+      <Field Name="_largestHitboxIndex" Hidden="true" />
+      <Field Name="_meshNameList" Hidden="true" />
+      <Field Name="_model" Hidden="true" />
+      <Field Name="_modelMatrix" Hidden="true" />
+      <Field Name="_name" Hidden="true" />
+      <Field Name="_opacity" Hidden="true" />
+      <Field Name="_overrides" Hidden="true" />
+      <Field Name="_position" Hidden="true" />
+      <Field Name="_rotation" Hidden="true" />
+      <Field Name="_scale" Hidden="true" />
+      <Field Name="_sceneCenter" Hidden="true" />
+      <Field Name="_sceneDiameter" Hidden="true" />
+      <Field Name="_sceneDimensions" Hidden="true" />
+      <Field Name="_tintColor" Hidden="true" />
+      <Property Name="BoneTranslationMatrices" Hidden="true" />
+      <Method Name="CalcInterpolatedRotation" Hidden="true" />
+      <Method Name="CalcInterpolatedScaling" Hidden="true" />
+      <Method Name="CalcInterpolatedTranslation" Hidden="true" />
+      <Method Name="CheckBounds" Hidden="true" />
+      <Method Name="CheckIfNotTerrain" Hidden="true" />
+      <Method Name="CheckModel" Hidden="true" />
+      <Method Name="CheckModelAndWorld" Hidden="true" />
+      <Method Name="ConsiderForMeasurement" Hidden="true" />
+      <Property Name="DistanceToCamera" Hidden="true" />
+      <Method Name="Get3DMouseCoords" Hidden="true" />
+      <Method Name="GetLargestHitbox" Hidden="true" />
+      <Method Name="GetRotationNoFPSMode" Hidden="true" />
+      <Field Name="Hitboxes" Hidden="true" />
+      <Method Name="IntersectRaySphere" Hidden="true" />
+      <Method Name="IsPointInsideBox" Hidden="true" />
+      <Method Name="LinePlaneIntersection" Hidden="true" />
+      <Field Name="ModelMatrixForRenderPass" Hidden="true" />
+      <Method Name="ProcessCurrentAnimation" Hidden="true" />
+      <Method Name="ReadNodeHierarchy" Hidden="true" />
+      <Field Name="Turn180" Hidden="true" />
+      <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
+    </Members>
+    <NestedTypes>
+      <Enum Name="KWEngine2.GameObjects.GameObject.Plane" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>GameObjects\GameObject.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+      <Enum Name="KWEngine2.GameObjects.GameObject.Override" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>GameObjects\GameObject.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>QmBCuhpAWKEgELX0JhLO1QRAUDAmj8xZEZgIxgAoCfQ=</HashCode>
+      <FileName>GameObjects\GameObject.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="KWEngine2.GameObjects.Explosion">
+    <Position X="14" Y="18.75" Width="3.25" />
+    <Members>
+      <Field Name="_amount" Hidden="true" />
+      <Field Name="_directions" Hidden="true" />
+      <Field Name="_duration" Hidden="true" />
+      <Field Name="_particleSize" Hidden="true" />
+      <Field Name="_secondsAlive" Hidden="true" />
+      <Field Name="_spread" Hidden="true" />
+      <Field Name="_starttime" Hidden="true" />
+      <Field Name="_textureId" Hidden="true" />
+      <Field Name="_textureTransform" Hidden="true" />
+      <Field Name="Axes" Hidden="true" />
+      <Field Name="AxesCount" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AAAgAACQAAAAAQAAAJAgAQgAAAAAQAAAAABAAAAAIEA=</HashCode>
+      <FileName>GameObjects\Explosion.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KWEngine2.GameObjects.HUDObject">
+    <Position X="17.75" Y="6.25" Width="2.25" />
+    <Members>
+      <Field Name="_absolute" Hidden="true" />
+      <Field Name="_count" Hidden="true" />
+      <Field Name="_modelMatrices" Hidden="true" />
+      <Field Name="_positions" Hidden="true" />
+      <Field Name="_scale" Hidden="true" />
+      <Field Name="_scaleMatrix" Hidden="true" />
+      <Field Name="_spread" Hidden="true" />
+      <Field Name="_text" Hidden="true" />
+      <Field Name="_textureIds" Hidden="true" />
+      <Field Name="_tint" Hidden="true" />
+      <Field Name="_type" Hidden="true" />
+      <Method Name="UpdatePositions" Hidden="true" />
+      <Method Name="UpdateTextures" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAYiRgAIAAAQAAAGAAQgAIAGiAAgAAICE=</HashCode>
+      <FileName>GameObjects\HUDObject.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KWEngine2.GameObjects.LightObject">
+    <Position X="17.75" Y="12.5" Width="2.25" />
+    <Members>
+      <Method Name="PrepareLightsForRenderPass" Hidden="true" />
+      <Property Name="World" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AAAAAAABABAAAAAgAAAAASQAEAAAAgAAARgAgAAABEI=</HashCode>
+      <FileName>GameObjects\LightObject.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KWEngine2.GameObjects.ParticleObject">
+    <Position X="17.75" Y="9.75" Width="2.25" />
+    <Members>
+      <Field Name="_aliveInMS" Hidden="true" />
+      <Field Name="_durationInMS" Hidden="true" />
+      <Field Name="_frame" Hidden="true" />
+      <Field Name="_info" Hidden="true" />
+      <Field Name="_lastUpdate" Hidden="true" />
+      <Field Name="_model" Hidden="true" />
+      <Field Name="_modelMatrix" Hidden="true" />
+      <Field Name="_position" Hidden="true" />
+      <Field Name="_rotation" Hidden="true" />
+      <Field Name="_scale" Hidden="true" />
+      <Field Name="_scaleCurrent" Hidden="true" />
+      <Field Name="_scaleFactor" Hidden="true" />
+      <Field Name="_starttime" Hidden="true" />
+      <Field Name="_tint" Hidden="true" />
+      <Field Name="_type" Hidden="true" />
+      <Field Name="Turn180" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AAAgAAAAAAAAAAQwAgAABAAoAAKAAgAAADgggAEAAWA=</HashCode>
+      <FileName>GameObjects\ParticleObject.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KWEngine2.Helper.HelperRandom">
+    <Position X="7.5" Y="11" Width="2.75" />
+    <Members>
+      <Field Name="generator" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AAAAABAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Helper\HelperRandom.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KWEngine2.Helper.HelperRotation">
+    <Position X="7.5" Y="12.75" Width="2.75" />
+    <Members>
+      <Method Name="CalculateDegreesFromRadians" Hidden="true" />
+      <Method Name="CalculateRadiansFromDegrees" Hidden="true" />
+      <Field Name="finalTranslationPoint" Hidden="true" />
+      <Field Name="rotationMatrix" Hidden="true" />
+      <Field Name="spinMatrix" Hidden="true" />
+      <Field Name="tempMatrix" Hidden="true" />
+      <Field Name="translationMatrix" Hidden="true" />
+      <Field Name="translationPointMatrix" Hidden="true" />
+      <Field Name="Turn180" Hidden="true" />
+      <Field Name="zeroVector" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AEEAAAgAIAAgAAAAAAAAAQAAAIBAAA0AABAAQAAAAAQ=</HashCode>
+      <FileName>Helper\HelperRotation.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KWEngine2.Model.GeoModel">
+    <Position X="7.5" Y="15" Width="2.75" />
+    <Members>
+      <Property Name="Armature" Hidden="true" />
+      <Property Name="BoneNames" Hidden="true" />
+      <Method Name="CalculatePath" Hidden="true" />
+      <Property Name="IsInAssembly" Hidden="true" />
+      <Property Name="Meshes" Hidden="true" />
+      <Property Name="MeshHitboxes" Hidden="true" />
+      <Field Name="NodesWithoutHierarchy" Hidden="true" />
+      <Property Name="Root" Hidden="true" />
+      <Property Name="Textures" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AAABAAAAgCAAQCJAAgoAAAQYAgIAAgAAAAAAAAASAAA=</HashCode>
+      <FileName>Model\GeoModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

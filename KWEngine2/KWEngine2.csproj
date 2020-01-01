@@ -163,6 +163,7 @@
     <EmbeddedResource Include="Assets\Fonts\Anonymous.ttf" />
     <EmbeddedResource Include="Assets\Models\csystem.mtl" />
     <EmbeddedResource Include="Assets\Models\csystem.obj" />
+    <None Include="KWEngine2_Klassendiagramm.cd" />
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
     <EmbeddedResource Include="Shaders\shader_fragment.glsl" />
@@ -186,9 +187,7 @@
     <EmbeddedResource Include="Shaders\shader_vertex_simple.glsl" />
     <EmbeddedResource Include="Shaders\shader_fragment_simple.glsl" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Engine\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="Assets\readme.txt" />
     <Content Include="OpenAL32.dll" />
