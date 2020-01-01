@@ -308,7 +308,7 @@ namespace KWEngine2
         /// <param name="z">z</param>
         public void SetCameraPosition(float x, float y, float z)
         {
-            _cameraPosition = new Vector3(x, y, z);
+            _cameraPosition = new Vector3(x, y, z + 0.000001f);
             UpdateCameraLookAtVector();
         }
 
@@ -318,6 +318,7 @@ namespace KWEngine2
         /// <param name="p">Position</param>
         public void SetCameraPosition(Vector3 p)
         {
+            p.Z += 0.000001f;
             _cameraPosition = p;
             UpdateCameraLookAtVector();
         }
@@ -384,7 +385,7 @@ namespace KWEngine2
         /// <param name="z">z</param>
         public void SetSunPosition(float x, float y, float z)
         {
-            SetSunPosition(new Vector3(x, y, z));
+            SetSunPosition(new Vector3(x, y, z + 0.000001f));
         }
 
         /// <summary>
@@ -393,6 +394,7 @@ namespace KWEngine2
         /// <param name="p">Position</param>
         public void SetSunPosition(Vector3 p)
         {
+            p.Z += +0.000001f;
             _sunPosition = p;
         }
 
