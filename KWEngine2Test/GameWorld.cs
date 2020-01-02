@@ -48,7 +48,7 @@ namespace KWEngine2Test
             floor.SetTexture(@".\textures\pavement01.jpg");
             floor.SetTexture(@".\textures\pavement01_normal.jpg", KWEngine.TextureType.Normal);
             floor.SetTextureRepeat(10, 10);
-            floor.SetSpecularOverride(true, 2, 2048);
+            floor.SetSpecularOverride(true, 1, 512);
             AddGameObject(floor);
 
             Immovable wallLeft = new Immovable();

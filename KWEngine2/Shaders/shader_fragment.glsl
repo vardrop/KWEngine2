@@ -158,21 +158,22 @@ void main()
 
 			// directional light falloff:
 			float differenceLightDirectionAndFragmentDirection = 1.0;
-			float differenceLightDirectionAndCameraDirection = 1.0;
 			if(uLightsTargets[i].w > 0.0){ // directional
 				differenceLightDirectionAndFragmentDirection = max(dot(lightDirection, -lightVector), 0.0);
-				differenceLightDirectionAndCameraDirection = max(dot(lightDirection, surfaceToCamera), 0.0);
 			}
 
-			//calculate specular highlights:
-			reflectionVector = reflect(-lightVector, theNormal);
-			float specular = max(0.0, specularFactor * uSpecularPower * pow(max(0.0, dot(surfaceToCamera, reflectionVector)), uSpecularArea) * differenceLightDirectionAndFragmentDirection);
-			totalSpecColor += uLightsColors[i].xyz * specular * differenceLightDirectionAndCameraDirection;
-
 			// Normal light affection:
-			float dotProductNormalLight = max(dot(theNormal, lightVector), 0.0) * (uLightsPositions[i].w * 10 / distance); // .w includes distance multiplier factor
+			float dotProduct = max(dot(theNormal, lightVector), 0.0);
+			float dotProductNormalLight = dotProduct * (uLightsPositions[i].w * 10 / distance) * differenceLightDirectionAndFragmentDirection;
 
-			colorComponentTotal += lightColor * dotProductNormalLight * uLightsColors[i].w * pow(differenceLightDirectionAndFragmentDirection, 5.0); 
+			//calculate specular highlights:
+			reflectionVector = reflect(-lightVector, vNormal);
+			float specular = max(specularFactor * uSpecularPower * pow(max(0.0, dot(surfaceToCamera, reflectionVector)), uSpecularArea) * dotProductNormalLight, 0.0);
+			totalSpecColor += uLightsColors[i].xyz * specular;
+
+			
+
+			colorComponentTotal += lightColor * dotProductNormalLight * uLightsColors[i].w * pow(differenceLightDirectionAndFragmentDirection, 5.0);
 		}
 	}
 
