@@ -50,6 +50,8 @@
   <ItemGroup>
     <Compile Include="Objects\Flashlight.cs" />
     <Compile Include="Objects\Immovable.cs" />
+    <Compile Include="Objects\Panel.cs" />
+    <Compile Include="Objects\PanelLight.cs" />
     <Compile Include="Objects\Player.cs" />
     <Compile Include="GameWindow.cs" />
     <Compile Include="GameWorld.cs" />
@@ -65,6 +67,18 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Models\RobotERS\robotERS.fbx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Models\SpacePanel\scifipanel.mtl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Models\SpacePanel\scifipanel.obj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Models\SpacePedestal\pedestal.mtl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Models\SpacePedestal\pedestal.obj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="OpenTK.dll.config" />
@@ -105,6 +119,18 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Models\RobotERS\robotERS_Logo.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\SpacePanel\scifipanel.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\SpacePanel\scifipanel2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\SpacePedestal\pedestal.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\SpacePedestal\pedestal_specular.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Textures\mpanel_diffuse.jpg">

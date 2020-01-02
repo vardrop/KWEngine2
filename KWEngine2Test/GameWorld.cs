@@ -31,7 +31,10 @@ namespace KWEngine2Test
         {
             KWEngine.LoadModelFromFile("Robot", @".\models\roboters\roboters.fbx");
             KWEngine.LoadModelFromFile("Lab", @".\models\labyrinth\walls.obj");
+            KWEngine.LoadModelFromFile("Panel", @".\models\spacepanel\scifipanel.obj");
+
             KWEngine.ShadowMapCoefficient = 0.0005f;
+            KWEngine.PostProcessQuality = KWEngine.PostProcessingQuality.High;
             FOVShadow = 25f;
             DebugShadowCaster = false;
             SetSunPosition(250, 250, -250);
@@ -105,6 +108,23 @@ namespace KWEngine2Test
             lab.IsShadowCaster = true;
             //lab.SetSpecularOverride(true, 10, 512);
             AddGameObject(lab);
+
+            Panel panel = new Panel();
+            panel.SetModel(GetModel("Panel"));
+            panel.SetPosition(10, 0, 0);
+            panel.SetScale(3);
+            panel.SetSpecularOverride(true, 2, 1024);
+            panel.SetTextureForMesh(0, @".\models\spacepanel\scifipanel2.png");
+            panel.IsShadowCaster = true;
+            panel.IsCollisionObject = true;
+            AddGameObject(panel);
+
+            PanelLight pLight = new PanelLight();
+            pLight.Type = LightType.Point;
+            pLight.SetColor(1, 1, 1, 1);
+            pLight.SetPosition(10, 5, 0);
+            pLight.SetDistanceMultiplier(0.5f);
+            AddLightObject(pLight);
         }
 
     }
