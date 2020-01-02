@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Objects\Flashlight.cs" />
     <Compile Include="Objects\Immovable.cs" />
     <Compile Include="Objects\Player.cs" />
     <Compile Include="GameWindow.cs" />
@@ -57,7 +58,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Models\Nathan\nathan.fbx">
+    <None Include="Models\labyrinth\walls.mtl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Models\labyrinth\walls.obj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Models\RobotERS\robotERS.fbx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="OpenTK.dll.config" />
@@ -91,13 +98,13 @@
     <Content Include="Audio\title.ogg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Models\Nathan\rp_nathan_animated_003_dif.jpg">
+    <Content Include="Models\labyrinth\walls_clean.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Models\Nathan\rp_nathan_animated_003_gloss.jpg">
+    <Content Include="Models\RobotERS\robotERS.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Models\Nathan\rp_nathan_animated_003_norm.jpg">
+    <Content Include="Models\RobotERS\robotERS_Logo.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Textures\mpanel_diffuse.jpg">

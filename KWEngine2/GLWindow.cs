@@ -186,7 +186,15 @@ namespace KWEngine2
                         else
                             _viewMatrix = Matrix4.LookAt(CurrentWorld.GetCameraPosition(), CurrentWorld.GetCameraTarget(), KWEngine.WorldUp);
                     }
-                    Matrix4 viewProjection = _viewMatrix * _projectionMatrix;
+                    Matrix4 viewProjection;
+                    if (CurrentWorld.DebugShadowCaster)
+                    {
+                        viewProjection = _viewMatrix * _projectionMatrixShadow;
+                    }
+                    else
+                    {
+                        viewProjection = _viewMatrix * _projectionMatrix;
+                    }
 
                     
 

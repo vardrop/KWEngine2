@@ -275,6 +275,10 @@ namespace KWEngine2.Model
                     
                 }
             }
+            if(model.BoneNames.Count > KWEngine.MAX_BONES)
+            {
+                throw new Exception("Model has more than " + KWEngine.MAX_BONES + " bones. Cannot import model.");
+            }
         }
 
         private static bool FindTransformForMesh(Scene scene, Node currentNode, Mesh mesh, out Matrix4 transform, out string nodeName, ref Matrix4 parentTransform)

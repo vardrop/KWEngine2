@@ -225,7 +225,7 @@ namespace KWEngine2.Renderers
                     }
                     else
                     {
-                        if (overrides == null)
+                        if (overrides == null || overrides.Count == 0)
                             GL.Uniform1(mUniform_SpecularPower, mesh.Material.SpecularPower);
                         else
                         {
@@ -238,7 +238,7 @@ namespace KWEngine2.Renderers
 
                         }
 
-                        if (overrides == null)
+                        if (overrides == null || overrides.Count == 0)
                             GL.Uniform1(mUniform_SpecularArea, mesh.Material.SpecularArea);
                         else
                         {
@@ -287,7 +287,7 @@ namespace KWEngine2.Renderers
 
                         bool found = false;
                         object overrideValue = null;
-                        if (overrides != null)
+                        if (overrides != null && overrides.Count > 0)
                             found = overrides.TryGetValue(GameObject.Override.TextureTransform, out overrideValue);
 
                         if (found)
@@ -302,7 +302,7 @@ namespace KWEngine2.Renderers
                         overrideValue = null;
                         found = false;
                         int texId = -1;
-                        if (overrides != null)
+                        if (overrides != null && overrides.Count > 0)
                         {
                             found = overrides.TryGetValue(GameObject.Override.TextureDiffuse, out overrideValue);
                         }
@@ -328,7 +328,7 @@ namespace KWEngine2.Renderers
                         overrideValue = null;
                         found = false;
                         texId = -1;
-                        if (overrides != null)
+                        if (overrides != null && overrides.Count > 0)
                         {
                             found = overrides.TryGetValue(GameObject.Override.TextureNormal, out overrideValue);
                         }

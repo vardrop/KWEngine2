@@ -1511,22 +1511,26 @@ namespace KWEngine2.GameObjects
         /// <returns>Rotation (als Quaternion)</returns>
         protected Quaternion GetRotationToTarget(Vector3 position, Plane plane = Plane.Camera)
         {
-            Vector3 normal;
-            if (plane == Plane.Y)
-                normal = new Vector3(0, 1, 0.000001f);
-            else if (plane == Plane.X)
-                normal = new Vector3(1, 0, 0);
-            else if (plane == Plane.Z)
-                normal = new Vector3(0, 0.000001f, 1);
-            else
+            if (CurrentWindow.IsMouseInWindow)
             {
-                normal = -GetCameraLookAtVector();
-            }
+                Vector3 normal;
+                if (plane == Plane.Y)
+                    normal = new Vector3(0, 1, 0.000001f);
+                else if (plane == Plane.X)
+                    normal = new Vector3(1, 0, 0);
+                else if (plane == Plane.Z)
+                    normal = new Vector3(0, 0.000001f, 1);
+                else
+                {
+                    normal = -GetCameraLookAtVector();
+                }
 
-            Matrix4 lookat = Matrix4.LookAt(GetCenterPointForAllHitboxes(), position, normal);
-            lookat.Transpose();
-            lookat.Invert();
-            return Quaternion.FromMatrix(new Matrix3(lookat));
+                Matrix4 lookat = Matrix4.LookAt(GetCenterPointForAllHitboxes(), position, normal);
+                lookat.Transpose();
+                lookat.Invert();
+                return Quaternion.FromMatrix(new Matrix3(lookat));
+            }
+            return Quaternion.Identity;
         }
 
        /// <summary>
@@ -1535,14 +1539,17 @@ namespace KWEngine2.GameObjects
        /// <param name="target">Zielkoordinate</param>
         public void TurnTowardsXYZ(Vector3 target)
         {
-            Vector3 dir = target - GetCenterPointForAllHitboxes();
-            if (dir.LengthFast < 0.1f)
-                return;
-            target.Z += 0.00001f;          
-            Matrix4 lookat = Matrix4.LookAt(GetCenterPointForAllHitboxes(), target, KWEngine.WorldUp);
-            lookat.Transpose();
-            lookat.Invert();
-            Rotation = Quaternion.FromMatrix(new Matrix3(lookat)) * Turn180;
+            if (CurrentWindow.IsMouseInWindow)
+            {
+                Vector3 dir = target - GetCenterPointForAllHitboxes();
+                if (dir.LengthFast < 0.1f)
+                    return;
+                target.Z += 0.00001f;
+                Matrix4 lookat = Matrix4.LookAt(GetCenterPointForAllHitboxes(), target, KWEngine.WorldUp);
+                lookat.Transpose();
+                lookat.Invert();
+                Rotation = Quaternion.FromMatrix(new Matrix3(lookat)) * Turn180;
+            }
         }
 
         /// <summary>
@@ -1552,8 +1559,11 @@ namespace KWEngine2.GameObjects
         /// <param name="targetY">Y-Koordinate</param>
         public void TurnTowardsXY(float targetX, float targetY)
         {
-            Vector3 target = new Vector3(targetX, targetY, 0);
-            TurnTowardsXY(target);
+            if (CurrentWindow.IsMouseInWindow)
+            {
+                Vector3 target = new Vector3(targetX, targetY, 0);
+                TurnTowardsXY(target);
+            }
         }
 
         /// <summary>
@@ -1563,15 +1573,18 @@ namespace KWEngine2.GameObjects
         /// <param name="target">Zielkoordinaten</param>
         public void TurnTowardsXY(Vector3 target)
         {
-            target.Z = GetCenterPointForAllHitboxes().Z;
-            if ((target - Position).LengthFast < 0.00001f)
-                return;
+            if (CurrentWindow.IsMouseInWindow)
+            {
+                target.Z = GetCenterPointForAllHitboxes().Z;
+                if ((target - Position).LengthFast < 0.00001f)
+                    return;
 
-            target.X += 0.000001f;
-            Matrix4 lookat = Matrix4.LookAt(GetCenterPointForAllHitboxes(), target, Vector3.UnitZ);
-            lookat.Transpose();
-            lookat.Invert();
-            Rotation = Quaternion.FromMatrix(new Matrix3(lookat)) * Turn180;
+                target.X += 0.000001f;
+                Matrix4 lookat = Matrix4.LookAt(GetCenterPointForAllHitboxes(), target, Vector3.UnitZ);
+                lookat.Transpose();
+                lookat.Invert();
+                Rotation = Quaternion.FromMatrix(new Matrix3(lookat)) * Turn180;
+            }
         }
 
         /// <summary>
@@ -1582,8 +1595,11 @@ namespace KWEngine2.GameObjects
         /// <param name="targetZ">Zielkoordinate der z-Achse</param>
         public void TurnTowardsXZ(float targetX, float targetZ)
         {
-            Vector3 target = new Vector3(targetX, 0, targetZ);
-            TurnTowardsXZ(target);
+            if (CurrentWindow.IsMouseInWindow)
+            {
+                Vector3 target = new Vector3(targetX, 0, targetZ);
+                TurnTowardsXZ(target);
+            }
         }
 
         /// <summary>
@@ -1593,16 +1609,19 @@ namespace KWEngine2.GameObjects
         /// <param name="target">Zielkoordinaten</param>
         public void TurnTowardsXZ(Vector3 target)
         {
-            Vector3 currentPos = GetCenterPointForAllHitboxes();
-            target.Y = currentPos.Y;
-            if ((target - currentPos).LengthFast < 0.0001f)
-                return;
+            if (CurrentWindow.IsMouseInWindow)
+            {
+                Vector3 currentPos = GetCenterPointForAllHitboxes();
+                target.Y = currentPos.Y;
+                if ((target - currentPos).LengthFast < 0.0001f)
+                    return;
 
-            target.X += 0.000001f;
-            Matrix4 lookat = Matrix4.LookAt(currentPos, target, Vector3.UnitY);
-            lookat.Transpose();
-            lookat.Invert();
-            Rotation = Quaternion.FromMatrix(new Matrix3(lookat)) * Turn180;
+                target.X += 0.000001f;
+                Matrix4 lookat = Matrix4.LookAt(currentPos, target, Vector3.UnitY);
+                lookat.Transpose();
+                lookat.Invert();
+                Rotation = Quaternion.FromMatrix(new Matrix3(lookat)) * Turn180;
+            }
         }
 
         /// <summary>

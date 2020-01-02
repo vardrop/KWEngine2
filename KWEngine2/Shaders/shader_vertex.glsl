@@ -17,7 +17,7 @@ out		mat3 vTBN;
 out		vec4 vShadowCoord;
 
 uniform mat4 uMVP;
-uniform mat4 uBoneTransforms[36];
+uniform mat4 uBoneTransforms[96];
 uniform int uUseAnimations;
 uniform mat4 uNormalMatrix;
 uniform mat4 uModelMatrix;

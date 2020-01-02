@@ -6,7 +6,7 @@ in		vec3 aBoneWeights;
 
 uniform int uUseAnimations;
 uniform mat4 uMVP;
-uniform mat4 uBoneTransforms[36];
+uniform mat4 uBoneTransforms[96];
 
 void main()
 {

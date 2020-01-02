@@ -158,25 +158,27 @@ void main()
 
 			// directional light falloff:
 			float differenceLightDirectionAndFragmentDirection = 1.0;
+			float differenceLightDirectionAndCameraDirection = 1.0;
 			if(uLightsTargets[i].w > 0.0){ // directional
 				differenceLightDirectionAndFragmentDirection = max(dot(lightDirection, -lightVector), 0.0);
+				differenceLightDirectionAndCameraDirection = max(dot(lightDirection, surfaceToCamera), 0.0);
 			}
 
 			//calculate specular highlights:
-			reflectionVector = reflect(-lightVector, vNormal);
+			reflectionVector = reflect(-lightVector, theNormal);
 			float specular = max(0.0, specularFactor * uSpecularPower * pow(max(0.0, dot(surfaceToCamera, reflectionVector)), uSpecularArea) * differenceLightDirectionAndFragmentDirection);
-			totalSpecColor += uLightsColors[i].xyz * specular;
+			totalSpecColor += uLightsColors[i].xyz * specular * differenceLightDirectionAndCameraDirection;
 
 			// Normal light affection:
-			float dotProductNormalLight = max(dot(theNormal, lightVector), 0.0) * (uLightsPositions[i].w / distance);
+			float dotProductNormalLight = max(dot(theNormal, lightVector), 0.0) * (uLightsPositions[i].w * 10 / distance); // .w includes distance multiplier factor
 
-			colorComponentTotal += lightColor * dotProductNormalLight * uLightsColors[i].w * pow(differenceLightDirectionAndFragmentDirection, 5.0); // .w includes distance multiplier factor
+			colorComponentTotal += lightColor * dotProductNormalLight * uLightsColors[i].w * pow(differenceLightDirectionAndFragmentDirection, 5.0); 
 		}
 	}
 
 	colorComponentTotal += totalSpecColor;
 
-	vec3 finalColor = (colorComponentTotal + ambient) * uBaseColor.xyz * uTintColor.xyz * texColor;
+	vec3 finalColor =(colorComponentTotal + ambient) * uBaseColor.xyz * uTintColor.xyz * texColor;
 	
     color.x = finalColor.x;
 	color.y = finalColor.y;

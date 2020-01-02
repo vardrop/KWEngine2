@@ -47,11 +47,11 @@ namespace KWEngine2.Helper
             }
             else if (plane == Plane.Y)
             {
-                return Vector3.TransformNormal(vector, Matrix4.CreateRotationZ(CalculateRadiansFromDegrees(degrees)));
+                return Vector3.TransformNormal(vector, Matrix4.CreateRotationY(CalculateRadiansFromDegrees(degrees)));
             }
             else if (plane == Plane.Z)
             {
-                return Vector3.TransformNormal(vector, Matrix4.CreateRotationY(CalculateRadiansFromDegrees(degrees)));
+                return Vector3.TransformNormal(vector, Matrix4.CreateRotationZ(CalculateRadiansFromDegrees(degrees)));
             }
             else
                 throw new Exception("Only planes X, Y and Z are allowed for vector rotation.");

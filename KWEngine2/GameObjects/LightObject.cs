@@ -62,7 +62,7 @@ namespace KWEngine2.GameObjects
         /// <summary>
         /// Distanzmultiplikator (Standard: 10)
         /// </summary>
-        public float DistanceMultiplier { get; private set; } = 10;
+        public float DistanceMultiplier { get; private set; } = 1;
 
         /// <summary>
         /// Act

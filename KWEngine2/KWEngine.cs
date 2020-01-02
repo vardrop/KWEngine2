@@ -25,7 +25,7 @@ namespace KWEngine2
         /// <summary>
         /// Anzahl der Knochen pro GameObject
         /// </summary>
-        public const int MAX_BONES = 36;
+        public const int MAX_BONES = 96;
         /// <summary>
         /// Anzahl der Lichter pro Welt
         /// </summary>
