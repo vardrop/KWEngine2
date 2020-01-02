@@ -17,7 +17,13 @@ namespace KWEngine2Test
 
         public override void Act(KeyboardState kb, MouseState ms, float deltaTimeFactor)
         {
-            
+            long now = GetCurrentTimeInMilliseconds();
+            if(now - _timeStamp > 3000)
+            {
+                //Explosion ex = new Explosion(new Vector3(0, 2, 0), 256, 1, 2, 1, ExplosionType.SphereRingY, new Vector4(1, 1, 1, 1));
+                //AddGameObject(ex);
+                _timeStamp = now;
+            }
             
         }
      

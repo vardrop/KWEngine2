@@ -94,7 +94,6 @@ namespace KWEngine2.Renderers
             lock (g)
             {
                 GL.Uniform4(mUniform_Glow, g.Glow.X, g.Glow.Y, g.Glow.Z, g.Glow.W);
-                GL.Uniform3(mUniform_TintColor, g.Color.X, g.Color.Y, g.Color.Z);
                 GL.Uniform1(mUniform_SunAmbient, HelperGL.Clamp(g.CurrentWorld.SunAmbientFactor * 2f, 0, 1));
                 GL.Uniform1(mUniform_Number, (float)e._amount);
                 GL.Uniform1(mUniform_Spread, e._spread);

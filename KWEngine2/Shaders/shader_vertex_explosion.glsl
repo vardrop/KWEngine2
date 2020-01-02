@@ -41,7 +41,8 @@ void main()
 
     
     //float sizeFactor = -2.8 * ((uTime - 0.4) * (uTime - 0.4)) + 1.0;
-    float sizeFactor = 5.0 * (  pow(uTime -1.0, 4.0) * -1.12 - 1.28 * pow(uTime - 1.0, 3.0)  );
+    //float sizeFactor = max(-5.0 * (  pow(uTime -1.0, 4.0) * -1.12 - 1.28 * pow(uTime - 1.0, 3.0)  ), 0.0);
+    float sizeFactor = max(-10.0 * pow(uTime -0.45, 4.0) -2.0 * pow(uTime - 0.45, 3.0) + 1, 0.0);
     modelMatrix[0][0] *= sizeFactor * uSize * axis.w;
     modelMatrix[0][1] *= sizeFactor * uSize * axis.w;
     modelMatrix[0][2] *= sizeFactor * uSize * axis.w;
