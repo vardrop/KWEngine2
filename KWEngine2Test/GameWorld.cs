@@ -2,11 +2,6 @@
 using KWEngine2.GameObjects;
 using OpenTK;
 using OpenTK.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using KWEngine2Test.Objects;
 
 namespace KWEngine2Test

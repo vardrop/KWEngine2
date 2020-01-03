@@ -39,7 +39,7 @@ namespace KWEngine2.Renderers
             }
 
             GL.Uniform1(mUniform_Horizontal, bloomDirectionHorizontal ? 1 : 0);
-            GL.Uniform2(mUniform_Resolution, (float)width, (float)height);
+            GL.Uniform2(mUniform_Resolution, width / 4000000f, height / 4000000f);
 
             GL.BindVertexArray(quad.Meshes.Values.ElementAt(0).VAO);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, quad.Meshes.Values.ElementAt(0).VBOIndex);

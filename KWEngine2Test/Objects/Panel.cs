@@ -16,12 +16,12 @@ namespace KWEngine2Test.Objects
         private bool _gain = true;
         public override void Act(KeyboardState ks, MouseState ms, float deltaTimeFactor)
         {
-            /*
+            
             _intensity = _gain ? _intensity + 0.02f : _intensity - 0.02f;
-            if(_intensity > 0.5f)
+            if(_intensity > 1f)
             {
                 _gain = false;
-                _intensity = 0.5f;
+                _intensity = 1f;
             }
             if(_intensity < 0)
             {
@@ -31,7 +31,7 @@ namespace KWEngine2Test.Objects
 
             _glow.W = _intensity;
             this.Glow = _glow;
-            */
+            
         }
     }
 }
