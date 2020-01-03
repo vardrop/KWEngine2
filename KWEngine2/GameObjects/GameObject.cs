@@ -63,6 +63,8 @@ namespace KWEngine2.GameObjects
 
         private IReadOnlyCollection<string> _meshNameList;
 
+        private Vector3 _lookAtVector = new Vector3(0, 0, 1);
+
         internal enum Override { SpecularEnable, SpecularPower, SpecularArea, TextureDiffuse, TextureNormal, TextureSpecular, TextureTransform }
 
         internal Dictionary<string, Dictionary<Override, object>> _overrides = new Dictionary<string, Dictionary<Override, object>>();        
@@ -255,6 +257,7 @@ namespace KWEngine2.GameObjects
             {
                 _rotation = value;
                 UpdateModelMatrixAndHitboxes();
+                UpdateLookAtVector();
             }
         }
 
@@ -840,25 +843,29 @@ namespace KWEngine2.GameObjects
             _tintColor.Z = blue >= 0 && blue <= 1 ? blue : 1;
         }
 
-        /// <summary>
-        /// Erfragt den normalisierten Blickrichtungsvektor
-        /// </summary>
-        /// <returns>Blickrichtungsvektor (normalisiert)</returns>
-        protected Vector3 GetLookAtVector()
+        private void UpdateLookAtVector()
         {
-            CheckModelAndWorld();
-
-            if (CurrentWorld.IsFirstPersonMode && CurrentWorld.GetFirstPersonObject().Equals(this))
+            if (CurrentWorld != null && CurrentWorld.IsFirstPersonMode && CurrentWorld.GetFirstPersonObject().Equals(this))
             {
-                return HelperCamera.GetLookAtVector();
+                _lookAtVector = HelperCamera.GetLookAtVector();
             }
             else
             {
                 Vector3 standardOrientation = Vector3.UnitZ;
                 Vector3 rotatedNormal = Vector3.TransformNormal(standardOrientation, _modelMatrix);
                 rotatedNormal.NormalizeFast();
-                return rotatedNormal;
+                _lookAtVector = rotatedNormal;
             }
+        }
+
+        /// <summary>
+        /// Erfragt den normalisierten Blickrichtungsvektor
+        /// </summary>
+        /// <returns>Blickrichtungsvektor (normalisiert)</returns>
+        public Vector3 GetLookAtVector()
+        {
+            CheckModelAndWorld();
+            return _lookAtVector;
         }
 
         /// <summary>

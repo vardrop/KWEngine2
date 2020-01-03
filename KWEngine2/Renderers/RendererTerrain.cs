@@ -96,6 +96,7 @@ namespace KWEngine2.Renderers
             mUniform_SpecularPower = GL.GetUniformLocation(mProgramId, "uSpecularPower");
             
             mUniform_uCameraPos = GL.GetUniformLocation(mProgramId, "uCameraPos");
+            mUniform_uCameraDirection = GL.GetUniformLocation(mProgramId, "uCameraDirection");
             mUniform_BiasCoefficient = GL.GetUniformLocation(mProgramId, "uBiasCoefficient");
            
 
@@ -154,10 +155,12 @@ namespace KWEngine2.Renderers
                 if (!CurrentWorld.IsFirstPersonMode)
                 {
                     GL.Uniform3(mUniform_uCameraPos, g.CurrentWorld.GetCameraPosition().X, g.CurrentWorld.GetCameraPosition().Y, g.CurrentWorld.GetCameraPosition().Z);
+                    GL.Uniform3(mUniform_uCameraDirection, g.CurrentWorld.GetCameraLookAtVector());
                 }
                 else
                 {
                     GL.Uniform3(mUniform_uCameraPos, g.CurrentWorld.GetFirstPersonObject().Position.X, g.CurrentWorld.GetFirstPersonObject().Position.Y + g.CurrentWorld.GetFirstPersonObject().FPSEyeOffset, g.CurrentWorld.GetFirstPersonObject().Position.Z);
+                    GL.Uniform3(mUniform_uCameraDirection, HelperCamera.GetLookAtVector());
                 }
 
                 // Upload depth texture (shadow mapping)

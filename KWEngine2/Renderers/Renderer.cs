@@ -65,6 +65,7 @@ namespace KWEngine2.Renderers
         protected int mUniform_BiasCoefficient = -1;
 
         protected int mUniform_uCameraPos = -1;
+        protected int mUniform_uCameraDirection = -1;
 
         protected int mUniform_EmissiveColor = -1;
         protected int mUniform_SpecularPower = -1;

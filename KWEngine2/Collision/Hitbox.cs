@@ -48,10 +48,6 @@ namespace KWEngine2.Collision
         public GameObject Owner { get; private set; }
         private GeoMeshHitbox mMesh;
 
-        private Vector3 mOldPosition = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
-        private Quaternion mOldRotation = new Quaternion(float.MaxValue, float.MaxValue, float.MaxValue, float.MaxValue);
-        private Vector3 mOldScale = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
-
         public Hitbox(GameObject owner, GeoMeshHitbox mesh)
         {
             Owner = owner;
@@ -62,28 +58,6 @@ namespace KWEngine2.Collision
 
         public Vector3 Update(ref Vector3 dims)
         {
-            if (mOldPosition == Owner.Position && mOldRotation == Owner.Rotation && mOldScale == Owner.Scale)
-            {
-                dims = mDimensions;
-                return mCenter;
-            }
-            else
-            {
-                mOldPosition.X = Owner.Position.X;
-                mOldPosition.Y = Owner.Position.Y;
-                mOldPosition.Z = Owner.Position.Z;
-
-                mOldRotation.X = Owner.Rotation.X;
-                mOldRotation.Y = Owner.Rotation.Y;
-                mOldRotation.Z = Owner.Rotation.Z;
-                mOldRotation.W = Owner.Rotation.W;
-
-                mOldScale.X = Owner.Scale.X;
-                mOldScale.Y = Owner.Scale.Y;
-                mOldScale.Z = Owner.Scale.Z;
-            }
-
-
             Matrix4.Mult(ref mMesh.Transform, ref Owner._modelMatrix, out mModelMatrixFinal);
 
             float minX = float.MaxValue;
@@ -243,7 +217,7 @@ namespace KWEngine2.Collision
             triangles.Clear();
             GeoModel model = collider.Owner.Model;
             triangles.AddRange(model.Meshes.Values.ElementAt(0).Terrain.GetTrianglesForHitbox(caller, collider.Owner.Position, offset));
-            float a = (caller.mCenter.Y - caller.GetLowestVertexHeight());
+            float a = (caller.Owner.Position.Y - caller.GetLowestVertexHeight());
             TestIntersectionSATForTerrain(ref triangles, caller, collider, offset);
             Vector3 mobbPosition = new Vector3();
             int lowestTriangle = -1;

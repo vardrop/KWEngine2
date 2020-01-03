@@ -32,6 +32,7 @@ namespace KWEngine2Test
             KWEngine.LoadModelFromFile("Robot", @".\models\roboters\roboters.fbx");
             KWEngine.LoadModelFromFile("Lab", @".\models\labyrinth\walls.obj");
             KWEngine.LoadModelFromFile("Panel", @".\models\spacepanel\scifipanel.obj");
+            KWEngine.BuildTerrainModel("Terrain", @".\textures\heightmap.png", @".\textures\sand_diffuse.png", 100, 1, 100, 5, 5);
 
             KWEngine.ShadowMapCoefficient = 0.0005f;
             KWEngine.PostProcessQuality = KWEngine.PostProcessingQuality.High;
@@ -42,6 +43,7 @@ namespace KWEngine2Test
             SunAmbientFactor = 0.2f;
             SetCameraPosition(100, 100, 100);
 
+            /*
             Immovable floor = new Immovable();
             floor.SetModel(GetModel("KWCube"));
             floor.IsCollisionObject = true;
@@ -53,6 +55,15 @@ namespace KWEngine2Test
             floor.SetTextureRepeat(10, 10);
             floor.SetSpecularOverride(true, 1, 512);
             AddGameObject(floor);
+            */
+
+            Immovable floor = new Immovable();
+            floor.SetModel(GetModel("Terrain"));
+            floor.IsCollisionObject = true;
+            floor.IsShadowCaster = true;
+            floor.SetTexture(@".\textures\sand_normal.png", KWEngine.TextureType.Normal);
+            AddGameObject(floor);
+
 
             Immovable wallLeft = new Immovable();
             wallLeft.SetModel(GetModel("KWCube"));
@@ -94,20 +105,30 @@ namespace KWEngine2Test
             p.AnimationPercentage = 0;
             p.IsShadowCaster = true;
             p.IsCollisionObject = true;
+            p.SetSpecularOverride(true, 8, 32);
             AddGameObject(p);
+            //SetFirstPersonObject(p);
 
             p._flashlight = new Flashlight();
             p._flashlight.Type = LightType.Directional;
             p._flashlight.SetDistanceMultiplier(1);
             p._flashlight.SetColor(1, 0.75f, 0, 1);
             AddLightObject(p._flashlight);
-
+            
+            
             Immovable lab = new Immovable();
             lab.SetModel(GetModel("Lab"));
             lab.IsCollisionObject = true;
             lab.IsShadowCaster = true;
-            //lab.SetSpecularOverride(true, 10, 512);
+            lab.SetSpecularOverride(true, 0, 2048);
             AddGameObject(lab);
+
+            Cube testCube = new Cube();
+            testCube.SetModel(GetModel("KWCube"));
+            testCube.SetScale(10);
+            testCube.SetPosition(-5, 5, 0);
+            testCube.SetSpecularOverride(true, 20, 1024);
+            //AddGameObject(testCube);
 
             Panel panel = new Panel();
             panel.SetModel(GetModel("Panel"));
@@ -118,12 +139,13 @@ namespace KWEngine2Test
             panel.IsShadowCaster = true;
             panel.IsCollisionObject = true;
             AddGameObject(panel);
-
+            
             PanelLight pLight = new PanelLight();
-            pLight.Type = LightType.Point;
+            pLight.Type = LightType.Directional;
             pLight.SetColor(1, 1, 1, 1);
             pLight.SetPosition(10, 5, 0);
-            pLight.SetDistanceMultiplier(0.5f);
+            pLight.SetTarget(10, 0, 0);
+            pLight.SetDistanceMultiplier(0.75f);
             AddLightObject(pLight);
         }
 

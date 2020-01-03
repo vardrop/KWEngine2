@@ -23,6 +23,7 @@ namespace KWEngine2.Helper
             lookat.X = (float)(Math.Sin((float)mOrientation.X) * Math.Cos((float)mOrientation.Y));
             lookat.Y = (float)Math.Sin((float)mOrientation.Y);
             lookat.Z = (float)(Math.Cos((float)mOrientation.X) * Math.Cos((float)mOrientation.Y));
+            //lookat.NormalizeFast();
             return lookat;
         }
 
