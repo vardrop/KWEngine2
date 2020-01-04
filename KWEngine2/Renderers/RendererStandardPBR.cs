@@ -13,7 +13,11 @@ namespace KWEngine2.Renderers
 {
     internal class RendererStandardPBR : Renderer
     {
-        private Matrix4 _identityMatrix = Matrix4.Identity;
+        private int mUniform_TextureMetallic = -1;
+        private int mUniform_TextureUseMetallic = -1;
+
+        private int mUniform_TextureRoughness = -1;
+        private int mUniform_TextureUseRoughness = -1;
 
         public override void Initialize()
         {
@@ -75,15 +79,17 @@ namespace KWEngine2.Renderers
             mUniform_BoneTransforms = GL.GetUniformLocation(mProgramId, "uBoneTransforms");
 
             // Textures:
-            mUniform_Texture = GL.GetUniformLocation(mProgramId, "uTextureDiffuse");
-            mUniform_TextureUse = GL.GetUniformLocation(mProgramId, "uUseTextureDiffuse");
+            mUniform_Texture = GL.GetUniformLocation(mProgramId, "uTextureAlbedo");
+            mUniform_TextureUse = GL.GetUniformLocation(mProgramId, "uUseTextureAlbedo");
 
             mUniform_TextureNormalMap = GL.GetUniformLocation(mProgramId, "uTextureNormal");
             mUniform_TextureUseNormalMap = GL.GetUniformLocation(mProgramId, "uUseTextureNormal");
 
-            mUniform_TextureSpecularMap = GL.GetUniformLocation(mProgramId, "uTextureSpecular");
-            mUniform_TextureUseSpecularMap = GL.GetUniformLocation(mProgramId, "uUseTextureSpecular");
-            mUniform_TextureSpecularIsRoughness = GL.GetUniformLocation(mProgramId, "uRoughness");
+            mUniform_TextureRoughness = GL.GetUniformLocation(mProgramId, "uTextureRoughness");
+            mUniform_TextureUseRoughness = GL.GetUniformLocation(mProgramId, "uUseTextureRoughness");
+
+            mUniform_TextureMetallic = GL.GetUniformLocation(mProgramId, "uTextureMetallic");
+            mUniform_TextureUseMetallic = GL.GetUniformLocation(mProgramId, "uUseTextureMetallic");
 
             mUniform_TextureLightMap = GL.GetUniformLocation(mProgramId, "uTextureLightmap");
             mUniform_TextureUseLightMap = GL.GetUniformLocation(mProgramId, "uUseTextureLightmap");
@@ -99,8 +105,8 @@ namespace KWEngine2.Renderers
             mUniform_TintColor = GL.GetUniformLocation(mProgramId, "uTintColor");
             mUniform_EmissiveColor = GL.GetUniformLocation(mProgramId, "uEmissiveColor");
 
-            mUniform_SpecularArea = GL.GetUniformLocation(mProgramId, "uSpecularArea");
-            mUniform_SpecularPower = GL.GetUniformLocation(mProgramId, "uSpecularPower");
+            //mUniform_SpecularArea = GL.GetUniformLocation(mProgramId, "uSpecularArea");
+            //mUniform_SpecularPower = GL.GetUniformLocation(mProgramId, "uSpecularPower");
 
             mUniform_uCameraPos = GL.GetUniformLocation(mProgramId, "uCameraPos");
             mUniform_uCameraDirection = GL.GetUniformLocation(mProgramId, "uCameraDirection");
@@ -191,6 +197,7 @@ namespace KWEngine2.Renderers
                         GL.Uniform1(mUniform_Opacity, g.Opacity);
                     else
                         GL.Uniform1(mUniform_Opacity, mesh.Material.Opacity);
+
 
                     Dictionary<GameObject.Override, object> overrides = null;
                     if (g._overrides.ContainsKey(mesh.Name))

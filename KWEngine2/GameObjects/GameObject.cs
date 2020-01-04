@@ -65,7 +65,7 @@ namespace KWEngine2.GameObjects
 
         private Vector3 _lookAtVector = new Vector3(0, 0, 1);
 
-        internal enum Override { SpecularEnable, SpecularPower, SpecularArea, TextureDiffuse, TextureNormal, TextureSpecular, TextureTransform }
+        internal enum Override { SpecularEnable, SpecularPower, SpecularArea, TextureDiffuse, TextureNormal, TextureSpecular, TextureTransform, TextureMetallic, TextureRoughness }
 
         internal Dictionary<string, Dictionary<Override, object>> _overrides = new Dictionary<string, Dictionary<Override, object>>();        
 

@@ -107,7 +107,15 @@ namespace KWEngine2
             /// <summary>
             /// Specular Map
             /// </summary>
-            Specular
+            Specular,
+            /// <summary>
+            /// Metallic Map (PBR Workflow)
+            /// </summary>
+            Metallic,
+            /// <summary>
+            /// Roughness Map (PBR Workflow)
+            /// </summary>
+            Roughness
         };
 
         /// <summary>
