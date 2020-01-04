@@ -155,6 +155,7 @@ namespace KWEngine2
         internal static GeoModel CoordinateSystem;
         internal static GeoModel KWRect;
         internal static RendererSimple RendererSimple;
+        internal static RendererStandardPBR RendererPBR;
         internal static Matrix4 CoordinateSystemMatrix = Matrix4.CreateScale(10);
 
         internal static void DrawCoordinateSystem(ref Matrix4 viewProjection)
@@ -207,6 +208,7 @@ namespace KWEngine2
             Renderers.Add("HUD", new RendererHUD());
 
             RendererSimple = new RendererSimple();
+            RendererPBR = new RendererStandardPBR();
         }
 
         internal static void InitializeParticles()

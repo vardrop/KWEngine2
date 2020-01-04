@@ -145,6 +145,7 @@
     <Compile Include="Renderers\RendererShadow.cs" />
     <Compile Include="Renderers\RendererExplosion.cs" />
     <Compile Include="Renderers\RendererSimple.cs" />
+    <Compile Include="Renderers\RendererStandardPBR.cs" />
     <Compile Include="Renderers\RendererTerrain.cs" />
     <Compile Include="Renderers\RendererStandard.cs" />
     <Compile Include="World.cs" />
@@ -186,6 +187,8 @@
     <EmbeddedResource Include="Shaders\shader_vertex_terrain.glsl" />
     <EmbeddedResource Include="Shaders\shader_vertex_simple.glsl" />
     <EmbeddedResource Include="Shaders\shader_fragment_simple.glsl" />
+    <EmbeddedResource Include="Shaders\shader_fragment_pbr.glsl" />
+    <EmbeddedResource Include="Shaders\shader_vertex_pbr.glsl" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

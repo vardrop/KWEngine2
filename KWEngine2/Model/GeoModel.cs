@@ -11,6 +11,8 @@ namespace KWEngine2.Model
     /// </summary>
     public class GeoModel
     {
+        public bool PBRWorkflow { get; internal set; } = false;
+
         /// <summary>
         /// Wurzelknoten
         /// </summary>

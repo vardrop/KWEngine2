@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GameWorldPBRTest.cs" />
     <Compile Include="Objects\Cube.cs" />
     <Compile Include="Objects\Flashlight.cs" />
     <Compile Include="Objects\Immovable.cs" />
