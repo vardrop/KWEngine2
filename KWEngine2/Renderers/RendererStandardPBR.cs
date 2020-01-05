@@ -79,8 +79,8 @@ namespace KWEngine2.Renderers
             mUniform_BoneTransforms = GL.GetUniformLocation(mProgramId, "uBoneTransforms");
 
             // Textures:
-            mUniform_Texture = GL.GetUniformLocation(mProgramId, "uTextureAlbedo");
-            mUniform_TextureUse = GL.GetUniformLocation(mProgramId, "uUseTextureAlbedo");
+            mUniform_Texture = GL.GetUniformLocation(mProgramId, "uTextureDiffuse");
+            mUniform_TextureUse = GL.GetUniformLocation(mProgramId, "uUseTextureDiffuse");
 
             mUniform_TextureNormalMap = GL.GetUniformLocation(mProgramId, "uTextureNormal");
             mUniform_TextureUseNormalMap = GL.GetUniformLocation(mProgramId, "uUseTextureNormal");
@@ -105,8 +105,8 @@ namespace KWEngine2.Renderers
             mUniform_TintColor = GL.GetUniformLocation(mProgramId, "uTintColor");
             mUniform_EmissiveColor = GL.GetUniformLocation(mProgramId, "uEmissiveColor");
 
-            //mUniform_SpecularArea = GL.GetUniformLocation(mProgramId, "uSpecularArea");
-            //mUniform_SpecularPower = GL.GetUniformLocation(mProgramId, "uSpecularPower");
+            mUniform_SpecularArea = GL.GetUniformLocation(mProgramId, "uSpecularArea");
+            mUniform_SpecularPower = GL.GetUniformLocation(mProgramId, "uSpecularPower");
 
             mUniform_uCameraPos = GL.GetUniformLocation(mProgramId, "uCameraPos");
             mUniform_uCameraDirection = GL.GetUniformLocation(mProgramId, "uCameraDirection");

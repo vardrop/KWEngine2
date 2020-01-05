@@ -14,8 +14,10 @@ namespace KWEngine2Test
      
         public override void Prepare()
         {
+            KWEngine.LoadModelFromFile("PBR", @".\models\pbrtest\pbrtest.fbx");
+
             Immovable i = new Immovable();
-            i.SetModel(GetModel("KWCube"));
+            i.SetModel(GetModel("PBR"));
             i.SetScale(5);
             AddGameObject(i);
         }
