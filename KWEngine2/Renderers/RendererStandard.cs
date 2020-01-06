@@ -95,6 +95,7 @@ namespace KWEngine2.Renderers
 
 
             mUniform_Glow = GL.GetUniformLocation(mProgramId, "uGlow");
+            mUniform_Outline = GL.GetUniformLocation(mProgramId, "uOutline");
             mUniform_BaseColor = GL.GetUniformLocation(mProgramId, "uBaseColor");
             mUniform_TintColor = GL.GetUniformLocation(mProgramId, "uTintColor");
             mUniform_EmissiveColor = GL.GetUniformLocation(mProgramId, "uEmissiveColor");
@@ -138,12 +139,9 @@ namespace KWEngine2.Renderers
                
                 GL.Uniform1(mUniform_BiasCoefficient, KWEngine.ShadowMapCoefficient);
 
-                GL.Uniform4(mUniform_Glow, g.Glow.X, g.Glow.Y, g.Glow.Z, g.Glow.W);
-
-
-                GL.Uniform3(mUniform_TintColor, g.Color.X, g.Color.Y, g.Color.Z);
-
-
+                GL.Uniform4(mUniform_Glow, g.Glow);
+                GL.Uniform4(mUniform_Outline, g.ColorOutline);
+                GL.Uniform3(mUniform_TintColor, g.Color);
 
                 // How many lights are there?
                 GL.Uniform1(mUniform_LightCount, lightCount);

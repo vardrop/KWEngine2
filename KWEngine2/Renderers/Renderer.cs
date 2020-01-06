@@ -61,6 +61,7 @@ namespace KWEngine2.Renderers
         protected int mUniform_BaseColor = -1;
         protected int mUniform_TintColor = -1;
         protected int mUniform_Glow = -1;
+        protected int mUniform_Outline = -1;
 
         protected int mUniform_BiasCoefficient = -1;
 

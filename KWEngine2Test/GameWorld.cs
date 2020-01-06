@@ -100,6 +100,7 @@ namespace KWEngine2Test
             p.AnimationPercentage = 0;
             p.IsShadowCaster = true;
             p.IsCollisionObject = true;
+            p.SetColorOutline(0, 1, 0, 1);
             p.SetSpecularOverride(true, 8, 32);
             AddGameObject(p);
             //SetFirstPersonObject(p);
@@ -119,10 +120,11 @@ namespace KWEngine2Test
             AddGameObject(lab);
 
             Cube testCube = new Cube();
-            testCube.SetModel(GetModel("KWCube"));
+            testCube.SetModel(GetModel("KWSphere"));
             testCube.SetScale(10);
             testCube.SetPosition(-5, 5, 0);
             testCube.SetSpecularOverride(true, 20, 1024);
+            testCube.SetColorOutline(1, 1, 0, 1);
             //AddGameObject(testCube);
 
             Panel panel = new Panel();
@@ -133,6 +135,7 @@ namespace KWEngine2Test
             panel.SetTextureForMesh(0, @".\models\spacepanel\scifipanel2.png");
             panel.IsShadowCaster = true;
             panel.IsCollisionObject = true;
+            //panel.SetColorOutline(0, 1, 0, 1);
             AddGameObject(panel);
             
             PanelLight pLight = new PanelLight();

@@ -28,6 +28,7 @@ uniform sampler2DShadow uTextureShadowMap;
 uniform float uOpacity;
 uniform vec3 uBaseColor;
 uniform vec4 uGlow;
+uniform vec4 uOutline;
 uniform vec3 uTintColor;
 uniform vec4 uEmissiveColor;
 uniform float uSunAmbient;
@@ -194,14 +195,18 @@ void main()
 
 	vec3 finalColor =(colorComponentTotal + ambient) * uBaseColor.xyz * uTintColor.xyz * texColor;
 	
-    color.x = finalColor.x;
-	color.y = finalColor.y;
-	color.z = finalColor.z;
+	float dotOutline = max(1.0 - 4.0 * pow(abs(dot(uCameraDirection, vNormal)), 2.0), 0.0) * uOutline.w;
+
+    color.x = finalColor.x + uOutline.x * dotOutline * 0.6;
+	color.y = finalColor.y + uOutline.y * dotOutline * 0.6;
+	color.z = finalColor.z + uOutline.z * dotOutline * 0.6;
 	color.w = uOpacity;
 
 	vec3 addedBloom = vec3(max(finalColor.x - 1.0, 0.0), max(finalColor.y - 1.0, 0.0), max(finalColor.z - 1.0, 0.0)) + (uEmissiveColor.xyz * 0.5);
-	bloom.x = addedBloom.x + uGlow.x * uGlow.w;
-	bloom.y = addedBloom.y + uGlow.y * uGlow.w;
-	bloom.z = addedBloom.z + uGlow.z * uGlow.w;
+	bloom.x = addedBloom.x + uGlow.x * uGlow.w + uOutline.x * dotOutline;
+	bloom.y = addedBloom.y + uGlow.y * uGlow.w + uOutline.y * dotOutline;
+	bloom.z = addedBloom.z + uGlow.z * uGlow.w + uOutline.z * dotOutline;
 	bloom.w = 1.0;
+
+
 }

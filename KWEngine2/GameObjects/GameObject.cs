@@ -180,6 +180,42 @@ namespace KWEngine2.GameObjects
             Glow = new Vector4(red, green, blue, intensity);
         }
 
+        private Vector4 _colorOutline = new Vector4(1, 1, 1, 0);
+
+        /// <summary>
+        /// Umrandungsfarbe (nicht für KWCube)
+        /// </summary>
+        public Vector4 ColorOutline
+        {
+            get
+            {
+                return _colorOutline;
+            }
+            set
+            {
+                if(Model != null && Model.IsTerrain)
+                {
+                    throw new Exception("Outline cannot be set for terrain geometry.");
+                }
+                _colorOutline.X = HelperGL.Clamp(value.X, 0, 1);
+                _colorOutline.Y = HelperGL.Clamp(value.Y, 0, 1);
+                _colorOutline.Z = HelperGL.Clamp(value.Z, 0, 1);
+                _colorOutline.W = HelperGL.Clamp(value.W, 0, 1);
+            }
+        }
+
+        /// <summary>
+        /// Setzt die Umrandungsfarbe
+        /// </summary>
+        /// <param name="red">Rot</param>
+        /// <param name="green">Grün</param>
+        /// <param name="blue">Blau</param>
+        /// <param name="intensity">Sichtbarkeit</param>
+        public void SetColorOutline(float red, float green, float blue, float intensity)
+        {
+            ColorOutline = new Vector4(red, green, blue, intensity);
+        }
+
         /// <summary>
         /// Gibt an, ob das Objekt per Maus wählbar sein soll
         /// </summary>
