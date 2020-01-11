@@ -42,7 +42,7 @@ namespace KWEngine2.GameObjects
     /// </summary>
     public sealed class Explosion : GameObject
     {
-        internal static Vector3[] Axes = new Vector3[] {
+        internal static readonly Vector3[] Axes = new Vector3[] {
             Vector3.UnitX,
             Vector3.UnitY,
             Vector3.UnitZ,
@@ -50,23 +50,23 @@ namespace KWEngine2.GameObjects
             -Vector3.UnitY,
             -Vector3.UnitZ,
 
-            new Vector3(1,1,0),   // right       up
-            new Vector3(1,1,1),   // right front up
-            new Vector3(0,1,1),   // front       up
-            new Vector3(-1,1,1),  // left front  up
-            new Vector3(-1,1,0),  // left        up
-            new Vector3(-1,1,-1), // left back   up
-            new Vector3(0,1,-1),  // back        up
-            new Vector3(1,1,-1),  // right back  up
+            new Vector3(0.707107f,0.707107f,0),   // right       up
+            new Vector3(0.577351f,0.577351f,0.577351f),   // right front up
+            new Vector3(0,0.707107f,0.707107f),   // front       up
+            new Vector3(-0.577351f,0.577351f,0.577351f),  // left front  up
+            new Vector3(-0.707107f,0.707107f,0),  // left        up
+            new Vector3(-0.577351f,0.577351f,-0.577351f), // left back   up
+            new Vector3(0,0.707107f,-0.707107f),  // back        up
+            new Vector3(0.577351f,0.577351f,-0.577351f),  // right back  up
 
-            new Vector3(1,-1,0),   // right       down
-            new Vector3(1,-1,1),   // right front down
-            new Vector3(0,-1,1),   // front       down
-            new Vector3(-1,-1,1),  // left front  down
-            new Vector3(-1,-1,0),  // left        down
-            new Vector3(-1,-1,-1), // left back   down
-            new Vector3(0,-1,-1),  // back        down
-            new Vector3(1,-1,-1),  // right back  down
+            new Vector3(0.707107f,-0.707107f,0),   // right       down
+            new Vector3(0.707107f,-0.707107f,0.707107f),   // right front down
+            new Vector3(0,-0.707107f,0.707107f),   // front       down
+            new Vector3(-0.577351f,-0.577351f,0.577351f),  // left front  down
+            new Vector3(-0.707107f,-0.707107f,0),  // left        down
+            new Vector3(-0.577351f,-0.577351f,-0.577351f), // left back   down
+            new Vector3(0,-0.707107f,-0.707107f),  // back        down
+            new Vector3(0.577351f,-0.577351f,-0.577351f),  // right back  down
         };
         internal static int AxesCount = Axes.Length;
         internal const int MAX_PARTICLES = 512; 
@@ -125,21 +125,21 @@ namespace KWEngine2.GameObjects
                     _directions[arrayIndex] = Axes[randomIndex].X;
                     _directions[arrayIndex + 1] = Axes[randomIndex].Y;
                     _directions[arrayIndex + 2] = Axes[randomIndex].Z;
-                    _directions[arrayIndex + 3] = HelperRandom.GetRandomNumber(0.1f, 1.0f);
+                    _directions[arrayIndex + 3] = HelperRandom.GetRandomNumber(0.01f, 1.0f);
                 }
                 else if(type == ExplosionType.CubeRingY || type == ExplosionType.SphereRingY)
                 {
                     _directions[arrayIndex] = 0;
                     _directions[arrayIndex + 1] = 1;
                     _directions[arrayIndex + 2] = 0;
-                    _directions[arrayIndex + 3] = HelperRandom.GetRandomNumber(0.1f, 1.0f);
+                    _directions[arrayIndex + 3] = HelperRandom.GetRandomNumber(0.01f, 1.0f);
                 }
                 else
                 {
                     _directions[arrayIndex] = 0;
                     _directions[arrayIndex + 1] = 0;
                     _directions[arrayIndex + 2] = 1;
-                    _directions[arrayIndex + 3] = HelperRandom.GetRandomNumber(0.1f, 1.0f);
+                    _directions[arrayIndex + 3] = HelperRandom.GetRandomNumber(0.01f, 1.0f);
                 }
             }
 

@@ -30,8 +30,7 @@ mat4 rotationMatrix(vec3 axis, float angle)
 
 void main()
 {
-    float instancePercent = (gl_InstanceID + 1) / uNumber;
-    float instancePercentNormalized = instancePercent - 0.5;
+    float instancePercent = gl_InstanceID / (uNumber + 1);
     vec4 axis = uAxes[gl_InstanceID % int(uNumber)];
     mat4 rotation = rotationMatrix(axis.xyz, instancePercent * (2 * M_PI));
 	mat4 modelMatrix = mat4(1.0);
@@ -39,10 +38,6 @@ void main()
     modelMatrix[3][1] = uPosition.y; 
     modelMatrix[3][2] = uPosition.z; 
 
-    
-    //float sizeFactor = -2.8 * ((uTime - 0.4) * (uTime - 0.4)) + 1.0;
-    //float sizeFactor = max(-5.0 * (  pow(uTime -1.0, 4.0) * -1.12 - 1.28 * pow(uTime - 1.0, 3.0)  ), 0.0);
-    //float sizeFactor = max(-10.0 * pow(uTime -0.45, 4.0) -2.0 * pow(uTime - 0.45, 3.0) + 1, 0.0);
     float sizeFactor = max(pow(sin(2.0 * uTime + 1.25), 4.0), 0.0);
     modelMatrix[0][0] *= sizeFactor * uSize * axis.w;
     modelMatrix[0][1] *= sizeFactor * uSize * axis.w;

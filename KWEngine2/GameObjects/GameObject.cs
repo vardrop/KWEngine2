@@ -404,9 +404,25 @@ namespace KWEngine2.GameObjects
             return Hitboxes[_largestHitboxIndex];
         }
 
+        internal Matrix4 CreateModelMatrix()
+        {
+            Matrix4 m = Matrix4.CreateFromQuaternion(_rotation);
+
+            m.Row0 *= _scale.X;
+            m.Row1 *= _scale.Y;
+            m.Row2 *= _scale.Z;
+
+            m.Row3.X = _position.X;
+            m.Row3.Y = _position.Y;
+            m.Row3.Z = _position.Z;
+            m.Row3.W = 1.0f;
+
+            return m;
+        }
+
         internal void UpdateModelMatrixAndHitboxes()
         {
-            _modelMatrix = Matrix4.CreateScale(_scale) * Matrix4.CreateFromQuaternion(_rotation) * Matrix4.CreateTranslation(_position);
+            _modelMatrix = CreateModelMatrix();
             Vector3 sceneCenter = new Vector3(0, 0, 0);
             Vector3 tmpDims = new Vector3(0, 0, 0);
             float minX = float.MaxValue;
