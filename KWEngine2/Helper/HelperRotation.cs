@@ -43,16 +43,19 @@ namespace KWEngine2.Helper
         {
             if (plane == Plane.X)
             {
-                //return Vector3.TransformNormal(vector, Matrix4.CreateRotationX(CalculateRadiansFromDegrees(degrees)));
-                return RotateVector(vector, Quaternion.FromAxisAngle(Vector3.UnitX, MathHelper.DegreesToRadians(degrees))); 
+                return Vector3.TransformNormal(vector, Matrix4.CreateRotationX(CalculateRadiansFromDegrees(degrees)));
+                //return RotateVector(vector, Quaternion.FromAxisAngle(Vector3.UnitX, MathHelper.DegreesToRadians(degrees))); 
             }
             else if (plane == Plane.Y)
             {
-                return RotateVector(vector, Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(degrees)));
+                return Vector3.TransformNormal(vector, Matrix4.CreateRotationY(CalculateRadiansFromDegrees(degrees)));
+                //return RotateVector(vector, Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(degrees)));
+
             }
             else if (plane == Plane.Z)
             {
-                return RotateVector(vector, Quaternion.FromAxisAngle(Vector3.UnitZ, MathHelper.DegreesToRadians(degrees)));
+                return Vector3.TransformNormal(vector, Matrix4.CreateRotationZ(CalculateRadiansFromDegrees(degrees)));
+                //return RotateVector(vector, Quaternion.FromAxisAngle(Vector3.UnitZ, MathHelper.DegreesToRadians(degrees)));
             }
             else
                 throw new Exception("Only planes X, Y and Z are allowed for vector rotation.");
@@ -156,8 +159,28 @@ namespace KWEngine2.Helper
         /// <param name="source">zu rotierender Vektor</param>
         /// <param name="rotation">Rotation als Quaternion</param>
         /// <returns>rotierter Vektor</returns>
-        public static Vector3 RotateVector(Vector3 source, Quaternion rotation)
+        private static Vector3 RotateVector(Vector3 source, Quaternion rotation)
         {
+            /*
+                final double q1a = q1.getQ0(); //W
+                final double q1b = q1.getQ1();
+                final double q1c = q1.getQ2();
+                final double q1d = q1.getQ3();
+
+                // Components of the second quaternion.
+                final double q2a = q2.getQ0(); //W
+                final double q2b = q2.getQ1();
+                final double q2c = q2.getQ2();
+                final double q2d = q2.getQ3();
+
+                // Components of the product.
+                            final double w = q1a * q2a - q1b * q2b - q1c * q2c - q1d * q2d;
+
+                final double x = + q1b * q2a     + q1c * q2d     - q1d * q2c;
+                final double y = - q1b * q2d     + q1c * q2a     + q1d * q2b;
+                final double z = + q1b * q2c     - q1c * q2b     + q1d * q2a;
+             */
+
             return new Vector3(
                 0.0f + source.X * rotation.W + source.Y * rotation.Z - source.Z * rotation.Y,
                 0.0f - source.X * rotation.Z + source.Y * rotation.W + source.Z * rotation.X,
