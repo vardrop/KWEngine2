@@ -43,15 +43,16 @@ namespace KWEngine2.Helper
         {
             if (plane == Plane.X)
             {
-                return Vector3.TransformNormal(vector, Matrix4.CreateRotationX(CalculateRadiansFromDegrees(degrees)));
+                //return Vector3.TransformNormal(vector, Matrix4.CreateRotationX(CalculateRadiansFromDegrees(degrees)));
+                return RotateVector(vector, Quaternion.FromAxisAngle(Vector3.UnitX, MathHelper.DegreesToRadians(degrees))); 
             }
             else if (plane == Plane.Y)
             {
-                return Vector3.TransformNormal(vector, Matrix4.CreateRotationY(CalculateRadiansFromDegrees(degrees)));
+                return RotateVector(vector, Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(degrees)));
             }
             else if (plane == Plane.Z)
             {
-                return Vector3.TransformNormal(vector, Matrix4.CreateRotationZ(CalculateRadiansFromDegrees(degrees)));
+                return RotateVector(vector, Quaternion.FromAxisAngle(Vector3.UnitZ, MathHelper.DegreesToRadians(degrees)));
             }
             else
                 throw new Exception("Only planes X, Y and Z are allowed for vector rotation.");
@@ -147,6 +148,21 @@ namespace KWEngine2.Helper
             lookAt.Invert();
 
             return Quaternion.FromMatrix(new Matrix3(lookAt)) * Turn180;
+        }
+
+        /// <summary>
+        /// Rotiert einen Vektor mit Hilfe der angegebenen Quaternion (Hamilton-Produkt)
+        /// </summary>
+        /// <param name="source">zu rotierender Vektor</param>
+        /// <param name="rotation">Rotation als Quaternion</param>
+        /// <returns>rotierter Vektor</returns>
+        public static Vector3 RotateVector(Vector3 source, Quaternion rotation)
+        {
+            return new Vector3(
+                0.0f + source.X * rotation.W + source.Y * rotation.Z - source.Z * rotation.Y,
+                0.0f - source.X * rotation.Z + source.Y * rotation.W + source.Z * rotation.X,
+                0.0f + source.X * rotation.Y - source.Y * rotation.X + source.Z * rotation.W
+                );
         }
     }
 }
