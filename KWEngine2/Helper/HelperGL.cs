@@ -1,11 +1,7 @@
 ﻿using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace KWEngine2.Helper
@@ -79,14 +75,19 @@ namespace KWEngine2.Helper
 
         internal static Vector2 GetNormalizedMouseCoords(float mousex, float mousey, GLWindow window)
         {
-            int titlebar = 0;
+            float x;
+            float y;
             if (window.WindowState != WindowState.Fullscreen)
             {
-                titlebar = SystemInformation.CaptionHeight;
+                x = mousex - window.X - 8; // TODO: Find out why '8' ;-)
+                y = mousey - window.Y - SystemInformation.CaptionHeight - 8;
+            }
+            else
+            {
+                x = mousex;
+                y = mousey;
             }
 
-            float x = mousex - window.X;
-            float y = mousey - window.Y - titlebar;
             return new Vector2(x, y);
         }
     }

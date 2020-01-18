@@ -1709,7 +1709,7 @@ namespace KWEngine2.GameObjects
         public bool IsInsideScreenSpace { get; internal set; } = false;
 
         /// <summary>
-        /// Gibt das GameObject zurück, das unter dem Mauszeiger liegt
+        /// Gibt das GameObject zurück, das unter dem Mauszeiger liegt (Instanzen müssen mit IsPickable = true gesetzt haben)
         /// </summary>
         /// <param name="ms">Mausinformationen</param>
         /// <returns>Gewähltes GameObject</returns>
@@ -1719,8 +1719,8 @@ namespace KWEngine2.GameObjects
             {
                 return null;
             }
-
-            Vector3 ray = Get3DMouseCoords(ms.X, ms.Y);
+            Vector2 mouseCoords = HelperGL.GetNormalizedMouseCoords(ms.X, ms.Y, KWEngine.CurrentWindow);
+            Vector3 ray = Get3DMouseCoords(mouseCoords.X, mouseCoords.Y);
             Vector3 pos = CurrentWorld.GetCameraPosition() + ray;
 
             GameObject pickedObject = null;
@@ -1730,7 +1730,7 @@ namespace KWEngine2.GameObjects
             {
                 if (go.IsPickable && go.IsInsideScreenSpace)
                 {
-                    if (IntersectRaySphere(pos, ray, go.GetCenterPointForAllHitboxes(), GetMaxDiameter() / 2)) // GetDiameterFromDimensions(go.GetGameObjectCenterPoint(), go.GetGameObjectMaxDimensions())))
+                    if (IntersectRaySphere(pos, ray, go.GetCenterPointForAllHitboxes(), GetMaxDiameter() / 3))
                     {
                         float distance = (go.GetCenterPointForAllHitboxes() - pos).LengthSquared;
                         if (distance < pickedDistance)

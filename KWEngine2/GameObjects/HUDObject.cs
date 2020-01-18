@@ -182,7 +182,6 @@ namespace KWEngine2.GameObjects
         public void SetPosition(float x, float y)
         {
             Position = new Vector3(x - KWEngine.CurrentWindow.Width / 2, KWEngine.CurrentWindow.Height - y - KWEngine.CurrentWindow.Height / 2, 0);
-            //Position = new Vector3(x, y, 0);
             _absolute.X = x;
             _absolute.Y = y;
             UpdatePositions();
@@ -217,14 +216,24 @@ namespace KWEngine2.GameObjects
 
             if (w._windowRect.Contains(ms.X, ms.Y)){
                 Vector2 coords = HelperGL.GetNormalizedMouseCoords(ms.X, ms.Y, w);
-               
+                float left, right, top, bottom;
 
-                float left = _absolute.X - _scale.X * 0.5f;
-                float right = _absolute.X + ((_count - 1) * _spread) + _scale.X * 0.5f;
+                if(_type == HUDObjectType.Image)
+                {
+                    left = _absolute.X - _scale.X * 0.5f;
+                    right = _absolute.X + _scale.X * 0.5f;
 
-                float top = _absolute.Y - _scale.Y * 0.5f;
-                float bottom = _absolute.Y + _scale.Y * 0.5f;
+                    top = _absolute.Y - _scale.Y * 0.5f;
+                    bottom = _absolute.Y + _scale.Y * 0.5f;
+                }
+                else
+                {
+                    left = _absolute.X - _scale.X * 0.5f;
+                    right = _absolute.X + ((_count - 1) * _spread) + _scale.X * 0.5f;
 
+                    top = _absolute.Y - _scale.Y * 0.5f;
+                    bottom = _absolute.Y + _scale.Y * 0.5f;
+                }
 
                 if(coords.X >= left && coords.X <= right && coords.Y >= top && coords.Y <= bottom)
                 {

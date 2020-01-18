@@ -100,7 +100,7 @@ namespace KWEngine2Test
             p.AnimationPercentage = 0;
             p.IsShadowCaster = true;
             p.IsCollisionObject = true;
-            p.SetColorOutline(0, 1, 0, 1);
+            p.IsPickable = true;
             p.SetSpecularOverride(true, 8, 32);
             AddGameObject(p);
             //SetFirstPersonObject(p);
@@ -134,8 +134,8 @@ namespace KWEngine2Test
             panel.SetSpecularOverride(true, 2, 1024);
             panel.SetTextureForMesh(0, @".\models\spacepanel\scifipanel2.png");
             panel.IsShadowCaster = true;
+            panel.IsPickable = true;
             panel.IsCollisionObject = true;
-            //panel.SetColorOutline(0, 1, 0, 1);
             AddGameObject(panel);
             
             PanelLight pLight = new PanelLight();

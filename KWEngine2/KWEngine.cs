@@ -305,7 +305,7 @@ namespace KWEngine2
         private static float _shadowmapbiascoefficient = 0.001f;
 
         /// <summary>
-        /// Koeffizient der Schattenberechnung (Standard: 0.001f);
+        /// Koeffizient der Schattenberechnung (Standard: 0.001f)
         /// </summary>
         public static float ShadowMapCoefficient
         {
@@ -346,8 +346,8 @@ namespace KWEngine2
                 }
                 else
                 {
-                    Debug.WriteLine("Cannot set shadow map to a size < 256 or > 8192. Resetting it to 1024.");
-                    _shadowMapSize = 1024;
+                    Debug.WriteLine("Cannot set shadow map to a size < 256 or > 8192. Resetting it to 4096.");
+                    _shadowMapSize = 4096;
                 }
                 GLWindow.CurrentWindow.InitializeFramebuffers();
 

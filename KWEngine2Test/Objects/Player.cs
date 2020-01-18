@@ -102,6 +102,22 @@ namespace KWEngine2Test.Objects
                 CurrentWorld.SetCameraTarget(this.Position);
             }
 
+            if (IsMouseCursorInsideMyHitbox(ms))
+            {
+                SetColorOutline(0, 1, 0, 1);
+                
+            }
+            else
+            {
+                SetColorOutline(0, 1, 0, 0);
+            }
+
+            if (ms.LeftButton == ButtonState.Pressed)
+            {
+                GameObject o = PickGameObject(ms);
+                Console.WriteLine(o);
+            }
+
             MoveOffset(0, -0.1f, 0);
             List<Intersection> intersections = GetIntersections();
             foreach(Intersection i in intersections)

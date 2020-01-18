@@ -70,7 +70,7 @@ namespace KWEngine2
         /// <param name="antialiasing">FSAA-Wert (Anti-Aliasing)</param>
         /// <param name="vSync">VSync aktivieren</param>
         public GLWindow(int width, int height, GameWindowFlags flag, int antialiasing = 0, bool vSync = true)
-            : base(width, height, GraphicsMode.Default, "KWEngine2 - C# 3D Gaming", flag, DisplayDevice.Default, 4, 5, GraphicsContextFlags.ForwardCompatible, null, true)
+            : base(width, height, GraphicsMode.Default, "KWEngine2 - C# 3D Gaming", flag == GameWindowFlags.Default ? GameWindowFlags.FixedWindow : flag, DisplayDevice.Default, 4, 5, GraphicsContextFlags.ForwardCompatible, null, true)
         {
             Width = width;
             Height = height;
@@ -400,8 +400,8 @@ namespace KWEngine2
             _mousePointFPS.Y = Y + Height / 2;
 
             CalculateProjectionMatrix();
-
-            _windowRect = new System.Drawing.Rectangle(this.X, this.Y, this.Width + 16, this.Height + SystemInformation.CaptionHeight * 2);
+            UpdateWindowRect();
+            
         }
 
         /// <summary>
@@ -413,20 +413,33 @@ namespace KWEngine2
             base.OnMove(e);
             _mousePointFPS.X = X + Width / 2;
             _mousePointFPS.Y = Y + Height / 2;
-            _windowRect = new System.Drawing.Rectangle(this.X, this.Y, this.Width + 16, this.Height + SystemInformation.CaptionHeight * 2);
+            UpdateWindowRect();
+        }
+
+        internal void UpdateWindowRect()
+        {
+            
+            if (WindowState == WindowState.Fullscreen)
+            {
+                _windowRect = new System.Drawing.Rectangle(this.X, this.Y, this.Width, this.Height);
+            }
+            else
+            {
+                _windowRect = new System.Drawing.Rectangle(this.X + 8, this.Y + SystemInformation.CaptionHeight + 8, this.Width, this.Height);
+            }
+            
         }
 
         internal void CalculateProjectionMatrix()
         {
-            _projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(CurrentWorld != null ? CurrentWorld.FOV / 2: 45f), Width / (float)Height, 0.1f, CurrentWorld != null ? CurrentWorld.ZFar : 1000f);
-            _projectionMatrixShadow = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(CurrentWorld != null ? CurrentWorld.FOVShadow / 2 : 45f), Width / (float)Height, 1f, CurrentWorld != null ? CurrentWorld.ZFar : 1000f);
+            _projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(CurrentWorld != null ? CurrentWorld.FOV / 2: 45f), ClientSize.Width / (float)ClientSize.Height, 0.1f, CurrentWorld != null ? CurrentWorld.ZFar : 1000f);
+            _projectionMatrixShadow = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(CurrentWorld != null ? CurrentWorld.FOVShadow / 2 : 45f), ClientSize.Width / (float)ClientSize.Height, 1f, CurrentWorld != null ? CurrentWorld.ZFar : 1000f);
 
-            _modelViewProjectionMatrixBloom = Matrix4.CreateScale(Width, Height, 1) * Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographic(Width, Height, 0.1f, 100f);
+            _modelViewProjectionMatrixBloom = Matrix4.CreateScale(ClientSize.Width, ClientSize.Height, 1) * Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographic(ClientSize.Width, ClientSize.Height, 0.1f, 100f);
 
-            _modelViewProjectionMatrixBackground = Matrix4.CreateScale(Width, Height, 1) * Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographic(Width, Height, 0.1f, 100f);
+            _modelViewProjectionMatrixBackground = Matrix4.CreateScale(ClientSize.Width, ClientSize.Height, 1) * Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographic(ClientSize.Width, ClientSize.Height, 0.1f, 100f);
 
-            //_viewProjectionMatrixHUD = Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographicOffCenter(0, Width, Height, 0, 0.1f, 100f);
-            _viewProjectionMatrixHUD = Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographic(Width, Height, 0.1f, 100f);
+            _viewProjectionMatrixHUD = Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographic(ClientSize.Width, ClientSize.Height, 0.1f, 100f);
         }
 
         /// <summary>
