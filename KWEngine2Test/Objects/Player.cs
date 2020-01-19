@@ -98,26 +98,27 @@ namespace KWEngine2Test.Objects
                     _height -= 0.5f;
                 }
                 Vector3 camPos = this.Position + new Vector3(50, _height, 50);
+                camPos.Y = _height;
                 CurrentWorld.SetCameraPosition(camPos);
-                CurrentWorld.SetCameraTarget(this.Position);
+                CurrentWorld.SetCameraTarget(Position.X, 0, Position.Z);
             }
 
             if (IsMouseCursorInsideMyHitbox(ms))
             {
-                SetColorOutline(0, 1, 0, 1);
+                SetColorOutline(0, 1, 0, 0.2f);
                 
             }
             else
             {
                 SetColorOutline(0, 1, 0, 0);
             }
-
+            /*
             if (ms.LeftButton == ButtonState.Pressed)
             {
                 GameObject o = PickGameObject(ms);
                 Console.WriteLine(o);
             }
-
+            */
             MoveOffset(0, -0.1f, 0);
             List<Intersection> intersections = GetIntersections();
             foreach(Intersection i in intersections)
@@ -162,7 +163,7 @@ namespace KWEngine2Test.Objects
                 if (_flashlight.Type == LightType.Directional)
                 {
                     lookAt.Y = lookAt.Y - 0.5f;
-                    _flashlight.SetTarget(middle + lookAt * 1.5f);
+                    _flashlight.SetTarget(middle + lookAt * 2.5f);
                 }
             }
         }
