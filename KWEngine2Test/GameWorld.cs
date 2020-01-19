@@ -169,7 +169,7 @@ namespace KWEngine2Test
 
             p._flashlight = new Flashlight();
             p._flashlight.Type = LightType.Directional;
-            p._flashlight.SetDistanceMultiplier(1);
+            p._flashlight.SetDistanceMultiplier(2);
             p._flashlight.SetColor(1, 0.75f, 0, 1);
             AddLightObject(p._flashlight);
             

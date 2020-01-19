@@ -382,7 +382,7 @@ namespace KWEngine2.Renderers
                         {
                             GL.ActiveTexture(TextureUnit.Texture4);
                             GL.BindTexture(TextureTarget.Texture2D, mesh.Material.TextureEmissive.OpenGLID);
-                            GL.Uniform1(mUniform_TextureSpecularMap, 4);
+                            GL.Uniform1(mUniform_TextureEmissiveMap, 4);
                             GL.Uniform1(mUniform_TextureUseEmissiveMap, 1);
                         }
                         else

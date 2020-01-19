@@ -157,7 +157,7 @@ namespace KWEngine2Test.Objects
             {
                 Vector3 lookAt = GetLookAtVector();
                 Vector3 middle = this.GetCenterPointForAllHitboxes();
-                middle.Y += Scale.Y / 5f;
+                middle.Y += Scale.Y / 3f;
                 Vector3 source = middle + lookAt * 1f;
                 _flashlight.SetPosition(source);
                 if (_flashlight.Type == LightType.Directional)

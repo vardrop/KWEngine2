@@ -202,10 +202,10 @@ void main()
 	color.z = finalColor.z + uOutline.z * dotOutline * 0.6;
 	color.w = uOpacity;
 
-	vec3 addedBloom = vec3(max(finalColor.x - 1.0, 0.0), max(finalColor.y - 1.0, 0.0), max(finalColor.z - 1.0, 0.0)) + (uEmissiveColor.xyz * 0.5);
-	bloom.x = addedBloom.x + uGlow.x * uGlow.w + uOutline.x * dotOutline;
-	bloom.y = addedBloom.y + uGlow.y * uGlow.w + uOutline.y * dotOutline;
-	bloom.z = addedBloom.z + uGlow.z * uGlow.w + uOutline.z * dotOutline;
+	vec3 addedBloom = vec3(max(finalColor.x - 1.0, 0.0), max(finalColor.y - 1.0, 0.0), max(finalColor.z - 1.0, 0.0));
+	bloom.x = addedBloom.x + uGlow.x * uGlow.w + uOutline.x * dotOutline + emissive.x;
+	bloom.y = addedBloom.y + uGlow.y * uGlow.w + uOutline.y * dotOutline + emissive.y;
+	bloom.z = addedBloom.z + uGlow.z * uGlow.w + uOutline.z * dotOutline + emissive.z;
 	bloom.w = 1.0;
 
 
