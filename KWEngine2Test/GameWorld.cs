@@ -40,7 +40,7 @@ namespace KWEngine2Test
      
         public override void Prepare()
         {
-            KWEngine.LoadModelFromFile("Robot", @".\models\roboters\roboters.fbx");
+            KWEngine.LoadModelFromFile("Robot", @".\models\UBot\ubot.fbx");
             KWEngine.LoadModelFromFile("Lab", @".\models\labyrinth\walls.obj");
             KWEngine.LoadModelFromFile("Panel", @".\models\spacepanel\scifipanel.obj");
             KWEngine.LoadModelFromFile("CorridorEntrance", @".\models\corridors\corridorEntrance01.fbx");
