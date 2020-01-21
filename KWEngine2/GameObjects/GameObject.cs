@@ -1731,7 +1731,7 @@ namespace KWEngine2.GameObjects
             {
                 if (go.IsPickable && go.IsInsideScreenSpace)
                 {
-                    if (IntersectRaySphere(pos, ray, go.GetCenterPointForAllHitboxes(), go.GetMaxDiameter() / 3))
+                    if (IntersectRaySphere(pos, ray, go.GetCenterPointForAllHitboxes(), go.GetMaxDiameter() / 2))
                     {
                         float distance = (go.GetCenterPointForAllHitboxes() - pos).LengthSquared;
                         if (distance < pickedDistance)
