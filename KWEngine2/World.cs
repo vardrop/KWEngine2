@@ -831,5 +831,15 @@ namespace KWEngine2
             }
             return os;
         }
+
+        /// <summary>
+        /// Gibt das GameObject zurück, das unter dem Mauszeiger liegt (Instanzen müssen mit IsPickable = true gesetzt haben)
+        /// </summary>
+        /// <param name="ms">Mausinformationen</param>
+        /// <returns>Gewähltes GameObject</returns>
+        public static GameObject PickGameObject(MouseState ms)
+        {
+            return GameObject.PickGameObject(ms);
+        }
     }
 }

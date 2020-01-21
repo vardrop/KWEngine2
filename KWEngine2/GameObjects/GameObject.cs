@@ -1713,24 +1713,25 @@ namespace KWEngine2.GameObjects
         /// </summary>
         /// <param name="ms">Mausinformationen</param>
         /// <returns>Gewähltes GameObject</returns>
-        protected GameObject PickGameObject(MouseState ms)
+        public static GameObject PickGameObject(MouseState ms)
         {
-            if (!CurrentWindow.Focused)
+            GLWindow w = GLWindow.CurrentWindow;
+            if (w == null || w.CurrentWorld == null || !w.Focused)
             {
                 return null;
             }
             Vector2 mouseCoords = HelperGL.GetNormalizedMouseCoords(ms.X, ms.Y, KWEngine.CurrentWindow);
             Vector3 ray = Get3DMouseCoords(mouseCoords.X, mouseCoords.Y);
-            Vector3 pos = CurrentWorld.GetCameraPosition() + ray;
+            Vector3 pos = w.CurrentWorld.GetCameraPosition() + ray;
 
             GameObject pickedObject = null;
             float pickedDistance = float.MaxValue;
 
-            foreach (GameObject go in CurrentWorld.GetGameObjects())
+            foreach (GameObject go in w.CurrentWorld.GetGameObjects())
             {
                 if (go.IsPickable && go.IsInsideScreenSpace)
                 {
-                    if (IntersectRaySphere(pos, ray, go.GetCenterPointForAllHitboxes(), GetMaxDiameter() / 3))
+                    if (IntersectRaySphere(pos, ray, go.GetCenterPointForAllHitboxes(), go.GetMaxDiameter() / 3))
                     {
                         float distance = (go.GetCenterPointForAllHitboxes() - pos).LengthSquared;
                         if (distance < pickedDistance)
