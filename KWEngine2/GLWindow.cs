@@ -273,20 +273,19 @@ namespace KWEngine2
                             KWEngine.Renderers["Particle"].Draw(p, ref viewProjection);
                         GL.Disable(EnableCap.Blend);
                     }
+
+                    GL.Enable(EnableCap.Blend);
+                    GL.Disable(EnableCap.DepthTest);
+                    lock (CurrentWorld._hudObjects)
+                    {
+                        foreach (HUDObject p in CurrentWorld._hudObjects)
+                            KWEngine.Renderers["HUD"].Draw(p, ref _viewProjectionMatrixHUD);
+                    }
+                    GL.Disable(EnableCap.Blend);
+                    GL.Enable(EnableCap.DepthTest);
                 }
-
-
-
                 DownsampleFramebuffer();
                 ApplyBloom();
-
-                GL.Enable(EnableCap.Blend);
-                GL.Disable(EnableCap.DepthTest);
-                foreach (HUDObject p in CurrentWorld._hudObjects)
-                    KWEngine.Renderers["HUD"].Draw(p, ref _viewProjectionMatrixHUD);
-                GL.Enable(EnableCap.DepthTest);
-                GL.Disable(EnableCap.Blend);
-
             }
             SwapBuffers();
         }
@@ -304,8 +303,6 @@ namespace KWEngine2
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             base.OnUpdateFrame(e);
-
-            
 
             KeyboardState ks = Keyboard.GetState();
             MouseState ms = Mouse.GetCursorState();
@@ -485,7 +482,7 @@ namespace KWEngine2
             RendererBloom r = (RendererBloom)KWEngine.Renderers["Bloom"];
             GL.UseProgram(r.GetProgramId());
 
-            int loopCount = KWEngine.PostProcessQuality == KWEngine.PostProcessingQuality.High ? 4 : 2; // must 2, 4, 6 or 8, but 4 will suffice
+            int loopCount = KWEngine.PostProcessQuality == KWEngine.PostProcessingQuality.High ? 8 : 4; // must 2, 4, 6 or 8, but 4 will suffice
             int sourceTex; // this is the texture that the bloom will be read from
             for (int i = 0; i < loopCount; i++)
             {

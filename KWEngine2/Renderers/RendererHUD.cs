@@ -57,6 +57,8 @@ namespace KWEngine2.Renderers
             mUniform_MVP = GL.GetUniformLocation(mProgramId, "uMVP");
             mUniform_Texture = GL.GetUniformLocation(mProgramId, "uTextureDiffuse");
             mUniform_TintColor = GL.GetUniformLocation(mProgramId, "uTintColor");
+            mUniform_Glow = GL.GetUniformLocation(mProgramId, "uGlow");
+
         }
 
         internal override void Draw(GameObject g, ref Matrix4 viewProjection, HelperFrustum frustum)
@@ -88,6 +90,7 @@ namespace KWEngine2.Renderers
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
 
             GL.Uniform4(mUniform_TintColor, ho._tint);
+            GL.Uniform4(mUniform_Glow, ho._glow);
 
             for (int i = 0; i < ho._positions.Length; i++)
             {

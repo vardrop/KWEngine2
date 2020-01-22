@@ -31,6 +31,7 @@ namespace KWEngine2.GameObjects
     {
         internal Vector2 _absolute = new Vector2(0, 0);
         internal Vector4 _tint = new Vector4(1, 1, 1, 1);
+        internal Vector4 _glow = new Vector4(0, 0, 0, 0);
         internal HUDObjectType _type = HUDObjectType.Image;
         internal int[] _textureIds = new int[] { KWEngine.TextureDefault };
         /// <summary>
@@ -79,6 +80,21 @@ namespace KWEngine2.GameObjects
             _tint.Y = HelperGL.Clamp(green, 0, 1);
             _tint.Z = HelperGL.Clamp(blue, 0, 1);
             _tint.W = HelperGL.Clamp(intensity, 0, 1);
+        }
+
+        /// <summary>
+        /// Glow-Effekt des Objekts
+        /// </summary>
+        /// <param name="red">Rot</param>
+        /// <param name="green">Grün</param>
+        /// <param name="blue">Blau</param>
+        /// <param name="intensity">Intensität</param>
+        public void SetGlow(float red, float green, float blue, float intensity)
+        {
+            _glow.X = HelperGL.Clamp(red, 0, 1);
+            _glow.Y = HelperGL.Clamp(green, 0, 1);
+            _glow.Z = HelperGL.Clamp(blue, 0, 1);
+            _glow.W = HelperGL.Clamp(intensity, 0, 1);
         }
 
         private void UpdateTextures()

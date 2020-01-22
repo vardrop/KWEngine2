@@ -533,8 +533,18 @@ namespace KWEngine2.GameObjects
         /// <summary>
         /// Setzt das Modell des Objekts
         /// </summary>
+        /// <param name="m">Modellname</param>
+        public void SetModel(string m)
+        {
+            SetModel(KWEngine.GetModel(m));
+        }
+
+        /// <summary>
+        /// Setzt das Modell des Objekts
+        /// </summary>
         /// <param name="m">Modell-Instanz</param>
-        public void SetModel(GeoModel m)
+        //[Obsolete("Please use SetModel(string) instead.")]
+        private void SetModel(GeoModel m)
         {
             if (m == null)
             {

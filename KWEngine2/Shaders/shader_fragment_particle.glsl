@@ -14,6 +14,6 @@ void main()
 	bloom.x = color.x;
 	bloom.y = color.y;
 	bloom.z = color.z;
-	bloom.w = color.w * 0.5;
+	bloom.w = color.w * 0.25;
 
 }

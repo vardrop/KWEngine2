@@ -12,18 +12,9 @@ namespace KWEngine2Test.Objects
     {
         public override void Act(KeyboardState ks, MouseState ms, float deltaTimeFactor)
         {
-            if (ks[Key.P])
-            {
+            
                 AddRotationY(1, true);
-            }
-            if (ks[Key.I])
-            {
-                AddRotationX(1, true);
-            }
-            if (ks[Key.O])
-            {
-                AddRotationZ(1, true);
-            }
+            
         }
     }
 }

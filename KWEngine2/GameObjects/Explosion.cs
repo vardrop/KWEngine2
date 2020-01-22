@@ -102,11 +102,11 @@ namespace KWEngine2.GameObjects
             
             if(type == ExplosionType.Cube || type == ExplosionType.CubeRingY || type == ExplosionType.CubeRingZ)
             {
-                SetModel(KWEngine.GetModel("KWCube"));
+                SetModel("KWCube");
             }
             else
             {
-                SetModel(KWEngine.GetModel("KWSphere"));
+                SetModel("KWSphere");
             }
 
             Glow = glow;

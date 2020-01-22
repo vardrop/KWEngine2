@@ -61,7 +61,7 @@ namespace KWEngine2Test
             WorldDistance = 1000;
 
             Immovable corridorEntrance = new Immovable();
-            corridorEntrance.SetModel(KWEngine.GetModel("CorridorEntrance"));
+            corridorEntrance.SetModel("CorridorEntrance");
             corridorEntrance.SetPosition(-45, 0, 2);
             corridorEntrance.IsCollisionObject = true;
             corridorEntrance.IsShadowCaster = true;
@@ -70,7 +70,7 @@ namespace KWEngine2Test
             AddGameObject(corridorEntrance);
 
             Immovable corridorStraight1 = new Immovable();
-            corridorStraight1.SetModel(KWEngine.GetModel("CorridorStraight01"));
+            corridorStraight1.SetModel("CorridorStraight01");
             corridorStraight1.SetPosition(-60, 0, 0);
             corridorStraight1.IsCollisionObject = true;
             corridorStraight1.IsShadowCaster = true;
@@ -79,7 +79,7 @@ namespace KWEngine2Test
             AddGameObject(corridorStraight1);
 
             Immovable corridorStraight2 = new Immovable();
-            corridorStraight2.SetModel(KWEngine.GetModel("CorridorStraight01"));
+            corridorStraight2.SetModel("CorridorStraight01");
             corridorStraight2.SetPosition(-80, 0, 0);
             corridorStraight2.IsCollisionObject = true;
             corridorStraight2.IsShadowCaster = true;
@@ -88,7 +88,7 @@ namespace KWEngine2Test
             AddGameObject(corridorStraight2);
 
             Immovable corridorStraight3 = new Immovable();
-            corridorStraight3.SetModel(KWEngine.GetModel("CorridorStraight01"));
+            corridorStraight3.SetModel("CorridorStraight01");
             corridorStraight3.SetPosition(-100, 0, 0);
             corridorStraight3.IsCollisionObject = true;
             corridorStraight3.IsShadowCaster = true;
@@ -97,7 +97,7 @@ namespace KWEngine2Test
             AddGameObject(corridorStraight3);
 
             Immovable ship = new Immovable();
-            ship.SetModel(KWEngine.GetModel("Spaceship"));
+            ship.SetModel("Spaceship");
             ship.IsCollisionObject = true;
             ship.IsShadowCaster = true;
             ship.SetPosition(-35, 3.5f, -25);
@@ -107,7 +107,7 @@ namespace KWEngine2Test
             AddGameObject(ship);
 
             Immovable floor = new Immovable();
-            floor.SetModel(GetModel("Terrain"));
+            floor.SetModel("Terrain");
             floor.IsCollisionObject = true;
             floor.IsShadowCaster = true;
             floor.SetTexture(@".\textures\sand_normal.png", KWEngine.TextureType.Normal);
@@ -115,7 +115,7 @@ namespace KWEngine2Test
 
 
             Immovable wallLeft1 = new Immovable();
-            wallLeft1.SetModel(GetModel("KWCube"));
+            wallLeft1.SetModel("KWCube");
             wallLeft1.IsCollisionObject = true;
             wallLeft1.IsShadowCaster = true;
             wallLeft1.SetScale(2, 10, 38);
@@ -123,7 +123,7 @@ namespace KWEngine2Test
             AddGameObject(wallLeft1);
 
             Immovable wallLeft2 = new Immovable();
-            wallLeft2.SetModel(GetModel("KWCube"));
+            wallLeft2.SetModel("KWCube");
             wallLeft2.IsCollisionObject = true;
             wallLeft2.IsShadowCaster = true;
             wallLeft2.SetScale(2, 10, 34);
@@ -131,7 +131,7 @@ namespace KWEngine2Test
             AddGameObject(wallLeft2);
 
             Immovable wallRight = new Immovable();
-            wallRight.SetModel(GetModel("KWCube"));
+            wallRight.SetModel("KWCube");
             wallRight.IsCollisionObject = true;
             wallRight.IsShadowCaster = true;
             wallRight.SetScale(2, 10, 100);
@@ -139,7 +139,7 @@ namespace KWEngine2Test
             AddGameObject(wallRight);
 
             Immovable wallFront = new Immovable();
-            wallFront.SetModel(GetModel("KWCube"));
+            wallFront.SetModel("KWCube");
             wallFront.IsCollisionObject = true;
             wallFront.IsShadowCaster = true;
             wallFront.SetScale(100, 10, 2);
@@ -147,7 +147,7 @@ namespace KWEngine2Test
             AddGameObject(wallFront);
 
             Immovable wallBack = new Immovable();
-            wallBack.SetModel(GetModel("KWCube"));
+            wallBack.SetModel("KWCube");
             wallBack.IsCollisionObject = true;
             wallBack.IsShadowCaster = true;
             wallBack.SetScale(100, 10, 2);
@@ -155,7 +155,7 @@ namespace KWEngine2Test
             AddGameObject(wallBack);
 
             Player p = new Player();
-            p.SetModel(GetModel("Robot"));
+            p.SetModel("Robot");
             p.SetPosition(-25, 0f, -15);
             p.SetScale(4);
             p.AnimationID = 0;
@@ -175,14 +175,14 @@ namespace KWEngine2Test
             
             
             Immovable lab = new Immovable();
-            lab.SetModel(GetModel("Lab"));
+            lab.SetModel("Lab");
             lab.IsCollisionObject = true;
             lab.IsShadowCaster = true;
             lab.SetSpecularOverride(true, 0, 2048);
             AddGameObject(lab);
 
             Cube testCube = new Cube();
-            testCube.SetModel(GetModel("KWSphere"));
+            testCube.SetModel("KWSphere");
             testCube.SetScale(10);
             testCube.SetPosition(-5, 5, 0);
             testCube.SetSpecularOverride(true, 20, 1024);
@@ -190,7 +190,7 @@ namespace KWEngine2Test
             //AddGameObject(testCube);
 
             Panel panel = new Panel();
-            panel.SetModel(GetModel("Panel"));
+            panel.SetModel("Panel");
             panel.SetPosition(10, 0.25f, -5);
             panel.SetScale(3);
             panel.SetSpecularOverride(true, 2, 1024);
@@ -207,6 +207,11 @@ namespace KWEngine2Test
             pLight.SetTarget(10, 0, -5);
             pLight.SetDistanceMultiplier(2f);
             AddLightObject(pLight);
+
+            HUDObject ho = new HUDObject(HUDObjectType.Text, 24, 24);
+            ho.SetText("kwengine.de");
+            ho.SetGlow(1, 0, 0, 1);
+            AddHUDObject(ho);
         }
 
     }

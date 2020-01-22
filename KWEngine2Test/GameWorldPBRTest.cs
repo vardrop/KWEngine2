@@ -17,7 +17,7 @@ namespace KWEngine2Test
             KWEngine.LoadModelFromFile("PBR", @".\models\pbrtest\pbrtest.fbx");
 
             Immovable i = new Immovable();
-            i.SetModel(GetModel("PBR"));
+            i.SetModel("PBR");
             i.SetScale(5);
             AddGameObject(i);
         }
