@@ -42,9 +42,13 @@ namespace KWEngine2
             /// </summary>
             High, 
             /// <summary>
-            /// Niedrig (Standard)
+            /// Standard
             /// </summary>
-            Low };
+            Standard,
+            /// <summary>
+            /// Niedrig
+            /// </summary>
+            Low};
 
         internal static int TextureDefault = -1;
         internal static int TextureBlack = -1;
@@ -54,7 +58,7 @@ namespace KWEngine2
         /// <summary>
         /// Qualität der Post-Processing-Effekte (Glühen)
         /// </summary>
-        public static PostProcessingQuality PostProcessQuality { get; set; } = PostProcessingQuality.Low;
+        public static PostProcessingQuality PostProcessQuality { get; set; } = PostProcessingQuality.Standard;
 
         internal static Dictionary<ParticleType, ParticleInfo> ParticleDictionary = new Dictionary<ParticleType, ParticleInfo>();
 

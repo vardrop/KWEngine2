@@ -482,7 +482,9 @@ namespace KWEngine2
             RendererBloom r = (RendererBloom)KWEngine.Renderers["Bloom"];
             GL.UseProgram(r.GetProgramId());
 
-            int loopCount = KWEngine.PostProcessQuality == KWEngine.PostProcessingQuality.High ? 8 : 4; // must 2, 4, 6 or 8, but 4 will suffice
+            int loopCount = 
+                KWEngine.PostProcessQuality == KWEngine.PostProcessingQuality.High ? 6 :
+                KWEngine.PostProcessQuality == KWEngine.PostProcessingQuality.Standard ? 4 : 2; 
             int sourceTex; // this is the texture that the bloom will be read from
             for (int i = 0; i < loopCount; i++)
             {
