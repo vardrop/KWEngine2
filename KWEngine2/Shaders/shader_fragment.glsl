@@ -197,15 +197,15 @@ void main()
 	
 	float dotOutline = max(1.0 - 4.0 * pow(abs(dot(uCameraDirection, vNormal)), 2.0), 0.0) * uOutline.w;
 
-    color.x = finalColor.x + uOutline.x * dotOutline * 0.6;
-	color.y = finalColor.y + uOutline.y * dotOutline * 0.6;
-	color.z = finalColor.z + uOutline.z * dotOutline * 0.6;
+    color.x = finalColor.x + uOutline.x * dotOutline * 0.9;
+	color.y = finalColor.y + uOutline.y * dotOutline * 0.9;
+	color.z = finalColor.z + uOutline.z * dotOutline * 0.9;
 	color.w = uOpacity;
 
 	vec3 addedBloom = vec3(max(finalColor.x - 1.0, 0.0), max(finalColor.y - 1.0, 0.0), max(finalColor.z - 1.0, 0.0));
-	bloom.x = addedBloom.x + uGlow.x * uGlow.w + uOutline.x * dotOutline + emissive.x * 0.4;
-	bloom.y = addedBloom.y + uGlow.y * uGlow.w + uOutline.y * dotOutline + emissive.y * 0.4;
-	bloom.z = addedBloom.z + uGlow.z * uGlow.w + uOutline.z * dotOutline + emissive.z * 0.4;
+	bloom.x = addedBloom.x + uGlow.x * uGlow.w + uOutline.x * dotOutline * 0.1 + emissive.x * 0.5;
+	bloom.y = addedBloom.y + uGlow.y * uGlow.w + uOutline.y * dotOutline * 0.1 + emissive.y * 0.5;
+	bloom.z = addedBloom.z + uGlow.z * uGlow.w + uOutline.z * dotOutline * 0.1 + emissive.z * 0.5;
 	bloom.w = 1.0;
 
 

@@ -49,9 +49,8 @@ namespace KWEngine2Test
             
 
             KWEngine.BuildTerrainModel("Terrain", @".\textures\heightmap.png", @".\textures\sand_diffuse.png", 100, 2, 100, 5, 5);
-
-            KWEngine.ShadowMapCoefficient = 0.0005f;
             KWEngine.PostProcessQuality = KWEngine.PostProcessingQuality.High;
+            KWEngine.ShadowMapCoefficient = 0.0005f;
             FOVShadow = 25f;
             DebugShadowCaster = false;
             SetSunPosition(250, 250, -250);
