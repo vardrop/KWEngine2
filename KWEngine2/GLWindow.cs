@@ -34,6 +34,7 @@ namespace KWEngine2
         internal Matrix4 _viewMatrix = Matrix4.Identity;
         internal Matrix4 _modelViewProjectionMatrixBackground = Matrix4.Identity;
         internal Matrix4 _modelViewProjectionMatrixBloom = Matrix4.Identity;
+        internal Matrix4 _modelViewProjectionMatrixBloomMerge = Matrix4.Identity;
         internal Matrix4 _projectionMatrix = Matrix4.Identity;
         internal Matrix4 _projectionMatrixShadow = Matrix4.Identity;
         internal Matrix4 _projectionMatrixShadow2 = Matrix4.Identity;
@@ -476,7 +477,8 @@ namespace KWEngine2
             _projectionMatrixShadow = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(CurrentWorld != null ? CurrentWorld.FOVShadow / 2 : 45f),KWEngine.ShadowMapSize / (float)KWEngine.ShadowMapSize, 1f, CurrentWorld != null ? CurrentWorld.ZFar : 1000f);
             
 
-            _modelViewProjectionMatrixBloom = Matrix4.CreateScale(ClientSize.Width, ClientSize.Height, 1) * Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographic(ClientSize.Width, ClientSize.Height, 0.1f, 100f);
+            _modelViewProjectionMatrixBloom = Matrix4.CreateScale(ClientSize.Width / 2f, ClientSize.Height  / 2f, 1) * Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographic(ClientSize.Width / 2f, ClientSize.Height / 2f, 0.1f, 100f);
+            _modelViewProjectionMatrixBloomMerge = Matrix4.CreateScale(ClientSize.Width, ClientSize.Height, 1) * Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographic(ClientSize.Width, ClientSize.Height, 0.1f, 100f);
 
             _modelViewProjectionMatrixBackground = Matrix4.CreateScale(ClientSize.Width, ClientSize.Height, 1) * Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographic(ClientSize.Width, ClientSize.Height, 0.1f, 100f);
 
@@ -524,8 +526,9 @@ namespace KWEngine2
         private void ApplyBloom()
         {
             RendererBloom r = (RendererBloom)KWEngine.Renderers["Bloom"];
+            RendererMerge m = (RendererMerge)KWEngine.Renderers["Merge"];
             GL.UseProgram(r.GetProgramId());
-
+            GL.Viewport(0, 0, Width / 2, Height / 2);
             int loopCount = 
                 KWEngine.PostProcessQuality == KWEngine.PostProcessingQuality.High ? 6 :
                 KWEngine.PostProcessQuality == KWEngine.PostProcessingQuality.Standard ? 4 : 2; 
@@ -543,23 +546,23 @@ namespace KWEngine2
                 else
                 {
                     sourceTex = TextureBloom1;
-                    if (i == loopCount - 1) // last iteration
-                        GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0); // choose screen as output
-                    else
-                        GL.BindFramebuffer(FramebufferTarget.Framebuffer, FramebufferBloom2);
+                    GL.BindFramebuffer(FramebufferTarget.Framebuffer, FramebufferBloom2);
                 }
 
                 r.DrawBloom(
                     _bloomQuad,
                     ref _modelViewProjectionMatrixBloom,
                     i % 2 == 0,
-                    i == loopCount - 1,
-                    Width,
-                    Height,
-                    TextureMainFinal,
-                    sourceTex);
+                    Width / 2,
+                    Height / 2,
+                    sourceTex
+                );
             }
 
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+            GL.UseProgram(m.GetProgramId());
+            GL.Viewport(0, 0, Width, Height);
+            m.DrawMerge(_bloomQuad, ref _modelViewProjectionMatrixBloomMerge, TextureMainFinal, TextureBloom2);
             GL.UseProgram(0); // unload bloom shader program
         }
 
@@ -856,7 +859,7 @@ namespace KWEngine2
             renderedTextureTemp = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2D, renderedTextureTemp);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba,
-                Width, Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, IntPtr.Zero);
+                Width / 2, Height / 2, 0, PixelFormat.Bgra, PixelType.UnsignedByte, IntPtr.Zero);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.Linear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (float)TextureMinFilter.Linear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (float)TextureParameterName.ClampToEdge);
@@ -886,7 +889,7 @@ namespace KWEngine2
             int renderedTextureTemp2 = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2D, renderedTextureTemp2);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba,
-                Width, Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
+                Width / 2, Height / 2, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.Linear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (float)TextureMinFilter.Linear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (float)TextureParameterName.ClampToEdge);

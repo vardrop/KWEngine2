@@ -123,22 +123,28 @@ void main()
 	vec3 surfaceToCamera = normalize(uCameraPos - vPosition);
 	vec3 fragmentToSun = normalize(uSunPosition - vPosition);
 
+	float dotNormalLight = 1.0;
+	float darkeningAbsolute = 1.0;
+	float darkening = 1.0;
+
 	// Shadow mapping:
-	float dotNormalLight = max(dot(theNormal, uSunDirection), 0.0);								
-	float dotNormalLightShadow = max(dot(theNormal, fragmentToSun), 0.0);
-	float darkeningAbsolute = max(calculateDarkening(dotNormalLightShadow, vShadowCoord), 0.0);
-	float darkening = max(darkeningAbsolute, uSunAmbient);
+	if(uSunAffection > 0)
+	{
+		dotNormalLight = max(dot(theNormal, uSunDirection), 0.0);								
+		float dotNormalLightShadow = max(dot(vNormal, fragmentToSun), 0.0);
+		darkeningAbsolute = max(calculateDarkening(dotNormalLightShadow, vShadowCoord), 0.0);
+		darkening = max(darkeningAbsolute, uSunAmbient);
+	}
 	
 
 	// Shadow mapping 2:
 	float darkening2 = 1.0;
 	if(uShadowLightPosition >= 0)
 	{
-		float dotNormalLightShadow2 = max(dot(theNormal, normalize(uLightsPositions[uShadowLightPosition].xyz - vPosition)), 0.0);
+		float dotNormalLightShadow2 = max(dot(vNormal, normalize(uLightsPositions[uShadowLightPosition].xyz - vPosition)), 0.0);
 		float darkeningAbsolute2 = max(calculateDarkening2(dotNormalLightShadow2, vShadowCoord2), 0.0);
 		darkening2 = max(darkeningAbsolute2, uSunAmbient);
 	}
-	//darkening = max(darkening, darkening2);
 	
 	vec3 ambient = vec3(0.0);
 	vec3 totalSpecColor = vec3(0);

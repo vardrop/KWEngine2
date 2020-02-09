@@ -220,6 +220,7 @@ namespace KWEngine2
             Renderers.Add("Particle", new RendererParticle());
             Renderers.Add("Terrain", new RendererTerrain());
             Renderers.Add("HUD", new RendererHUD());
+            Renderers.Add("Merge", new RendererMerge());
 
             RendererSimple = new RendererSimple();
             RendererPBR = new RendererStandardPBR();

@@ -137,6 +137,7 @@
     <Compile Include="Model\SceneImporter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Renderers\Renderer.cs" />
+    <Compile Include="Renderers\RendererMerge.cs" />
     <Compile Include="Renderers\RendererHUD.cs" />
     <Compile Include="Renderers\RendererParticle.cs" />
     <Compile Include="Renderers\RendererSkybox.cs" />
@@ -189,6 +190,8 @@
     <EmbeddedResource Include="Shaders\shader_fragment_simple.glsl" />
     <EmbeddedResource Include="Shaders\shader_fragment_pbr.glsl" />
     <EmbeddedResource Include="Shaders\shader_vertex_pbr.glsl" />
+    <EmbeddedResource Include="Shaders\shader_fragment_merge.glsl" />
+    <EmbeddedResource Include="Shaders\shader_vertex_merge.glsl" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

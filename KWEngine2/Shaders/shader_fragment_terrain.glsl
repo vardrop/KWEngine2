@@ -102,10 +102,16 @@ void main()
 	vec3 fragmentToSun = normalize(uSunPosition - vPosition);
 
 	// Shadow mapping:
-	float dotNormalLight = max(dot(theNormal, uSunDirection), 0.0);								
-	float dotNormalLightShadow = max(dot(vNormal, fragmentToSun), 0.0);
-	float darkeningAbsolute = max(calculateDarkening(dotNormalLightShadow, vShadowCoord), 0.0);
-	float darkening = max(darkeningAbsolute, uSunAmbient);
+	float darkening = 1.0;
+	float darkeningAbsolute = 1.0;
+	float dotNormalLight = 1.0;
+	if(uSunAffection > 0)
+	{
+		dotNormalLight = max(dot(theNormal, uSunDirection), 0.0);								
+		float dotNormalLightShadow = max(dot(vNormal, fragmentToSun), 0.0);
+		darkeningAbsolute = max(calculateDarkening(dotNormalLightShadow, vShadowCoord), 0.0);
+		darkening = max(darkeningAbsolute, uSunAmbient);
+	}
 	
 	// Shadow mapping 2:
 	float darkening2 = 1.0;

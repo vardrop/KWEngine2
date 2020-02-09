@@ -10,12 +10,12 @@ using System.Reflection;
 
 namespace KWEngine2.Renderers
 {
-    internal sealed class RendererBloom : Renderer
+    internal sealed class RendererMerge : Renderer
     {
         private int mUniform_TextureBloom = -1;
-        private int mUniform_Horizontal = -1;
+        private int mUniform_TextureScene = -1;
 
-        internal void DrawBloom(GeoModel quad, ref Matrix4 mvp, bool bloomDirectionHorizontal, int width, int height, int bloomTexture)
+        internal void DrawMerge(GeoModel quad, ref Matrix4 mvp, int sceneTexture, int bloomTexture)
         {
             GL.UniformMatrix4(mUniform_MVP, false, ref mvp);
 
@@ -23,24 +23,26 @@ namespace KWEngine2.Renderers
             GL.BindTexture(TextureTarget.Texture2D, bloomTexture);
             GL.Uniform1(mUniform_TextureBloom, 0);
 
-            GL.Uniform1(mUniform_Horizontal, bloomDirectionHorizontal ? 1 : 0);
-            GL.Uniform2(mUniform_Resolution, height / 500000f, width / 500000f);
+            GL.ActiveTexture(TextureUnit.Texture1);
+            GL.BindTexture(TextureTarget.Texture2D, sceneTexture);
+            GL.Uniform1(mUniform_TextureScene, 1);
 
             GL.BindVertexArray(quad.Meshes.Values.ElementAt(0).VAO);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, quad.Meshes.Values.ElementAt(0).VBOIndex);
             GL.DrawElements(quad.Meshes.Values.ElementAt(0).Primitive, quad.Meshes.Values.ElementAt(0).IndexCount, DrawElementsType.UnsignedInt, 0);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
             GL.BindVertexArray(0);
+
             GL.BindTexture(TextureTarget.Texture2D, 0);
         }
 
         public override void Initialize()
         {
-            Name = "Bloom";
+            Name = "Merge";
 
             Assembly assembly = Assembly.GetExecutingAssembly();
-            string resourceNameVertexShader = "KWEngine2.Shaders.shader_vertex_bloom.glsl";
-            string resourceNameFragmentShader = "KWEngine2.Shaders.shader_fragment_bloom.glsl";
+            string resourceNameVertexShader = "KWEngine2.Shaders.shader_vertex_merge.glsl";
+            string resourceNameFragmentShader = "KWEngine2.Shaders.shader_fragment_merge.glsl";
 
             mProgramId = GL.CreateProgram();
             using (Stream s = assembly.GetManifestResourceStream(resourceNameVertexShader))
@@ -74,9 +76,8 @@ namespace KWEngine2.Renderers
             mAttribute_vtexture = GL.GetAttribLocation(mProgramId, "aTexture");
 
             mUniform_MVP = GL.GetUniformLocation(mProgramId, "uMVP");
+            mUniform_TextureScene = GL.GetUniformLocation(mProgramId, "uTextureScene");
             mUniform_TextureBloom = GL.GetUniformLocation(mProgramId, "uTextureBloom");
-            mUniform_Horizontal = GL.GetUniformLocation(mProgramId, "uHorizontal");
-            mUniform_Resolution = GL.GetUniformLocation(mProgramId, "uResolution");
         }
 
         internal override void Draw(GameObject g, ref Matrix4 viewProjection)
