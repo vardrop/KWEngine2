@@ -345,13 +345,13 @@ namespace KWEngine2
             }
             set
             {
-                if(value >= 256 && value <= 8192)
+                if(value >= 512 && value <= 8192)
                 {
                     _shadowMapSize = HelperTexture.RoundToPowerOf2(value);
                 }
                 else
                 {
-                    Debug.WriteLine("Cannot set shadow map to a size < 256 or > 8192. Resetting it to 4096.");
+                    Debug.WriteLine("Cannot set shadow map to a size < 512 or > 8192. Resetting it to 4096.");
                     _shadowMapSize = 4096;
                 }
                 GLWindow.CurrentWindow.InitializeFramebuffers();

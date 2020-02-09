@@ -598,7 +598,7 @@ namespace KWEngine2
                         GL.DeleteTextures(9, new int[] { TextureMainDepth, TextureMain, TextureShadowMap, TextureShadowMap2, TextureBloom1, TextureBloom2, TextureMainFinal, TextureBloomFinal, TextureBloom });
                         GL.DeleteFramebuffers(6, new int[] { FramebufferShadowMap, FramebufferShadowMap2, FramebufferBloom1, FramebufferBloom2, FramebufferMainMultisample, FramebufferMainFinal, });
 
-                        Thread.Sleep(250);
+                        Thread.Sleep(150);
                     }
 
                     InitFramebufferOriginal();

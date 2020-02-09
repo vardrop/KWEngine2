@@ -47,15 +47,14 @@ namespace KWEngine2Test
             KWEngine.LoadModelFromFile("CorridorStraight01", @".\models\corridors\corridorStraight01_NoRoof.fbx");
             KWEngine.LoadModelFromFile("Spaceship", @".\models\spaceship\spaceship4.obj");
 
-
-
             KWEngine.BuildTerrainModel("Terrain", @".\textures\heightmap.png", @".\textures\sand_diffuse.png", 100, 2, 100, 5, 5);
-            KWEngine.PostProcessQuality = KWEngine.PostProcessingQuality.High;
+            KWEngine.PostProcessQuality = KWEngine.PostProcessingQuality.Standard;
             KWEngine.ShadowMapCoefficient = 0.0005f;
-            FOVShadow = 25f;
+            FOVShadow = 40f;
             //DebugShadowCaster = true;
             SetSunPosition(250, 250, -250);
             SetSunColor(0.25f, 0.5f, 1, 0.75f);
+
             SunAmbientFactor = 0.2f;
             SetCameraPosition(100, 100, 100);
             WorldDistance = 1000;
