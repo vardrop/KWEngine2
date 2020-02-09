@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using KWEngine2.Helper;
 using OpenTK;
 using OpenTK.Input;
 
@@ -16,7 +17,12 @@ namespace KWEngine2.GameObjects
         /// <summary>
         /// Gerichtetes Licht
         /// </summary>
-        Directional };
+        Directional,
+        /// <summary>
+        /// Schattenwerfendes Licht
+        /// </summary>
+        DirectionalShadow
+    };
 
     /// <summary>
     /// Lichtklasse
@@ -33,6 +39,8 @@ namespace KWEngine2.GameObjects
         public LightType Type { get; set; }
         private Vector4 Color { get; set; }
         internal World World { get; set; }
+        internal float FOVShadow2 { get; set; } = 60f;
+        internal float ShadowMapBiasCoefficient = 0.005f;
 
         /// <summary>
         /// Aktuelle Welt
@@ -82,6 +90,7 @@ namespace KWEngine2.GameObjects
             Color = new Vector4(1, 1, 1, 1);
             Type = LightType.Point;
             DistanceMultiplier = 10;
+            SetFOVShadowPrivate(180);
         }
 
         /// <summary>
@@ -159,7 +168,40 @@ namespace KWEngine2.GameObjects
             Target = target;
         }
 
-        internal static void PrepareLightsForRenderPass(IReadOnlyCollection<LightObject> lights, ref float[] colors, ref float[] targets, ref float[] positions, ref int count)
+        private void SetFOVShadowPrivate(float fov)
+        {
+            FOVShadow2 = HelperGL.Clamp(fov, 60, 179);
+            if(KWEngine.CurrentWorld != null)
+            {
+                KWEngine.CurrentWindow._projectionMatrixShadow2 = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(FOVShadow2 / 2), KWEngine.ShadowMapSize / (float)KWEngine.ShadowMapSize, 1f, CurrentWorld != null ? CurrentWorld.ZFar / 10 : 100f);
+            }
+        }
+
+        public void SetFOVShadow(float fov)
+        {
+            if (Type != LightType.DirectionalShadow)
+                throw new Exception("Cannot set FOV for a LightObject that is not of Type 'DirectionalShadow'.");
+            else
+            {
+                FOVShadow2 = HelperGL.Clamp(fov, 60, 179);
+                if (KWEngine.CurrentWorld != null)
+                {
+                    KWEngine.CurrentWindow._projectionMatrixShadow2 = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(FOVShadow2 / 2), KWEngine.ShadowMapSize / (float)KWEngine.ShadowMapSize, 1f, CurrentWorld != null ? CurrentWorld.ZFar / 10 : 100f);
+                }
+            }
+        }
+
+        public void SetFOVShadowBiasCoefficient(float bias = 0.005f)
+        {
+            if (Type != LightType.DirectionalShadow)
+                throw new Exception("Cannot set FOV for a LightObject that is not of Type 'DirectionalShadow'.");
+            else
+            {
+                ShadowMapBiasCoefficient = HelperGL.Clamp(bias, 0.00001f, 1);
+            }
+        }
+
+        internal static void PrepareLightsForRenderPass(IReadOnlyCollection<LightObject> lights, ref float[] colors, ref float[] targets, ref float[] positions, ref int count, ref int shadowLight)
         {
             count = lights.Count;
             IEnumerator<LightObject> enumerator = lights.GetEnumerator();
@@ -168,6 +210,12 @@ namespace KWEngine2.GameObjects
             {
                 enumerator.MoveNext();
                 LightObject l = enumerator.Current;
+
+                if(l.Type == LightType.DirectionalShadow)
+                {
+                    shadowLight = i;
+                }
+
                 colors[arraycounter + 0] = l.Color.X;
                 colors[arraycounter + 1] = l.Color.Y;
                 colors[arraycounter + 2] = l.Color.Z;
@@ -176,7 +224,7 @@ namespace KWEngine2.GameObjects
                 targets[arraycounter + 0] = l.Target.X;
                 targets[arraycounter + 1] = l.Target.Y;
                 targets[arraycounter + 2] = l.Target.Z;
-                targets[arraycounter + 3] = l.Type == LightType.Directional ? 1 : -1;
+                targets[arraycounter + 3] = l.Type == LightType.Directional || l.Type == LightType.DirectionalShadow ? 1 : -1;
 
                 positions[arraycounter + 0] = l.Position.X;
                 positions[arraycounter + 1] = l.Position.Y;

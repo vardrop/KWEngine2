@@ -77,9 +77,7 @@ namespace KWEngine2.Helper
             Matrix4 viewMatrix = GetViewMatrix(mCurrentGameObject.Position);
 
             Vector3 forwardVector = new Vector3(viewMatrix.M13, 0f, viewMatrix.M33);
-            forwardVector.NormalizeFast();
             Vector3 strafeVector = new Vector3(viewMatrix.M11, 0f, viewMatrix.M31);
-            strafeVector.NormalizeFast();
             Vector3 relativeChange = -forward * forwardVector + sides * strafeVector;
             relativeChange.NormalizeFast();
 
@@ -101,10 +99,7 @@ namespace KWEngine2.Helper
 
             // In order to speed things up, we directly get the values from the view matrix' cells:
             forwardVector = new Vector3(viewMatrix.M13, viewMatrix.M23, viewMatrix.M33);
-            forwardVector.NormalizeFast();
             strafeVector = new Vector3(viewMatrix.M11, viewMatrix.M21, viewMatrix.M31);
-            strafeVector.NormalizeFast();
-
 
             Vector3 relativeChange = -forward * forwardVector + sides * strafeVector;
             relativeChange.NormalizeFast();
@@ -121,7 +116,6 @@ namespace KWEngine2.Helper
         {
             mCurrentGameObject = fpsObject;
             rotation.ToAxisAngle(out Vector3 yAxis, out float angle);
-            //mOrientation.X = (angle + (float)Math.PI / 2) % ((float)Math.PI * 2);
             mOrientation.X = angle % ((float)Math.PI * 2);
             mOrientation.Y = 0;
             mOrientation.Z = 0;

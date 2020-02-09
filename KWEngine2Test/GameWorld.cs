@@ -46,13 +46,14 @@ namespace KWEngine2Test
             KWEngine.LoadModelFromFile("CorridorEntrance", @".\models\corridors\corridorEntrance01.fbx");
             KWEngine.LoadModelFromFile("CorridorStraight01", @".\models\corridors\corridorStraight01_NoRoof.fbx");
             KWEngine.LoadModelFromFile("Spaceship", @".\models\spaceship\spaceship4.obj");
-            
+
+
 
             KWEngine.BuildTerrainModel("Terrain", @".\textures\heightmap.png", @".\textures\sand_diffuse.png", 100, 2, 100, 5, 5);
             KWEngine.PostProcessQuality = KWEngine.PostProcessingQuality.High;
             KWEngine.ShadowMapCoefficient = 0.0005f;
             FOVShadow = 25f;
-            DebugShadowCaster = false;
+            //DebugShadowCaster = true;
             SetSunPosition(250, 250, -250);
             SetSunColor(0.25f, 0.5f, 1, 0.75f);
             SunAmbientFactor = 0.2f;
@@ -167,10 +168,15 @@ namespace KWEngine2Test
             //SetFirstPersonObject(p);
 
             p._flashlight = new Flashlight();
-            p._flashlight.Type = LightType.Directional;
+            p._flashlight.Type = LightType.DirectionalShadow;
             p._flashlight.SetDistanceMultiplier(2);
             p._flashlight.SetColor(1, 0.75f, 0, 1);
+            p._flashlight.SetFOVShadow(180);
             AddLightObject(p._flashlight);
+
+            //Flashlight lo2 = new Flashlight();
+            //lo2.Type = LightType.DirectionalShadow;
+            //AddLightObject(lo2);
             
             
             Immovable lab = new Immovable();

@@ -12,11 +12,13 @@ out		vec2 vTexture;
 out		vec2 vTextureNoRepetitions;
 out		mat3 vTBN;
 out		vec4 vShadowCoord;
+out		vec4 vShadowCoord2;
 
 uniform mat4 uMVP;
 uniform mat4 uNormalMatrix;
 uniform mat4 uModelMatrix;
 uniform mat4 uMVPShadowMap;
+uniform mat4 uMVPShadowMap2;
 uniform vec2 uTextureTransform;
 
 void main()
@@ -44,6 +46,7 @@ void main()
 	vTextureNoRepetitions = aTexture;
 	vPosition = (uModelMatrix * totalLocalPos).xyz;
 	vShadowCoord = uMVPShadowMap * totalLocalPos;
+	vShadowCoord2 = uMVPShadowMap2 * totalLocalPos;
 	vTBN = mat3(vTangent.xyz, vBiTangent.xyz, vNormal.xyz);
 	
 	gl_Position = uMVP * totalLocalPos;

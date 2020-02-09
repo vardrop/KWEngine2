@@ -66,11 +66,6 @@ namespace KWEngine2.Renderers
             throw new NotImplementedException();
         }
 
-        internal override void Draw(GameObject g, ref Matrix4 viewProjection, ref Matrix4 viewProjectionShadow, HelperFrustum frustum, ref float[] lightColors, ref float[] lightTargets, ref float[] lightPositions, int lightCount)
-        {
-            throw new NotImplementedException();
-        }
-
         internal override void Draw(GameObject g, ref Matrix4 viewProjection)
         {
             
@@ -111,6 +106,11 @@ namespace KWEngine2.Renderers
 
             GL.UseProgram(0);
 
+        }
+
+        internal override void Draw(GameObject g, ref Matrix4 viewProjection, ref Matrix4 viewProjectionShadow, ref Matrix4 viewProjectionShadow2, HelperFrustum frustum, ref float[] lightColors, ref float[] lightTargets, ref float[] lightPositions, int lightCount, ref int lightShadow)
+        {
+            throw new NotImplementedException();
         }
     }
 }

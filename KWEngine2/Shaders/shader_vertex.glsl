@@ -15,6 +15,7 @@ out		vec2 vTexture;
 out		vec2 vTexture2;
 out		mat3 vTBN;
 out		vec4 vShadowCoord;
+out		vec4 vShadowCoord2;
 
 uniform mat4 uMVP;
 uniform mat4 uBoneTransforms[96];
@@ -22,6 +23,7 @@ uniform int uUseAnimations;
 uniform mat4 uNormalMatrix;
 uniform mat4 uModelMatrix;
 uniform mat4 uMVPShadowMap;
+uniform mat4 uMVPShadowMap2;
 uniform vec2 uTextureTransform;
 
 mat4 identity = mat4(1.0);
@@ -68,6 +70,7 @@ void main()
 	vTexture2 = aTexture2 * uTextureTransform;
 	vPosition = (uModelMatrix * totalLocalPos).xyz;
 	vShadowCoord = uMVPShadowMap * totalLocalPos;
+	vShadowCoord2 = uMVPShadowMap2 * totalLocalPos;
 	vTBN = mat3(vTangent.xyz, vBiTangent.xyz, vNormal.xyz);
 	
 	gl_Position = uMVP * totalLocalPos;

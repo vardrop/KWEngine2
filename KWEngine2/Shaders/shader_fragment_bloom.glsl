@@ -10,8 +10,6 @@ uniform vec2 uResolution;
 
 out		vec4 color;
 
-//float weight[11] = float[] (0.4, 0.2, 0.10, 0.075, 0.05, 0.03, 0.01 , 0.0075, 0.005, 0.0025, 0.001 );
-//float weight[8] = float[] (0.4, 0.2, 0.10, 0.075, 0.05, 0.03, 0.01 , 0.0075 );
 float weight[5] = float[] (0.4, 0.25, 0.12, 0.08, 0.02);
 
 

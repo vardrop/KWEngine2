@@ -59,6 +59,12 @@ namespace KWEngine2Test.Objects
             else
             {
                 TurnTowardsXZ(GetMouseIntersectionPoint(ms, Plane.Y));
+                /*
+                if (ks[Key.Q])
+                    AddRotationY(1f);
+                if (ks[Key.E])
+                    AddRotationY(-1f);
+                */
                 Vector3 cameraLookAt = GetCameraLookAtVector();
                 cameraLookAt.Y = 0;
                 cameraLookAt.NormalizeFast();
@@ -88,7 +94,7 @@ namespace KWEngine2Test.Objects
 
                 if (ks[Key.T])
                     MoveOffset(0, -0.1f, 0);
-
+                
                 if (ks[Key.Q])
                 {
                     _height += 0.5f;
@@ -97,6 +103,7 @@ namespace KWEngine2Test.Objects
                 {
                     _height -= 0.5f;
                 }
+                
                 Vector3 camPos = this.Position + new Vector3(50, _height, 50);
                 camPos.Y = _height;
                 CurrentWorld.SetCameraPosition(camPos);
@@ -136,9 +143,10 @@ namespace KWEngine2Test.Objects
             AdjustFlashlight();
             AdjustAnimation(runs);
 
-           
 
-            
+
+            //if (ks[Key.Space])
+            //    CurrentWorld.DebugShadowCaster = !CurrentWorld.DebugShadowCaster;
         }
 
         private void AdjustAnimation(bool runs)
@@ -158,12 +166,12 @@ namespace KWEngine2Test.Objects
                 Vector3 lookAt = GetLookAtVector();
                 Vector3 middle = this.GetCenterPointForAllHitboxes();
                 middle.Y += Scale.Y / 3f;
-                Vector3 source = middle + lookAt * 1f;
+                Vector3 source = middle + lookAt * 0.7f;
                 _flashlight.SetPosition(source);
-                if (_flashlight.Type == LightType.Directional)
+                if (_flashlight.Type == LightType.Directional || _flashlight.Type == LightType.DirectionalShadow)
                 {
-                    lookAt.Y = lookAt.Y - 0.5f;
-                    _flashlight.SetTarget(middle + lookAt * 2.5f);
+                    lookAt.Y = lookAt.Y - 0.075f;
+                    _flashlight.SetTarget(middle + lookAt * 0.8f);
                 }
             }
         }

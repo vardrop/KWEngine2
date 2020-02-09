@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
+using System.Linq;
 using KWEngine2.Audio;
 using KWEngine2.GameObjects;
 using KWEngine2.Helper;
@@ -35,6 +36,7 @@ namespace KWEngine2
         internal Matrix4 _modelViewProjectionMatrixBloom = Matrix4.Identity;
         internal Matrix4 _projectionMatrix = Matrix4.Identity;
         internal Matrix4 _projectionMatrixShadow = Matrix4.Identity;
+        internal Matrix4 _projectionMatrixShadow2 = Matrix4.Identity;
         internal Matrix4 _viewProjectionMatrixHUD = Matrix4.Identity;
 
         internal static float[] LightColors = new float[KWEngine.MAX_LIGHTS * 4];
@@ -43,6 +45,7 @@ namespace KWEngine2
 
         internal HelperFrustum Frustum = new HelperFrustum();
         internal HelperFrustum FrustumShadowMap = new HelperFrustum();
+        internal HelperFrustum FrustumShadowMap2 = new HelperFrustum();
 
         internal System.Drawing.Rectangle _windowRect;
         internal System.Drawing.Point _mousePoint = new System.Drawing.Point(0, 0);
@@ -176,9 +179,20 @@ namespace KWEngine2
                 
                 lock (CurrentWorld)
                 {
+                    int shadowLight = -1;
+                    LightObject.PrepareLightsForRenderPass(CurrentWorld.GetLightObjects(), ref LightColors, ref LightTargets, ref LightPositions, ref CurrentWorld._lightcount, ref shadowLight);
+
                     if (CurrentWorld.DebugShadowCaster)
                     {
-                        _viewMatrix = Matrix4.LookAt(CurrentWorld.GetSunPosition(), CurrentWorld.GetSunTarget(), KWEngine.WorldUp);
+                        if (shadowLight >= 0)
+                        {
+                            LightObject sLight = CurrentWorld.GetLightObjects().ElementAt(shadowLight);
+                            _viewMatrix = Matrix4.LookAt(sLight.Position, sLight.Target, KWEngine.WorldUp);
+                        }
+                        else
+                        {
+                            _viewMatrix = Matrix4.LookAt(CurrentWorld.GetSunPosition(), CurrentWorld.GetSunTarget(), KWEngine.WorldUp);
+                        }
                     }
                     else { 
                         if (CurrentWorld.IsFirstPersonMode)
@@ -189,20 +203,25 @@ namespace KWEngine2
                     Matrix4 viewProjection;
                     if (CurrentWorld.DebugShadowCaster)
                     {
-                        viewProjection = _viewMatrix * _projectionMatrixShadow;
+                        if (shadowLight >= 0)
+                            viewProjection = _viewMatrix * _projectionMatrixShadow2;
+                        else
+                            viewProjection = _viewMatrix * _projectionMatrixShadow;
                     }
                     else
                     {
                         viewProjection = _viewMatrix * _projectionMatrix;
                     }
 
-                    
 
+                    
                     Matrix4 viewMatrixShadow = Matrix4.LookAt(CurrentWorld.GetSunPosition(), CurrentWorld.GetSunTarget(), KWEngine.WorldUp);
                     Matrix4 viewProjectionShadow = viewMatrixShadow * _projectionMatrixShadow;
+                    Matrix4 viewProjectionShadow2 = Matrix4.Identity;
 
                     Frustum.CalculateFrustum(_projectionMatrix, _viewMatrix);
                     FrustumShadowMap.CalculateFrustum(_projectionMatrixShadow, viewMatrixShadow);
+                    
 
                     
 
@@ -211,12 +230,35 @@ namespace KWEngine2
                     GL.UseProgram(KWEngine.Renderers["Shadow"].GetProgramId());
                     lock (CurrentWorld._gameObjects)
                     {
+                        
                         foreach (GameObject g in CurrentWorld.GetGameObjects())
                         {
                             KWEngine.Renderers["Shadow"].Draw(g, ref viewProjectionShadow, FrustumShadowMap);
                         }
                     }
                     GL.UseProgram(0);
+
+                    Matrix4 viewMatrixShadow2 = Matrix4.Identity;
+                    if (shadowLight >= 0)
+                    {
+                        LightObject sLight = CurrentWorld.GetLightObjects().ElementAt(shadowLight);
+                        viewMatrixShadow2 = Matrix4.LookAt(sLight.Position, sLight.Target, KWEngine.WorldUp);
+                        FrustumShadowMap2.CalculateFrustum(_projectionMatrixShadow2, viewMatrixShadow2);
+
+                        SwitchToBufferAndClear(FramebufferShadowMap2);
+                        GL.Viewport(0, 0, KWEngine.ShadowMapSize, KWEngine.ShadowMapSize);
+                        GL.UseProgram(KWEngine.Renderers["Shadow"].GetProgramId());
+                        viewProjectionShadow2 = viewMatrixShadow2 * _projectionMatrixShadow2;
+                        lock (CurrentWorld._gameObjects)
+                        {
+                            foreach (GameObject g in CurrentWorld.GetGameObjects())
+                            {
+                                KWEngine.Renderers["Shadow"].Draw(g, ref viewProjectionShadow2, FrustumShadowMap2);
+                            }
+                        }
+                        GL.UseProgram(0);
+
+                    }
 
                     SwitchToBufferAndClear(FramebufferMainMultisample);
                     GL.Viewport(ClientRectangle);
@@ -240,9 +282,10 @@ namespace KWEngine2
 
 
                     Matrix4 viewProjectionShadowBiased = viewProjectionShadow * HelperMatrix.BiasedMatrixForShadowMapping;
+                    Matrix4 viewProjectionShadowBiased2 = viewProjectionShadow2 * HelperMatrix.BiasedMatrixForShadowMapping;
+
                     lock (CurrentWorld._gameObjects)
                     {
-                        LightObject.PrepareLightsForRenderPass(CurrentWorld.GetLightObjects(), ref LightColors, ref LightTargets, ref LightPositions, ref CurrentWorld._lightcount);
                         foreach (GameObject g in CurrentWorld.GetGameObjects())
                         {
                             if (g.CurrentWorld.IsFirstPersonMode && g.CurrentWorld.GetFirstPersonObject().Equals(g))
@@ -253,11 +296,11 @@ namespace KWEngine2
                             }
                             else if (g.Model.IsTerrain)
                             {
-                                KWEngine.Renderers["Terrain"].Draw(g, ref viewProjection, ref viewProjectionShadowBiased, Frustum, ref LightColors, ref LightTargets, ref LightPositions, CurrentWorld._lightcount);
+                                KWEngine.Renderers["Terrain"].Draw(g, ref viewProjection, ref viewProjectionShadowBiased, ref viewProjectionShadowBiased2, Frustum, ref LightColors, ref LightTargets, ref LightPositions, CurrentWorld._lightcount, ref shadowLight);
                             }
                             else
                             {
-                                KWEngine.Renderers["Standard"].Draw(g, ref viewProjection, ref viewProjectionShadowBiased, Frustum, ref LightColors, ref LightTargets, ref LightPositions, CurrentWorld._lightcount);
+                                KWEngine.Renderers["Standard"].Draw(g, ref viewProjection, ref viewProjectionShadowBiased, ref viewProjectionShadowBiased2, Frustum, ref LightColors, ref LightTargets, ref LightPositions, CurrentWorld._lightcount, ref shadowLight);
                             }
                         }
                     }
@@ -430,7 +473,8 @@ namespace KWEngine2
         internal void CalculateProjectionMatrix()
         {
             _projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(CurrentWorld != null ? CurrentWorld.FOV / 2: 45f), ClientSize.Width / (float)ClientSize.Height, 0.1f, CurrentWorld != null ? CurrentWorld.ZFar : 1000f);
-            _projectionMatrixShadow = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(CurrentWorld != null ? CurrentWorld.FOVShadow / 2 : 45f), ClientSize.Width / (float)ClientSize.Height, 1f, CurrentWorld != null ? CurrentWorld.ZFar : 1000f);
+            _projectionMatrixShadow = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(CurrentWorld != null ? CurrentWorld.FOVShadow / 2 : 45f),KWEngine.ShadowMapSize / (float)KWEngine.ShadowMapSize, 1f, CurrentWorld != null ? CurrentWorld.ZFar : 1000f);
+            
 
             _modelViewProjectionMatrixBloom = Matrix4.CreateScale(ClientSize.Width, ClientSize.Height, 1) * Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographic(ClientSize.Width, ClientSize.Height, 0.1f, 100f);
 
@@ -522,12 +566,14 @@ namespace KWEngine2
         #region Framebuffers
 
         internal int FramebufferShadowMap = -1;
+        internal int FramebufferShadowMap2 = -1;
         internal int FramebufferBloom1 = -1;
         internal int FramebufferBloom2 = -1;
         internal int FramebufferMainMultisample = -1;
         internal int FramebufferMainFinal = -1;
 
         internal int TextureShadowMap = -1;
+        internal int TextureShadowMap2 = -1;
         internal int TextureMain = -1;
         internal int TextureMainDepth = -1;
         internal int TextureBloom = -1;
@@ -546,8 +592,8 @@ namespace KWEngine2
                 {
                     if (TextureMain >= 0)
                     {
-                        GL.DeleteTextures(8, new int[] { TextureMainDepth, TextureMain, TextureShadowMap, TextureBloom1, TextureBloom2, TextureMainFinal, TextureBloomFinal, TextureBloom });
-                        GL.DeleteFramebuffers(5, new int[] { FramebufferShadowMap, FramebufferBloom1, FramebufferBloom2, FramebufferMainMultisample, FramebufferMainFinal, });
+                        GL.DeleteTextures(9, new int[] { TextureMainDepth, TextureMain, TextureShadowMap, TextureShadowMap2, TextureBloom1, TextureBloom2, TextureMainFinal, TextureBloomFinal, TextureBloom });
+                        GL.DeleteFramebuffers(6, new int[] { FramebufferShadowMap, FramebufferShadowMap2, FramebufferBloom1, FramebufferBloom2, FramebufferMainMultisample, FramebufferMainFinal, });
 
                         Thread.Sleep(250);
                     }
@@ -555,6 +601,7 @@ namespace KWEngine2
                     InitFramebufferOriginal();
                     InitFramebufferOriginalDownsampled();
                     InitFramebufferShadowMap();
+                    InitFramebufferShadowMap2();
                     InitFramebufferBloom();
                 }
                 catch (Exception)
@@ -616,6 +663,45 @@ namespace KWEngine2
             {
                 FramebufferShadowMap = framebufferId;
                 TextureShadowMap = depthTexId;
+            }
+        }
+
+        private void InitFramebufferShadowMap2()
+        {
+            int framebufferId = -1;
+            int depthTexId = -1;
+
+            framebufferId = GL.GenFramebuffer();
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebufferId);
+
+            depthTexId = GL.GenTexture();
+            GL.BindTexture(TextureTarget.Texture2D, depthTexId);
+
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent32,
+                KWEngine.ShadowMapSize, KWEngine.ShadowMapSize, 0, PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
+
+            GL.TexParameterI(TextureTarget.Texture2D, TextureParameterName.TextureCompareMode, new int[] { (int)TextureCompareMode.CompareRefToTexture });
+            GL.TexParameterI(TextureTarget.Texture2D, TextureParameterName.TextureCompareFunc, new int[] { (int)DepthFunction.Lequal });
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (float)TextureMinFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBorderColor, new float[] { 1, 1, 1, 1 });
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (float)TextureParameterName.ClampToBorder);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (float)TextureParameterName.ClampToBorder);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapR, (float)TextureParameterName.ClampToBorder);
+
+            GL.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, depthTexId, 0);
+            GL.DrawBuffer(DrawBufferMode.None);
+            GL.ReadBuffer(ReadBufferMode.None);
+
+            FramebufferErrorCode code = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
+            if (code != FramebufferErrorCode.FramebufferComplete)
+            {
+                throw new Exception("GL_FRAMEBUFFER_COMPLETE failed. Cannot use FrameBuffer object.");
+            }
+            else
+            {
+                FramebufferShadowMap2 = framebufferId;
+                TextureShadowMap2 = depthTexId;
             }
         }
 

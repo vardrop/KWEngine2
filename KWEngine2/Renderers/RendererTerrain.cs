@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Linq;
 using static KWEngine2.KWEngine;
 
 namespace KWEngine2.Renderers
@@ -113,9 +114,15 @@ namespace KWEngine2.Renderers
             mUniform_LightCount = GL.GetUniformLocation(mProgramId, "uLightCount");
 
             mUniform_TextureTransform = GL.GetUniformLocation(mProgramId, "uTextureTransform");
+
+            // 2nd shadow map:
+            mUniform_MVPShadowMap2 = GL.GetUniformLocation(mProgramId, "uMVPShadowMap2");
+            mUniform_TextureShadowMap2 = GL.GetUniformLocation(mProgramId, "uTextureShadowMap2");
+            mUniform_ShadowLightPosition = GL.GetUniformLocation(mProgramId, "uShadowLightPosition");
+            mUniform_BiasCoefficient2 = GL.GetUniformLocation(mProgramId, "uBiasCoefficient2");
         }
 
-        internal override void Draw(GameObject g, ref Matrix4 viewProjection, ref Matrix4 viewProjectionShadowBiased, HelperFrustum frustum, ref float[] lightColors, ref float[] lightTargets, ref float[] lightPositions, int lightCount)
+        internal override void Draw(GameObject g, ref Matrix4 viewProjection, ref Matrix4 viewProjectionShadowBiased, ref Matrix4 viewProjectionShadowBiased2, HelperFrustum frustum, ref float[] lightColors, ref float[] lightTargets, ref float[] lightPositions, int lightCount, ref int lightShadow)
         {
             if (g == null || !g.HasModel || g.CurrentWorld == null || g.Opacity <= 0)
                 return;
@@ -168,21 +175,37 @@ namespace KWEngine2.Renderers
                 GL.BindTexture(TextureTarget.Texture2D, GLWindow.CurrentWindow.TextureShadowMap);
                 GL.Uniform1(mUniform_TextureShadowMap, 3);
 
+                Matrix4.Mult(ref g.ModelMatrixForRenderPass, ref viewProjection, out _modelViewProjection);
+                Matrix4.Transpose(ref g.ModelMatrixForRenderPass, out _normalMatrix);
+                Matrix4.Invert(ref _normalMatrix, out _normalMatrix);
+
+                GL.UniformMatrix4(mUniform_ModelMatrix, false, ref g.ModelMatrixForRenderPass);
+                GL.UniformMatrix4(mUniform_NormalMatrix, false, ref _normalMatrix);
+                GL.UniformMatrix4(mUniform_MVP, false, ref _modelViewProjection);
+
+                if (lightShadow >= 0)
+                {
+                    Matrix4 modelViewProjectionMatrixBiased2 = g.ModelMatrixForRenderPass * viewProjectionShadowBiased2;
+
+                    GL.ActiveTexture(TextureUnit.Texture5);
+                    GL.BindTexture(TextureTarget.Texture2D, GLWindow.CurrentWindow.TextureShadowMap2);
+                    GL.Uniform1(mUniform_TextureShadowMap2, 5);
+
+                    GL.Uniform1(mUniform_ShadowLightPosition, lightShadow);
+                    GL.UniformMatrix4(mUniform_MVPShadowMap2, false, ref modelViewProjectionMatrixBiased2);
+                    GL.Uniform1(mUniform_BiasCoefficient2, CurrentWorld.GetLightObjects().ElementAt(lightShadow).ShadowMapBiasCoefficient);
+                }
+                else
+                {
+                    GL.Uniform1(mUniform_ShadowLightPosition, -1);
+                }
+
                 foreach (string meshName in g.Model.Meshes.Keys)
                 {
                     GeoMesh mesh = g.Model.Meshes[meshName];
 
                     GL.Uniform1(mUniform_SpecularPower, mesh.Material.SpecularPower);
                     GL.Uniform1(mUniform_SpecularArea, mesh.Material.SpecularArea);
-                    
-                    
-                    Matrix4.Mult(ref g.ModelMatrixForRenderPass, ref viewProjection, out _modelViewProjection);
-                    Matrix4.Transpose(ref g.ModelMatrixForRenderPass, out _normalMatrix);
-                    Matrix4.Invert(ref _normalMatrix, out _normalMatrix);
-
-                    GL.UniformMatrix4(mUniform_ModelMatrix, false, ref g.ModelMatrixForRenderPass);
-                    GL.UniformMatrix4(mUniform_NormalMatrix, false, ref _normalMatrix);
-                    GL.UniformMatrix4(mUniform_MVP, false, ref _modelViewProjection);
 
                     // Shadow mapping
                     Matrix4 modelViewProjectionMatrixBiased = g.ModelMatrixForRenderPass * viewProjectionShadowBiased;

@@ -221,6 +221,7 @@ namespace KWEngine2
 
         private float _fov = 45f;
         private float _fovShadow = 45f;
+        private float _fovShadow2 = 60f;
         private float _zFar = 1000f;
 
         /// <summary>
@@ -563,6 +564,14 @@ namespace KWEngine2
 
                 foreach (LightObject g in _lightObjectsTBA)
                 {
+                    if(g.Type == LightType.DirectionalShadow)
+                    {
+                        LightObject shadowLight = _lightObjects.FirstOrDefault(l => l.Type == LightType.DirectionalShadow);
+                        if(shadowLight != null)
+                        {
+                            throw new Exception("Only one light of type DirectionalShadow is allowed per World instance.");
+                        }
+                    }
                     if (!_lightObjects.Contains(g) && _lightcount <= 10)
                     {
                         _lightObjects.Add(g);
@@ -570,7 +579,7 @@ namespace KWEngine2
                     }
                     else
                     {
-                        throw new Exception("Please do not add more lights than 10.");
+                        throw new Exception("Please do not add more than 10 lights.");
                     }
                 }
                 _lightObjectsTBA.Clear();

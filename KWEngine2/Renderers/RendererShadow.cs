@@ -62,10 +62,13 @@ namespace KWEngine2.Renderers
         {
             if (g == null || !g.HasModel)
                 return;
-
-            GL.UseProgram(mProgramId);
+            bool isInsideFrustum = frustum.SphereVsFrustum(g.GetCenterPointForAllHitboxes(), g.GetMaxDiameter() / 2);
+            if (!isInsideFrustum)
+                return;
+            //GL.UseProgram(mProgramId);
             lock (g)
             {
+                
                 foreach (string meshName in g.Model.Meshes.Keys)
                 {
                     GeoMesh mesh = g.Model.Meshes[meshName];
@@ -86,9 +89,9 @@ namespace KWEngine2.Renderers
                         continue;
                     }
 
-                    bool isInsideFrustum = frustum.SphereVsFrustum(g.GetCenterPointForAllHitboxes(), g.GetMaxDiameter() / 2);
+                    
 
-                    if (g.IsShadowCaster && isInsideFrustum && g.Opacity > 0.01f)
+                    if (g.IsShadowCaster && g.Opacity > 0.01f)
                     {
                         if (useMeshTransform == false)
                         {
@@ -117,12 +120,7 @@ namespace KWEngine2.Renderers
                     }
                 }
             }
-            GL.UseProgram(0);
-        }
-
-        internal override void Draw(GameObject g, ref Matrix4 viewProjection, ref Matrix4 viewProjectionShadow, HelperFrustum frustum, ref float[] lightColors, ref float[] lightTargets, ref float[] lightPositions, int lightCount)
-        {
-            throw new NotImplementedException();
+            //GL.UseProgram(0);
         }
 
         internal override void Draw(GameObject g, ref Matrix4 viewProjection)
@@ -136,6 +134,11 @@ namespace KWEngine2.Renderers
         }
 
         internal override void Draw(HUDObject ho, ref Matrix4 viewProjection)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal override void Draw(GameObject g, ref Matrix4 viewProjection, ref Matrix4 viewProjectionShadow, ref Matrix4 viewProjectionShadow2, HelperFrustum frustum, ref float[] lightColors, ref float[] lightTargets, ref float[] lightPositions, int lightCount, ref int lightShadow)
         {
             throw new NotImplementedException();
         }
