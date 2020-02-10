@@ -43,22 +43,22 @@ namespace KWEngine2.Helper
         {
             if (plane == Plane.X)
             {
-                return Vector3.TransformNormal(vector, Matrix4.CreateRotationX(CalculateRadiansFromDegrees(degrees)));
-                //return RotateVector(vector, Quaternion.FromAxisAngle(Vector3.UnitX, MathHelper.DegreesToRadians(degrees))); 
+                //return Vector3.TransformNormal(vector, Matrix4.CreateRotationX(CalculateRadiansFromDegrees(degrees)));
+                return RotateVector(vector, Quaternion.FromAxisAngle(Vector3.UnitX, MathHelper.DegreesToRadians(degrees)));
             }
             else if (plane == Plane.Y)
             {
-                return Vector3.TransformNormal(vector, Matrix4.CreateRotationY(CalculateRadiansFromDegrees(degrees)));
-                //return RotateVector(vector, Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(degrees)));
+                //return Vector3.TransformNormal(vector, Matrix4.CreateRotationY(CalculateRadiansFromDegrees(degrees)));
+                return RotateVector(vector, Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(degrees)));
 
             }
             else if (plane == Plane.Z)
             {
-                return Vector3.TransformNormal(vector, Matrix4.CreateRotationZ(CalculateRadiansFromDegrees(degrees)));
-                //return RotateVector(vector, Quaternion.FromAxisAngle(Vector3.UnitZ, MathHelper.DegreesToRadians(degrees)));
+                //return Vector3.TransformNormal(vector, Matrix4.CreateRotationZ(CalculateRadiansFromDegrees(degrees)));
+                return RotateVector(vector, Quaternion.FromAxisAngle(Vector3.UnitZ, MathHelper.DegreesToRadians(degrees)));
             }
             else
-                throw new Exception("Only planes X, Y and Z are allowed for vector rotation.");
+                return RotateVector(vector, Quaternion.FromAxisAngle(KWEngine.CurrentWorld.GetCameraLookAtVector(), MathHelper.DegreesToRadians(degrees)));
         }
 
         /// <summary>
@@ -96,12 +96,12 @@ namespace KWEngine2.Helper
         }
 
         /// <summary>
-        /// Berechnet die Position eines Punkts, der um einen angegeben Punkt rotiert wird
+        /// Berechnet die Position eines Punkts, der um einen angegeben Punkt entlang einer Achse rotiert wird
         /// </summary>
         /// <param name="point">Mittelpunkt der Rotation</param>
         /// <param name="distance">Distanz zum Mittelpunkt</param>
         /// <param name="degrees">Grad der Rotation</param>
-        /// <param name="plane">Ebene der Rotation (Standard: Y)</param>
+        /// <param name="plane">Achse der Rotation (Standard: Y)</param>
         /// <returns>Position des rotierten Punkts</returns>
         public static Vector3 CalculateRotationAroundPointOnAxis(Vector3 point, float distance, float degrees, Plane plane = Plane.Y)
         {
@@ -123,15 +123,57 @@ namespace KWEngine2.Helper
                 Matrix4.CreateRotationZ(radians, out rotationMatrix);
                 Matrix4.CreateTranslation(0, distance, 0, out translationMatrix);
             }
-            else
+            else if(plane == Plane.Camera)
             {
-                throw new Exception("Only Rotations around X, Y or Z axis are allowed.");
+                if(KWEngine.CurrentWorld != null)
+                {
+                    Vector3 camLookAt;
+                    if (KWEngine.CurrentWorld.IsFirstPersonMode)
+                    {
+                        camLookAt = KWEngine.CurrentWorld.GetFirstPersonObject().GetLookAtVector();
+                    }
+                    else
+                    {
+                        camLookAt = KWEngine.CurrentWorld.GetCameraLookAtVector();
+                    }
+                    
+                    rotationMatrix = HelperMatrix.CreateRotationMatrixForAxisAngle(ref camLookAt, ref radians);
+                    Vector3 cross = Vector3.Cross(camLookAt, KWEngine.WorldUp);
+                    Matrix4.CreateTranslation(-cross.X, -cross.Y, -cross.Z, out translationMatrix);
+                }
+                else
+                {
+                    throw new Exception("CurrentWorld is not set. Cannot rotate around a camera axis that does not exist.");
+                }
+                
             }
 
             Matrix4.Mult(ref translationMatrix, ref rotationMatrix, out tempMatrix);
             Matrix4.Mult(ref tempMatrix, ref translationPointMatrix, out spinMatrix);
+            Vector3.TransformPosition(ref zeroVector, ref spinMatrix, out finalTranslationPoint);
 
+            return finalTranslationPoint;
+        }
 
+        /// <summary>
+        /// Berechnet die Position eines Punkts, der um einen angegeben Punkt entlang einer Achse rotiert wird
+        /// </summary>
+        /// <param name="point">Mittelpunkt der Rotation</param>
+        /// <param name="distance">Distanz zum Mittelpunkt</param>
+        /// <param name="degrees">Grad der Rotation</param>
+        /// <param name="axis">Achse der Rotation (normalisiert!)</param>
+        /// <returns>Position des rotierten Punkts</returns>
+        public static Vector3 CalculateRotationAroundPointOnAxis(Vector3 point, float distance, float degrees, Vector3 axis)
+        {
+            float radians = MathHelper.DegreesToRadians(degrees % 360);
+            Matrix4.CreateTranslation(ref point, out translationPointMatrix);
+
+            rotationMatrix = HelperMatrix.CreateRotationMatrixForAxisAngle(ref axis, ref radians);
+            Vector3 cross = Vector3.Cross(axis, KWEngine.WorldUp);
+            Matrix4.CreateTranslation(-cross.X, -cross.Y, -cross.Z, out translationMatrix);
+            
+            Matrix4.Mult(ref translationMatrix, ref rotationMatrix, out tempMatrix);
+            Matrix4.Mult(ref tempMatrix, ref translationPointMatrix, out spinMatrix);
             Vector3.TransformPosition(ref zeroVector, ref spinMatrix, out finalTranslationPoint);
 
             return finalTranslationPoint;
@@ -161,31 +203,10 @@ namespace KWEngine2.Helper
         /// <returns>rotierter Vektor</returns>
         private static Vector3 RotateVector(Vector3 source, Quaternion rotation)
         {
-            /*
-                final double q1a = q1.getQ0(); //W
-                final double q1b = q1.getQ1();
-                final double q1c = q1.getQ2();
-                final double q1d = q1.getQ3();
-
-                // Components of the second quaternion.
-                final double q2a = q2.getQ0(); //W
-                final double q2b = q2.getQ1();
-                final double q2c = q2.getQ2();
-                final double q2d = q2.getQ3();
-
-                // Components of the product.
-                            final double w = q1a * q2a - q1b * q2b - q1c * q2c - q1d * q2d;
-
-                final double x = + q1b * q2a     + q1c * q2d     - q1d * q2c;
-                final double y = - q1b * q2d     + q1c * q2a     + q1d * q2b;
-                final double z = + q1b * q2c     - q1c * q2b     + q1d * q2a;
-             */
-
-            return new Vector3(
-                0.0f + source.X * rotation.W + source.Y * rotation.Z - source.Z * rotation.Y,
-                0.0f - source.X * rotation.Z + source.Y * rotation.W + source.Z * rotation.X,
-                0.0f + source.X * rotation.Y - source.Y * rotation.X + source.Z * rotation.W
-                );
+            Quaternion qri;
+            Quaternion.Invert(ref rotation, out qri);
+            Quaternion sourceQ = new Quaternion(source, 0);
+            return (rotation * sourceQ * qri).Xyz;
         }
     }
 }

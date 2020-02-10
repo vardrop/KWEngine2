@@ -177,6 +177,10 @@ namespace KWEngine2.GameObjects
             }
         }
 
+        /// <summary>
+        /// Setzt das Field of View (in Grad) für das schattenwerfende Licht (DirectionalShadow)
+        /// </summary>
+        /// <param name="fov">Blickfeld nach links und rechts in Grad (Minimum: 60, Maximum: 180)</param>
         public void SetFOVShadow(float fov)
         {
             if (Type != LightType.DirectionalShadow)
@@ -191,6 +195,10 @@ namespace KWEngine2.GameObjects
             }
         }
 
+        /// <summary>
+        /// Setzt den Koeffizienten für die Berechnung der Schatten der LightObject-Instanz
+        /// </summary>
+        /// <param name="bias">Biaswert (Standard: 0.005f; Bereich: 0.00001f bis 1f)</param>
         public void SetFOVShadowBiasCoefficient(float bias = 0.005f)
         {
             if (Type != LightType.DirectionalShadow)

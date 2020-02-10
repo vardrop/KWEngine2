@@ -163,16 +163,37 @@ namespace KWEngine2Test.Objects
         {
             if (_flashlight.CurrentWorld != null)
             {
-                Vector3 lookAt = GetLookAtVector();
-                Vector3 middle = this.GetCenterPointForAllHitboxes();
-                middle.Y += Scale.Y / 3f;
-                Vector3 source = middle + lookAt * 0.7f;
-                _flashlight.SetPosition(source);
-                if (_flashlight.Type == LightType.Directional || _flashlight.Type == LightType.DirectionalShadow)
+                if (CurrentWorld.IsFirstPersonMode)
                 {
-                    lookAt.Y = lookAt.Y - 0.075f;
-                    _flashlight.SetTarget(middle + lookAt * 0.8f);
+                    Vector3 lookAt = GetLookAtVector();
+                    Vector3 middle = this.GetCenterPointForAllHitboxes();
+                    Vector3 lookAtRot = HelperRotation.RotateVector(lookAt, -70, Plane.Y);
+                    middle.Y += Scale.Y / 3f;
+                    Vector3 source = middle + lookAtRot * 0.8f;
+                    
+                    _flashlight.SetPosition(source);
+                    if (_flashlight.Type == LightType.Directional || _flashlight.Type == LightType.DirectionalShadow)
+                    {
+                        lookAt.Y = lookAt.Y - 0.02f;
+                        _flashlight.SetTarget(middle + lookAt * 2f);
+                    }
+                   // Console.WriteLine(_flashlight.Position + "|" + _flashlight.Target);
                 }
+                else
+                {
+                    Vector3 lookAt = GetLookAtVector();
+                    Vector3 middle = this.GetCenterPointForAllHitboxes();
+                    middle.Y += Scale.Y / 3f;
+                    Vector3 source = middle + lookAt * 0.7f;
+                    _flashlight.SetPosition(source);
+                    if (_flashlight.Type == LightType.Directional || _flashlight.Type == LightType.DirectionalShadow)
+                    {
+                        lookAt.Y = lookAt.Y - 0.075f;
+                        _flashlight.SetTarget(middle + lookAt * 0.8f);
+                    }
+
+                }
+
             }
         }
     }

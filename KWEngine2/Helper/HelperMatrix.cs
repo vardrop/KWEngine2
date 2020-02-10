@@ -42,5 +42,18 @@ namespace KWEngine2.Helper
                                                             source.C1, source.C2, source.C3);
             convertedMatrix.Transpose();
         }
+
+        public static Matrix4 CreateRotationMatrixForAxisAngle(ref Vector3 axis, ref float angle)
+        {
+            float s = (float)Math.Sin(angle);
+            float c = (float)Math.Cos(angle);
+            float oc = 1f - c;
+
+            return new Matrix4(oc * axis.X * axis.X + c, oc * axis.X * axis.Y - axis.Z * s, oc * axis.Z * axis.X + axis.Y * s, 0f,
+                        oc * axis.X * axis.Y + axis.Z * s, oc * axis.Y * axis.Y + c, oc * axis.Y * axis.Z - axis.X * s, 0f,
+                        oc * axis.Z * axis.X - axis.Y * s, oc * axis.Y * axis.Z + axis.X * s, oc * axis.Z * axis.Z + c, 0f,
+                        0f, 0f, 0f, 1f);
+        }
+
     }
 }

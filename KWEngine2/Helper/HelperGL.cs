@@ -28,6 +28,10 @@ namespace KWEngine2.Helper
                 return v;
         }
 
+        /// <summary>
+        /// Gibt die OpenGL-Fehlercodes des aktuellen Frames auf der Debugkonsole aus.
+        /// </summary>
+        /// <returns>true, wenn es Fehler gibt</returns>
         public static bool CheckGLErrors()
         {
             bool hasError = false;

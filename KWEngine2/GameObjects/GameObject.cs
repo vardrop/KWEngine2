@@ -2183,6 +2183,32 @@ namespace KWEngine2.GameObjects
         }
 
         /// <summary>
+        /// Berechnet die Position eines Punkts, der um einen angegeben Punkt entlang einer Achse rotiert wird
+        /// </summary>
+        /// <param name="point">Mittelpunkt der Rotation</param>
+        /// <param name="distance">Distanz zum Mittelpunkt</param>
+        /// <param name="degrees">Grad der Rotation</param>
+        /// <param name="plane">Achse der Rotation (Standard: Y)</param>
+        /// <returns>Position des rotierten Punkts</returns>
+        /// <returns></returns>
+        public Vector3 CalculateRotationAroundPointOnAxis(Vector3 point, float distance, float degrees, Plane plane = Plane.Y)
+        {
+            return HelperRotation.CalculateRotationAroundPointOnAxis(point, distance, degrees, plane);
+        }
+
+        /// <summary>
+        /// Berechnet den Vektor, der entsteht, wenn der übergebene Vektor um die angegebenen Grad rotiert wird
+        /// </summary>
+        /// <param name="vector">zu rotierender Vektor</param>
+        /// <param name="degrees">Rotation (in Grad)</param>
+        /// <param name="plane">Einheitsvektor, um den rotiert wird</param>
+        /// <returns>Rotierter Vektor</returns>
+        public Vector3 RotateVector(Vector3 vector, float degrees, Plane plane)
+        {
+            return HelperRotation.RotateVector(vector, degrees, plane);
+        }
+
+        /// <summary>
         /// Spielt einen Ton ab
         /// </summary>
         /// <param name="audiofile">Audiodatei</param>

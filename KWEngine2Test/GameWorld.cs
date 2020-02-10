@@ -22,6 +22,7 @@ namespace KWEngine2Test
 
                 ParticleObject smoke = new ParticleObject(new Vector3(-32.5f, 1, -22.5f), new Vector3(5, 5, 5), ParticleType.LoopSmoke1);
                 smoke.SetColor(0.2f, 0.2f, 0.2f, 1);
+                smoke.SetDuration(3.25f);
                 AddParticleObject(smoke);
                 _timeStamp = now;
             }
@@ -32,7 +33,7 @@ namespace KWEngine2Test
                 AddGameObject(ex);
 
                 _timeStampExp = now;
-                _timeStampExpDiff = HelperRandom.GetRandomNumber(5000, 20000);
+                _timeStampExpDiff = HelperRandom.GetRandomNumber(4000, 10000);
 
             }
 
