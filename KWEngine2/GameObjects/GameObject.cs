@@ -1235,6 +1235,54 @@ namespace KWEngine2.GameObjects
         }
 
         /// <summary>
+        /// Ermittelt ein Objekt, das mit dem aufrufenden Objekt kollidiert
+        /// </summary>
+        /// <param name="offsetX">Versatz in X-Richtung (optional)</param>
+        /// <param name="offsetY">Versatz in Y-Richtung (optional)</param>
+        /// <param name="offsetZ">Versatz in Z-Richtung (optional)</param>
+        protected Intersection GetIntersection(float offsetX = 0, float offsetY = 0, float offsetZ = 0)
+        {
+            CheckModelAndWorld(true);
+            if (!IsCollisionObject)
+            {
+                throw new Exception("Error: You are calling GetIntersectingObjects() on an instance that is marked as a non-colliding object.");
+            }
+            foreach (GameObject go in CurrentWorld.GetGameObjects())
+            {
+                if (!go.IsCollisionObject || go is Explosion || go.Equals(this))
+                {
+                    continue;
+                }
+                Vector3 offset = new Vector3(offsetX, offsetY, offsetZ);
+                bool considerForMeasurement = ConsiderForMeasurement(go, this, ref offset);
+                if (considerForMeasurement)
+                {
+                    foreach (Hitbox hbother in go.Hitboxes)
+                    {
+                        foreach (Hitbox hbcaller in this.Hitboxes)
+                        {
+                            Intersection i = null;
+                            if (hbother.Owner.Model.IsTerrain)
+                            {
+                                i = Hitbox.TestIntersectionTerrain(hbcaller, hbother, offset);
+                            }
+                            else
+                            {
+                                i = Hitbox.TestIntersection(hbcaller, hbother, offset);
+                            }
+
+                            if (i != null)
+                            {
+                                return i;
+                            }
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
         /// Erfragt eine Liste aller Objekte, die mit dem aufrufenden Objekt kollidieren
         /// </summary>
         /// <param name="offsetX">Versatz in X-Richtung (optional)</param>
