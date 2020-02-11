@@ -60,12 +60,12 @@ float calculateDarkening(float cosTheta, vec4 shadowCoord)
 	bias = clamp(bias, 0.0 ,0.01);
 	shadowCoord.z -= bias;
 	float darkening = 0.0;
-	darkening += textureProjOffset(uTextureShadowMap, shadowCoord, ivec2(-1,-1));
-	darkening += textureProjOffset(uTextureShadowMap, shadowCoord, ivec2(-1,1));
+	//darkening += textureProjOffset(uTextureShadowMap, shadowCoord, ivec2(-1,-1));
+	//darkening += textureProjOffset(uTextureShadowMap, shadowCoord, ivec2(-1,1));
 	darkening += textureProjOffset(uTextureShadowMap, shadowCoord, ivec2(0,0));
-	darkening += textureProjOffset(uTextureShadowMap, shadowCoord, ivec2(1,1));
-	darkening += textureProjOffset(uTextureShadowMap, shadowCoord, ivec2(1,-1));
-	darkening /= 5.0;
+	//darkening += textureProjOffset(uTextureShadowMap, shadowCoord, ivec2(1,1));
+	//darkening += textureProjOffset(uTextureShadowMap, shadowCoord, ivec2(1,-1));
+	//darkening /= 5.0;
 	return darkening;
 }
 
@@ -75,12 +75,12 @@ float calculateDarkening2(float cosTheta, vec4 shadowCoord)
 	bias = clamp(bias, 0.0 ,0.01);
 	shadowCoord.z -= bias;
 	float darkening = 0.0;
-	darkening += textureProjOffset(uTextureShadowMap2, shadowCoord, ivec2(-1,-1));
-	darkening += textureProjOffset(uTextureShadowMap2, shadowCoord, ivec2(-1,1));
+	//darkening += textureProjOffset(uTextureShadowMap2, shadowCoord, ivec2(-1,-1));
+	//darkening += textureProjOffset(uTextureShadowMap2, shadowCoord, ivec2(-1,1));
 	darkening += textureProjOffset(uTextureShadowMap2, shadowCoord, ivec2(0,0));
-	darkening += textureProjOffset(uTextureShadowMap2, shadowCoord, ivec2(1,1));
-	darkening += textureProjOffset(uTextureShadowMap2, shadowCoord, ivec2(1,-1));
-	darkening /= 5.0;
+	//darkening += textureProjOffset(uTextureShadowMap2, shadowCoord, ivec2(1,1));
+	//darkening += textureProjOffset(uTextureShadowMap2, shadowCoord, ivec2(1,-1));
+	//darkening /= 5.0;
 	return darkening;
 }
 
