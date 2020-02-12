@@ -192,6 +192,8 @@
     <EmbeddedResource Include="Shaders\shader_vertex_pbr.glsl" />
     <EmbeddedResource Include="Shaders\shader_fragment_merge.glsl" />
     <EmbeddedResource Include="Shaders\shader_vertex_merge.glsl" />
+    <EmbeddedResource Include="Shaders\shader_fragment_test.glsl" />
+    <EmbeddedResource Include="Shaders\shader_vertex_test.glsl" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

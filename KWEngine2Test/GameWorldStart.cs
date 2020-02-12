@@ -39,7 +39,7 @@ namespace KWEngine2Test
 
             Cube c = new Cube();
             c.SetModel("KWCube");
-            c.SetGlow(0, 1, 0, 1);
+            //c.SetGlow(0, 1, 0, 1);
             c.SetPosition(0, 4, 0);
             AddGameObject(c);
 

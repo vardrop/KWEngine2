@@ -211,6 +211,9 @@ namespace KWEngine2.Renderers
                 }
                 else
                 {
+                    GL.ActiveTexture(TextureUnit.Texture5);
+                    GL.BindTexture(TextureTarget.Texture2D, GLWindow.CurrentWindow.TextureShadowMap2);
+                    GL.Uniform1(mUniform_TextureShadowMap2, 5);
                     GL.Uniform1(mUniform_ShadowLightPosition, -1);
                 }
 
@@ -308,6 +311,9 @@ namespace KWEngine2.Renderers
                         }
                         else
                         {
+                            GL.ActiveTexture(TextureUnit.Texture8);
+                            GL.BindTexture(TextureTarget.Texture2D, mesh.Material.TextureLight.OpenGLID);
+                            GL.Uniform1(mUniform_TextureLightMap, 8);
                             GL.Uniform1(mUniform_TextureUseLightMap, 0);
                         }
 
@@ -350,6 +356,9 @@ namespace KWEngine2.Renderers
                         }
                         else
                         {
+                            GL.ActiveTexture(TextureUnit.Texture0);
+                            GL.BindTexture(TextureTarget.Texture2D, texId);
+                            GL.Uniform1(mUniform_Texture, 0);
                             GL.Uniform1(mUniform_TextureUse, 0);
                             GL.Uniform3(mUniform_BaseColor, mesh.Material.ColorDiffuse.X, mesh.Material.ColorDiffuse.Y, mesh.Material.ColorDiffuse.Z);
                         }
@@ -374,6 +383,10 @@ namespace KWEngine2.Renderers
                         }
                         else
                         {
+
+                            GL.ActiveTexture(TextureUnit.Texture1);
+                            GL.BindTexture(TextureTarget.Texture2D, texId);
+                            GL.Uniform1(mUniform_TextureNormalMap, 1);
                             GL.Uniform1(mUniform_TextureUseNormalMap, 0);
                         }
 
@@ -401,6 +414,9 @@ namespace KWEngine2.Renderers
                         }
                         else
                         {
+                            GL.ActiveTexture(TextureUnit.Texture2);
+                            GL.BindTexture(TextureTarget.Texture2D, texId);
+                            GL.Uniform1(mUniform_TextureSpecularMap, 2);
                             GL.Uniform1(mUniform_TextureUseSpecularMap, 0);
                             GL.Uniform1(mUniform_TextureSpecularIsRoughness, 0);
                         }
@@ -415,6 +431,9 @@ namespace KWEngine2.Renderers
                         }
                         else
                         {
+                            GL.ActiveTexture(TextureUnit.Texture4);
+                            GL.BindTexture(TextureTarget.Texture2D, mesh.Material.TextureEmissive.OpenGLID);
+                            GL.Uniform1(mUniform_TextureEmissiveMap, 4);
                             GL.Uniform1(mUniform_TextureUseEmissiveMap, 0);
                         }
 
