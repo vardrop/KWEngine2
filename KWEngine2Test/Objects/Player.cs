@@ -73,22 +73,22 @@ namespace KWEngine2Test.Objects
 
                 if (ks[Key.A])
                 {
-                    MoveAlongVector(strafe, 0.1f);
+                    MoveAlongVector(strafe * deltaTimeFactor, 0.1f);
                     runs = true;
                 }
                 if (ks[Key.D])
                 {
-                    MoveAlongVector(strafe, -0.1f);
+                    MoveAlongVector(strafe * deltaTimeFactor, -0.1f);
                     runs = true;
                 }
                 if (ks[Key.W])
                 {
-                    MoveAlongVector(cameraLookAt, 0.1f);
+                    MoveAlongVector(cameraLookAt * deltaTimeFactor, 0.1f);
                     runs = true;
                 }
                 if (ks[Key.S])
                 {
-                    MoveAlongVector(cameraLookAt, -0.1f);
+                    MoveAlongVector(cameraLookAt * deltaTimeFactor, -0.1f);
                     runs = true;
                 }
 

@@ -11,6 +11,7 @@ namespace KWEngine2.Helper
         private const float movAveragePeriod = 30f; // #frames involved in average calc (suggested values 5-100)
         private const float smoothFactor = 0.5f; // adjusting ratio (suggested values 0.01-0.5)
         private const float TargetFrameTime = 1f / 60f * 1000f;
+        internal const double TargetFrameTimeDouble = 1.0 / 60.0;
 
         private static float deltaTimeFactor = 1;
         

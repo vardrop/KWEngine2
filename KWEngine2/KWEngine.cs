@@ -56,6 +56,30 @@ namespace KWEngine2
         internal static float TimeElapsed = 0;
 
         /// <summary>
+        /// Einheit zur Anzeige der Frame-Performance
+        /// </summary>
+        public enum PerformanceUnit
+        {
+            /// <summary>
+            /// Deaktiviert
+            /// </summary>
+            Disabled,
+            /// <summary>
+            /// Millisekunden
+            /// </summary>
+            FrameTimeInMilliseconds,
+            /// <summary>
+            /// Bilder pro Sekunde
+            /// </summary>
+            FramesPerSecond
+        }
+
+        /// <summary>
+        /// Zeigt die Performance im Titelbereich des Fensters an
+        /// </summary>
+        public static PerformanceUnit DebugShowPerformanceInTitle { get; set; } = PerformanceUnit.Disabled;
+
+        /// <summary>
         /// Qualität der Post-Processing-Effekte (Glühen)
         /// </summary>
         public static PostProcessingQuality PostProcessQuality { get; set; } = PostProcessingQuality.Standard;

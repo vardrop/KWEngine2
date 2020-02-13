@@ -48,6 +48,8 @@ namespace KWEngine2Test
             _button.SetScale(imageWidth * 2, imageHeight * 2);
 
             AddHUDObject(_button);
+
+            DebugShowPerformanceInTitle = KWEngine.PerformanceUnit.Disabled;
         }
 
     }

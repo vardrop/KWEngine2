@@ -9,6 +9,7 @@ using System.Diagnostics;
 using OpenTK.Graphics.OpenGL4;
 using System.Linq;
 using KWEngine2.Audio;
+using static KWEngine2.KWEngine;
 
 namespace KWEngine2
 {
@@ -25,6 +26,22 @@ namespace KWEngine2
         /// Zeige Koordinatensystem
         /// </summary>
         public bool DebugShowCoordinateSystem { get; set; } = false;
+
+        /// <summary>
+        /// Zeigt die Performance im Titelbereich des Fensters an
+        /// </summary>
+        public PerformanceUnit DebugShowPerformanceInTitle
+        {
+            get
+            {
+                return KWEngine.DebugShowPerformanceInTitle;
+            }
+            set
+            {
+                KWEngine.DebugShowPerformanceInTitle = value;
+            }
+        }
+
         internal bool _prepared = false;
         private float _worldDistance = 100;
         /// <summary>
@@ -65,6 +82,8 @@ namespace KWEngine2
                 return _firstPersonObject != null && _gameObjects.Contains(_firstPersonObject);
             }
         }
+
+
 
         /// <summary>
         /// Erfragt das aktuelle FP-Objekt

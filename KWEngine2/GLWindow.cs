@@ -27,6 +27,8 @@ namespace KWEngine2
         /// </summary>
         public World CurrentWorld { get; private set; }
         internal GameObject _dummy = null;
+        internal double frameCounter = 0;
+        internal double frameData = 0;
         /// <summary>
         /// Aktuelles Fenster
         /// </summary>
@@ -391,6 +393,44 @@ namespace KWEngine2
 
             DeltaTime.UpdateDeltaTime();
             KWEngine.TimeElapsed += (float)e.Time;
+            frameCounter++;
+            frameData += (e.Time * 1000.0);
+            if(frameCounter > 100)
+            {
+                int index = Title != null ? Title.LastIndexOf('|') : -1;
+                if (KWEngine.DebugShowPerformanceInTitle == KWEngine.PerformanceUnit.FrameTimeInMilliseconds)
+                {
+                    if (index < 0)
+                    {
+                        Title = Title + " | " + Math.Round(frameData / frameCounter, 2) + " ms";
+                    }
+                    else
+                    {
+                        Title = Title.Substring(0, index - 1);
+                        Title += " | " + Math.Round(frameData / frameCounter, 2) + " ms";
+                    }
+                }
+                else if(KWEngine.DebugShowPerformanceInTitle == KWEngine.PerformanceUnit.FramesPerSecond)
+                {
+                    if (index < 0)
+                    {
+                        Title = Title + " | " + Math.Round(1000.0 / (frameData / frameCounter), 1) + " fps";
+                    }
+                    else
+                    {
+                        Title = Title.Substring(0, index - 1);
+                        Title += " | " + Math.Round(1000.0 / (frameData / frameCounter), 1) + " fps";
+                    }
+                }
+                else
+                {
+                    if(index >= 0)
+                        Title = Title.Substring(0, index - 1);
+                }
+                frameCounter = 0;
+                frameData = 0;
+            }
+            
         }
 
         /// <summary>
