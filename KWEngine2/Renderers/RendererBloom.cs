@@ -24,7 +24,10 @@ namespace KWEngine2.Renderers
             GL.Uniform1(mUniform_TextureBloom, 0);
 
             GL.Uniform1(mUniform_Horizontal, bloomDirectionHorizontal ? 1 : 0);
-            GL.Uniform2(mUniform_Resolution, height / 450000f, width / 450000f);
+            GL.Uniform2(
+                mUniform_Resolution, 
+                KWEngine.PostProcessQuality == KWEngine.PostProcessingQuality.High ? 0.06f * GLWindow.CurrentWindow.bloomWidth : 0.09f * GLWindow.CurrentWindow.bloomWidth,
+                KWEngine.PostProcessQuality == KWEngine.PostProcessingQuality.High ? 0.06f * GLWindow.CurrentWindow.bloomHeight : 0.09f * GLWindow.CurrentWindow.bloomHeight);
 
             GL.BindVertexArray(quad.Meshes.Values.ElementAt(0).VAO);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, quad.Meshes.Values.ElementAt(0).VBOIndex);

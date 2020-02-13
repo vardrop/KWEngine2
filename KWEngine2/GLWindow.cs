@@ -29,6 +29,10 @@ namespace KWEngine2
         internal GameObject _dummy = null;
         internal double frameCounter = 0;
         internal double frameData = 0;
+
+        internal float bloomWidth = 1;
+        internal float bloomHeight = 1;
+
         /// <summary>
         /// Aktuelles Fenster
         /// </summary>
@@ -482,7 +486,9 @@ namespace KWEngine2
 
             CalculateProjectionMatrix();
             UpdateWindowRect();
-            
+
+            bloomWidth = (float)(Math.Log(Width * Width) / Width) * ((float)Height / Width);
+            bloomHeight = (float)(Math.Log(Height * Height) / Height);
         }
 
         /// <summary>
