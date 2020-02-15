@@ -98,12 +98,8 @@ namespace KWEngine2.Renderers
             if (mProgramId >= 0)
             {
                 GL.DeleteProgram(mProgramId);
-                HelperGL.CheckGLErrors();
                 GL.DeleteShader(mShaderVertexId);
-                HelperGL.CheckGLErrors();
                 GL.DeleteShader(mShaderFragmentId);
-                HelperGL.CheckGLErrors();
-
                 mProgramId = -1;
             }
         }

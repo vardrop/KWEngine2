@@ -48,7 +48,12 @@ namespace KWEngine2
             /// <summary>
             /// Niedrig
             /// </summary>
-            Low};
+            Low,
+            /// <summary>
+            /// Ausgeschaltet
+            /// </summary>
+            Disabled
+        };
 
         internal static int TextureDefault = -1;
         internal static int TextureBlack = -1;

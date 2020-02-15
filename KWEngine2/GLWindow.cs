@@ -149,10 +149,6 @@ namespace KWEngine2
 
             // Only needed for tesselation... maybe later?
             //GL.PatchParameter(PatchParameterInt.PatchVertices, 4);
-
-            
-
-            HelperGL.CheckGLErrors();
         }
 
         /// <summary>
@@ -176,14 +172,14 @@ namespace KWEngine2
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             base.OnRenderFrame(e);
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            //GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+            //GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
 
             
             if (CurrentWorld != null)
             {
-                
+
                 lock (CurrentWorld)
                 {
                     int shadowLight = -1;
@@ -201,7 +197,8 @@ namespace KWEngine2
                             _viewMatrix = Matrix4.LookAt(CurrentWorld.GetSunPosition(), CurrentWorld.GetSunTarget(), KWEngine.WorldUp);
                         }
                     }
-                    else { 
+                    else
+                    {
                         if (CurrentWorld.IsFirstPersonMode)
                             _viewMatrix = HelperCamera.GetViewMatrix(CurrentWorld.GetFirstPersonObject().Position);
                         else
@@ -221,23 +218,23 @@ namespace KWEngine2
                     }
 
 
-                    
+
                     Matrix4 viewMatrixShadow = Matrix4.LookAt(CurrentWorld.GetSunPosition(), CurrentWorld.GetSunTarget(), KWEngine.WorldUp);
                     Matrix4 viewProjectionShadow = viewMatrixShadow * _projectionMatrixShadow;
                     Matrix4 viewProjectionShadow2 = Matrix4.Identity;
 
                     Frustum.CalculateFrustum(_projectionMatrix, _viewMatrix);
                     FrustumShadowMap.CalculateFrustum(_projectionMatrixShadow, viewMatrixShadow);
-                    
 
-                    
+
+
 
                     SwitchToBufferAndClear(FramebufferShadowMap);
                     GL.Viewport(0, 0, KWEngine.ShadowMapSize, KWEngine.ShadowMapSize);
                     GL.UseProgram(KWEngine.Renderers["Shadow"].GetProgramId());
                     lock (CurrentWorld._gameObjects)
                     {
-                        
+
                         foreach (GameObject g in CurrentWorld.GetGameObjects())
                         {
                             KWEngine.Renderers["Shadow"].Draw(g, ref viewProjectionShadow, FrustumShadowMap);
@@ -267,9 +264,9 @@ namespace KWEngine2
 
                     }
 
+                   
                     SwitchToBufferAndClear(FramebufferMainMultisample);
                     GL.Viewport(ClientRectangle);
-
 
                     // Background rendering:
                     if (CurrentWorld._textureBackground > 0)
@@ -304,16 +301,16 @@ namespace KWEngine2
                             else if (g.Model.IsTerrain)
                             {
                                 KWEngine.Renderers["Terrain"].Draw(g, ref viewProjection, ref viewProjectionShadowBiased, ref viewProjectionShadowBiased2, Frustum, ref LightColors, ref LightTargets, ref LightPositions, CurrentWorld._lightcount, ref shadowLight);
+                                //KWEngine.RendererSimple.Draw(g, ref viewProjection, ref viewProjectionShadowBiased, ref viewProjectionShadowBiased2, Frustum, ref LightColors, ref LightTargets, ref LightPositions, CurrentWorld._lightcount, ref shadowLight);
                             }
                             else
                             {
                                 KWEngine.Renderers["Standard"].Draw(g, ref viewProjection, ref viewProjectionShadowBiased, ref viewProjectionShadowBiased2, Frustum, ref LightColors, ref LightTargets, ref LightPositions, CurrentWorld._lightcount, ref shadowLight);
+                                //KWEngine.RendererSimple.Draw(g, ref viewProjection, ref viewProjectionShadowBiased, ref viewProjectionShadowBiased2, Frustum, ref LightColors, ref LightTargets, ref LightPositions, CurrentWorld._lightcount, ref shadowLight);
                             }
                         }
                     }
                     GL.UseProgram(0);
-
-                    
 
                     lock (CurrentWorld._particleObjects)
                     {
@@ -323,7 +320,6 @@ namespace KWEngine2
                             KWEngine.Renderers["Particle"].Draw(p, ref viewProjection);
                         GL.Disable(EnableCap.Blend);
                     }
-
                     GL.Enable(EnableCap.Blend);
                     GL.Disable(EnableCap.DepthTest);
                     lock (CurrentWorld._hudObjects)
@@ -336,6 +332,7 @@ namespace KWEngine2
                 }
                 DownsampleFramebuffer();
                 ApplyBloom();
+                HelperGL.CheckGLErrors();
             }
             SwapBuffers();
         }
@@ -571,45 +568,52 @@ namespace KWEngine2
 
         private void ApplyBloom()
         {
-            RendererBloom r = (RendererBloom)KWEngine.Renderers["Bloom"];
-            RendererMerge m = (RendererMerge)KWEngine.Renderers["Merge"];
-            GL.UseProgram(r.GetProgramId());
-            GL.Viewport(0, 0, Width / 2, Height / 2);
-            int loopCount = 
-                KWEngine.PostProcessQuality == KWEngine.PostProcessingQuality.High ? 6 :
-                KWEngine.PostProcessQuality == KWEngine.PostProcessingQuality.Standard ? 4 : 2; 
-            int sourceTex; // this is the texture that the bloom will be read from
-            for (int i = 0; i < loopCount; i++)
+            if (KWEngine.PostProcessQuality != KWEngine.PostProcessingQuality.Disabled)
             {
-                if (i % 2 == 0)
+
+                RendererBloom r = (RendererBloom)KWEngine.Renderers["Bloom"];
+                RendererMerge m = (RendererMerge)KWEngine.Renderers["Merge"];
+                GL.UseProgram(r.GetProgramId());
+                GL.Viewport(0, 0, Width / 2, Height / 2);
+                int loopCount =
+                    KWEngine.PostProcessQuality == KWEngine.PostProcessingQuality.High ? 6 :
+                    KWEngine.PostProcessQuality == KWEngine.PostProcessingQuality.Standard ? 4 : 2;
+                int sourceTex; // this is the texture that the bloom will be read from
+                for (int i = 0; i < loopCount; i++)
                 {
-                    GL.BindFramebuffer(FramebufferTarget.Framebuffer, FramebufferBloom1);
-                    if (i == 0)
-                        sourceTex = TextureBloomFinal;
+                    if (i % 2 == 0)
+                    {
+                        if (i == 0)
+                            SwitchToBufferAndClear(FramebufferBloom1);
+                        else
+                            GL.BindFramebuffer(FramebufferTarget.Framebuffer, FramebufferBloom1);
+                        if (i == 0)
+                            sourceTex = TextureBloomFinal;
+                        else
+                            sourceTex = TextureBloom2;
+                    }
                     else
-                        sourceTex = TextureBloom2;
-                }
-                else
-                {
-                    sourceTex = TextureBloom1;
-                    GL.BindFramebuffer(FramebufferTarget.Framebuffer, FramebufferBloom2);
+                    {
+                        sourceTex = TextureBloom1;
+                        GL.BindFramebuffer(FramebufferTarget.Framebuffer, FramebufferBloom2);
+                    }
+
+                    r.DrawBloom(
+                        _bloomQuad,
+                        ref _modelViewProjectionMatrixBloom,
+                        i % 2 == 0,
+                        Width / 2,
+                        Height / 2,
+                        sourceTex
+                    );
                 }
 
-                r.DrawBloom(
-                    _bloomQuad,
-                    ref _modelViewProjectionMatrixBloom,
-                    i % 2 == 0,
-                    Width / 2,
-                    Height / 2,
-                    sourceTex
-                );
+                SwitchToBufferAndClear(0);
+                GL.UseProgram(m.GetProgramId());
+                GL.Viewport(0, 0, Width, Height);
+                m.DrawMerge(_bloomQuad, ref _modelViewProjectionMatrixBloomMerge, TextureMainFinal, TextureBloom2);
+                GL.UseProgram(0); // unload bloom shader program
             }
-
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-            GL.UseProgram(m.GetProgramId());
-            GL.Viewport(0, 0, Width, Height);
-            m.DrawMerge(_bloomQuad, ref _modelViewProjectionMatrixBloomMerge, TextureMainFinal, TextureBloom2);
-            GL.UseProgram(0); // unload bloom shader program
         }
 
         #region Framebuffers
@@ -664,16 +668,27 @@ namespace KWEngine2
 
         private void DownsampleFramebuffer()
         {
-            GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, FramebufferMainMultisample);
-            GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, FramebufferMainFinal);
+            if (KWEngine.PostProcessQuality != KWEngine.PostProcessingQuality.Disabled)
+            {
+                GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, FramebufferMainMultisample);
+                GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, FramebufferMainFinal);
 
-            GL.ReadBuffer(ReadBufferMode.ColorAttachment0);
-            GL.DrawBuffer(DrawBufferMode.ColorAttachment0);
-            GL.BlitFramebuffer(0, 0, Width, Height, 0, 0, Width, Height, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Linear);
+                GL.ReadBuffer(ReadBufferMode.ColorAttachment0);
+                GL.DrawBuffer(DrawBufferMode.ColorAttachment0);
+                GL.BlitFramebuffer(0, 0, Width, Height, 0, 0, Width, Height, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Linear);
+                
+                GL.ReadBuffer(ReadBufferMode.ColorAttachment1);
+                GL.DrawBuffer(DrawBufferMode.ColorAttachment1);
+                GL.BlitFramebuffer(0, 0, Width, Height, 0, 0, Width, Height, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Linear);
+            }
+            else
+            {
+                GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, FramebufferMainMultisample);
+                GL.ReadBuffer(ReadBufferMode.ColorAttachment0);
 
-            GL.ReadBuffer(ReadBufferMode.ColorAttachment1);
-            GL.DrawBuffer(DrawBufferMode.ColorAttachment1);
-            GL.BlitFramebuffer(0, 0, Width, Height, 0, 0, Width, Height, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Linear);
+                GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
+                GL.BlitFramebuffer(0, 0, Width, Height, 0, 0, Width, Height, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Linear);
+            }
         }
 
         private void InitFramebufferShadowMap()

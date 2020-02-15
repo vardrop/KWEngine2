@@ -52,7 +52,6 @@ namespace KWEngine2Test
             KWEngine.PostProcessQuality = KWEngine.PostProcessingQuality.Standard;
             KWEngine.ShadowMapCoefficient = 0.0005f;
             FOVShadow = 40f;
-            //DebugShadowCaster = true;
             SetSunPosition(250, 250, -250);
             SetSunColor(0.25f, 0.5f, 1, 0.75f);
 

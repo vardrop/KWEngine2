@@ -11,9 +11,11 @@ namespace KWEngine2Test
 
         public override void Act(KeyboardState kb, MouseState ms, float deltaTimeFactor)
         {
+            if (_button == null)
+                return;
+
             if (_button.IsMouseCursorOnMe(ms))
             {
-                //_button.SetColor(1, 0.75f, 0.5f, 1);
                 _button.SetGlow(1, 0, 0, 1);
 
                 if (ms.LeftButton == ButtonState.Pressed)
@@ -23,14 +25,13 @@ namespace KWEngine2Test
             }
             else
             {
-                //_button.SetColor(1, 1, 1, 1);
                 _button.SetGlow(1, 0, 0, 0);
             }
         }
      
         public override void Prepare()
         {
-            KWEngine.PostProcessQuality = KWEngine.PostProcessingQuality.High;
+            KWEngine.PostProcessQuality = KWEngine.PostProcessingQuality.Standard;
 
             int imageWidth = 300;
             int imageHeight = 162;
