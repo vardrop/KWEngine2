@@ -50,6 +50,11 @@ namespace KWEngine2.GameObjects
         internal string _text = null;
         internal int _count = 1;
 
+        /// <summary>
+        /// Name der Instanz
+        /// </summary>
+        public string Name { get; set; } = "undefined HUD object.";
+
         internal float _spread = 26f;
         /// <summary>
         /// Laufweite der Buchstaben (Standard: 26)

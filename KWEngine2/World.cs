@@ -843,21 +843,108 @@ namespace KWEngine2
         /// Erstellt eine Liste aller GameObject-Instanzen mit einem bestimmten Namen
         /// </summary>
         /// <param name="name">gesuchter Name</param>
-        /// <returns>Liste</returns>
+        /// <returns>Liste der gefundenen Instanzen</returns>
         public List<GameObject> GetGameObjectsByName(string name)
         {
-            List<GameObject> os = new List<GameObject>();
-            lock (_gameObjects)
+            name = name.Trim();
+            List<GameObject> os = _gameObjects.FindAll(go => go.Name == name);
+            return os;
+        }
+
+        /// <summary>
+        /// Durchsucht die Liste der GameObject-Instanzen nach Objekten des gegebenen Typs mit dem gegebenen Namen
+        /// </summary>
+        /// <typeparam name="T">Klassenname</typeparam>
+        /// <param name="name">Name der gesuchten Objekte</param>
+        /// <returns>Liste der gefundenen Objekte</returns>
+        public List<T> GetGameObjectsByName<T>(string name) where T : class
+        {
+            name = name.Trim();
+            List<T> os = new List<T>();
+            var list = _gameObjects.FindAll(go => go is T && go.Name == name);
+            if(list.Count > 0)
             {
-                foreach (GameObject g in _gameObjects)
+                foreach (object o in list)
                 {
-                    if (g.Name == name)
-                    {
-                        os.Add(g);
-                    }
+                    os.Add((T)o);
                 }
             }
             return os;
+        }
+
+        /// <summary>
+        /// Durchsucht die Liste der GameObject-Instanzen nach Objekten des gegebenen Typs
+        /// </summary>
+        /// <typeparam name="T">Klassenname</typeparam>
+        /// <returns>Liste der gefundenen Objekte</returns>
+        public List<T> GetGameObjectsByType<T>()
+        {
+            List<T> os = new List<T>();
+            var list = _gameObjects.FindAll(go => go is T);
+            if (list.Count > 0)
+            {
+                foreach (object o in list)
+                {
+                    os.Add((T)o);
+                }
+            }
+            return os;
+        }
+
+        /// <summary>
+        /// Durchsucht die Liste der GameObject-Instanzen nach einem Objekt des gegebenen Typs mit dem gegebenen Namen
+        /// </summary>
+        /// <typeparam name="T">Klasse des gesuchten Objekts</typeparam>
+        /// <param name="name">Name des gesuchten Objekts</param>
+        /// <returns>Gesuchtes Objekt oder null (falls nicht gefunden)</returns>
+        public T GetGameObjectByName<T>(string name) where T : class
+        {
+            name = name.Trim();
+            GameObject g = _gameObjects.FirstOrDefault(go => go is T && go.Name == name);
+            if(g != null)
+            {
+                return (T)(object)g;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Durchsucht die Liste der GameObject-Instanzen nach einem Objekt mit dem gegebenen Namen
+        /// </summary>
+        /// <param name="name">Name des gesuchten Objekts</param>
+        /// <returns>Gesuchtes Objekt oder null (falls nicht gefunden)</returns>
+        public GameObject GetGameObjectByName(string name)
+        {
+            name = name.Trim();
+            GameObject g = _gameObjects.FirstOrDefault(go => go.Name == name);
+            return g;
+        }
+
+        /// <summary>
+        /// Durchsucht die Liste der LightObject-Instanzen nach einem Objekt mit dem gegebenen Namen
+        /// </summary>
+        /// <param name="name">Name des gesuchten Objekts</param>
+        /// <returns>Gesuchtes Objekt oder null (falls nicht gefunden)</returns>
+        public LightObject GetLightObjectByName(string name)
+        {
+            name = name.Trim();
+            LightObject l = _lightObjects.FirstOrDefault(lo => lo.Name == name);
+            return l;
+        }
+
+        /// <summary>
+        /// Durchsucht die Liste der HUDObject-Instanzen nach einem Objekt mit dem gegebenen Namen
+        /// </summary>
+        /// <param name="name">Name des gesuchten Objekts</param>
+        /// <returns>Gesuchtes Objekt oder null (falls nicht gefunden)</returns>
+        public HUDObject GetHUDObjectByName(string name)
+        {
+            name = name.Trim();
+            HUDObject h = _hudObjects.FirstOrDefault(ho => ho.Name == name);
+            return h;
         }
 
         /// <summary>

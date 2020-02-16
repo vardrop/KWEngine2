@@ -366,7 +366,6 @@ namespace KWEngine2
             {
                 if (CurrentWorld._prepared)
                 {
-                    CurrentWorld.Act(ks, ms, DeltaTime.GetDeltaTimeFactor());
                     foreach (GameObject g in CurrentWorld.GetGameObjects())
                     {
                         g.Act(ks, ms, DeltaTime.GetDeltaTimeFactor());
@@ -382,6 +381,8 @@ namespace KWEngine2
                     {
                         l.Act(ks, ms, DeltaTime.GetDeltaTimeFactor());
                     }
+
+                    CurrentWorld.Act(ks, ms, DeltaTime.GetDeltaTimeFactor());
                 }
             }
             CurrentWorld.AddRemoveObjects();
