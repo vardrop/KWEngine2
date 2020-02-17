@@ -866,6 +866,33 @@ namespace KWEngine2.GameObjects
         }
 
         /// <summary>
+        /// Setzt die x-Position der Instanz auf den gegebenen Wert
+        /// </summary>
+        /// <param name="x">Positionswert</param>
+        public void SetPositionX(float x)
+        {
+            SetPosition(new Vector3(x, Position.Y, Position.Z));
+        }
+
+        /// <summary>
+        /// Setzt die y-Position der Instanz auf den gegebenen Wert
+        /// </summary>
+        /// <param name="y">Positionswert</param>
+        public void SetPositionY(float y)
+        {
+            SetPosition(new Vector3(Position.X, y, Position.Z));
+        }
+
+        /// <summary>
+        /// Setzt die z-Position der Instanz auf den gegebenen Wert
+        /// </summary>
+        /// <param name="z">Positionswert</param>
+        public void SetPositionZ(float z)
+        {
+            SetPosition(new Vector3(Position.X, Position.Y, z));
+        }
+
+        /// <summary>
         /// Setzt die Position des Objekts
         /// </summary>
         /// <param name="x">x</param>
@@ -960,6 +987,15 @@ namespace KWEngine2.GameObjects
         protected void MoveOffset(float x, float y, float z)
         {
             Position = new Vector3(Position.X + x, Position.Y + y, Position.Z + z);
+        }
+
+        /// <summary>
+        /// Bewegt das Objekt relativ zur aktuellen Position entlang der gegebenen Achsen
+        /// </summary>
+        /// <param name="offset">Offset-Vektor</param>
+        protected void MoveOffset(Vector3 offset)
+        {
+            Position = new Vector3(Position.X + offset.X, Position.Y + offset.Y, Position.Z + offset.Z);
         }
 
         /// <summary>
