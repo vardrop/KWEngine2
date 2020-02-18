@@ -188,11 +188,11 @@ namespace KWEngine2.Helper
         public static Quaternion GetRotationForPoint(Vector3 source, Vector3 target)
         {
             target.X += 0.000001f;
-            Matrix4 lookAt = Matrix4.LookAt(source, target, KWEngine.WorldUp);
+            Matrix4 lookAt = Matrix4.LookAt(target, source, KWEngine.WorldUp);
             lookAt.Transpose();
             lookAt.Invert();
 
-            return Quaternion.FromMatrix(new Matrix3(lookAt)) * Turn180;
+            return Quaternion.FromMatrix(new Matrix3(lookAt));
         }
 
         /// <summary>

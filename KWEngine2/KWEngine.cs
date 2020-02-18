@@ -196,18 +196,35 @@ namespace KWEngine2
         public static float MouseSensitivity { get; set; } = 0.001f;
 
         internal static GeoModel CoordinateSystem;
+        internal static GeoModel CoordinateSystemX;
+        internal static GeoModel CoordinateSystemY;
+        internal static GeoModel CoordinateSystemZ;
         internal static GeoModel KWRect;
         internal static RendererSimple RendererSimple;
         internal static RendererStandardPBR RendererPBR;
-        internal static Matrix4 CoordinateSystemMatrix = Matrix4.CreateScale(10);
+        internal static float CSScale = 4.5f;
+        internal static Matrix4 CoordinateSystemMatrix = Matrix4.CreateScale(CSScale);
+        internal static Matrix4 CoordinateSystemMatrixX = Matrix4.CreateScale(CSScale);
+        internal static Matrix4 CoordinateSystemMatrixY = Matrix4.CreateScale(CSScale);
+        internal static Matrix4 CoordinateSystemMatrixZ = Matrix4.CreateScale(CSScale);
+        internal static Vector3 CoordinateSystemXOffset = new Vector3(1, 0, 0);
+        internal static Vector3 CoordinateSystemYOffset = new Vector3(0, 1, 0);
+        internal static Vector3 CoordinateSystemZOffset = new Vector3(0, 0, 1);
+        internal static Vector3 CoordinateSystemCenter = new Vector3(0, 0, 0);
 
         internal static void DrawCoordinateSystem(ref Matrix4 viewProjection)
         {
-            GL.UseProgram(RendererSimple.GetProgramId());
-            GL.Disable(EnableCap.Blend);
-            Matrix4.Mult(ref CoordinateSystemMatrix, ref viewProjection, out Matrix4 _modelViewProjection);
-            GL.UniformMatrix4(RendererSimple.GetUniformHandleMVP(), false, ref _modelViewProjection);
+            if (CurrentWorld == null)
+                return;
 
+            CSScale = CurrentWorld.IsFirstPersonMode ? Vector3.Distance(CurrentWorld.GetFirstPersonObject().GetCenterPointForAllHitboxes(), CoordinateSystemCenter) : Vector3.Distance(CurrentWorld.GetCameraPosition(), CoordinateSystemCenter) / 6f;
+
+            GL.UseProgram(RendererSimple.GetProgramId());
+            Matrix4 _modelViewProjection;
+            // Simple lines:
+            CoordinateSystemMatrix = Matrix4.CreateScale(CSScale);
+            Matrix4.Mult(ref CoordinateSystemMatrix, ref viewProjection, out _modelViewProjection);
+            GL.UniformMatrix4(RendererSimple.GetUniformHandleMVP(), false, ref _modelViewProjection);
             foreach (string meshName in CoordinateSystem.Meshes.Keys)
             {
                 GeoMesh mesh = CoordinateSystem.Meshes[meshName];
@@ -221,6 +238,70 @@ namespace KWEngine2
 
                 GL.BindVertexArray(0);
             }
+
+            // X
+            CoordinateSystemMatrixX = Matrix4.CreateScale(CSScale * 3f) * Matrix4.CreateFromQuaternion(HelperRotation.GetRotationForPoint(CoordinateSystemXOffset * CSScale, CurrentWorld.IsFirstPersonMode ? CurrentWorld.GetFirstPersonObject().GetCenterPointForAllHitboxes() : CurrentWorld.GetCameraPosition()));
+            CoordinateSystemMatrixX.M41 = CoordinateSystemXOffset.X * CSScale * 1.05f;
+            CoordinateSystemMatrixX.M42 = CoordinateSystemXOffset.Y;
+            CoordinateSystemMatrixX.M43 = CoordinateSystemXOffset.Z;
+            Matrix4.Mult(ref CoordinateSystemMatrixX, ref viewProjection, out _modelViewProjection);
+            GL.UniformMatrix4(RendererSimple.GetUniformHandleMVP(), false, ref _modelViewProjection);
+            foreach (string meshName in CoordinateSystemX.Meshes.Keys)
+            {
+                GeoMesh mesh = CoordinateSystemX.Meshes[meshName];
+
+                GL.Uniform3(RendererSimple.GetUniformBaseColor(), mesh.Material.ColorDiffuse.X, mesh.Material.ColorDiffuse.Y, mesh.Material.ColorDiffuse.Z);
+
+                GL.BindVertexArray(mesh.VAO);
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
+                GL.DrawElements(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+
+                GL.BindVertexArray(0);
+            }
+
+            // Y
+            CoordinateSystemMatrixY = Matrix4.CreateScale(CSScale * 3f) * Matrix4.CreateFromQuaternion(HelperRotation.GetRotationForPoint(CoordinateSystemYOffset * CSScale, CurrentWorld.IsFirstPersonMode ? CurrentWorld.GetFirstPersonObject().GetCenterPointForAllHitboxes() : CurrentWorld.GetCameraPosition()));
+            CoordinateSystemMatrixY.M41 = CoordinateSystemYOffset.X;
+            CoordinateSystemMatrixY.M42 = CoordinateSystemYOffset.Y * CSScale * 1.05f;
+            CoordinateSystemMatrixY.M43 = CoordinateSystemYOffset.Z;
+            Matrix4.Mult(ref CoordinateSystemMatrixY, ref viewProjection, out _modelViewProjection);
+            GL.UniformMatrix4(RendererSimple.GetUniformHandleMVP(), false, ref _modelViewProjection);
+            foreach (string meshName in CoordinateSystemY.Meshes.Keys)
+            {
+                GeoMesh mesh = CoordinateSystemY.Meshes[meshName];
+
+                GL.Uniform3(RendererSimple.GetUniformBaseColor(), mesh.Material.ColorDiffuse.X, mesh.Material.ColorDiffuse.Y, mesh.Material.ColorDiffuse.Z);
+
+                GL.BindVertexArray(mesh.VAO);
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
+                GL.DrawElements(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+
+                GL.BindVertexArray(0);
+            }
+
+            // Z
+            CoordinateSystemMatrixZ = Matrix4.CreateScale(CSScale * 3f) * Matrix4.CreateFromQuaternion(HelperRotation.GetRotationForPoint(CoordinateSystemZOffset * CSScale, CurrentWorld.IsFirstPersonMode ? CurrentWorld.GetFirstPersonObject().GetCenterPointForAllHitboxes() : CurrentWorld.GetCameraPosition()));
+            CoordinateSystemMatrixZ.M41 = CoordinateSystemZOffset.X;
+            CoordinateSystemMatrixZ.M42 = CoordinateSystemZOffset.Y;
+            CoordinateSystemMatrixZ.M43 = CoordinateSystemZOffset.Z * CSScale * 1.05f;
+            Matrix4.Mult(ref CoordinateSystemMatrixZ, ref viewProjection, out _modelViewProjection);
+            GL.UniformMatrix4(RendererSimple.GetUniformHandleMVP(), false, ref _modelViewProjection);
+            foreach (string meshName in CoordinateSystemZ.Meshes.Keys)
+            {
+                GeoMesh mesh = CoordinateSystemZ.Meshes[meshName];
+
+                GL.Uniform3(RendererSimple.GetUniformBaseColor(), mesh.Material.ColorDiffuse.X, mesh.Material.ColorDiffuse.Y, mesh.Material.ColorDiffuse.Z);
+
+                GL.BindVertexArray(mesh.VAO);
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
+                GL.DrawElements(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+
+                GL.BindVertexArray(0);
+            }
+
             GL.UseProgram(0);
         }
 
@@ -231,6 +312,9 @@ namespace KWEngine2
             KWRect = SceneImporter.LoadModel("kwrect.obj", false, true);
             Models.Add("KWSphere", SceneImporter.LoadModel("kwsphere.obj", false, true));
             CoordinateSystem = SceneImporter.LoadModel("csystem.obj", false, true);
+            CoordinateSystemX = SceneImporter.LoadModel("csystemX.obj", false, true);
+            CoordinateSystemY = SceneImporter.LoadModel("csystemY.obj", false, true);
+            CoordinateSystemZ = SceneImporter.LoadModel("csystemZ.obj", false, true);
 
             for (int i = 0; i < Explosion.Axes.Length; i++)
             {

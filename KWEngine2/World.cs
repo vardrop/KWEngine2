@@ -240,7 +240,6 @@ namespace KWEngine2
 
         private float _fov = 45f;
         private float _fovShadow = 45f;
-        private float _fovShadow2 = 60f;
         private float _zFar = 1000f;
 
         /// <summary>

@@ -54,6 +54,7 @@
     <Compile Include="Objects\Cube.cs" />
     <Compile Include="Objects\EnemyShip.cs" />
     <Compile Include="Objects\Flashlight.cs" />
+    <Compile Include="Objects\Follower.cs" />
     <Compile Include="Objects\Immovable.cs" />
     <Compile Include="Objects\Panel.cs" />
     <Compile Include="Objects\PanelLight.cs" />

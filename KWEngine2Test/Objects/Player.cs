@@ -93,7 +93,7 @@ namespace KWEngine2Test.Objects
                 }
 
                 if (ks[Key.T])
-                    MoveOffset(0, -0.1f, 0);
+                    MoveOffset(0, 0.2f * deltaTimeFactor, 0);
                 
                 if (ks[Key.Q])
                 {

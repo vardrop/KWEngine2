@@ -925,7 +925,7 @@ namespace KWEngine2.GameObjects
         /// <param name="red">Rot</param>
         /// <param name="green">Grün</param>
         /// <param name="blue">Blau</param>
-        protected void SetColor(float red, float green, float blue)
+        public void SetColor(float red, float green, float blue)
         {
             _tintColor.X = red >= 0 && red <= 1 ? red : 1;
             _tintColor.Y = green >= 0 && green <= 1 ? green : 1;
@@ -1678,7 +1678,7 @@ namespace KWEngine2.GameObjects
                     normal = -GetCameraLookAtVector();
                 }
 
-                Matrix4 lookat = Matrix4.LookAt(GetCenterPointForAllHitboxes(), position, normal);
+                Matrix4 lookat = Matrix4.LookAt(position, GetCenterPointForAllHitboxes(), normal);
                 lookat.Transpose();
                 lookat.Invert();
                 return Quaternion.FromMatrix(new Matrix3(lookat));
@@ -1694,14 +1694,14 @@ namespace KWEngine2.GameObjects
         {
             if (CurrentWindow.IsMouseInWindow)
             {
-                Vector3 dir = target - GetCenterPointForAllHitboxes();
-                if (dir.LengthFast < 0.1f)
-                    return;
+                //Vector3 dir = target - GetCenterPointForAllHitboxes();
+                //if (dir.LengthFast < 0.1f)
+                //    return;
                 target.Z += 0.00001f;
-                Matrix4 lookat = Matrix4.LookAt(GetCenterPointForAllHitboxes(), target, KWEngine.WorldUp);
+                Matrix4 lookat = Matrix4.LookAt(target, GetCenterPointForAllHitboxes(), KWEngine.WorldUp);
                 lookat.Transpose();
                 lookat.Invert();
-                Rotation = Quaternion.FromMatrix(new Matrix3(lookat)) * Turn180;
+                Rotation = Quaternion.FromMatrix(new Matrix3(lookat));
             }
         }
 
@@ -1729,14 +1729,11 @@ namespace KWEngine2.GameObjects
             if (CurrentWindow.IsMouseInWindow)
             {
                 target.Z = GetCenterPointForAllHitboxes().Z;
-                if ((target - Position).LengthFast < 0.00001f)
-                    return;
-
                 target.X += 0.000001f;
-                Matrix4 lookat = Matrix4.LookAt(GetCenterPointForAllHitboxes(), target, Vector3.UnitZ);
+                Matrix4 lookat = Matrix4.LookAt(target, GetCenterPointForAllHitboxes(), Vector3.UnitZ);
                 lookat.Transpose();
                 lookat.Invert();
-                Rotation = Quaternion.FromMatrix(new Matrix3(lookat)) * Turn180;
+                Rotation = Quaternion.FromMatrix(new Matrix3(lookat));
             }
         }
 
@@ -1766,14 +1763,11 @@ namespace KWEngine2.GameObjects
             {
                 Vector3 currentPos = GetCenterPointForAllHitboxes();
                 target.Y = currentPos.Y;
-                if ((target - currentPos).LengthFast < 0.0001f)
-                    return;
-
                 target.X += 0.000001f;
-                Matrix4 lookat = Matrix4.LookAt(currentPos, target, Vector3.UnitY);
+                Matrix4 lookat = Matrix4.LookAt(target, currentPos, Vector3.UnitY);
                 lookat.Transpose();
                 lookat.Invert();
-                Rotation = Quaternion.FromMatrix(new Matrix3(lookat)) * Turn180;
+                Rotation = Quaternion.FromMatrix(new Matrix3(lookat));
             }
         }
 

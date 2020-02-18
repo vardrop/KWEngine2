@@ -12,6 +12,12 @@ namespace KWEngine2Test
         private long _timeStamp = 0;
         private long _timeStampExp = 0;
         private long _timeStampExpDiff = 0;
+        private Player p;
+
+        public Player GetPlayer()
+        {
+            return p;
+        }
 
         public override void Act(KeyboardState kb, MouseState ms, float deltaTimeFactor)
         {
@@ -153,7 +159,7 @@ namespace KWEngine2Test
             wallBack.SetPosition(0, 5, -49);
             AddGameObject(wallBack);
 
-            Player p = new Player();
+            p = new Player();
             p.SetModel("Robot");
             p.SetPosition(-25, 0f, -15);
             p.SetScale(4);
@@ -216,6 +222,13 @@ namespace KWEngine2Test
             ho.SetText("kwengine.de");
             ho.SetGlow(1, 0, 0, 1);
             AddHUDObject(ho);
+
+            Follower f = new Follower();
+            f.SetModel("Robot");
+            f.SetColor(1, 1, 0);
+            f.SetScale(6);
+            f.SetPosition(15, 15, 0);
+            //AddGameObject(f);
         }
 
     }

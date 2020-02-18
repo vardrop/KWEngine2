@@ -165,6 +165,12 @@
     <EmbeddedResource Include="Assets\Fonts\Anonymous.ttf" />
     <EmbeddedResource Include="Assets\Models\csystem.mtl" />
     <EmbeddedResource Include="Assets\Models\csystem.obj" />
+    <EmbeddedResource Include="Assets\Models\csystemX.mtl" />
+    <EmbeddedResource Include="Assets\Models\csystemX.obj" />
+    <EmbeddedResource Include="Assets\Models\csystemY.mtl" />
+    <EmbeddedResource Include="Assets\Models\csystemY.obj" />
+    <EmbeddedResource Include="Assets\Models\csystemZ.mtl" />
+    <EmbeddedResource Include="Assets\Models\csystemZ.obj" />
     <None Include="KWEngine2_Klassendiagramm.cd" />
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />

@@ -279,12 +279,6 @@ namespace KWEngine2
                         KWEngine.Renderers["Skybox"].Draw(_dummy, ref _projectionMatrix);
                     }
 
-                    if (CurrentWorld.DebugShowCoordinateSystem)
-                    {
-                        KWEngine.DrawCoordinateSystem(ref viewProjection);
-                    }
-
-
                     Matrix4 viewProjectionShadowBiased = viewProjectionShadow * HelperMatrix.BiasedMatrixForShadowMapping;
                     Matrix4 viewProjectionShadowBiased2 = viewProjectionShadow2 * HelperMatrix.BiasedMatrixForShadowMapping;
 
@@ -301,12 +295,10 @@ namespace KWEngine2
                             else if (g.Model.IsTerrain)
                             {
                                 KWEngine.Renderers["Terrain"].Draw(g, ref viewProjection, ref viewProjectionShadowBiased, ref viewProjectionShadowBiased2, Frustum, ref LightColors, ref LightTargets, ref LightPositions, CurrentWorld._lightcount, ref shadowLight);
-                                //KWEngine.RendererSimple.Draw(g, ref viewProjection, ref viewProjectionShadowBiased, ref viewProjectionShadowBiased2, Frustum, ref LightColors, ref LightTargets, ref LightPositions, CurrentWorld._lightcount, ref shadowLight);
                             }
                             else
                             {
                                 KWEngine.Renderers["Standard"].Draw(g, ref viewProjection, ref viewProjectionShadowBiased, ref viewProjectionShadowBiased2, Frustum, ref LightColors, ref LightTargets, ref LightPositions, CurrentWorld._lightcount, ref shadowLight);
-                                //KWEngine.RendererSimple.Draw(g, ref viewProjection, ref viewProjectionShadowBiased, ref viewProjectionShadowBiased2, Frustum, ref LightColors, ref LightTargets, ref LightPositions, CurrentWorld._lightcount, ref shadowLight);
                             }
                         }
                     }
@@ -328,6 +320,12 @@ namespace KWEngine2
                             KWEngine.Renderers["HUD"].Draw(p, ref _viewProjectionMatrixHUD);
                     }
                     GL.Disable(EnableCap.Blend);
+
+                    if (CurrentWorld.DebugShowCoordinateSystem)
+                    {
+                        KWEngine.DrawCoordinateSystem(ref viewProjection);
+                    }
+
                     GL.Enable(EnableCap.DepthTest);
                 }
                 DownsampleFramebuffer();

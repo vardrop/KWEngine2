@@ -31,7 +31,7 @@ namespace KWEngine2Test
      
         public override void Prepare()
         {
-            KWEngine.PostProcessQuality = KWEngine.PostProcessingQuality.Standard;
+            KWEngine.PostProcessQuality = KWEngine.PostProcessingQuality.High;
 
             int imageWidth = 300;
             int imageHeight = 162;
