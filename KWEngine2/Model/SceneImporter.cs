@@ -516,6 +516,10 @@ namespace KWEngine2.Model
                         tex.OpenGLID = model.Textures[tex.Filename].OpenGLID;
                         geoMaterial.TextureDiffuse = tex;
                     }
+                    else if (CheckIfOtherModelsShareTexture(tex.Filename, model.Path, out GeoTexture sharedTexture))
+                    {
+                        geoMaterial.TextureDiffuse = sharedTexture;
+                    }
                     else
                     {
                         tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
@@ -548,6 +552,10 @@ namespace KWEngine2.Model
                         tex.OpenGLID = model.Textures[tex.Filename].OpenGLID;
                         geoMaterial.TextureNormal = tex;
                     }
+                    else if (CheckIfOtherModelsShareTexture(tex.Filename, model.Path, out GeoTexture sharedTexture))
+                    {
+                        geoMaterial.TextureNormal = sharedTexture;
+                    }
                     else
                     {
                         tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
@@ -579,6 +587,10 @@ namespace KWEngine2.Model
                     {
                         tex.OpenGLID = model.Textures[tex.Filename].OpenGLID;
                         geoMaterial.TextureSpecular = tex;
+                    }
+                    else if (CheckIfOtherModelsShareTexture(tex.Filename, model.Path, out GeoTexture sharedTexture))
+                    {
+                        geoMaterial.TextureSpecular = sharedTexture;
                     }
                     else
                     {
@@ -619,6 +631,10 @@ namespace KWEngine2.Model
                         tex.OpenGLID = model.Textures[tex.Filename].OpenGLID;
                         geoMaterial.TextureEmissive = tex;
                     }
+                    else if (CheckIfOtherModelsShareTexture(tex.Filename, model.Path, out GeoTexture sharedTexture))
+                    {
+                        geoMaterial.TextureEmissive = sharedTexture;
+                    }
                     else
                     {
                         tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
@@ -653,6 +669,10 @@ namespace KWEngine2.Model
                         tex.OpenGLID = model.Textures[tex.Filename].OpenGLID;
                         geoMaterial.TextureLight = tex;
                     }
+                    else if (CheckIfOtherModelsShareTexture(tex.Filename, model.Path, out GeoTexture sharedTexture))
+                    {
+                        geoMaterial.TextureLight = sharedTexture;
+                    }
                     else
                     {
                         tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
@@ -674,6 +694,30 @@ namespace KWEngine2.Model
             }
 
             geoMesh.Material = geoMaterial;
+        }
+
+        private static bool CheckIfOtherModelsShareTexture(string texture, string path, out GeoTexture sharedTex)
+        {
+            sharedTex = new GeoTexture();
+            foreach(string key in KWEngine.Models.Keys)
+            {
+                GeoModel m = KWEngine.Models[key];
+                if(m.Path == path)
+                {
+                    foreach (string texKey in m.Textures.Keys)
+                    {
+                        if(texKey == texture)
+                        {
+
+                            sharedTex = m.Textures[texKey];
+                            return true;
+                        }
+                    }
+                }
+                
+            }
+
+            return false;
         }
 
         private static void ProcessMeshes(Scene scene, ref GeoModel model)

@@ -47,6 +47,9 @@ namespace KWEngine2Test
      
         public override void Prepare()
         {
+            KWEngine.LoadModelFromFile("Building1", @".\models\SciFiPack\SciFi_Building_Large01.obj");
+            KWEngine.LoadModelFromFile("Building2", @".\models\SciFiPack\SciFi_Building_Large02.obj");
+
             KWEngine.LoadModelFromFile("Robot", @".\models\UBot\ubot.fbx");
             KWEngine.LoadModelFromFile("Lab", @".\models\labyrinth\walls.obj");
             KWEngine.LoadModelFromFile("Panel", @".\models\spacepanel\scifipanel.obj");
@@ -64,7 +67,18 @@ namespace KWEngine2Test
             SunAmbientFactor = 0.2f;
             SetCameraPosition(100, 100, 100);
             WorldDistance = 1000;
+            /*
+            Immovable b1 = new Immovable();
+            b1.SetModel("Building1");
+            b1.SetScale(10);
+            AddGameObject(b1);
 
+            Immovable b2 = new Immovable();
+            b2.SetModel("Building2");
+            b2.SetPosition(6, 0, 0);
+            b2.SetScale(10);
+            AddGameObject(b2);
+            */
             Immovable corridorEntrance = new Immovable();
             corridorEntrance.SetModel("CorridorEntrance");
             corridorEntrance.SetPosition(-45, 0, 2);
