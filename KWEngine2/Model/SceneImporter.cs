@@ -31,8 +31,8 @@ namespace KWEngine2.Model
                     return FileType.Wavefront;
                 case "fbx":
                     return FileType.Filmbox;
-                case "blend":
-                    return FileType.Blender;
+                //case "blend":
+                //    return FileType.Blender;
                 default:
                     return FileType.Invalid;
             }
@@ -89,7 +89,7 @@ namespace KWEngine2.Model
                 }
                 else
                 {
-                    throw new Exception("Could not load model: only OBJ, DAE, FBX, X and BLEND are supported (GLTF support coming soon).");
+                    throw new Exception("Could not load model: only OBJ, DAE, FBX and X are supported (GLTF support coming soon).");
                 }
             }
             if (scene == null)
