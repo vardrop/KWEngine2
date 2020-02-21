@@ -198,6 +198,9 @@ namespace KWEngine2.Renderers
                 else
                 {
                     GL.Uniform1(mUniform_ShadowLightPosition, -1);
+                    GL.ActiveTexture(TextureUnit.Texture5);
+                    GL.BindTexture(TextureTarget.Texture2D, GLWindow.CurrentWindow.TextureShadowMap2);
+                    GL.Uniform1(mUniform_TextureShadowMap2, 5);
                 }
 
                 foreach (string meshName in g.Model.Meshes.Keys)

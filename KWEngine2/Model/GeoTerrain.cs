@@ -76,7 +76,7 @@ namespace KWEngine2.Model
                             throw new Exception("Image size too small or too big: width and height need to be >= 4 and <= 256 pixels.");
                         }
 
-                        //Debug.WriteLine("Generating terrain from height map: " + heightMap);
+                        Debug.WriteLine("Generating terrain from height map: " + heightMap);
                         double mp = Math.Round(mDots / 1000000.0, 3);
                         if (mDots > 1000)
                         {

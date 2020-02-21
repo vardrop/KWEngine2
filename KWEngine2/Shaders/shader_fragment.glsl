@@ -127,6 +127,7 @@ void main()
 	float darkeningAbsolute = 1.0;
 	float darkening = 1.0;
 
+
 	// Shadow mapping:
 	if(uSunAffection > 0)
 	{
@@ -157,15 +158,12 @@ void main()
 			specularFactor = texture(uTextureSpecular, vTexture).r;
 	}
 	
-	vec3 reflectionVector = reflect(-uSunDirection, vNormal);
+	vec3 reflectionVectorSun = reflect(-uSunDirection, theNormal);
 	if(uSunAffection > 0)
 	{
-		//check if camera may see highlights:
-		float dotSunNormalInverted = max(0.0, dot(-theNormal, -uSunDirection));
-
 		//Specular highlights from sun:
-		float specular = max(0.0, specularFactor * uSpecularPower * pow(max(0.0, dot(surfaceToCamera, reflectionVector)), uSpecularArea));
-		totalSpecColor += uSunIntensity.xyz * specular * uSunIntensity.w * darkeningAbsolute * dotSunNormalInverted;
+		float specular = max(0.0, specularFactor * uSpecularPower * pow(max(0.0, dot(surfaceToCamera, reflectionVectorSun)), uSpecularArea));
+		totalSpecColor += uSunIntensity.xyz * specular * uSunIntensity.w * darkeningAbsolute * dotNormalLight;
 
 		ambient = uSunIntensity.xyz * (uSunIntensity.w * min(max(dotNormalLight, uSunAmbient), darkening));
 	}
@@ -195,34 +193,33 @@ void main()
 			vec3 lightColor = uLightsColors[i].xyz;
 			vec3 lightDirection = normalize(uLightsTargets[i].xyz - lightPos); // to light target
 
-			vec3 lightVector = lightPos - vPosition;
+			vec3 lightVector = lightPos - vPosition; // lightVector = to Light
 			float distance = dot(lightVector, lightVector);
 			lightVector = normalize(lightVector);
 
-			//check if camera may see highlights:
-			float dotLightNormalInverted; // = 1.0;
 
 			float distanceFactor = (uLightsPositions[i].w * 10 / distance);
 
-			// directional light falloff:
-			float differenceLightDirectionAndFragmentDirection = 1.0;
-			if(uLightsTargets[i].w > 0.0){ // directional
-				differenceLightDirectionAndFragmentDirection = max(dot(lightDirection, -lightVector), 0.0);
-				dotLightNormalInverted = max(dot(lightDirection, -theNormal), 0.0) * clamp(8.0 * distanceFactor, 0.0, 1.0);
-			}
-			else
-			{
-				dotLightNormalInverted = 1.0 * clamp(8.0 * distanceFactor, 0.0, 1.0);
-			}
+			// angle between surface normal and the surface-to-light vector
+			float dotNormalLight = max(dot(lightVector, theNormal), 0.0);
 
+			// angle between the light direction and the surface normal
+			float dotNormalLightDirection = max(dot(lightDirection, theNormal), 0.0);
+
+			// angle between light direction and 
+			float differenceLightDirectionAndFragmentDirection = 1.0;
+			if(uLightsTargets[i].w > 0.0) // directional?
+			{ 
+				differenceLightDirectionAndFragmentDirection = max(dot(lightDirection, -lightVector), 0.0); 
+			}
+			
 			// Normal light affection:
-			float dotProduct = max(dot(theNormal, lightVector), 0.0);
-			float dotProductNormalLight = dotProduct * distanceFactor * differenceLightDirectionAndFragmentDirection * isShadowLight;
+			float dotProductNormalLight = dotNormalLight * distanceFactor * differenceLightDirectionAndFragmentDirection * isShadowLight;
 
 			//calculate specular highlights:
-			reflectionVector = reflect(-lightVector, theNormal);
+			vec3 reflectionVector = reflect(-lightVector, theNormal);
 			float specular = max(specularFactor * uSpecularPower * pow(max(0.0, dot(surfaceToCamera, reflectionVector)), uSpecularArea), 0.0);
-			totalSpecColor += uLightsColors[i].xyz * specular * pow(dotLightNormalInverted, 2.0);
+			totalSpecColor += uLightsColors[i].xyz * specular * dotProductNormalLight;
 
 			colorComponentTotal += lightColor * dotProductNormalLight * uLightsColors[i].w * pow(differenceLightDirectionAndFragmentDirection, 5.0);
 		}
