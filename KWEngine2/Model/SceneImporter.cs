@@ -23,10 +23,10 @@ namespace KWEngine2.Model
                     return FileType.DirectX;
                 case "dae":
                     return FileType.Collada;
-                case "glb":
-                    return FileType.GLTF;
-                case "gltf":
-                    return FileType.GLTF;
+                //case "glb":
+                //    return FileType.GLTF;
+                //case "gltf":
+                //    return FileType.GLTF;
                 case "obj":
                     return FileType.Wavefront;
                 case "fbx":
@@ -86,6 +86,10 @@ namespace KWEngine2.Model
                         steps |= PostProcessSteps.FlipUVs;
 
                     scene = importer.ImportFile(filename, steps);
+                }
+                else
+                {
+                    throw new Exception("Could not load model: only OBJ, DAE, FBX, X and BLEND are supported (GLTF support coming soon).");
                 }
             }
             if (scene == null)
