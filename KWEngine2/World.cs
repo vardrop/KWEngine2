@@ -284,7 +284,7 @@ namespace KWEngine2
             }
             set
             {
-                _fov = value > 0 && value <= 90 ? value : 45f;
+                _fov = HelperGL.Clamp(value, 20, 175);
                 CurrentWindow.CalculateProjectionMatrix();
             }
         }
@@ -300,7 +300,7 @@ namespace KWEngine2
             }
             set
             {
-                _fovShadow = value > 0 && value <= 90 ? value : 45f;
+                _fovShadow = HelperGL.Clamp(value, 20, 175);
                 CurrentWindow.CalculateProjectionMatrix();
             }
         }
