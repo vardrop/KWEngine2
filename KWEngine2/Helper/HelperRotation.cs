@@ -208,5 +208,21 @@ namespace KWEngine2.Helper
             Quaternion sourceQ = new Quaternion(source, 0);
             return (rotation * sourceQ * qri).Xyz;
         }
+
+        /// <summary>
+        /// Berechnet ein Quaternion aus den übergebenen Achsenrotationen (in Grad).
+        /// (Die Rotationsreihenfolge ist Z -> Y -> X)
+        /// </summary>
+        /// <param name="x">x-Achsenrotation (in Grad)</param>
+        /// <param name="y">y-Achsenrotation (in Grad)</param>
+        /// <param name="z">z-Achsenrotation (in Grad)</param>
+        /// <returns>Kombinierte Rotation als Quaternion-Instanz</returns>
+        public static Quaternion GetQuaternionForEulerDegrees(float x, float y, float z)
+        {
+            Quaternion tmpRotateX = Quaternion.FromAxisAngle(Vector3.UnitX, MathHelper.DegreesToRadians(x));
+            Quaternion tmpRotateY = Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(y));
+            Quaternion tmpRotateZ = Quaternion.FromAxisAngle(Vector3.UnitZ, MathHelper.DegreesToRadians(z));
+            return (tmpRotateZ * tmpRotateY * tmpRotateX);
+        }
     }
 }

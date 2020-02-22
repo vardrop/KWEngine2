@@ -199,6 +199,7 @@ namespace KWEngine2
         internal static GeoModel CoordinateSystemX;
         internal static GeoModel CoordinateSystemY;
         internal static GeoModel CoordinateSystemZ;
+        internal static GeoModel GHitbox;
         internal static GeoModel KWRect;
         internal static RendererSimple RendererSimple;
         internal static RendererStandardPBR RendererPBR;
@@ -315,6 +316,7 @@ namespace KWEngine2
             CoordinateSystemX = SceneImporter.LoadModel("csystemX.obj", false, true);
             CoordinateSystemY = SceneImporter.LoadModel("csystemY.obj", false, true);
             CoordinateSystemZ = SceneImporter.LoadModel("csystemZ.obj", false, true);
+            GHitbox = SceneImporter.LoadModel("Hitbox.obj", false, true);
 
             for (int i = 0; i < Explosion.Axes.Length; i++)
             {

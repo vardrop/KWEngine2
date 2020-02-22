@@ -76,8 +76,8 @@ namespace KWEngine2.GameObjects
         {
             get
             {
-                if (CurrentWorld != null)
-                    return CurrentWorld.CurrentWindow;
+                if (GLWindow.CurrentWindow != null)
+                    return GLWindow.CurrentWindow;
                 else
                     throw new Exception("No window available.");
             }
@@ -249,7 +249,8 @@ namespace KWEngine2.GameObjects
         {
             get
             {
-                return Model != null && Model.Animations != null && Model.Animations.Count > 0;
+                CheckModel();
+                return Model.Animations != null && Model.Animations.Count > 0;
             }
         }
 
@@ -291,6 +292,7 @@ namespace KWEngine2.GameObjects
             }
             internal set
             {
+                CheckModel();
                 _rotation = value;
                 UpdateModelMatrixAndHitboxes();
                 UpdateLookAtVector();
@@ -515,7 +517,7 @@ namespace KWEngine2.GameObjects
         {
             get
             {
-                return _model.IsValid;
+                return (_model != null && _model.IsValid);
             }
         }
 
@@ -539,12 +541,7 @@ namespace KWEngine2.GameObjects
             SetModel(KWEngine.GetModel(m));
         }
 
-        /// <summary>
-        /// Setzt das Modell des Objekts
-        /// </summary>
-        /// <param name="m">Modell-Instanz</param>
-        //[Obsolete("Please use SetModel(string) instead.")]
-        private void SetModel(GeoModel m)
+        internal void SetModel(GeoModel m)
         {
             if (m == null)
             {
@@ -953,7 +950,7 @@ namespace KWEngine2.GameObjects
         /// <returns>Blickrichtungsvektor (normalisiert)</returns>
         public Vector3 GetLookAtVector()
         {
-            CheckModelAndWorld();
+            CheckModelAndWorld(true);
             return _lookAtVector;
         }
 
@@ -1686,12 +1683,13 @@ namespace KWEngine2.GameObjects
             return Quaternion.Identity;
         }
 
-       /// <summary>
-       /// Dreht das Objekt, so dass es zur Zielkoordinate blickt
-       /// </summary>
-       /// <param name="target">Zielkoordinate</param>
+        /// <summary>
+        /// Dreht das Objekt, so dass es zur Zielkoordinate blickt
+        /// </summary>
+        /// <param name="target">Zielkoordinate</param>
         public void TurnTowardsXYZ(Vector3 target)
         {
+            CheckModel();
             if (CurrentWindow.IsMouseInWindow)
             {
                 //Vector3 dir = target - GetCenterPointForAllHitboxes();
@@ -1726,6 +1724,7 @@ namespace KWEngine2.GameObjects
         /// <param name="target">Zielkoordinaten</param>
         public void TurnTowardsXY(Vector3 target)
         {
+            CheckModel();
             if (CurrentWindow.IsMouseInWindow)
             {
                 target.Z = GetCenterPointForAllHitboxes().Z;
@@ -1759,6 +1758,7 @@ namespace KWEngine2.GameObjects
         /// <param name="target">Zielkoordinaten</param>
         public void TurnTowardsXZ(Vector3 target)
         {
+            CheckModel();
             if (CurrentWindow.IsMouseInWindow)
             {
                 Vector3 currentPos = GetCenterPointForAllHitboxes();
@@ -1776,8 +1776,9 @@ namespace KWEngine2.GameObjects
         /// </summary>
         /// <param name="position">Zielpunkt</param>
         /// <returns>Distanz</returns>
-        public float GetDistanceTo(Vector3 position)
+        protected float GetDistanceTo(Vector3 position)
         {
+            CheckModel();
             return (GetCenterPointForAllHitboxes() - position).LengthFast;
         }
 
@@ -1786,15 +1787,17 @@ namespace KWEngine2.GameObjects
         /// </summary>
         /// <param name="g">GameObject-Instanz</param>
         /// <returns>Distanz</returns>
-        public float GetDistanceTo(GameObject g)
+        protected float GetDistanceTo(GameObject g)
         {
+            CheckModel();
+            g.CheckModel();
             return (GetCenterPointForAllHitboxes() - g.GetCenterPointForAllHitboxes()).LengthFast;
         }
 
         /// <summary>
         /// Erfragt, ob das Objekt (mit kompletter Hitbox) noch von der Kamera gesehen werde kann
         /// </summary>
-        public bool IsInsideScreenSpace { get; internal set; } = false;
+        public bool IsInsideScreenSpace { get; internal set; } = true;
 
         /// <summary>
         /// Gibt das GameObject zurück, das unter dem Mauszeiger liegt (Instanzen müssen mit IsPickable = true gesetzt haben)

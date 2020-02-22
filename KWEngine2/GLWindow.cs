@@ -59,7 +59,7 @@ namespace KWEngine2
         internal System.Drawing.Point _mousePointFPS = new System.Drawing.Point(0, 0);
 
         internal GeoModel _bloomQuad;
-
+    
         /// <summary>
         /// Konstruktormethode
         /// </summary>
@@ -116,9 +116,9 @@ namespace KWEngine2
 
         private void BasicInit()
         {
-            string productVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductMajorPart + 
-                "." + FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductMinorPart;
-            Console.Write("\n\n\n================================================\n" + "Running KWEngine " + productVersion + " ");
+            string productVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductName + " " + FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductMajorPart + 
+                "." + FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductMinorPart + "." + FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductBuildPart;
+            Console.Write("\n\n\n================================================\n" + "Running " + productVersion + " ");
             Console.WriteLine("on OpenGL 4.5 Core Profile.\n" + "================================================\n");
 
             KWEngine.TextureDefault = HelperTexture.LoadTextureInternal("checkerboard.png");
@@ -299,6 +299,8 @@ namespace KWEngine2
                             else
                             {
                                 KWEngine.Renderers["Standard"].Draw(g, ref viewProjection, ref viewProjectionShadowBiased, ref viewProjectionShadowBiased2, Frustum, ref LightColors, ref LightTargets, ref LightPositions, CurrentWorld._lightcount, ref shadowLight);
+                                if(CurrentWorld.DebugShowHitboxes)
+                                    KWEngine.RendererSimple.DrawHitbox(g, ref viewProjection);
                             }
                         }
                     }
@@ -314,13 +316,14 @@ namespace KWEngine2
                     }
                     GL.Enable(EnableCap.Blend);
                     GL.Disable(EnableCap.DepthTest);
+                    GL.Disable(EnableCap.CullFace);
                     lock (CurrentWorld._hudObjects)
                     {
                         foreach (HUDObject p in CurrentWorld._hudObjects)
                             KWEngine.Renderers["HUD"].Draw(p, ref _viewProjectionMatrixHUD);
                     }
                     GL.Disable(EnableCap.Blend);
-
+                    GL.Enable(EnableCap.CullFace);
                     if (CurrentWorld.DebugShowCoordinateSystem)
                     {
                         KWEngine.DrawCoordinateSystem(ref viewProjection);

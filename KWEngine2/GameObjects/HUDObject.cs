@@ -43,9 +43,10 @@ namespace KWEngine2.GameObjects
         /// </summary>
         public World CurrentWorld { get; internal set; } = null;
         internal Vector3 _scale = new Vector3(32f, 32f, 1f);
-        
-        internal Vector3[] _positions = new Vector3[1];
-        internal Matrix4[] _modelMatrices = new Matrix4[1];
+        internal Quaternion _rotation = Quaternion.Identity;
+        internal Matrix4 _rotationMatrix = Matrix4.Identity;
+        internal List<Vector3> _positions = new List<Vector3>();
+        internal List<Matrix4> _modelMatrices = new List<Matrix4>();
         internal Matrix4 _scaleMatrix = Matrix4.CreateScale(32f,32f, 1f);
         internal string _text = null;
         internal int _count = 1;
@@ -70,6 +71,18 @@ namespace KWEngine2.GameObjects
                 _spread = HelperGL.Clamp(value, 1f, 1024f);
                 UpdatePositions();
             }
+        }
+
+        /// <summary>
+        /// Setzt die Rotation des HUD-Objekts
+        /// </summary>
+        /// <param name="x">X-Rotation in Grad</param>
+        /// <param name="y">Y-Rotation in Grad</param>
+        public void SetRotation(float x, float y)
+        {
+            _rotation = HelperRotation.GetQuaternionForEulerDegrees(x, y, 0);
+            _rotationMatrix = Matrix4.CreateFromQuaternion(_rotation);
+            UpdatePositions();
         }
 
         /// <summary>
@@ -187,7 +200,6 @@ namespace KWEngine2.GameObjects
         {
             _type = type;
             Position = new Vector3(x - KWEngine.CurrentWindow.Width / 2, KWEngine.CurrentWindow.Height - y - KWEngine.CurrentWindow.Height / 2, 0);
-            //Position = new Vector3(x, y, 0);
             _absolute.X = x;
             _absolute.Y = y;
             
@@ -211,14 +223,14 @@ namespace KWEngine2.GameObjects
         private void SetPosition(int index, Vector3 pos)
         {
             pos.X = pos.X + (CharacterSpreadFactor * index);
-            _positions[index] = pos;
-            _modelMatrices[index] = _scaleMatrix * Matrix4.CreateTranslation(pos);
+            _positions.Add(pos);
+            _modelMatrices.Add(_scaleMatrix * _rotationMatrix * Matrix4.CreateTranslation(pos));
         }
 
         internal void UpdatePositions()
         {
-            _positions = new Vector3[_count];
-            _modelMatrices = new Matrix4[_count];
+            _positions.Clear();
+            _modelMatrices.Clear();
             for (int i = 0; i < _count; i++)
             {
                 SetPosition(i, Position);

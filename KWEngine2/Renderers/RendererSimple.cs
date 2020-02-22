@@ -1,4 +1,5 @@
-﻿using KWEngine2.GameObjects;
+﻿using KWEngine2.Collision;
+using KWEngine2.GameObjects;
 using KWEngine2.Helper;
 using KWEngine2.Model;
 using OpenTK;
@@ -6,6 +7,7 @@ using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using static KWEngine2.KWEngine;
 
@@ -72,6 +74,45 @@ namespace KWEngine2.Renderers
             throw new NotImplementedException();
         }
 
+        internal void DrawHitbox(GameObject g, ref Matrix4 viewProjection)
+        {
+            if (!g.IsInsideScreenSpace || g.Opacity <= 0 || !g.IsCollisionObject)
+                return;
+
+            GL.UseProgram(mProgramId);
+            GL.Disable(EnableCap.Blend);
+
+            lock (g)
+            {
+                bool useMeshTransform = (g.AnimationID >= 0 && g.Model.Animations != null && g.Model.Animations.Count > 0);
+
+                int i = 0;
+                foreach (GeoMeshHitbox h in g.Model.MeshHitboxes)
+                {
+                    Matrix4 model = Matrix4.CreateScale(h.width, h.height, h.depth);
+                    model *= Matrix4.CreateTranslation(h.Center);
+                    if(useMeshTransform)
+                        model *= g.Model.Meshes.ElementAt(i).Value.Transform;
+                    model = model * g.ModelMatrixForRenderPass;
+                    _modelViewProjection = model * viewProjection;
+
+                    GL.UniformMatrix4(mUniform_MVP, false, ref _modelViewProjection);
+                    GL.Uniform3(mUniform_BaseColor, 1.0f, 1.0f, 1.0f);
+
+                    GeoMesh mesh = KWEngine.GHitbox.Meshes.ElementAt(0).Value;
+                    GL.BindVertexArray(mesh.VAO);
+                    GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
+                    GL.DrawElements(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
+                    GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+                    GL.BindVertexArray(0);
+
+                    i++;
+                }
+            }
+
+            GL.UseProgram(0);
+        }
+
         internal override void Draw(GameObject g, ref Matrix4 viewProjection, ref Matrix4 viewProjectionShadowBiased, ref Matrix4 viewProjectionShadowBiased2, HelperFrustum frustum, ref float[] lightColors, ref float[] lightTargets, ref float[] lightPositions, int lightCount, ref int lightShadow)
         {
             if (g == null || !g.HasModel || g.CurrentWorld == null || g.Opacity <= 0)
@@ -85,6 +126,7 @@ namespace KWEngine2.Renderers
 
             lock (g)
             {
+
                 Matrix4.Mult(ref g.ModelMatrixForRenderPass, ref viewProjection, out _modelViewProjection);
 
                 GL.UniformMatrix4(mUniform_MVP, false, ref _modelViewProjection);

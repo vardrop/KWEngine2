@@ -19,6 +19,10 @@ namespace KWEngine2
     public abstract class World
     {
         /// <summary>
+        /// Zeige Hitbox von allen als Kollisionsobjekt markierten GameObject-Instanzen
+        /// </summary>
+        public bool DebugShowHitboxes { get; set; } = false;
+        /// <summary>
         /// Zeige die Welt aus der Sicht der Sonne
         /// </summary>
         public bool DebugShadowCaster { get; set; } = false;

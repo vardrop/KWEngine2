@@ -87,7 +87,7 @@ namespace KWEngine2.Renderers
             GL.Uniform4(mUniform_TintColor, ho._tint);
             GL.Uniform4(mUniform_Glow, ho._glow);
 
-            for (int i = 0; i < ho._positions.Length; i++)
+            for (int i = 0; i < ho._positions.Count; i++)
             {
                 Matrix4 mvp = ho._modelMatrices[i] * viewProjection;
                 GL.UniformMatrix4(mUniform_MVP, false, ref mvp);

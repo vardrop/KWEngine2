@@ -17,6 +17,8 @@ namespace KWEngine2.Model
         internal float maxX, maxY, maxZ;
         internal float minX, minY, minZ;
 
+        internal float width, height, depth;
+
         internal Vector3[] Vertices = new Vector3[8];
         internal Vector3[] Normals = new Vector3[3];
         internal Vector3 Center = new Vector3(0, 0, 0);
@@ -43,6 +45,10 @@ namespace KWEngine2.Model
             Center.X = minX + ((maxX - minX) / 2f);
             Center.Y = minY + ((maxY - minY) / 2f);
             Center.Z = minZ + ((maxZ - minZ) / 2f);
+
+            width = maxX - minX;
+            height = maxY - minY;
+            depth = maxZ - minZ;
 
             Vertices[0] = new Vector3(minX, minY, maxZ); // frontleftdown
             Vertices[1] = new Vector3(maxX, minY, maxZ); // frontrightdown

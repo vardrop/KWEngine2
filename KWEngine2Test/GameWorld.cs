@@ -184,6 +184,7 @@ namespace KWEngine2Test
             p.IsShadowCaster = true;
             p.IsCollisionObject = true;
             p.IsPickable = true;
+            p.TurnTowardsXZ(new Vector3(0, 0, 0));
             p.SetSpecularOverride(true, 8, 32);
             AddGameObject(p);
             //SetFirstPersonObject(p);
@@ -237,6 +238,7 @@ namespace KWEngine2Test
             HUDObject ho = new HUDObject(HUDObjectType.Text, 24, 24);
             ho.SetText("kwengine.de");
             ho.SetGlow(1, 0, 0, 1);
+            ho.SetRotation(0, 45);
             AddHUDObject(ho);
 
             Follower f = new Follower();
@@ -245,6 +247,8 @@ namespace KWEngine2Test
             f.SetScale(6);
             f.SetPosition(15, 15, 0);
             //AddGameObject(f);
+
+            //DebugShowHitboxes = true;
         }
 
     }
