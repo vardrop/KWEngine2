@@ -201,6 +201,7 @@ namespace KWEngine2
         internal static GeoModel CoordinateSystemZ;
         internal static GeoModel GHitbox;
         internal static GeoModel KWRect;
+        internal static GeoModel KWStar;
         internal static RendererSimple RendererSimple;
         internal static RendererStandardPBR RendererPBR;
         internal static float CSScale = 4.5f;
@@ -312,6 +313,7 @@ namespace KWEngine2
             Models.Add("KWCube6", SceneImporter.LoadModel("kwcube6.obj", false, true));
             KWRect = SceneImporter.LoadModel("kwrect.obj", false, true);
             Models.Add("KWSphere", SceneImporter.LoadModel("kwsphere.obj", false, true));
+            KWStar = SceneImporter.LoadModel("star.obj", false, true);
             CoordinateSystem = SceneImporter.LoadModel("csystem.obj", false, true);
             CoordinateSystemX = SceneImporter.LoadModel("csystemX.obj", false, true);
             CoordinateSystemY = SceneImporter.LoadModel("csystemY.obj", false, true);

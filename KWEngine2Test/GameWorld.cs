@@ -24,8 +24,6 @@ namespace KWEngine2Test
             long now = GetCurrentTimeInMilliseconds();
             if(now - _timeStamp > 3000)
             {
-                
-
                 ParticleObject smoke = new ParticleObject(new Vector3(-32.5f, 1, -22.5f), new Vector3(5, 5, 5), ParticleType.LoopSmoke1);
                 smoke.SetColor(0.2f, 0.2f, 0.2f, 1);
                 smoke.SetDuration(3.25f);
@@ -35,11 +33,12 @@ namespace KWEngine2Test
 
             if (now - _timeStampExp > _timeStampExpDiff)
             {
-                Explosion ex = new Explosion(new Vector3(-35, 2, -24), 64, 1, 8, 1, ExplosionType.Cube, new Vector4(1, 1, 1, 1));
+                Explosion ex = new Explosion(new Vector3(-35f, 4, -22.5f), 64, 1, 8, 2, ExplosionType.Cube, new Vector4(1, 1, 1, 1));
+                //ex.SetAnimationAlgorithm(ExplosionAnimation.WindUp);
                 AddGameObject(ex);
 
                 _timeStampExp = now;
-                _timeStampExpDiff = HelperRandom.GetRandomNumber(4000, 10000);
+                _timeStampExpDiff = HelperRandom.GetRandomNumber(3000, 10000);
 
             }
 
@@ -47,9 +46,6 @@ namespace KWEngine2Test
      
         public override void Prepare()
         {
-            KWEngine.LoadModelFromFile("Building1", @".\models\gltftest\gun.obj");
-            KWEngine.LoadModelFromFile("Building2", @".\models\SciFiPack\SciFi_Building_Large02.obj");
-
             KWEngine.LoadModelFromFile("Robot", @".\models\UBot\ubot.fbx");
             KWEngine.LoadModelFromFile("Lab", @".\models\labyrinth\walls.obj");
             KWEngine.LoadModelFromFile("Panel", @".\models\spacepanel\scifipanel.obj");
@@ -67,55 +63,6 @@ namespace KWEngine2Test
             SunAmbientFactor = 0.2f;
             SetCameraPosition(100, 100, 100);
             WorldDistance = 1000;
-            
-            Immovable b1 = new Immovable();
-            b1.SetModel("Building1");
-            b1.SetScale(75);
-            b1.SetPosition(0, 0, -10);
-            b1.SetSpecularOverrideForMesh(0, true, 10, 64);
-            AddGameObject(b1);
-            /*
-            Immovable b2 = new Immovable();
-            b2.SetModel("Building2");
-            b2.SetPosition(6, 0, 0);
-            b2.SetScale(10);
-            AddGameObject(b2);
-            */
-            Immovable corridorEntrance = new Immovable();
-            corridorEntrance.SetModel("CorridorEntrance");
-            corridorEntrance.SetPosition(-45, 0, 2);
-            corridorEntrance.IsCollisionObject = true;
-            corridorEntrance.IsShadowCaster = true;
-            corridorEntrance.SetRotation(0, 90, 0);
-            corridorEntrance.SetScale(5);
-            AddGameObject(corridorEntrance);
-
-            Immovable corridorStraight1 = new Immovable();
-            corridorStraight1.SetModel("CorridorStraight01");
-            corridorStraight1.SetPosition(-60, 0, 0);
-            corridorStraight1.IsCollisionObject = true;
-            corridorStraight1.IsShadowCaster = true;
-            corridorStraight1.SetRotation(0, 90, 0);
-            corridorStraight1.SetScale(5);
-            AddGameObject(corridorStraight1);
-
-            Immovable corridorStraight2 = new Immovable();
-            corridorStraight2.SetModel("CorridorStraight01");
-            corridorStraight2.SetPosition(-80, 0, 0);
-            corridorStraight2.IsCollisionObject = true;
-            corridorStraight2.IsShadowCaster = true;
-            corridorStraight2.SetRotation(0, 90, 0);
-            corridorStraight2.SetScale(5);
-            AddGameObject(corridorStraight2);
-
-            Immovable corridorStraight3 = new Immovable();
-            corridorStraight3.SetModel("CorridorStraight01");
-            corridorStraight3.SetPosition(-100, 0, 0);
-            corridorStraight3.IsCollisionObject = true;
-            corridorStraight3.IsShadowCaster = true;
-            corridorStraight3.SetRotation(0, 270, 0);
-            corridorStraight3.SetScale(5);
-            AddGameObject(corridorStraight3);
 
             Immovable ship = new Immovable();
             ship.SetModel("Spaceship");
@@ -134,22 +81,13 @@ namespace KWEngine2Test
             floor.SetTexture(@".\textures\sand_normal.png", KWEngine.TextureType.Normal);
             AddGameObject(floor);
 
-
             Immovable wallLeft1 = new Immovable();
             wallLeft1.SetModel("KWCube");
             wallLeft1.IsCollisionObject = true;
             wallLeft1.IsShadowCaster = true;
-            wallLeft1.SetScale(2, 10, 38);
-            wallLeft1.SetPosition(-49, 5, 29);
+            wallLeft1.SetScale(2, 10, 100);
+            wallLeft1.SetPosition(-49, 5, 0);
             AddGameObject(wallLeft1);
-
-            Immovable wallLeft2 = new Immovable();
-            wallLeft2.SetModel("KWCube");
-            wallLeft2.IsCollisionObject = true;
-            wallLeft2.IsShadowCaster = true;
-            wallLeft2.SetScale(2, 10, 34);
-            wallLeft2.SetPosition(-49, 5, -33);
-            AddGameObject(wallLeft2);
 
             Immovable wallRight = new Immovable();
             wallRight.SetModel("KWCube");
@@ -177,7 +115,7 @@ namespace KWEngine2Test
 
             p = new Player();
             p.SetModel("Robot");
-            p.SetPosition(-25, 0f, -15);
+            p.SetPosition(-5, 0f, -5);
             p.SetScale(4);
             p.AnimationID = 0;
             p.AnimationPercentage = 0;
@@ -187,7 +125,7 @@ namespace KWEngine2Test
             p.TurnTowardsXZ(new Vector3(0, 0, 0));
             p.SetSpecularOverride(true, 8, 32);
             AddGameObject(p);
-            //SetFirstPersonObject(p);
+            //SetFirstPersonObject(p);<
 
             p._flashlight = new Flashlight();
             p._flashlight.Type = LightType.DirectionalShadow;
@@ -196,25 +134,12 @@ namespace KWEngine2Test
             p._flashlight.SetFOVShadow(180);
             AddLightObject(p._flashlight);
 
-            //Flashlight lo2 = new Flashlight();
-            //lo2.Type = LightType.DirectionalShadow;
-            //AddLightObject(lo2);
-            
-            
             Immovable lab = new Immovable();
             lab.SetModel("Lab");
             lab.IsCollisionObject = true;
             lab.IsShadowCaster = true;
             lab.SetSpecularOverride(true, 0, 2048);
             AddGameObject(lab);
-
-            Cube testCube = new Cube();
-            testCube.SetModel("KWSphere");
-            testCube.SetScale(10);
-            testCube.SetPosition(-5, 5, 0);
-            testCube.SetSpecularOverride(true, 20, 1024);
-            testCube.SetColorOutline(1, 1, 0, 1);
-            //AddGameObject(testCube);
 
             Panel panel = new Panel();
             panel.SetModel("Panel");
@@ -234,21 +159,23 @@ namespace KWEngine2Test
             pLight.SetTarget(10, 0, -5);
             pLight.SetDistanceMultiplier(2f);
             AddLightObject(pLight);
+            
 
             HUDObject ho = new HUDObject(HUDObjectType.Text, 24, 24);
             ho.SetText("kwengine.de");
             ho.SetGlow(1, 0, 0, 1);
-            ho.SetRotation(0, 45);
+            ho.SetRotation(0, 0);
             AddHUDObject(ho);
-
-            Follower f = new Follower();
-            f.SetModel("Robot");
-            f.SetColor(1, 1, 0);
-            f.SetScale(6);
-            f.SetPosition(15, 15, 0);
-            //AddGameObject(f);
-
+           
             //DebugShowHitboxes = true;
+            if (IsFirstPersonMode)
+            {
+                FOV = 90;
+            }
+            else
+            {
+                FOV = 45;
+            }
         }
 
     }

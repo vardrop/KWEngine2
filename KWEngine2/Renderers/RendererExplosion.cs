@@ -20,6 +20,7 @@ namespace KWEngine2.Renderers
         private int mUniform_Position = -1;
         private int mUniform_Size = -1;
         private int mUniform_Axes = -1;
+        private int mUniform_Algorithm = -1;
 
         public override void Initialize()
         {
@@ -72,6 +73,7 @@ namespace KWEngine2.Renderers
             mUniform_Size = GL.GetUniformLocation(mProgramId, "uSize");
             mUniform_Position = GL.GetUniformLocation(mProgramId, "uPosition");
             mUniform_Axes = GL.GetUniformLocation(mProgramId, "uAxes");
+            mUniform_Algorithm = GL.GetUniformLocation(mProgramId, "uAlgorithm");
 
         }
 
@@ -93,6 +95,7 @@ namespace KWEngine2.Renderers
                 GL.Uniform3(mUniform_Position, e.Position);
                 GL.Uniform1(mUniform_Time, e._secondsAlive / e._duration);
                 GL.Uniform1(mUniform_Size, e._particleSize);
+                GL.Uniform1(mUniform_Algorithm, e._algorithm);
 
                 GL.Uniform4(mUniform_Axes, e._amount, e._directions);
 

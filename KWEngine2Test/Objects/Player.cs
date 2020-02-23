@@ -45,7 +45,7 @@ namespace KWEngine2Test.Objects
                     runs = true;
                 }
                 MoveFPSCamera(ms);
-                MoveAndStrafeFirstPersonXYZ(forward, strafe, 0.2f);
+                MoveAndStrafeFirstPerson(forward, strafe, 0.1f * deltaTimeFactor);
                 FPSEyeOffset = 5;
                 if (ks[Key.Q])
                 {
@@ -59,12 +59,6 @@ namespace KWEngine2Test.Objects
             else
             {
                 TurnTowardsXZ(GetMouseIntersectionPoint(ms, Plane.Y));
-                /*
-                if (ks[Key.Q])
-                    AddRotationY(1f);
-                if (ks[Key.E])
-                    AddRotationY(-1f);
-                */
                 Vector3 cameraLookAt = GetCameraLookAtVector();
                 cameraLookAt.Y = 0;
                 cameraLookAt.NormalizeFast();
@@ -73,22 +67,22 @@ namespace KWEngine2Test.Objects
 
                 if (ks[Key.A])
                 {
-                    MoveAlongVector(strafe * deltaTimeFactor, 0.1f);
+                    MoveAlongVector(strafe, 0.1f * deltaTimeFactor);
                     runs = true;
                 }
                 if (ks[Key.D])
                 {
-                    MoveAlongVector(strafe * deltaTimeFactor, -0.1f);
+                    MoveAlongVector(strafe, -0.1f * deltaTimeFactor);
                     runs = true;
                 }
                 if (ks[Key.W])
                 {
-                    MoveAlongVector(cameraLookAt * deltaTimeFactor, 0.1f);
+                    MoveAlongVector(cameraLookAt, 0.1f * deltaTimeFactor);
                     runs = true;
                 }
                 if (ks[Key.S])
                 {
-                    MoveAlongVector(cameraLookAt * deltaTimeFactor, -0.1f);
+                    MoveAlongVector(cameraLookAt, -0.1f * deltaTimeFactor);
                     runs = true;
                 }
 
@@ -104,10 +98,7 @@ namespace KWEngine2Test.Objects
                     _height -= 0.5f;
                 }
                 
-                Vector3 camPos = this.Position + new Vector3(50, _height, 50);
-                camPos.Y = _height;
-                CurrentWorld.SetCameraPosition(camPos);
-                CurrentWorld.SetCameraTarget(Position.X, 0, Position.Z);
+                
             }
 
             if (IsMouseCursorInsideMyHitbox(ms))
@@ -119,6 +110,7 @@ namespace KWEngine2Test.Objects
             {
                 SetColorOutline(0, 1, 0, 0);
             }
+
             /*
             if (ms.LeftButton == ButtonState.Pressed)
             {
@@ -126,7 +118,8 @@ namespace KWEngine2Test.Objects
                 Console.WriteLine(o);
             }
             */
-            MoveOffset(0, -0.1f, 0);
+
+            MoveOffset(0, -0.1f * deltaTimeFactor, 0);
             List<Intersection> intersections = GetIntersections();
             foreach(Intersection i in intersections)
             {
@@ -143,10 +136,11 @@ namespace KWEngine2Test.Objects
             AdjustFlashlight();
             AdjustAnimation(runs);
 
+            Vector3 camPos = this.Position + new Vector3(50, _height, 50);
+            camPos.Y = _height;
+            CurrentWorld.SetCameraPosition(camPos);
+            CurrentWorld.SetCameraTarget(Position.X, 0, Position.Z);
 
-
-            //if (ks[Key.Space])
-            //    CurrentWorld.DebugShadowCaster = !CurrentWorld.DebugShadowCaster;
         }
 
         private void AdjustAnimation(bool runs)

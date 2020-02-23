@@ -83,7 +83,7 @@ namespace KWEngine2
         {
             get
             {
-                return _firstPersonObject != null && _gameObjects.Contains(_firstPersonObject);
+                return _firstPersonObject != null; // && _gameObjects.Contains(_firstPersonObject);
             }
         }
 

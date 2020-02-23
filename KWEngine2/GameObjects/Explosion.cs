@@ -8,6 +8,22 @@ using System.Diagnostics;
 namespace KWEngine2.GameObjects
 {
     /// <summary>
+    /// Art der Animationsbewegung
+    /// </summary>
+    public enum ExplosionAnimation
+    {
+        /// <summary>
+        /// Standard-Animationsalgorithmus
+        /// </summary>
+        Spread = 0,
+        /// <summary>
+        /// Partikel drehen sich entlang der positiven y-Achse nach oben
+        /// </summary>
+        WindUp = 1
+
+    }
+
+    /// <summary>
     /// Art der Explosion
     /// </summary>
     public enum ExplosionType { 
@@ -34,7 +50,20 @@ namespace KWEngine2.GameObjects
         /// <summary>
         /// Kugelpartikel um die Z-Achse
         /// </summary>
-        SphereRingZ
+        SphereRingZ,
+        /// <summary>
+        /// Sternenpartikel in alle Richtungen
+        /// </summary>
+        Star,
+        /// <summary>
+        /// Sternenpartikel um die Y-Achse
+        /// </summary>
+        StarRingY,
+        /// <summary>
+        /// Sternenpartikel um die Z-Achse
+        /// </summary>
+        StarRingZ,
+
     }
 
     /// <summary>
@@ -79,7 +108,59 @@ namespace KWEngine2.GameObjects
         internal long _starttime = -1;
         internal float _secondsAlive = 0;
         internal float _particleSize = 0.5f;
-        internal float[] _directions;
+        internal float[] _directions = new float[MAX_PARTICLES * 4];
+        internal int _algorithm = 0;
+
+        /// <summary>
+        /// Setzt den Explosionsradius
+        /// </summary>
+        /// <param name="radius">Radius</param>
+        public void SetRadius(float radius)
+        {
+            _spread = radius > 0 ? radius : 10;
+        }
+
+        /// <summary>
+        /// Setzt die Partikelgröße
+        /// </summary>
+        /// <param name="size">Größe je Partikel</param>
+        public void SetParticleSize(float size)
+        {
+            _particleSize = size > 0 ? size : 1f;
+        }
+
+        /// <summary>
+        /// Setzt den Bewegungsalgorithmus der Partikel
+        /// </summary>
+        /// <param name="e">Algorithmustyp</param>
+        public void SetAnimationAlgorithm(ExplosionAnimation e)
+        {
+            _algorithm = (int)e;
+        }
+
+        /// <summary>
+        /// Explosionskonstruktormethode
+        /// </summary>
+        /// <param name="position">Position der Explosion</param>
+        /// <param name="particleCount">Anzahl der Partikel</param>
+        /// <param name="durationInSeconds">Dauer der Explosion in Sekunden</param>
+        /// <param name="type">Art der Explosion</param>
+        public Explosion(Vector3 position, int particleCount, float durationInSeconds = 2, ExplosionType type = ExplosionType.Sphere)
+            : this(position, particleCount, 1f, 10f, durationInSeconds, type, new Vector4(1f,1f,1f,1f), null)
+        {
+
+        }
+
+        /// <summary>
+        /// Explosionskonstruktormethode
+        /// </summary>
+        /// <param name="position">Position der Explosion</param>
+        /// <param name="type">Art der Explosion</param>
+        public Explosion(Vector3 position, ExplosionType type = ExplosionType.Sphere)
+            : this(position, 16, 1f, 10f, 2, type, new Vector4(1f, 1f, 1f, 1f), null)
+        {
+
+        }
 
         /// <summary>
         /// Explosionskonstruktormethode
@@ -104,9 +185,13 @@ namespace KWEngine2.GameObjects
             {
                 SetModel("KWCube");
             }
-            else
+            else if (type == ExplosionType.Sphere || type == ExplosionType.SphereRingY || type == ExplosionType.SphereRingZ)
             {
                 SetModel("KWSphere");
+            }
+            else
+            {
+                SetModel(KWEngine.KWStar);
             }
 
             Glow = glow;
@@ -114,20 +199,22 @@ namespace KWEngine2.GameObjects
             _amount = particleCount >= 4 && particleCount <= MAX_PARTICLES ? particleCount : particleCount < 4 ? 4 : MAX_PARTICLES;
             _spread = radius > 0 ? radius : 10;
             _duration = durationInSeconds > 0 ? durationInSeconds : 2;
-            _particleSize = particleSize;
+            _particleSize = particleSize > 0 ? particleSize : 1f;
 
-            _directions = new float[_amount * 4];
-            for(int i = 0, arrayIndex = 0; i < _amount; i++, arrayIndex += 4)
+            for (int i = 0, arrayIndex = 0; i < _amount; i++, arrayIndex += 4)
             {
-                if (type == ExplosionType.Cube || type == ExplosionType.Sphere)
+                
+                if (type == ExplosionType.Cube || type == ExplosionType.Sphere || type == ExplosionType.Star)
                 {
                     int randomIndex = HelperRandom.GetRandomNumber(0, AxesCount - 1);
+                    int randomIndex2 = HelperRandom.GetRandomNumber(0, AxesCount - 1);
+                    int randomIndex3 = HelperRandom.GetRandomNumber(0, AxesCount - 1);
                     _directions[arrayIndex] = Axes[randomIndex].X;
-                    _directions[arrayIndex + 1] = Axes[randomIndex].Y;
-                    _directions[arrayIndex + 2] = Axes[randomIndex].Z;
+                    _directions[arrayIndex + 1] = Axes[randomIndex2].Y;
+                    _directions[arrayIndex + 2] = Axes[randomIndex3].Z;
                     _directions[arrayIndex + 3] = HelperRandom.GetRandomNumber(0.01f, 1.0f);
                 }
-                else if(type == ExplosionType.CubeRingY || type == ExplosionType.SphereRingY)
+                else if(type == ExplosionType.CubeRingY || type == ExplosionType.SphereRingY || type == ExplosionType.StarRingY)
                 {
                     _directions[arrayIndex] = 0;
                     _directions[arrayIndex + 1] = 1;
@@ -142,7 +229,6 @@ namespace KWEngine2.GameObjects
                     _directions[arrayIndex + 3] = HelperRandom.GetRandomNumber(0.01f, 1.0f);
                 }
             }
-
             int texId = -1;
             bool textureFound = false;
             if (texture != null && texture.Length > 0)
