@@ -17,9 +17,13 @@ namespace KWEngine2.GameObjects
         /// </summary>
         Spread = 0,
         /// <summary>
-        /// Partikel drehen sich entlang der positiven y-Achse nach oben
+        /// Partikel wandern entlang der positiven y-Achse nach oben
         /// </summary>
-        WindUp = 1
+        WindUp = 1,
+        /// <summary>
+        /// Partikel wirbeln entlang der positiven y-Achse nach oben
+        /// </summary>
+        WhirlwindUp = 2
 
     }
 
@@ -62,8 +66,7 @@ namespace KWEngine2.GameObjects
         /// <summary>
         /// Sternenpartikel um die Z-Achse
         /// </summary>
-        StarRingZ,
-
+        StarRingZ
     }
 
     /// <summary>

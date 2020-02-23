@@ -33,12 +33,13 @@ namespace KWEngine2Test
 
             if (now - _timeStampExp > _timeStampExpDiff)
             {
-                Explosion ex = new Explosion(new Vector3(-35f, 4, -22.5f), 64, 1, 8, 2, ExplosionType.Cube, new Vector4(1, 1, 1, 1));
-                //ex.SetAnimationAlgorithm(ExplosionAnimation.WindUp);
+                Explosion ex = new Explosion(new Vector3(-35f, 4, -22.5f), 32, 1, 8, 2, ExplosionType.Star, new Vector4(1, 1, 1, 1));
+                //ex.SetAnimationAlgorithm(ExplosionAnimation.WhirlwindUp);
                 AddGameObject(ex);
 
                 _timeStampExp = now;
                 _timeStampExpDiff = HelperRandom.GetRandomNumber(3000, 10000);
+                //_timeStampExpDiff = HelperRandom.GetRandomNumber(2000, 4000);
 
             }
 

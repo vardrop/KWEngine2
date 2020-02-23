@@ -30,6 +30,19 @@ mat4 rotationMatrix(vec3 axis, float angle)
                 0.0,                                0.0,                                0.0,                                1.0);
 }
 
+mat4 rotationMatrixY(float angle)
+{
+    vec3 axis = vec3(0.0, 1.0, 0.0);
+    float s = sin(angle);
+    float c = cos(angle);
+    float oc = 1.0 - c;
+    
+    return mat4(c, 0, s, 0,
+                0, oc * 1.0 * 1.0 + c, 0, 0,
+                -s, 0, c, 0,
+                0, 0, 0, 1);
+}
+
 vec3 rotateVectorY(vec3 v, float angle)
 {
     return vec3(cos(angle) * v.x - sin(angle) * v.z, v.y, sin(angle) * v.x + cos(angle) *v.z);
@@ -41,8 +54,8 @@ void main()
     vec4 axis = uAxes[gl_InstanceID];
     mat4 rotation = rotationMatrix(axis.xyz, instancePercent * (1.95 * M_PI));
     vec3 lookAt = normalize(vec3(rotation[0][0], rotation[1][0], rotation[2][0]));
-
 	mat4 modelMatrix = mat4(1.0);
+
     float sizeFactor = max(pow(sin(2.0 * uTime + 1.25), 4.0), 0.0);
     modelMatrix[0][0] *= sizeFactor * uSize * axis.w;
     modelMatrix[0][1] *= sizeFactor * uSize * axis.w;
@@ -60,17 +73,28 @@ void main()
         modelMatrix[3][1] = uPosition.y + uSpread * uTime * lookAt.y * axis.w;
         modelMatrix[3][2] = uPosition.z + uSpread * uTime * lookAt.z * axis.w;
     }
-    else
+    else if(uAlgorithm == 1)
     {
       
         modelMatrix[3][0] = uPosition.x + uSpread * uTime * lookAt.x * axis.w + lookAt.x * sin(uTime * 1.5 * M_PI);
         modelMatrix[3][1] = uPosition.y + uSpread * uTime * lookAt.y * axis.w + uSpread * 1.5 * uTime;
         modelMatrix[3][2] = uPosition.z + uSpread * uTime * lookAt.z * axis.w + lookAt.z * sin(uTime * 1.5 * M_PI);
     }
+    else
+    {
+        modelMatrix[3][0] = 0.5 * uSpread * sin(uTime * M_PI) * lookAt.x * axis.w;
+        modelMatrix[3][1] = uSpread * uTime * lookAt.y * axis.w * 2.0;
+        modelMatrix[3][2] = 0.5 * uSpread * sin(uTime * M_PI) * lookAt.z * axis.w;
 
+        vec3 tmp = vec3(modelMatrix[3][0], modelMatrix[3][1], modelMatrix[3][2]);
+        tmp = rotateVectorY(tmp, instancePercent * uTime * M_PIE * 2.0);
 
-	mat4 mvp = uVP * modelMatrix;
-	
+        modelMatrix[3][0] = uPosition.x + tmp.x;// + lookAt.x * sin(uTime * 2* M_PIE * instancePercent);
+        modelMatrix[3][1] = uPosition.y + tmp.y;
+        modelMatrix[3][2] = uPosition.z + tmp.z;// + lookAt.z * sin(uTime * 2* M_PIE * instancePercent);
+    }
+
+    mat4 mvp = uVP * modelMatrix;
 	vTexture = aTexture * uTextureTransform;
 	gl_Position = mvp * vec4(aPosition, 1.0);
 }
