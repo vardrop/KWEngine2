@@ -174,6 +174,12 @@
     <EmbeddedResource Include="Assets\Models\Hitbox.obj" />
     <EmbeddedResource Include="Assets\Models\star.mtl" />
     <EmbeddedResource Include="Assets\Models\star.obj" />
+    <EmbeddedResource Include="Assets\Models\heart.mtl" />
+    <EmbeddedResource Include="Assets\Models\heart.obj" />
+    <EmbeddedResource Include="Assets\Models\skull.mtl" />
+    <EmbeddedResource Include="Assets\Models\skull.obj" />
+    <EmbeddedResource Include="Assets\Models\dollar.mtl" />
+    <EmbeddedResource Include="Assets\Models\dollar.obj" />
     <None Include="KWEngine2_Klassendiagramm.cd" />
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />

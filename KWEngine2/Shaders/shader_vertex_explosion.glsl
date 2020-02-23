@@ -1,7 +1,8 @@
 ﻿#version 430
 
+#define M_PIHALF 3.141592 / 2.0
 #define M_PI 3.141592
-#define M_PIE 3.141592 * 2
+#define M_PIE 3.141592 * 2.0
 
 in		vec3 aPosition;
 in		vec2 aTexture;
@@ -16,6 +17,7 @@ uniform float uNumber;
 uniform float uSize;
 uniform vec3 uPosition;
 uniform int uAlgorithm;
+uniform int uTowardsIndex;
 uniform vec4 uAxes[512];
 
 mat4 rotationMatrix(vec3 axis, float angle)
@@ -29,6 +31,8 @@ mat4 rotationMatrix(vec3 axis, float angle)
                 oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c,           0.0,
                 0.0,                                0.0,                                0.0,                                1.0);
 }
+
+mat4 rotationMatrixToY = mat4(1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1);
 
 mat4 rotationMatrixY(float angle)
 {
@@ -67,6 +71,16 @@ void main()
     modelMatrix[2][1] *= sizeFactor * uSize * axis.w;
     modelMatrix[2][2] *= sizeFactor * uSize * axis.w;
 
+    if(uTowardsIndex == 0)
+    {
+        modelMatrix = rotation * modelMatrix;
+    }
+    else if(uTowardsIndex == 1)
+    {
+        modelMatrix = rotationMatrixToY * modelMatrix;
+    }
+    
+
     if(uAlgorithm == 0)
     {
         modelMatrix[3][0] = uPosition.x + uSpread * uTime * lookAt.x * axis.w;
@@ -82,16 +96,16 @@ void main()
     }
     else
     {
-        modelMatrix[3][0] = 0.5 * uSpread * sin(uTime * M_PI) * lookAt.x * axis.w;
-        modelMatrix[3][1] = uSpread * uTime * lookAt.y * axis.w * 2.0;
-        modelMatrix[3][2] = 0.5 * uSpread * sin(uTime * M_PI) * lookAt.z * axis.w;
+        modelMatrix[3][0] = 0.5 * uSpread * sin(uTime * M_PI) * (1.0 - lookAt.x) * axis.w;
+        modelMatrix[3][1] = uSpread * uTime * lookAt.y * axis.w * 4.0;
+        modelMatrix[3][2] = 0.5 * uSpread * sin(uTime * M_PI) *(1.0 - lookAt.z) * axis.w;
 
         vec3 tmp = vec3(modelMatrix[3][0], modelMatrix[3][1], modelMatrix[3][2]);
         tmp = rotateVectorY(tmp, instancePercent * uTime * M_PIE * 2.0);
 
-        modelMatrix[3][0] = uPosition.x + tmp.x;// + lookAt.x * sin(uTime * 2* M_PIE * instancePercent);
+        modelMatrix[3][0] = uPosition.x + tmp.x;
         modelMatrix[3][1] = uPosition.y + tmp.y;
-        modelMatrix[3][2] = uPosition.z + tmp.z;// + lookAt.z * sin(uTime * 2* M_PIE * instancePercent);
+        modelMatrix[3][2] = uPosition.z + tmp.z;
     }
 
     mat4 mvp = uVP * modelMatrix;

@@ -21,6 +21,7 @@ namespace KWEngine2.Renderers
         private int mUniform_Size = -1;
         private int mUniform_Axes = -1;
         private int mUniform_Algorithm = -1;
+        private int mUniform_Towards = -1;
 
         public override void Initialize()
         {
@@ -71,9 +72,11 @@ namespace KWEngine2.Renderers
             mUniform_Number = GL.GetUniformLocation(mProgramId, "uNumber");
             mUniform_Spread= GL.GetUniformLocation(mProgramId, "uSpread");
             mUniform_Size = GL.GetUniformLocation(mProgramId, "uSize");
+            mUniform_TintColor = GL.GetUniformLocation(mProgramId, "uTintColor");
             mUniform_Position = GL.GetUniformLocation(mProgramId, "uPosition");
             mUniform_Axes = GL.GetUniformLocation(mProgramId, "uAxes");
             mUniform_Algorithm = GL.GetUniformLocation(mProgramId, "uAlgorithm");
+            mUniform_Towards = GL.GetUniformLocation(mProgramId, "uTowardsIndex");
 
         }
 
@@ -88,6 +91,8 @@ namespace KWEngine2.Renderers
 
             lock (g)
             {
+                int type = (int)e._type;
+
                 GL.Uniform4(mUniform_Glow, g.Glow.X, g.Glow.Y, g.Glow.Z, g.Glow.W);
                 GL.Uniform1(mUniform_SunAmbient, HelperGL.Clamp(g.CurrentWorld.SunAmbientFactor * 2f, 0, 1));
                 GL.Uniform1(mUniform_Number, (float)e._amount);
@@ -96,9 +101,14 @@ namespace KWEngine2.Renderers
                 GL.Uniform1(mUniform_Time, e._secondsAlive / e._duration);
                 GL.Uniform1(mUniform_Size, e._particleSize);
                 GL.Uniform1(mUniform_Algorithm, e._algorithm);
-
+                GL.Uniform3(mUniform_TintColor, e.Color);
+                if (type < 100)
+                    GL.Uniform1(mUniform_Towards, 0);
+                else if(type >= 100 && type < 1000)
+                    GL.Uniform1(mUniform_Towards, 1);
+                else
+                    GL.Uniform1(mUniform_Towards, 2);
                 GL.Uniform4(mUniform_Axes, e._amount, e._directions);
-
                 GL.UniformMatrix4(mUniform_VP, false, ref viewProjection);
                 GL.Uniform2(mUniform_TextureTransform, e._textureTransform.X, e._textureTransform.Y);
 

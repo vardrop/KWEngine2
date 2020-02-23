@@ -6,6 +6,7 @@ in		vec2 vTexture;
 uniform sampler2D uTextureDiffuse;
 uniform int uUseTextureDiffuse;
 uniform vec4 uGlow;
+uniform vec3 uTintColor;
 uniform float uSunAmbient;
 
 out vec4 color;
@@ -23,11 +24,11 @@ void main()
 		{
 			discard;
 		}
-		texColor = texColor4.xyz;
+		texColor = texColor4.xyz * uTintColor;
 	}
 	else
 	{
-		texColor = vec3(uSunAmbient);
+		texColor = uTintColor;
 	}
 	
     color.x = texColor.x;

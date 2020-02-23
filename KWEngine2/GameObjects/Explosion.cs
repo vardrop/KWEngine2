@@ -34,39 +34,75 @@ namespace KWEngine2.GameObjects
         /// <summary>
         /// Würfelpartikel in alle Richtungen
         /// </summary>
-        Cube, 
+        Cube = 0, 
         /// <summary>
         /// Würfelpartikel um die Y-Achse
         /// </summary>
-        CubeRingY, 
+        CubeRingY = 100, 
         /// <summary>
         /// Würfelpartikel um die Z-Achse
         /// </summary>
-        CubeRingZ,
+        CubeRingZ = 1000,
         /// <summary>
         /// Kugelpartikel in alle Richtungen
         /// </summary>
-        Sphere,
+        Sphere = 1,
         /// <summary>
         /// Kugelpartikel um die Y-Achse
         /// </summary>
-        SphereRingY,
+        SphereRingY = 101,
         /// <summary>
         /// Kugelpartikel um die Z-Achse
         /// </summary>
-        SphereRingZ,
+        SphereRingZ = 1001,
         /// <summary>
         /// Sternenpartikel in alle Richtungen
         /// </summary>
-        Star,
+        Star = 2,
         /// <summary>
         /// Sternenpartikel um die Y-Achse
         /// </summary>
-        StarRingY,
+        StarRingY = 102,
         /// <summary>
         /// Sternenpartikel um die Z-Achse
         /// </summary>
-        StarRingZ
+        StarRingZ = 1002,
+        /// <summary>
+        /// Herzpartikel in alle Richtungen
+        /// </summary>
+        Heart = 3,
+        /// <summary>
+        /// Herzpartikel um die Y-Achse
+        /// </summary>
+        HeartRingY = 103,
+        /// <summary>
+        /// Herzpartikel um die Z-Achse
+        /// </summary>
+        HeartRingZ = 1003,
+        /// <summary>
+        /// Schädelpartikel in alle Richtungen
+        /// </summary>
+        Skull = 4,
+        /// <summary>
+        /// Schädelpartikel um die Y-Achse
+        /// </summary>
+        SkullRingY = 104,
+        /// <summary>
+        /// Schädelpartikel um die Z-Achse
+        /// </summary>
+        SkullRingZ = 1004,
+        /// <summary>
+        /// Dollarpartikel in alle Richtungen
+        /// </summary>
+        Dollar = 5,
+        /// <summary>
+        /// Dollarpartikel um die Y-Achse
+        /// </summary>
+        DollarRingY = 105,
+        /// <summary>
+        /// Dollarpartikel um die Z-Achse
+        /// </summary>
+        DollarRingZ = 1005
     }
 
     /// <summary>
@@ -113,6 +149,7 @@ namespace KWEngine2.GameObjects
         internal float _particleSize = 0.5f;
         internal float[] _directions = new float[MAX_PARTICLES * 4];
         internal int _algorithm = 0;
+        internal ExplosionType _type = ExplosionType.Cube;
 
         /// <summary>
         /// Setzt den Explosionsradius
@@ -184,7 +221,7 @@ namespace KWEngine2.GameObjects
                 throw new Exception("World is null. Cannot create Explosion in an empty world.");
 
             
-            if(type == ExplosionType.Cube || type == ExplosionType.CubeRingY || type == ExplosionType.CubeRingZ)
+            if (type == ExplosionType.Cube || type == ExplosionType.CubeRingY || type == ExplosionType.CubeRingZ)
             {
                 SetModel("KWCube");
             }
@@ -192,11 +229,24 @@ namespace KWEngine2.GameObjects
             {
                 SetModel("KWSphere");
             }
-            else
+            else if (type == ExplosionType.Star || type == ExplosionType.StarRingY || type == ExplosionType.StarRingZ)
             {
                 SetModel(KWEngine.KWStar);
             }
+            else if (type == ExplosionType.Heart || type == ExplosionType.HeartRingY || type == ExplosionType.HeartRingZ)
+            {
+                SetModel(KWEngine.KWHeart);
+            }
+            else if(type == ExplosionType.Skull || type == ExplosionType.SkullRingY || type == ExplosionType.SkullRingZ)
+            {
+                SetModel(KWEngine.KWSkull);
+            }
+            else
+            {
+                SetModel(KWEngine.KWDollar);
+            }
 
+            _type = type;
             Glow = glow;
             Position = position;
             _amount = particleCount >= 4 && particleCount <= MAX_PARTICLES ? particleCount : particleCount < 4 ? 4 : MAX_PARTICLES;
@@ -207,7 +257,7 @@ namespace KWEngine2.GameObjects
             for (int i = 0, arrayIndex = 0; i < _amount; i++, arrayIndex += 4)
             {
                 
-                if (type == ExplosionType.Cube || type == ExplosionType.Sphere || type == ExplosionType.Star)
+                if ((int)type < 100)
                 {
                     int randomIndex = HelperRandom.GetRandomNumber(0, AxesCount - 1);
                     int randomIndex2 = HelperRandom.GetRandomNumber(0, AxesCount - 1);
@@ -215,9 +265,9 @@ namespace KWEngine2.GameObjects
                     _directions[arrayIndex] = Axes[randomIndex].X;
                     _directions[arrayIndex + 1] = Axes[randomIndex2].Y;
                     _directions[arrayIndex + 2] = Axes[randomIndex3].Z;
-                    _directions[arrayIndex + 3] = HelperRandom.GetRandomNumber(0.01f, 1.0f);
+                    _directions[arrayIndex + 3] = HelperRandom.GetRandomNumber(0.1f, 1.0f);
                 }
-                else if(type == ExplosionType.CubeRingY || type == ExplosionType.SphereRingY || type == ExplosionType.StarRingY)
+                else if((int)type >= 100 && (int)type < 1000)
                 {
                     _directions[arrayIndex] = 0;
                     _directions[arrayIndex + 1] = 1;
