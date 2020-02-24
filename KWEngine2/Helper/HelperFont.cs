@@ -3,8 +3,10 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Drawing.Text;
+using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace KWEngine2.Helper
 {
@@ -15,6 +17,7 @@ namespace KWEngine2.Helper
         public static int[] TEXTURES = null;
         internal static int LetterOffsetX = 0;
         internal static int LetterOffsetY = 0;
+        internal static int LetterSizeOffset = 0;
 
         public static void AddFontFromResource(PrivateFontCollection privateFontCollection, Assembly a, string fontResourceName)
         {
@@ -22,7 +25,20 @@ namespace KWEngine2.Helper
             var fontData = Marshal.AllocCoTaskMem(fontBytes.Length);
             Marshal.Copy(fontBytes, 0, fontData, fontBytes.Length);
             privateFontCollection.AddMemoryFont(fontData, fontBytes.Length);
-            // Marshal.FreeCoTaskMem(fontData);  Nasty bug alert, read the comment
+            // Marshal.FreeCoTaskMem(fontData); // bug?
+        }
+
+        public static void AddFontFromFile(PrivateFontCollection privateFontCollection, string filename)
+        {
+            if (File.Exists(filename))
+            {
+               
+                privateFontCollection.AddFontFile(filename);
+            }
+            else
+            {
+                throw new Exception("Invalid font file: " + filename);
+            }
         }
 
         private static byte[] GetFontResourceBytes(Assembly assembly, string fontResourceName)
@@ -36,13 +52,20 @@ namespace KWEngine2.Helper
             return fontBytes;
         }
 
-        public static void GenerateTextures()
+        public static void GenerateTextures(int sizeOffset = 0, int offsetX = 0, int offsetY = 0)
         {
-            for (byte i = 32; i < 128; i++)
+            for (byte i = 32; i < 255; i++)
             {
-                LETTERS += (char)i;
+                LETTERS += Convert.ToChar(i);
             }
             TEXTURES = new int[LETTERS.Length];
+
+            LetterOffsetX = offsetX;
+            LetterOffsetY = offsetY;
+            LetterSizeOffset = sizeOffset;
+
+            GL.DeleteTextures(TEXTURES.Length, TEXTURES);
+            Thread.Sleep(32);
 
             for (int i = 0; i < LETTERS.Length; i++)
             {
@@ -52,12 +75,12 @@ namespace KWEngine2.Helper
 
         private static int LoadCharacter(char c)
         {
-            Bitmap b = new Bitmap(LETTERSIZE, LETTERSIZE, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            Bitmap b = new Bitmap(LETTERSIZE + LetterSizeOffset, LETTERSIZE + LetterSizeOffset, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             FontFamily family = KWEngine.Collection.Families[0];
-            Font f = new Font(family, LETTERSIZE, FontStyle.Regular, GraphicsUnit.Pixel);
+            Font f = new Font(family, LETTERSIZE + LetterSizeOffset, FontStyle.Regular, GraphicsUnit.Pixel);
             Graphics g = Graphics.FromImage(b);
             SolidBrush alpha = new SolidBrush(Color.FromArgb(0, 0, 0, 0));
-            g.FillRectangle(alpha, 0, 0, LETTERSIZE, LETTERSIZE);
+            g.FillRectangle(alpha, 0, 0, LETTERSIZE + LetterSizeOffset, LETTERSIZE + LetterSizeOffset);
             SolidBrush brush = new SolidBrush(Color.FromArgb(255, 255, 255, 255));
             string tmpString = c.ToString();
             g.DrawString(tmpString, f, brush, 0 + LetterOffsetX, -15 - LetterOffsetY);

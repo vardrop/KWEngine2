@@ -104,6 +104,8 @@ namespace KWEngine2.GameObjects
             }
             set
             {
+                CheckExplosion();
+                CheckIfNotTerrain();
                 _opacity = HelperGL.Clamp(value, 0, 1);
             }
         }
@@ -140,6 +142,7 @@ namespace KWEngine2.GameObjects
             }
             set
             {
+                CheckExplosion();
                 CheckModel();
                 CheckIfNotTerrain();
                 _emissiveColor.X = HelperGL.Clamp(value.X, 0, 1);
@@ -193,7 +196,8 @@ namespace KWEngine2.GameObjects
             }
             set
             {
-                if(Model != null && Model.IsTerrain)
+                CheckExplosion();
+                if (Model != null && Model.IsTerrain)
                 {
                     throw new Exception("Outline cannot be set for terrain geometry.");
                 }
@@ -231,6 +235,8 @@ namespace KWEngine2.GameObjects
             }
             set
             {
+                CheckExplosion();
+
                 if (Model == null || !Model.IsValid || Model.Animations.Count == 0 || value >= Model.Animations.Count)
                 {
                     throw new Exception("Cannot set animation id on invalid model. Model might be null, invalid, without any animations or the animation id does not exist.");
@@ -249,6 +255,7 @@ namespace KWEngine2.GameObjects
         {
             get
             {
+                CheckExplosion();
                 CheckModel();
                 return Model.Animations != null && Model.Animations.Count > 0;
             }
@@ -292,6 +299,7 @@ namespace KWEngine2.GameObjects
             }
             internal set
             {
+                CheckExplosion();
                 CheckModel();
                 _rotation = value;
                 UpdateModelMatrixAndHitboxes();
@@ -424,6 +432,9 @@ namespace KWEngine2.GameObjects
 
         internal void UpdateModelMatrixAndHitboxes()
         {
+            if (this is Explosion)
+                return;
+
             _modelMatrix = CreateModelMatrix();
             Vector3 sceneCenter = new Vector3(0, 0, 0);
             Vector3 tmpDims = new Vector3(0, 0, 0);
@@ -498,6 +509,7 @@ namespace KWEngine2.GameObjects
         /// <param name="ms">Mausinformation</param>
         protected void MoveFPSCamera(MouseState ms)
         {
+            CheckExplosion();
             CheckModel();
 
             if (CurrentWorld.IsFirstPersonMode)
@@ -627,6 +639,7 @@ namespace KWEngine2.GameObjects
         /// <param name="rotation">Rotation (als Quaternion)</param>
         public void SetRotation(Quaternion rotation)
         {
+            CheckExplosion();
             Rotation = rotation;
         }
 
@@ -651,6 +664,7 @@ namespace KWEngine2.GameObjects
         /// <returns></returns>
         protected bool IsLookingAt(Vector3 target, float diameter)
         {
+            CheckExplosion();
             CheckModel();
 
             if (Model.IsTerrain)
@@ -931,6 +945,9 @@ namespace KWEngine2.GameObjects
 
         private void UpdateLookAtVector()
         {
+            if (this is Explosion)
+                return;
+
             if (CurrentWorld != null && CurrentWorld.IsFirstPersonMode && CurrentWorld.GetFirstPersonObject().Equals(this))
             {
                 _lookAtVector = HelperCamera.GetLookAtVector();
@@ -1250,6 +1267,15 @@ namespace KWEngine2.GameObjects
                 throw new Exception("Model and/or World have not been set yet!");
             }
         }
+
+        private void CheckExplosion()
+        {
+            if(this != null && this is Explosion)
+            {
+                throw new Exception("Explosion instances may not call this method. Sorry ;-(");
+            }
+        }
+
         private void CheckModel()
         {
             if (Model == null)
@@ -1778,6 +1804,7 @@ namespace KWEngine2.GameObjects
         /// <returns>Distanz</returns>
         protected float GetDistanceTo(Vector3 position)
         {
+            CheckExplosion();
             CheckModel();
             return (GetCenterPointForAllHitboxes() - position).LengthFast;
         }
@@ -1789,6 +1816,7 @@ namespace KWEngine2.GameObjects
         /// <returns>Distanz</returns>
         protected float GetDistanceTo(GameObject g)
         {
+            CheckExplosion();
             CheckModel();
             g.CheckModel();
             return (GetCenterPointForAllHitboxes() - g.GetCenterPointForAllHitboxes()).LengthFast;
@@ -1882,6 +1910,7 @@ namespace KWEngine2.GameObjects
         /// <param name="textureType">Texturtyp (Standard: Diffuse)</param>
         public void SetTextureForMesh(string meshName, string texture, TextureType textureType = TextureType.Diffuse)
         {
+            CheckExplosion();
             CheckModel();
             CheckIfNotTerrain();
             if (_cubeModel != null)
@@ -1924,6 +1953,7 @@ namespace KWEngine2.GameObjects
         /// <param name="repeatY">Höhenwiederholungen</param>
         public void SetTextureRepeatForMesh(int meshId, float repeatX, float repeatY)
         {
+            CheckExplosion();
             CheckModel();
             CheckIfNotTerrain();
             
@@ -1952,6 +1982,8 @@ namespace KWEngine2.GameObjects
         /// <param name="blueTexture">Blautextur</param>
         public void SetTextureTerrainBlendMapping(string blendTexture, string redTexture, string greenTexture = null, string blueTexture = null)
         {
+            CheckExplosion();
+
             if (blendTexture != null && !File.Exists(blendTexture))
                 throw new Exception("Blend texture not found.");
 
@@ -2048,6 +2080,7 @@ namespace KWEngine2.GameObjects
         /// <param name="textureType">Texturtyp</param>
         public void SetTextureForMesh(int meshID, string texture, TextureType textureType = TextureType.Diffuse)
         {
+            CheckExplosion();
             CheckModel();
             CheckIfNotTerrain();
             if (_cubeModel != null)
@@ -2128,6 +2161,7 @@ namespace KWEngine2.GameObjects
         /// <returns></returns>
         public IReadOnlyCollection<string> GetMeshNameList()
         {
+            CheckExplosion();
             CheckModel();
 
             if(_cubeModel != null)
@@ -2146,7 +2180,9 @@ namespace KWEngine2.GameObjects
         /// <param name="area">Fläche (je größer der Wert, desto kleiner die Reflektionsfläche)</param>
         public void SetSpecularOverride(bool enable, float power = 1, float area = 1024)
         {
+            CheckExplosion();
             CheckModel();
+
             if (Model.IsTerrain)
             {
                 Model.Meshes.Values.ElementAt(0).Material.SpecularArea = HelperGL.Clamp(area, 2, 8192);
@@ -2199,8 +2235,10 @@ namespace KWEngine2.GameObjects
         /// <param name="area">Fläche (je größer der Wert, desto kleiner die Reflektionsfläche)</param>
         public void SetSpecularOverrideForMesh(string meshName, bool enable, float power = 1, float area = 1024)
         {
+            CheckExplosion();
             CheckModel();
             CheckIfNotTerrain();
+
             if (_cubeModel != null)
             {
                 SetSpecularOverride(enable, power, area);
@@ -2244,6 +2282,8 @@ namespace KWEngine2.GameObjects
         /// <param name="area">Fläche (je größer der Wert, desto kleiner die Reflektionsfläche)</param>
         public void SetSpecularOverrideForMesh(int meshID, bool enable, float power = 1, float area = 1024)
         {
+            CheckExplosion();
+
             if (_cubeModel != null)
             {
                 SetSpecularOverride(enable, power, area);
@@ -2272,7 +2312,7 @@ namespace KWEngine2.GameObjects
         /// <param name="plane">Achse der Rotation (Standard: Y)</param>
         /// <returns>Position des rotierten Punkts</returns>
         /// <returns></returns>
-        public Vector3 CalculateRotationAroundPointOnAxis(Vector3 point, float distance, float degrees, Plane plane = Plane.Y)
+        public static Vector3 CalculateRotationAroundPointOnAxis(Vector3 point, float distance, float degrees, Plane plane = Plane.Y)
         {
             return HelperRotation.CalculateRotationAroundPointOnAxis(point, distance, degrees, plane);
         }
@@ -2284,7 +2324,7 @@ namespace KWEngine2.GameObjects
         /// <param name="degrees">Rotation (in Grad)</param>
         /// <param name="plane">Einheitsvektor, um den rotiert wird</param>
         /// <returns>Rotierter Vektor</returns>
-        public Vector3 RotateVector(Vector3 vector, float degrees, Plane plane)
+        public static Vector3 RotateVector(Vector3 vector, float degrees, Plane plane)
         {
             return HelperRotation.RotateVector(vector, degrees, plane);
         }
@@ -2295,8 +2335,10 @@ namespace KWEngine2.GameObjects
         /// <param name="audiofile">Audiodatei</param>
         /// <param name="playLooping">looped playback?</param>
         /// <param name="volume">Lautstärke</param>
-        public void SoundPlay(string audiofile, bool playLooping = false, float volume = 1.0f)
+        protected void SoundPlay(string audiofile, bool playLooping = false, float volume = 1.0f)
         {
+            CheckExplosion();
+
             GLAudioEngine.SoundPlay(audiofile, playLooping, volume);
         }
 
@@ -2304,16 +2346,20 @@ namespace KWEngine2.GameObjects
         /// Stoppt einen Ton
         /// </summary>
         /// <param name="audiofile">Audiodatei</param>
-        public void SoundStop(string audiofile)
+        protected void SoundStop(string audiofile)
         {
+            CheckExplosion();
+
             GLAudioEngine.SoundStop(audiofile);
         }
 
         /// <summary>
         /// Stoppt alle Töne
         /// </summary>
-        public void SoundStopAll()
+        protected void SoundStopAll()
         {
+            CheckExplosion();
+
             GLAudioEngine.SoundStopAll();
         }
     }

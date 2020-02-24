@@ -187,6 +187,21 @@ namespace KWEngine2
             HelperFont.GenerateTextures();
         }
 
+        /// <summary>
+        /// Setzt die Schriftart der Engine (Schriftart sollte vom Typ 'monospace' sein)
+        /// </summary>
+        /// <param name="filename">Dateiname mit relativem Pfad</param>
+        public static void SetFont(string filename)
+        {
+            Collection.Dispose();
+            Collection = new PrivateFontCollection();
+            HelperFont.AddFontFromFile(Collection, filename);
+            Font = filename;
+
+            HelperFont.GenerateTextures();
+        }
+
+
         internal static Dictionary<string, Renderer> Renderers { get; set; } = new Dictionary<string, Renderer>();
         internal static Dictionary<string, GeoModel> Models { get; set; } = new Dictionary<string, GeoModel>();
 
