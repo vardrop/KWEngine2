@@ -516,7 +516,7 @@ namespace KWEngine2.GameObjects
             {
                 int centerX = CurrentWindow.X + CurrentWindow.Width / 2;
                 int centerY = CurrentWindow.Y + CurrentWindow.Height / 2;
-                HelperCamera.AddRotation(-(ms.X - centerX) * KWEngine.MouseSensitivity, (centerY - ms.Y) * KWEngine.MouseSensitivity);
+                HelperCamera.AddRotation(-(ms.X - centerX) * Math.Abs(KWEngine.MouseSensitivity), (centerY - ms.Y) * KWEngine.MouseSensitivity);
             }
             else
                 throw new Exception("FPS mode is not active.");
