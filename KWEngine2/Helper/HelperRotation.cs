@@ -43,18 +43,15 @@ namespace KWEngine2.Helper
         {
             if (plane == Plane.X)
             {
-                //return Vector3.TransformNormal(vector, Matrix4.CreateRotationX(CalculateRadiansFromDegrees(degrees)));
                 return RotateVector(vector, Quaternion.FromAxisAngle(Vector3.UnitX, MathHelper.DegreesToRadians(degrees)));
             }
             else if (plane == Plane.Y)
             {
-                //return Vector3.TransformNormal(vector, Matrix4.CreateRotationY(CalculateRadiansFromDegrees(degrees)));
                 return RotateVector(vector, Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(degrees)));
 
             }
             else if (plane == Plane.Z)
             {
-                //return Vector3.TransformNormal(vector, Matrix4.CreateRotationZ(CalculateRadiansFromDegrees(degrees)));
                 return RotateVector(vector, Quaternion.FromAxisAngle(Vector3.UnitZ, MathHelper.DegreesToRadians(degrees)));
             }
             else

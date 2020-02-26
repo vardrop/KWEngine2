@@ -288,11 +288,7 @@ namespace KWEngine2
                         {
                             if (g.CurrentWorld.IsFirstPersonMode && g.CurrentWorld.GetFirstPersonObject().Equals(g))
                                 continue;
-                            if (g is Explosion)
-                            {
-                                KWEngine.Renderers["Explosion"].Draw(g, ref viewProjection);
-                            }
-                            else if (g.Model.IsTerrain)
+                            if (g.Model.IsTerrain)
                             {
                                 KWEngine.Renderers["Terrain"].Draw(g, ref viewProjection, ref viewProjectionShadowBiased, ref viewProjectionShadowBiased2, Frustum, ref LightColors, ref LightTargets, ref LightPositions, CurrentWorld._lightcount, ref shadowLight);
                             }
@@ -306,12 +302,27 @@ namespace KWEngine2
                     }
                     GL.UseProgram(0);
 
+                    lock (CurrentWorld._explosionObjects)
+                    {
+                        if (CurrentWorld._explosionObjects.Count > 0)
+                        {
+                            RendererExplosion r = (RendererExplosion)KWEngine.Renderers["Explosion"];
+                            GL.UseProgram(r.GetProgramId());
+                            foreach (Explosion ex in CurrentWorld._explosionObjects)
+                            {
+                                r.Draw(ex, ref viewProjection);
+                            }
+                            GL.UseProgram(0);
+                        }
+                    }
+
                     lock (CurrentWorld._particleObjects)
                     {
                         GL.Enable(EnableCap.Blend);
-                        
+                        GL.UseProgram(KWEngine.Renderers["Particle"].GetProgramId());
                         foreach (ParticleObject p in CurrentWorld.GetParticleObjects())
                             KWEngine.Renderers["Particle"].Draw(p, ref viewProjection);
+                        GL.UseProgram(0);
                         GL.Disable(EnableCap.Blend);
                     }
                     GL.Enable(EnableCap.Blend);
@@ -363,9 +374,18 @@ namespace KWEngine2
                 return;
             }
 
-            lock (CurrentWorld._gameObjects)
+
+            if (CurrentWorld._prepared)
             {
-                if (CurrentWorld._prepared)
+                lock (CurrentWorld._explosionObjects)
+                {
+                    foreach(Explosion ex in CurrentWorld._explosionObjects)
+                    {
+                        ex.Act();
+                    }
+                }
+
+                lock (CurrentWorld._gameObjects)
                 {
                     foreach (GameObject g in CurrentWorld.GetGameObjects())
                     {
@@ -374,18 +394,26 @@ namespace KWEngine2
 
                         g.CheckBounds();
                     }
-                    foreach(ParticleObject p in CurrentWorld.GetParticleObjects())
+                }
+                lock (CurrentWorld._particleObjects) { 
+                    foreach (ParticleObject p in CurrentWorld.GetParticleObjects())
                     {
                         p.Act();
                     }
+                }
+                lock (CurrentWorld._lightObjects)
+                {
                     foreach (LightObject l in CurrentWorld.GetLightObjects())
                     {
                         l.Act(ks, ms, DeltaTime.GetDeltaTimeFactor());
                     }
-
-                    CurrentWorld.Act(ks, ms, DeltaTime.GetDeltaTimeFactor());
                 }
+
+
+
+                CurrentWorld.Act(ks, ms, DeltaTime.GetDeltaTimeFactor());
             }
+            
             CurrentWorld.AddRemoveObjects();
             CurrentWorld.SortByZ();
 

@@ -147,6 +147,14 @@ namespace KWEngine2
         internal List<LightObject> _lightObjectsTBR = new List<LightObject>();
         internal List<ParticleObject> _particleObjectsTBR = new List<ParticleObject>();
 
+        internal List<Explosion> _explosionObjects = new List<Explosion>();
+        internal List<Explosion> _explosionObjectsTBA = new List<Explosion>();
+        internal List<Explosion> _explosionObjectsTBR = new List<Explosion>();
+
+        //internal List<SceneryObject> _sceneryObjects = new List<SceneryObject>();
+        //internal List<SceneryObject> _sceneryObjectsTBA = new List<SceneryObject>();
+        //internal List<SceneryObject> _sceneryObjectsTBR = new List<SceneryObject>();
+
 
         internal int _lightcount = 0;
         /// <summary>
@@ -515,12 +523,7 @@ namespace KWEngine2
                         _gameObjects.Add(g);
                         g.CurrentWorld = this;
                         g.UpdateModelMatrixAndHitboxes();
-                        if (g is Explosion)
-                        {
-                            ((Explosion)g)._starttime = Stopwatch.GetTimestamp() / TimeSpan.TicksPerMillisecond;
-                        }
                     }
-
                 }
                 _gameObjectsTBA.Clear();
 
@@ -573,6 +576,25 @@ namespace KWEngine2
                 _particleObjectsTBR.Clear();
             }
 
+            lock(_explosionObjects)
+            {
+                foreach(Explosion ex in _explosionObjectsTBA)
+                {
+                    if (!_explosionObjects.Contains(ex))
+                    {
+                        ex._starttime = Stopwatch.GetTimestamp() / TimeSpan.TicksPerMillisecond;
+                        _explosionObjects.Add(ex);
+                    }
+                }
+                _explosionObjectsTBA.Clear();
+
+                foreach (Explosion ex in _explosionObjectsTBR)
+                {
+                    _explosionObjects.Remove(ex);
+                }
+                _explosionObjectsTBR.Clear();
+
+            }
 
             lock (_lightObjects)
             {
@@ -683,14 +705,32 @@ namespace KWEngine2
         {
             lock (_gameObjects)
             {
-                if (!_gameObjects.Contains(g))
+                if (g != null && !_gameObjects.Contains(g))
                 {
                     _gameObjectsTBA.Add(g);
                 }
                 else
-                    throw new Exception("GameObject instance " + g.Name + " already in current world.");
+                    throw new Exception("GameObject instance " + g.Name + " already exists in current world.");
             }
 
+        }
+
+        public void AddGameObject(Explosion ex)
+        {
+            lock (_explosionObjects)
+            {
+                if (ex != null && !_explosionObjects.Contains(ex))
+                {
+                    _explosionObjectsTBA.Add(ex);
+                }
+                else
+                    throw new Exception("Explosion instance already exists in current world.");
+            }
+        }
+
+        internal void RemoveExplosionObject(Explosion ex)
+        {
+            _explosionObjectsTBR.Add(ex);
         }
 
         /// <summary>
@@ -751,6 +791,13 @@ namespace KWEngine2
                 _lightObjects.Clear();
                 _lightObjectsTBA.Clear();
                 _lightObjectsTBR.Clear();
+            }
+
+            lock (_explosionObjects)
+            {
+                _explosionObjects.Clear();
+                _explosionObjectsTBA.Clear();
+                _explosionObjectsTBR.Clear();
             }
 
             lock (KWEngine.Models)

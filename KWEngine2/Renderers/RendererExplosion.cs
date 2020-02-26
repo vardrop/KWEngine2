@@ -81,20 +81,19 @@ namespace KWEngine2.Renderers
         }
 
 
-        internal override void Draw(GameObject g, ref Matrix4 viewProjection)
+        internal void Draw(Explosion e, ref Matrix4 viewProjection)
         {
-            if (g == null || !g.HasModel || g.CurrentWorld == null || !(g is Explosion))
+            if (e == null || e._model == null || e._currentWorld == null)
                 return;
 
             GL.UseProgram(mProgramId);
-            Explosion e = (Explosion)g;
 
-            lock (g)
+            lock (e)
             {
                 int type = (int)e._type;
 
-                GL.Uniform4(mUniform_Glow, g.Glow.X, g.Glow.Y, g.Glow.Z, g.Glow.W);
-                GL.Uniform1(mUniform_SunAmbient, HelperGL.Clamp(g.CurrentWorld.SunAmbientFactor * 2f, 0, 1));
+                GL.Uniform4(mUniform_Glow, e.Glow.X, e.Glow.Y, e.Glow.Z, e.Glow.W);
+                GL.Uniform1(mUniform_SunAmbient, HelperGL.Clamp(e._currentWorld.SunAmbientFactor * 2f, 0, 1));
                 GL.Uniform1(mUniform_Number, (float)e._amount);
                 GL.Uniform1(mUniform_Spread, e._spread);
                 GL.Uniform3(mUniform_Position, e.Position);
@@ -124,7 +123,7 @@ namespace KWEngine2.Renderers
                     GL.Uniform1(mUniform_TextureUse, 0);
                 }
 
-                GeoMesh mesh = e.Model.Meshes.ElementAt(0).Value;
+                GeoMesh mesh = e._model.Meshes.ElementAt(0).Value;
                 GL.BindVertexArray(mesh.VAO);
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
                 GL.DrawElementsInstanced(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, e._amount);
@@ -154,6 +153,11 @@ namespace KWEngine2.Renderers
         }
 
         internal override void Draw(GameObject g, ref Matrix4 viewProjection, ref Matrix4 viewProjectionShadow, ref Matrix4 viewProjectionShadow2, HelperFrustum frustum, ref float[] lightColors, ref float[] lightTargets, ref float[] lightPositions, int lightCount, ref int lightShadow)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal override void Draw(GameObject g, ref Matrix4 viewProjection)
         {
             throw new NotImplementedException();
         }

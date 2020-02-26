@@ -26,6 +26,8 @@ using System;
 using System.Text;
 using KWEngine2.Audio.CSOgg;
 
+#pragma warning disable CS0649
+
 namespace KWEngine2.Audio.CSVorbis 
 {
 	internal class Info

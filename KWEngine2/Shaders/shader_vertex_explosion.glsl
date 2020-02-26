@@ -81,23 +81,23 @@ void main()
     }
     
 
-    if(uAlgorithm == 0)
+    if(uAlgorithm == 0) // spread
     {
         modelMatrix[3][0] = uPosition.x + uSpread * uTime * lookAt.x * axis.w;
         modelMatrix[3][1] = uPosition.y + uSpread * uTime * lookAt.y * axis.w;
         modelMatrix[3][2] = uPosition.z + uSpread * uTime * lookAt.z * axis.w;
     }
-    else if(uAlgorithm == 1)
+    else if(uAlgorithm == 1) // wind up
     {
       
         modelMatrix[3][0] = uPosition.x + uSpread * uTime * lookAt.x * axis.w + lookAt.x * sin(uTime * 1.5 * M_PI);
-        modelMatrix[3][1] = uPosition.y + uSpread * uTime * lookAt.y * axis.w + uSpread * 1.5 * uTime;
+        modelMatrix[3][1] = uPosition.y + uSpread * uTime * abs(lookAt.y) * axis.w + uSpread * 1.5 * uTime;
         modelMatrix[3][2] = uPosition.z + uSpread * uTime * lookAt.z * axis.w + lookAt.z * sin(uTime * 1.5 * M_PI);
     }
-    else
+    else // whirlwind up
     {
         modelMatrix[3][0] = 0.5 * uSpread * sin(uTime * M_PI) * (1.0 - lookAt.x) * axis.w;
-        modelMatrix[3][1] = uSpread * uTime * lookAt.y * axis.w * 4.0;
+        modelMatrix[3][1] = uSpread * uTime * abs(lookAt.y) * axis.w * 4.0;
         modelMatrix[3][2] = 0.5 * uSpread * sin(uTime * M_PI) *(1.0 - lookAt.z) * axis.w;
 
         vec3 tmp = vec3(modelMatrix[3][0], modelMatrix[3][1], modelMatrix[3][2]);

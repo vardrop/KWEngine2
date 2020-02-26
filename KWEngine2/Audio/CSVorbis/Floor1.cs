@@ -25,6 +25,9 @@
 
 using System;
 using KWEngine2.Audio.CSOgg;
+
+#pragma warning disable CS0414
+
 namespace KWEngine2.Audio.CSVorbis 
 {
 	class Floor1 : FuncFloor

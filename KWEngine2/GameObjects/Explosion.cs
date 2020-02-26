@@ -4,6 +4,7 @@ using OpenTK.Input;
 using OpenTK;
 using KWEngine2.Helper;
 using System.Diagnostics;
+using KWEngine2.Model;
 
 namespace KWEngine2.GameObjects
 {
@@ -108,7 +109,7 @@ namespace KWEngine2.GameObjects
     /// <summary>
     /// Explosionsklasse
     /// </summary>
-    public sealed class Explosion : GameObject
+    public sealed class Explosion
     {
         internal static readonly Vector3[] Axes = new Vector3[] {
             Vector3.UnitX,
@@ -137,7 +138,81 @@ namespace KWEngine2.GameObjects
             new Vector3(0.577351f,-0.577351f,-0.577351f),  // right back  down
         };
         internal static int AxesCount = Axes.Length;
-        internal const int MAX_PARTICLES = 512; 
+        internal const int MAX_PARTICLES = 512;
+
+        // GameObject stuff
+        internal GeoModel _model;
+        internal World _currentWorld;
+        public Vector3 Position
+        {
+            get; set;
+        }
+        private Vector4 _glow = Vector4.Zero;
+        public Vector4 Glow
+        {
+            get
+            {
+                return _glow;
+            }
+            private set
+            {
+                _glow.X = HelperGL.Clamp(value.X, 0, 1);
+                _glow.Y = HelperGL.Clamp(value.Y, 0, 1);
+                _glow.Z = HelperGL.Clamp(value.Z, 0, 1);
+                _glow.W = HelperGL.Clamp(value.W, 0, 1);
+            }
+        }
+
+        private Vector3 _color = Vector3.One;
+        public Vector3 Color
+        {
+            get
+            {
+                return _color;
+            }
+            private set
+            {
+                _color.X = HelperGL.Clamp(value.X, 0, 1);
+                _color.Y = HelperGL.Clamp(value.Y, 0, 1);
+                _color.Z = HelperGL.Clamp(value.Z, 0, 1);
+            }
+        }
+
+        /// <summary>
+        /// Setzt die Färbung der Explosionspartikel
+        /// </summary>
+        /// <param name="red">Rot</param>
+        /// <param name="green">Grün</param>
+        /// <param name="blue">Blau</param>
+        public void SetColor(float red, float green, float blue)
+        {
+            _color.X = red >= 0 && red <= 1 ? red : 1;
+            _color.Y = green >= 0 && green <= 1 ? green : 1;
+            _color.Z = blue >= 0 && blue <= 1 ? blue : 1;
+        }
+
+        /// <summary>
+        /// Setzt die Glühfarbe der Explosionspartikel
+        /// </summary>
+        /// <param name="red">Rot</param>
+        /// <param name="green">Grün</param>
+        /// <param name="blue">Blau</param>
+        /// <param name="intensity">Helligkeit</param>
+        public void SetGlow(float red, float green, float blue, float intensity)
+        {
+            Glow = new Vector4(red, green, blue, intensity);
+        }
+
+        /// <summary>
+        /// Setzt die Position des Objekts
+        /// </summary>
+        /// <param name="x">x</param>
+        /// <param name="y">y</param>
+        /// <param name="z">z</param>
+        public void SetPosition(float x, float y, float z)
+        {
+            Position = new Vector3(x, y, z);
+        }
 
         internal int _textureId = -1;
         internal Vector2 _textureTransform = new Vector2(1, 1);
@@ -215,35 +290,35 @@ namespace KWEngine2.GameObjects
         /// <param name="texture">Textur der Explosion (optional)</param>
         public Explosion(Vector3 position, int particleCount, float particleSize, float radius, float durationInSeconds, ExplosionType type, Vector4 glow, string texture = null)
         {
-            World w = GLWindow.CurrentWindow.CurrentWorld;
+            _currentWorld = GLWindow.CurrentWindow.CurrentWorld;
             
-            if (w == null)
+            if (_currentWorld == null)
                 throw new Exception("World is null. Cannot create Explosion in an empty world.");
 
             
             if (type == ExplosionType.Cube || type == ExplosionType.CubeRingY || type == ExplosionType.CubeRingZ)
             {
-                SetModel("KWCube");
+                _model = KWEngine.GetModel("KWCube");
             }
             else if (type == ExplosionType.Sphere || type == ExplosionType.SphereRingY || type == ExplosionType.SphereRingZ)
             {
-                SetModel("KWSphere");
+                _model = KWEngine.GetModel("KWSphere");
             }
             else if (type == ExplosionType.Star || type == ExplosionType.StarRingY || type == ExplosionType.StarRingZ)
             {
-                SetModel(KWEngine.KWStar);
+                _model = KWEngine.KWStar;
             }
             else if (type == ExplosionType.Heart || type == ExplosionType.HeartRingY || type == ExplosionType.HeartRingZ)
             {
-                SetModel(KWEngine.KWHeart);
+                _model = (KWEngine.KWHeart);
             }
             else if(type == ExplosionType.Skull || type == ExplosionType.SkullRingY || type == ExplosionType.SkullRingZ)
             {
-                SetModel(KWEngine.KWSkull);
+                _model = (KWEngine.KWSkull);
             }
             else
             {
-                SetModel(KWEngine.KWDollar);
+                _model = (KWEngine.KWDollar);
             }
 
             _type = type;
@@ -286,7 +361,7 @@ namespace KWEngine2.GameObjects
             bool textureFound = false;
             if (texture != null && texture.Length > 0)
             {
-                textureFound = KWEngine.CustomTextures[w].TryGetValue(texture, out texId);
+                textureFound = KWEngine.CustomTextures[_currentWorld].TryGetValue(texture, out texId);
             }
             if(textureFound)
                 _textureId = texId;
@@ -294,17 +369,11 @@ namespace KWEngine2.GameObjects
             {
                 _textureId = HelperTexture.LoadTextureForModelExternal(texture);
                 if (_textureId > 0)
-                    KWEngine.CustomTextures[w].Add(texture, _textureId);
+                    KWEngine.CustomTextures[_currentWorld].Add(texture, _textureId);
             }
         }
 
-        /// <summary>
-        /// Act-Methode der Explosion
-        /// </summary>
-        /// <param name="ks">Keyboardinfos</param>
-        /// <param name="ms">MAusinfos</param>
-        /// <param name="deltaTimeFactor">Delta-Faktor</param>
-        public override void Act(KeyboardState ks, MouseState ms, float deltaTimeFactor)
+        internal void Act()
         {
             if(_starttime >= 0)
             {
@@ -312,7 +381,7 @@ namespace KWEngine2.GameObjects
                 _secondsAlive = (currentTime - _starttime) / 1000f;
                 if(_secondsAlive > _duration)
                 {
-                    CurrentWorld.RemoveGameObject(this);
+                    _currentWorld.RemoveExplosionObject(this);
                     return;
                 }
             }

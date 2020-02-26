@@ -27,6 +27,8 @@ using System;
 using System.IO;
 using KWEngine2.Audio.CSOgg;
 
+#pragma warning disable CS0414
+
 namespace KWEngine2.Audio.CSVorbis 
 {
 	internal class VorbisFile

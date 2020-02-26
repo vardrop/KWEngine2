@@ -25,6 +25,8 @@
 
 using System;
 
+#pragma warning disable CS0649
+
 namespace KWEngine2.Audio.CSVorbis 
 {
 	class EncodeAuxThreshMatch

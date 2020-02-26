@@ -76,9 +76,6 @@ namespace KWEngine2.Renderers
 
         internal override void Draw(ParticleObject po, ref Matrix4 viewProjection)
         {
-            GL.UseProgram(mProgramId);
-            
-
             lock (po)
             {
                 GL.Uniform4(mUniform_TintColor, ref po._tint);
@@ -102,8 +99,6 @@ namespace KWEngine2.Renderers
                 GL.BindVertexArray(0);
 
             }
-
-            GL.UseProgram(0);
         }
 
         internal override void Draw(HUDObject ho, ref Matrix4 viewProjection)
