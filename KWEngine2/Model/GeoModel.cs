@@ -11,6 +11,9 @@ namespace KWEngine2.Model
     /// </summary>
     public class GeoModel
     {
+        /// <summary>
+        /// Aktuell immer false.
+        /// </summary>
         public bool PBRWorkflow { get; internal set; } = false;
 
         /// <summary>

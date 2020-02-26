@@ -26,19 +26,6 @@ namespace KWEngine2.Model
         /// <summary>
         /// Animationskanäle
         /// </summary>
-        public Dictionary<string, GeoNodeAnimationChannel> AnimationChannels { get; internal set; }
-
-        /*
-        public GeoNodeAnimationChannel GetBoneForNodeName(string nodeName)
-        {
-
-            if (AnimationChannels.Keys.Contains(nodeName))
-            {
-                return AnimationChannels[nodeName];
-            }
-
-            return null;
-        }
-        */
+        internal Dictionary<string, GeoNodeAnimationChannel> AnimationChannels { get; set; }
     }
 }

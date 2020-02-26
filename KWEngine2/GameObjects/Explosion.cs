@@ -143,11 +143,17 @@ namespace KWEngine2.GameObjects
         // GameObject stuff
         internal GeoModel _model;
         internal World _currentWorld;
+        /// <summary>
+        /// Position der Explosion
+        /// </summary>
         public Vector3 Position
         {
             get; set;
         }
         private Vector4 _glow = Vector4.Zero;
+        /// <summary>
+        /// Glühfarbe der Explosion
+        /// </summary>
         public Vector4 Glow
         {
             get
@@ -164,6 +170,9 @@ namespace KWEngine2.GameObjects
         }
 
         private Vector3 _color = Vector3.One;
+        /// <summary>
+        /// Farbe der Explosionsteilchen (ohne Glühfarbe)
+        /// </summary>
         public Vector3 Color
         {
             get

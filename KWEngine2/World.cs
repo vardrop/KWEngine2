@@ -715,6 +715,10 @@ namespace KWEngine2
 
         }
 
+        /// <summary>
+        /// Fügt ein neues Explosionsobjekt der Welt hinzu
+        /// </summary>
+        /// <param name="ex">Objekt</param>
         public void AddGameObject(Explosion ex)
         {
             lock (_explosionObjects)
