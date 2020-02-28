@@ -93,7 +93,7 @@ namespace KWEngine2.Renderers
                     model *= Matrix4.CreateTranslation(h.Center);
                     if(useMeshTransform)
                         model *= g.Model.Meshes.ElementAt(i).Value.Transform;
-                    model = model * g.ModelMatrixForRenderPass;
+                    model = model * g.ModelMatrixForRenderPass[i];
                     _modelViewProjection = model * viewProjection;
 
                     GL.UniformMatrix4(mUniform_MVP, false, ref _modelViewProjection);
@@ -126,13 +126,17 @@ namespace KWEngine2.Renderers
 
             lock (g)
             {
-
-                Matrix4.Mult(ref g.ModelMatrixForRenderPass, ref viewProjection, out _modelViewProjection);
-
-                GL.UniformMatrix4(mUniform_MVP, false, ref _modelViewProjection);
-
+                int index = 0;
                 foreach (string meshName in g.Model.Meshes.Keys)
                 {
+                    if (g._cubeModel is GeoModelCube6)
+                    {
+                        index = 0;
+                    }
+                    Matrix4.Mult(ref g.ModelMatrixForRenderPass[index], ref viewProjection, out _modelViewProjection);
+                    GL.UniformMatrix4(mUniform_MVP, false, ref _modelViewProjection);
+                    index++;
+
                     GL.Disable(EnableCap.Blend);
                     GeoMesh mesh = g.Model.Meshes[meshName];
                     if (mesh.Material.Opacity <= 0)

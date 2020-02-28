@@ -63,35 +63,38 @@ namespace KWEngine2.Renderers
             if (g == null || !g.HasModel)
                 return;
             bool isInsideFrustum = frustum.SphereVsFrustum(g.GetCenterPointForAllHitboxes(), g.GetMaxDiameter() / 2);
-            if (!isInsideFrustum)
-                return;
-            //GL.UseProgram(mProgramId);
+            
             lock (g)
             {
-                
+                int index = -1;
                 foreach (string meshName in g.Model.Meshes.Keys)
                 {
+                    index++;
+                    if(g._cubeModel is GeoModelCube6)
+                    {
+                        index = 0;
+                    }
                     GeoMesh mesh = g.Model.Meshes[meshName];
 
                     bool useMeshTransform = !(g.AnimationID >= 0 && g.Model.Animations != null && g.Model.Animations.Count > 0);
 
                     if (useMeshTransform)
                     {
-                        Matrix4.Mult(ref mesh.Transform, ref g._modelMatrix, out g.ModelMatrixForRenderPass);
+                        Matrix4.Mult(ref mesh.Transform, ref g._modelMatrix, out g.ModelMatrixForRenderPass[index]);
                     }
                     else
                     {
-                        g.ModelMatrixForRenderPass = g._modelMatrix;
+                        g.ModelMatrixForRenderPass[index] = g._modelMatrix;
                     }
 
-                    if (mesh.Material.Opacity <= 0)
+                    if (mesh.Material.Opacity <= 0 || !isInsideFrustum)
                     {
                         continue;
                     }
 
                     
 
-                    if (g.IsShadowCaster && g.Opacity > 0.01f)
+                    if (g.IsShadowCaster && g.Opacity > 0f)
                     {
                         if (useMeshTransform == false)
                         {
@@ -110,7 +113,7 @@ namespace KWEngine2.Renderers
                             GL.Uniform1(mUniform_UseAnimations, 0);
                         }
 
-                        Matrix4.Mult(ref g.ModelMatrixForRenderPass, ref viewProjection, out _modelViewProjection);
+                        Matrix4.Mult(ref g.ModelMatrixForRenderPass[index], ref viewProjection, out _modelViewProjection);
                         GL.UniformMatrix4(mUniform_MVP, false, ref _modelViewProjection);
                         GL.BindVertexArray(mesh.VAO);
                         GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);

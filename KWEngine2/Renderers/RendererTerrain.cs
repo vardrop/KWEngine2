@@ -175,17 +175,17 @@ namespace KWEngine2.Renderers
                 GL.BindTexture(TextureTarget.Texture2D, GLWindow.CurrentWindow.TextureShadowMap);
                 GL.Uniform1(mUniform_TextureShadowMap, 3);
 
-                Matrix4.Mult(ref g.ModelMatrixForRenderPass, ref viewProjection, out _modelViewProjection);
-                Matrix4.Transpose(ref g.ModelMatrixForRenderPass, out _normalMatrix);
+                Matrix4.Mult(ref g.ModelMatrixForRenderPass[0], ref viewProjection, out _modelViewProjection);
+                Matrix4.Transpose(ref g.ModelMatrixForRenderPass[0], out _normalMatrix);
                 Matrix4.Invert(ref _normalMatrix, out _normalMatrix);
 
-                GL.UniformMatrix4(mUniform_ModelMatrix, false, ref g.ModelMatrixForRenderPass);
+                GL.UniformMatrix4(mUniform_ModelMatrix, false, ref g.ModelMatrixForRenderPass[0]);
                 GL.UniformMatrix4(mUniform_NormalMatrix, false, ref _normalMatrix);
                 GL.UniformMatrix4(mUniform_MVP, false, ref _modelViewProjection);
 
                 if (lightShadow >= 0)
                 {
-                    Matrix4 modelViewProjectionMatrixBiased2 = g.ModelMatrixForRenderPass * viewProjectionShadowBiased2;
+                    Matrix4 modelViewProjectionMatrixBiased2 = g.ModelMatrixForRenderPass[0] * viewProjectionShadowBiased2;
 
                     GL.ActiveTexture(TextureUnit.Texture5);
                     GL.BindTexture(TextureTarget.Texture2D, GLWindow.CurrentWindow.TextureShadowMap2);
@@ -211,7 +211,7 @@ namespace KWEngine2.Renderers
                     GL.Uniform1(mUniform_SpecularArea, mesh.Material.SpecularArea);
 
                     // Shadow mapping
-                    Matrix4 modelViewProjectionMatrixBiased = g.ModelMatrixForRenderPass * viewProjectionShadowBiased;
+                    Matrix4 modelViewProjectionMatrixBiased = g.ModelMatrixForRenderPass[0] * viewProjectionShadowBiased;
                     GL.UniformMatrix4(mUniform_MVPShadowMap, false, ref modelViewProjectionMatrixBiased);
 
                     GL.Uniform2(mUniform_TextureTransform, mesh.Terrain.mTexX, mesh.Terrain.mTexY);

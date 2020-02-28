@@ -39,7 +39,7 @@ namespace KWEngine2Test
             int height = CurrentWindow.Height;
 
             Cube c = new Cube();
-            c.SetModel("KWCube");
+            c.SetModel("KWCube6");
             c.SetGlow(0, 1, 0, 1);
             c.SetPosition(0, 4, 0);
             AddGameObject(c);

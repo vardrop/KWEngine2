@@ -594,6 +594,7 @@ namespace KWEngine2
                     CalculateProjectionMatrix();
                 }
             }
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
         }
 
         private void ApplyBloom()

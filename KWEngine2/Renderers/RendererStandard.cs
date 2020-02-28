@@ -179,18 +179,7 @@ namespace KWEngine2.Renderers
                     GL.Uniform3(mUniform_uCameraDirection, HelperCamera.GetLookAtVector());
                 }
 
-                // Matrices:
-                Matrix4.Mult(ref g.ModelMatrixForRenderPass, ref viewProjection, out _modelViewProjection);
-                Matrix4.Transpose(ref g.ModelMatrixForRenderPass, out _normalMatrix);
-                Matrix4.Invert(ref _normalMatrix, out _normalMatrix);
-
-                GL.UniformMatrix4(mUniform_ModelMatrix, false, ref g.ModelMatrixForRenderPass);
-                GL.UniformMatrix4(mUniform_NormalMatrix, false, ref _normalMatrix);
-                GL.UniformMatrix4(mUniform_MVP, false, ref _modelViewProjection);
-
-                // Shadow mapping
-                Matrix4 modelViewProjectionMatrixBiased = g.ModelMatrixForRenderPass * viewProjectionShadowBiased;
-                GL.UniformMatrix4(mUniform_MVPShadowMap, false, ref modelViewProjectionMatrixBiased);
+                
 
                 // Upload depth texture (shadow mapping)
                 GL.ActiveTexture(TextureUnit.Texture3);
@@ -199,14 +188,13 @@ namespace KWEngine2.Renderers
 
                 if(lightShadow >= 0)
                 {
-                    Matrix4 modelViewProjectionMatrixBiased2 = g.ModelMatrixForRenderPass * viewProjectionShadowBiased2;
+                   
 
                     GL.ActiveTexture(TextureUnit.Texture5);
                     GL.BindTexture(TextureTarget.Texture2D, GLWindow.CurrentWindow.TextureShadowMap2);
                     GL.Uniform1(mUniform_TextureShadowMap2, 5);
 
                     GL.Uniform1(mUniform_ShadowLightPosition, lightShadow);
-                    GL.UniformMatrix4(mUniform_MVPShadowMap2, false, ref modelViewProjectionMatrixBiased2);
                     GL.Uniform1(mUniform_BiasCoefficient2, CurrentWorld.GetLightObjects().ElementAt(lightShadow).ShadowMapBiasCoefficient);
                 }
                 else
@@ -217,11 +205,35 @@ namespace KWEngine2.Renderers
                     GL.Uniform1(mUniform_ShadowLightPosition, -1);
                 }
 
-                
-
-
+                int index = 0;
                 foreach (string meshName in g.Model.Meshes.Keys)
                 {
+                    if(g._cubeModel is GeoModelCube6)
+                    {
+                        index = 0;
+                    }
+
+                    // Matrices:
+                    Matrix4.Mult(ref g.ModelMatrixForRenderPass[index], ref viewProjection, out _modelViewProjection);
+                    Matrix4.Transpose(ref g.ModelMatrixForRenderPass[index], out _normalMatrix);
+                    Matrix4.Invert(ref _normalMatrix, out _normalMatrix);
+
+                    GL.UniformMatrix4(mUniform_ModelMatrix, false, ref g.ModelMatrixForRenderPass[index]);
+                    GL.UniformMatrix4(mUniform_NormalMatrix, false, ref _normalMatrix);
+                    GL.UniformMatrix4(mUniform_MVP, false, ref _modelViewProjection);
+
+                    // Shadow mapping
+                    Matrix4 modelViewProjectionMatrixBiased = g.ModelMatrixForRenderPass[index] * viewProjectionShadowBiased;
+                    GL.UniformMatrix4(mUniform_MVPShadowMap, false, ref modelViewProjectionMatrixBiased);
+
+                    if (lightShadow >= 0)
+                    {
+                        Matrix4 modelViewProjectionMatrixBiased2 = g.ModelMatrixForRenderPass[index] * viewProjectionShadowBiased2;
+                        GL.UniformMatrix4(mUniform_MVPShadowMap2, false, ref modelViewProjectionMatrixBiased2);
+                    }
+                    index++;
+
+
                     GL.Disable(EnableCap.Blend);
                     GeoMesh mesh = g.Model.Meshes[meshName];
                     if(mesh.Material.Opacity <= 0)

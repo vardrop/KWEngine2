@@ -51,6 +51,7 @@
     <Compile Include="GameWorldSpaceInvaders.cs" />
     <Compile Include="GameWorldStart.cs" />
     <Compile Include="GameWorldPBRTest.cs" />
+    <Compile Include="GameWorldVectors1.cs" />
     <Compile Include="Objects\Cube.cs" />
     <Compile Include="Objects\EnemyShip.cs" />
     <Compile Include="Objects\Flashlight.cs" />
@@ -61,6 +62,7 @@
     <Compile Include="Objects\Player.cs" />
     <Compile Include="GameWindow.cs" />
     <Compile Include="GameWorld.cs" />
+    <Compile Include="Objects\TestPlayer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -214,6 +216,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Models\labyrinth\walls.obj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Models\man.fbx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Models\pbrtest\pbrtest.fbx">
@@ -497,6 +502,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Models\labyrinth\walls_clean.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\man.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Models\pbrtest\SciFiBox_Base_Color.png">

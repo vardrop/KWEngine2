@@ -479,7 +479,7 @@ namespace KWEngine2.Model
             }
             finally
             {
-                GC.Collect(GC.MaxGeneration);
+                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
             }
             mmp.Primitive = PrimitiveType.Triangles;
 

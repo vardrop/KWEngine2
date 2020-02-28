@@ -180,6 +180,7 @@ namespace KWEngine2.GameObjects
                 else
                 {
                     _textureIds[0] = HelperTexture.LoadTextureForBackgroundExternal(filename);
+                    KWEngine.CustomTextures[KWEngine.CurrentWorld].Add(filename, _textureIds[0]);
                 }
                 
                 _count = 1;

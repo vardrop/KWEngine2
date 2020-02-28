@@ -84,7 +84,7 @@ namespace KWEngine2.GameObjects
         internal int _largestHitboxIndex = -1;
         internal GeoModelCube _cubeModel = null;
         internal List<Hitbox> Hitboxes = new List<Hitbox>();
-        internal Matrix4 ModelMatrixForRenderPass = Matrix4.Identity;
+        internal Matrix4[] ModelMatrixForRenderPass = null;
         internal Dictionary<string, Matrix4[]> BoneTranslationMatrices { get; set; }
         private int _animationId = -1;
 
@@ -552,6 +552,7 @@ namespace KWEngine2.GameObjects
                 {
                     Owner = this
                 };
+                ModelMatrixForRenderPass = new Matrix4[1];
             }
             else if (m.Name == "kwcube6.obj")
             {
@@ -559,6 +560,7 @@ namespace KWEngine2.GameObjects
                 {
                     Owner = this
                 };
+                ModelMatrixForRenderPass = new Matrix4[1];
             }
             else
             {
@@ -573,7 +575,7 @@ namespace KWEngine2.GameObjects
                     _overrides[mesh.Name] = new Dictionary<Override, object>();
                 }
                 _meshNameList = l.AsReadOnly();
-                
+                ModelMatrixForRenderPass = new Matrix4[_meshNameList.Count];
             }
 
             int hIndex = 0;
@@ -718,7 +720,7 @@ namespace KWEngine2.GameObjects
                 || _sceneCenter.Z < CurrentWorld.WorldCenter.Z - CurrentWorld.WorldDistance
                 )
             {
-                Debug.WriteLine("Object '" + this.Name + " " + this.Model.Name  + "' position is beyond world's boundaries (currently: " + CurrentWorld.WorldDistance + " units from " + CurrentWorld.WorldCenter +  "). Removing object.");
+                Console.WriteLine("Object '" + this.Name + " " + this.Model.Name  + "' position is beyond world's boundaries (currently: " + CurrentWorld.WorldDistance + " units from " + CurrentWorld.WorldCenter +  "). Removing object.");
                 CurrentWorld.RemoveGameObject(this);
             }
         }

@@ -128,6 +128,8 @@ namespace KWEngine2.Renderers
 
         internal override void Draw(GameObject g, ref Matrix4 viewProjection, ref Matrix4 viewProjectionShadowBiased, ref Matrix4 viewProjectionShadowBiased2, HelperFrustum frustum, ref float[] lightColors, ref float[] lightTargets, ref float[] lightPositions, int lightCount, ref int lightShadow)
         {
+            throw new Exception("not implemented yet.");
+            /*
             if (g == null || !g.HasModel || g.CurrentWorld == null || g.Opacity <= 0)
                 return;
 
@@ -263,7 +265,7 @@ namespace KWEngine2.Renderers
                     // Shadow mapping
                     Matrix4 modelViewProjectionMatrixBiased = g.ModelMatrixForRenderPass * viewProjectionShadowBiased;
                     GL.UniformMatrix4(mUniform_MVPShadowMap, false, ref modelViewProjectionMatrixBiased);
-
+                    
 
                     if (g._cubeModel != null)
                     {
@@ -407,10 +409,12 @@ namespace KWEngine2.Renderers
                     GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
 
                     GL.BindVertexArray(0);
+                    
                 }
+                
             }
-
             GL.UseProgram(0);
+            */
         }
 
         internal override void Draw(GameObject g, ref Matrix4 viewProjection)
