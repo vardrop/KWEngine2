@@ -1791,7 +1791,7 @@ namespace KWEngine2.GameObjects
         protected float GetDistanceTo(Vector3 position)
         {
             CheckModel();
-            return (GetCenterPointForAllHitboxes() - position).LengthFast;
+            return (GetCenterPointForAllHitboxes() - position).Length;
         }
 
         /// <summary>
@@ -1803,7 +1803,7 @@ namespace KWEngine2.GameObjects
         {
             CheckModel();
             g.CheckModel();
-            return (GetCenterPointForAllHitboxes() - g.GetCenterPointForAllHitboxes()).LengthFast;
+            return (GetCenterPointForAllHitboxes() - g.GetCenterPointForAllHitboxes()).Length;
         }
 
         /// <summary>
