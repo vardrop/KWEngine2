@@ -13,8 +13,7 @@ namespace KWEngine2Test.Objects
         public override void Act(KeyboardState ks, MouseState ms, float deltaTimeFactor)
         {
             Player p = (CurrentWorld as GameWorld).GetPlayer();
-            //TurnTowardsXYZ(p.GetCenterPointForAllHitboxes());
-            SetRotation(GetRotationToTarget(p.Position, Plane.Y));
+            SetRotation(GetRotationToTarget(p.Position));
 
             if(GetDistanceTo(p) > 3)
                 Move(0.05f * deltaTimeFactor);

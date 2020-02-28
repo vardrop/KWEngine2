@@ -1650,31 +1650,16 @@ namespace KWEngine2.GameObjects
         /// <summary>
         /// Erfragt die Rotation, die zu einem bestimmten Ziel notwendig wäre
         /// </summary>
-        /// <param name="position">Ziel</param>
-        /// <param name="plane">Rotationsebene (Standard: Camera)</param>
+        /// <param name="target">Ziel</param>
         /// <returns>Rotation (als Quaternion)</returns>
-        protected Quaternion GetRotationToTarget(Vector3 position, Plane plane = Plane.Camera)
+        protected Quaternion GetRotationToTarget(Vector3 target)
         {
-            if (CurrentWindow.IsMouseInWindow)
-            {
-                Vector3 normal;
-                if (plane == Plane.Y)
-                    normal = new Vector3(0, 1, 0.000001f);
-                else if (plane == Plane.X)
-                    normal = new Vector3(1, 0, 0);
-                else if (plane == Plane.Z)
-                    normal = new Vector3(0, 0.000001f, 1);
-                else
-                {
-                    normal = -GetCameraLookAtVector();
-                }
-
-                Matrix4 lookat = Matrix4.LookAt(position, GetCenterPointForAllHitboxes(), normal);
-                lookat.Transpose();
-                lookat.Invert();
-                return Quaternion.FromMatrix(new Matrix3(lookat));
-            }
-            return Quaternion.Identity;
+            target.Z += 0.000001f;
+            Matrix4 lookat = Matrix4.LookAt(target, Position, KWEngine.WorldUp);
+            lookat.Transpose();
+            Quaternion q = Quaternion.FromMatrix(new Matrix3(lookat));
+            q.Invert();
+            return q;
         }
 
         /// <summary>
@@ -1684,14 +1669,7 @@ namespace KWEngine2.GameObjects
         public void TurnTowardsXYZ(Vector3 target)
         {
             CheckModel();
-            if (CurrentWindow.IsMouseInWindow)
-            {
-                target.Z += 0.00001f;
-                Matrix4 lookat = Matrix4.LookAt(target, GetCenterPointForAllHitboxes(), KWEngine.WorldUp);
-                lookat.Transpose();
-                lookat.Invert();
-                Rotation = Quaternion.FromMatrix(new Matrix3(lookat));
-            }
+            Rotation = GetRotationToTarget(target);
         }
 
         /// <summary>
@@ -1722,11 +1700,8 @@ namespace KWEngine2.GameObjects
         /// <param name="targetY">Y-Koordinate</param>
         public void TurnTowardsXY(float targetX, float targetY)
         {
-            if (CurrentWindow.IsMouseInWindow)
-            {
-                Vector3 target = new Vector3(targetX, targetY, 0);
-                TurnTowardsXY(target);
-            }
+            Vector3 target = new Vector3(targetX, targetY, 0);
+            TurnTowardsXY(target);
         }
 
         /// <summary>
@@ -1737,15 +1712,13 @@ namespace KWEngine2.GameObjects
         public void TurnTowardsXY(Vector3 target)
         {
             CheckModel();
-            if (CurrentWindow.IsMouseInWindow)
-            {
-                target.Z = GetCenterPointForAllHitboxes().Z;
-                target.X += 0.000001f;
-                Matrix4 lookat = Matrix4.LookAt(target, GetCenterPointForAllHitboxes(), Vector3.UnitZ);
-                lookat.Transpose();
-                lookat.Invert();
-                Rotation = Quaternion.FromMatrix(new Matrix3(lookat));
-            }
+           
+            target.Z = Position.Z;
+            target.X += 0.000001f;
+            Matrix4 lookat = Matrix4.LookAt(target, Position, Vector3.UnitZ);
+            lookat.Transpose();
+            lookat.Invert();
+            Rotation = Quaternion.FromMatrix(new Matrix3(lookat));
         }
 
         /// <summary>
@@ -1756,11 +1729,8 @@ namespace KWEngine2.GameObjects
         /// <param name="targetZ">Zielkoordinate der z-Achse</param>
         public void TurnTowardsXZ(float targetX, float targetZ)
         {
-            if (CurrentWindow.IsMouseInWindow)
-            {
-                Vector3 target = new Vector3(targetX, 0, targetZ);
-                TurnTowardsXZ(target);
-            }
+            Vector3 target = new Vector3(targetX, 0, targetZ);
+            TurnTowardsXZ(target);
         }
 
         /// <summary>
@@ -1771,39 +1741,44 @@ namespace KWEngine2.GameObjects
         public void TurnTowardsXZ(Vector3 target)
         {
             CheckModel();
-            if (CurrentWindow.IsMouseInWindow)
-            {
-                Vector3 currentPos = GetCenterPointForAllHitboxes();
-                target.Y = currentPos.Y;
-                target.X += 0.000001f;
-                Matrix4 lookat = Matrix4.LookAt(target, currentPos, Vector3.UnitY);
-                lookat.Transpose();
-                lookat.Invert();
-                Rotation = Quaternion.FromMatrix(new Matrix3(lookat));
-            }
+            Vector3 currentPos = Position;
+            target.Y = currentPos.Y;
+            target.X += 0.000001f;
+            Matrix4 lookat = Matrix4.LookAt(target, currentPos, Vector3.UnitY);
+            lookat.Transpose();
+            lookat.Invert();
+            Rotation = Quaternion.FromMatrix(new Matrix3(lookat));
         }
 
         /// <summary>
         /// Misst die Distanz zu einem Punkt
         /// </summary>
         /// <param name="position">Zielpunkt</param>
+        /// <param name="absolute">wenn true, wird die Position statt des Hitbox-Mittelpunkts zur Berechnung verwendet</param>
         /// <returns>Distanz</returns>
-        protected float GetDistanceTo(Vector3 position)
+        protected float GetDistanceTo(Vector3 position, bool absolute = false)
         {
             CheckModel();
-            return (GetCenterPointForAllHitboxes() - position).LengthFast;
+            if (absolute)
+                return (Position - position).LengthFast;
+            else
+                return (GetCenterPointForAllHitboxes() - position).LengthFast;
         }
 
         /// <summary>
         /// Misst die Distanz zu einem GameObject
         /// </summary>
         /// <param name="g">GameObject-Instanz</param>
+        /// <param name="absolute">wenn true, wird die Position statt des Hitbox-Mittelpunkts zur Berechnung verwendet</param>
         /// <returns>Distanz</returns>
-        protected float GetDistanceTo(GameObject g)
+        protected float GetDistanceTo(GameObject g, bool absolute = false)
         {
             CheckModel();
             g.CheckModel();
-            return (GetCenterPointForAllHitboxes() - g.GetCenterPointForAllHitboxes()).LengthFast;
+            if (absolute)
+                return (Position - g.Position).LengthFast;
+            else
+                return (GetCenterPointForAllHitboxes() - g.GetCenterPointForAllHitboxes()).LengthFast;
         }
 
         /// <summary>
