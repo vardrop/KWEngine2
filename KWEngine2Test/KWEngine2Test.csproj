@@ -48,10 +48,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GameWorldSpaceInvaders.cs" />
-    <Compile Include="GameWorldStart.cs" />
-    <Compile Include="GameWorldPBRTest.cs" />
-    <Compile Include="GameWorldVectors1.cs" />
+    <Compile Include="Objects\Arena\Immovable.cs" />
+    <Compile Include="Objects\Arena\Player.cs" />
+    <Compile Include="Worlds\GameWorldArena.cs" />
+    <Compile Include="Worlds\GameWorldSpaceInvaders.cs" />
+    <Compile Include="Worlds\GameWorldStart.cs" />
+    <Compile Include="Worlds\GameWorldPBRTest.cs" />
+    <Compile Include="Worlds\GameWorldVectors1.cs" />
     <Compile Include="Objects\Cube.cs" />
     <Compile Include="Objects\EnemyShip.cs" />
     <Compile Include="Objects\Flashlight.cs" />
@@ -61,7 +64,7 @@
     <Compile Include="Objects\PanelLight.cs" />
     <Compile Include="Objects\Player.cs" />
     <Compile Include="GameWindow.cs" />
-    <Compile Include="GameWorld.cs" />
+    <Compile Include="Worlds\GameWorld.cs" />
     <Compile Include="Objects\TestPlayer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -69,6 +72,12 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="Fonts\Quicksand-Regular.otf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Models\ArenaOuter\ArenaOuter.mtl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Models\ArenaOuter\ArenaOuter.obj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Models\Corridors\corridorCornerLeft01_NoRoof.fbx">
@@ -447,6 +456,15 @@
     <Content Include="Audio\title.ogg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Models\ArenaOuter\Billboards.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\ArenaOuter\PolygonScifi_01_A.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\ArenaOuter\Props_Dumpster.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Models\Corridors\corridors.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -586,6 +604,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Textures\buttonStart.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\heightmapArena.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Textures\heightmap2.png">

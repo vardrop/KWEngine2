@@ -3,7 +3,7 @@ using KWEngine2.GameObjects;
 using KWEngine2Test.Objects;
 using OpenTK.Input;
 
-namespace KWEngine2Test
+namespace KWEngine2Test.Worlds
 {
     class GameWorldStart : World
     {

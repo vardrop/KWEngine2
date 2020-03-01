@@ -4,7 +4,7 @@ using OpenTK;
 using OpenTK.Input;
 using KWEngine2Test.Objects;
 
-namespace KWEngine2Test
+namespace KWEngine2Test.Worlds
 {
     class GameWorldPBRTest : World
     {

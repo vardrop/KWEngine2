@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KWEngine2Test
+namespace KWEngine2Test.Worlds
 {
     class GameWorldSpaceInvaders : World
     {

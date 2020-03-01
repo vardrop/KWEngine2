@@ -1,4 +1,5 @@
 ﻿using KWEngine2;
+using KWEngine2Test.Worlds;
 using System;
 
 namespace KWEngine2Test
@@ -8,7 +9,7 @@ namespace KWEngine2Test
         public GameWindow()
             :base(1280, 720, OpenTK.GameWindowFlags.Default, 0, true)
         {
-            SetWorld(new GameWorldStart());
+            SetWorld(new GameWorldArena());
         }
     }
 }
