@@ -23,6 +23,7 @@ namespace KWEngine2Test.Worlds
         {
             FOV = 90;
             SetCameraPosition(50, 50, 50);
+            SetSunPosition(200, 200, 50);
             SetSunColor(1, 0.75f, 0.5f, 1);
 
             KWEngine.LoadModelFromFile("ArenaOuter", @".\Models\ArenaOuter\ArenaOuter.obj");
@@ -32,7 +33,6 @@ namespace KWEngine2Test.Worlds
             terra.SetModel("Arena");
             terra.SetPosition(0, -0.5f, 0);
             terra.SetTexture(@".\textures\sand_normal.png", KWEngine.TextureType.Normal);
-            
             AddGameObject(terra);
 
             Immovable floor = new Immovable();
@@ -48,6 +48,7 @@ namespace KWEngine2Test.Worlds
             Immovable arenaOuter = new Immovable();
             arenaOuter.SetModel("ArenaOuter");
             arenaOuter.IsCollisionObject = true;
+            arenaOuter.IsShadowCaster = true;
             AddGameObject(arenaOuter);
 
             _player = new Player();
@@ -62,6 +63,7 @@ namespace KWEngine2Test.Worlds
 
             SetTextureSkybox(@".\textures\skybox1.jpg", 1, 0.75f, 0.5f);
             DebugShowPerformanceInTitle = KWEngine.PerformanceUnit.FramesPerSecond;
+            //DebugShadowCaster = true;
         }
     }
 }
