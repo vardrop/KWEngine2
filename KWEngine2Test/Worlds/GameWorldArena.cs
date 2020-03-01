@@ -26,7 +26,7 @@ namespace KWEngine2Test.Worlds
             SetSunPosition(200, 200, 50);
             SetSunColor(1, 0.75f, 0.5f, 1);
 
-            KWEngine.LoadModelFromFile("ArenaOuter", @".\Models\ArenaOuter\ArenaOuter.obj");
+            KWEngine.LoadModelFromFile("ArenaOuter", @".\Models\ArenaOuter\ArenaOuter.fbx");
 
             KWEngine.BuildTerrainModel("Arena", @".\textures\heightmapArena.png", @".\textures\sand_diffuse.png", 150, 10, 150, 7.5f, 7.5f);
             Immovable terra = new Immovable();
@@ -64,6 +64,7 @@ namespace KWEngine2Test.Worlds
             SetTextureSkybox(@".\textures\skybox1.jpg", 1, 0.75f, 0.5f);
             DebugShowPerformanceInTitle = KWEngine.PerformanceUnit.FramesPerSecond;
             //DebugShadowCaster = true;
+            //DebugShowHitboxes = true;
         }
     }
 }

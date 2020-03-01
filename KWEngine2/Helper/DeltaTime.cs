@@ -9,7 +9,7 @@ namespace KWEngine2.Helper
         private static float movAverageDeltaTime_ms = 16.6666666f; // mov Average start with default value
         private static float lastRealTimeMeasurement_ms = 0; // temporal storage for last time measurement
         private const float movAveragePeriod = 30f; // #frames involved in average calc (suggested values 5-100)
-        private const float smoothFactor = 0.5f; // adjusting ratio (suggested values 0.01-0.5)
+        private const float smoothFactor = 0.09f; // adjusting ratio (suggested values 0.01-0.5)
         private const float TargetFrameTime = 1f / 60f * 1000f;
         internal const double TargetFrameTimeDouble = 1.0 / 60.0;
 

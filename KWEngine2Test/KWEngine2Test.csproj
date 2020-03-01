@@ -74,10 +74,7 @@
     <None Include="Fonts\Quicksand-Regular.otf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Models\ArenaOuter\ArenaOuter.mtl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Models\ArenaOuter\ArenaOuter.obj">
+    <None Include="Models\ArenaOuter\ArenaOuter.fbx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Models\Corridors\corridorCornerLeft01_NoRoof.fbx">
