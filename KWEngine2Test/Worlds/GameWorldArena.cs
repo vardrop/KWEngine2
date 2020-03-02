@@ -27,6 +27,7 @@ namespace KWEngine2Test.Worlds
             SetSunColor(1, 0.75f, 0.5f, 1);
 
             KWEngine.LoadModelFromFile("ArenaOuter", @".\Models\ArenaOuter\ArenaOuter.fbx");
+            KWEngine.LoadModelFromFile("ArenaPlatform", @".\Models\ArenaOuter\ArenaPlatform.obj");
 
             KWEngine.BuildTerrainModel("Arena", @".\textures\heightmapArena.png", @".\textures\sand_diffuse.png", 150, 10, 150, 7.5f, 7.5f);
             Immovable terra = new Immovable();
@@ -37,7 +38,7 @@ namespace KWEngine2Test.Worlds
 
             Immovable floor = new Immovable();
             floor.SetModel("KWCube");
-            floor.SetScale(75, 5, 75);
+            floor.SetScale(80, 5, 80);
             floor.SetPosition(0, -2.5f, 0);
             floor.SetTextureRepeat(5, 5);
             floor.IsCollisionObject = true;
@@ -63,8 +64,17 @@ namespace KWEngine2Test.Worlds
 
             SetTextureSkybox(@".\textures\skybox1.jpg", 1, 0.75f, 0.5f);
             DebugShowPerformanceInTitle = KWEngine.PerformanceUnit.FramesPerSecond;
+            KWEngine.ShadowMapSize = 2048;
             //DebugShadowCaster = true;
             //DebugShowHitboxes = true;
+
+            PlatformUpDown testPlatform = new PlatformUpDown();
+            testPlatform.SetModel("ArenaPlatform");
+            testPlatform.SetScale(1.5f);
+            testPlatform.SetPosition(5, 1.5f, 5);
+            testPlatform.IsCollisionObject = true;
+            testPlatform.IsShadowCaster = true;
+            AddGameObject(testPlatform);
         }
     }
 }

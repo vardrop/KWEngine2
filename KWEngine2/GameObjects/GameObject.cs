@@ -1028,7 +1028,8 @@ namespace KWEngine2.GameObjects
 
             if (CurrentWorld.IsFirstPersonMode && CurrentWorld.GetFirstPersonObject().Equals(this))
             {
-                Vector3 moveVector = HelperCamera.MoveXYZ(direction.Value.X, direction.Value.Y, direction.Value.LengthFast);
+                direction.Value.NormalizeFast();
+                Vector3 moveVector = HelperCamera.MoveXYZ(direction.Value.X, direction.Value.Y, 1f);
 
                 MoveOffset(moveVector.X * units, moveVector.Y * units, moveVector.Z * units);
             }
@@ -1056,7 +1057,8 @@ namespace KWEngine2.GameObjects
 
             if (CurrentWorld.IsFirstPersonMode && CurrentWorld.GetFirstPersonObject().Equals(this))
             {
-                Vector3 moveVector = HelperCamera.MoveXZ(direction.X, direction.Y, direction.LengthFast);
+                direction.NormalizeFast();
+                Vector3 moveVector = HelperCamera.MoveXZ(direction.X, direction.Y, 1f);
                 MoveOffset(moveVector.X * units, moveVector.Y * units, moveVector.Z * units);
             }
             else

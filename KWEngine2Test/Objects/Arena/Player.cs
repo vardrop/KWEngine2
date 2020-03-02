@@ -17,7 +17,6 @@ namespace KWEngine2Test.Objects.Arena
     {
         private float _movementSpeed = 0.2f;
         private Phase _phase = Phase.Stand;
-        private float _lastGain = 0;
         private float _airTime = 0;
         private float _heightAtJumpStart = 0;
         private bool _jumpButtonPressed = false;
@@ -48,14 +47,13 @@ namespace KWEngine2Test.Objects.Arena
                 MoveFPSCamera(ms);
                 MoveAndStrafeFirstPerson(forward, strafe, _movementSpeed * deltaTimeFactor);
             }
-
+            
             // Jump controls:
             if(ms.RightButton == ButtonState.Pressed && _phase == Phase.Stand && _jumpButtonPressed == false)
             {
                 _jumpButtonPressed = true;
                 _phase = Phase.Jump;
                 _airTime = 0;
-                _lastGain = 0;
                 _heightAtJumpStart = Position.Y;
             }
 
@@ -69,32 +67,23 @@ namespace KWEngine2Test.Objects.Arena
             {
                 _airTime += (deltaTimeFactor * 16.666667f) / 1000f;
                 float gain = -14f * (float)Math.Pow(_airTime - 0.4f, 2) + 2.25f;
-               // Console.WriteLine("jump");
-                /*
-                if (gain <= _lastGain)
-                {
-                    _phase = Phase.Fall;
-                    _heightAtJumpStart = Position.Y;
-                    _lastGain = 0;
-                    Console.WriteLine("switch to fall");
-                }
-                else
-                {
-                    _lastGain = gain;
-                }
-                */
                 SetPositionY(_heightAtJumpStart + gain);
 
             }
             else if(_phase == Phase.Fall)
             {
-                //Console.WriteLine("fall");
                 _airTime += (deltaTimeFactor * 16.666667f) / 1000f;
-                float gain = 2f * (float)Math.Pow(_airTime, 2);
+                float gain = 14f * (float)Math.Pow(_airTime, 2);
                 SetPositionY(_heightAtJumpStart - gain);
             }
+            else if(_phase == Phase.Stand)
+            {
+                MoveOffset(0, -0.05f, 0);
+            }
           
+            // Collision detection:
             List<Intersection> intersections = GetIntersections();
+            bool upCorrection = false;
             foreach(Intersection i in intersections)
             {
                 MoveOffset(i.MTV);
@@ -103,16 +92,22 @@ namespace KWEngine2Test.Objects.Arena
                 {
                     _phase = Phase.Stand;
                     _airTime = 0;
-                    _lastGain = 0;
+                    upCorrection = true;
                 }
                 if(i.MTV.Y < 0 && _phase == Phase.Jump)
                 {
                     _phase = Phase.Fall;
+                    _airTime = 0;
+                    _heightAtJumpStart = Position.Y;
                 }
             }
 
-            
-
+            if (!upCorrection && _phase == Phase.Stand)
+            {
+                _phase = Phase.Fall;
+                _airTime = 0;
+                _heightAtJumpStart = Position.Y;
+            }
         }
     }
 }

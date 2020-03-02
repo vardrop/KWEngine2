@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Objects\Arena\Immovable.cs" />
+    <Compile Include="Objects\Arena\PlatformUpDown.cs" />
     <Compile Include="Objects\Arena\Player.cs" />
     <Compile Include="Worlds\GameWorldArena.cs" />
     <Compile Include="Worlds\GameWorldSpaceInvaders.cs" />
@@ -75,6 +76,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Models\ArenaOuter\ArenaOuter.fbx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Models\ArenaOuter\ArenaPlatform.mtl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Models\ArenaOuter\ArenaPlatform.obj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Models\Corridors\corridorCornerLeft01_NoRoof.fbx">

@@ -79,7 +79,6 @@ namespace KWEngine2.Helper
             Vector3 forwardVector = new Vector3(viewMatrix.M13, 0f, viewMatrix.M33);
             Vector3 strafeVector = new Vector3(viewMatrix.M11, 0f, viewMatrix.M31);
             Vector3 relativeChange = -forward * forwardVector + sides * strafeVector;
-            relativeChange.NormalizeFast();
 
             return relativeChange * speed;
         }
@@ -102,7 +101,6 @@ namespace KWEngine2.Helper
             strafeVector = new Vector3(viewMatrix.M11, viewMatrix.M21, viewMatrix.M31);
 
             Vector3 relativeChange = -forward * forwardVector + sides * strafeVector;
-            relativeChange.NormalizeFast();
 
             return relativeChange * speed;
         }
