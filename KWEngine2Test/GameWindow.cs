@@ -9,7 +9,7 @@ namespace KWEngine2Test
         public GameWindow()
             :base(1280, 720, OpenTK.GameWindowFlags.Default, 0, false)
         {
-            SetWorld(new GameWorldCollisionTest());
+            SetWorld(new GameWorldArena());
         }
     }
 }

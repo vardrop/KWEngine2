@@ -23,6 +23,7 @@ namespace KWEngine2Test.Objects.Arena
 
         public override void Act(KeyboardState ks, MouseState ms, float deltaTimeFactor)
         {
+            // Debugging purposes:
             if (ks[Key.R])
             {
                 SetPosition(0, 13, 0);
@@ -30,6 +31,7 @@ namespace KWEngine2Test.Objects.Arena
                 _airTime = 0;
                 _heightAtJumpStart = 13;
             }
+
 
             // Basic controls:
             if (CurrentWorld.IsFirstPersonMode && CurrentWorld.GetFirstPersonObject().Equals(this))
@@ -52,10 +54,11 @@ namespace KWEngine2Test.Objects.Arena
                 {
                     forward -= 1;
                 }
-                MoveFPSCamera(ms);
+                
                 MoveAndStrafeFirstPerson(forward, strafe, _movementSpeed * deltaTimeFactor);
             }
             
+
             // Jump controls:
             if(ms.RightButton == ButtonState.Pressed && _phase == Phase.Stand && _jumpButtonPressed == false)
             {
@@ -69,6 +72,7 @@ namespace KWEngine2Test.Objects.Arena
             {
                 _jumpButtonPressed = false;
             }
+
 
             // Jump behaviour:
             if(_phase == Phase.Jump)
@@ -86,9 +90,10 @@ namespace KWEngine2Test.Objects.Arena
             }
             else if(_phase == Phase.Stand)
             {
-                MoveOffset(0, -0.001f, 0);
+                MoveOffset(0, -_movementSpeed * 0.0001f, 0);
             }
           
+
             // Collision detection:
             List<Intersection> intersections = GetIntersections();
             bool upCorrection = false;
@@ -109,13 +114,19 @@ namespace KWEngine2Test.Objects.Arena
                     _heightAtJumpStart = Position.Y;
                 }
             }
-
             if (!upCorrection && _phase == Phase.Stand)
             {
                 _phase = Phase.Fall;
                 _airTime = 0;
                 _heightAtJumpStart = Position.Y;
             }
+
+
+            // Has to happen last!
+            // (otherwise the camera would be set before 
+            //  the collision correction causing the cam
+            //  to bob up and down rapidly)
+            MoveFPSCamera(ms);
         }
     }
 }

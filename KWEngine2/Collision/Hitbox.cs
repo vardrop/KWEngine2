@@ -426,7 +426,50 @@ namespace KWEngine2.Collision
         private static void CalculateOverlap(ref Vector3 axis, ref float shape1Min, ref float shape1Max, ref float shape2Min, ref float shape2Max,
             out bool error, ref float mtvDistance, ref Vector3 mtv, ref float mtvDirection, ref Vector3 posA, ref Vector3 posB, ref Vector3 callerOffset)
         {
-            float intersectionDepthScaled = (shape1Min < shape2Min) ? (shape1Max - shape2Min) : (shape1Min - shape2Max);
+            float intersectionDepthScaled;
+            if (shape1Min < shape2Min)
+            {
+                if (shape1Max > shape2Max)
+                {
+                    float diff1 = shape1Max - shape2Max;
+                    float diff2 = shape2Min - shape1Min;
+                    if(diff1 > diff2)
+                    {
+                        intersectionDepthScaled = shape2Max - shape1Min;
+                    }
+                    else
+                    {
+                        intersectionDepthScaled = shape2Min - shape1Max;
+                    }
+                    
+                }
+                else
+                {
+                    intersectionDepthScaled = shape1Max - shape2Min; // default
+                }
+                
+            }
+            else
+            {
+                if(shape1Max < shape2Max)
+                {
+                    float diff1 = shape2Max - shape1Max;
+                    float diff2 = shape1Min - shape2Min;
+                    if (diff1 > diff2)
+                    {
+                        intersectionDepthScaled = shape1Max - shape2Min;
+                    }
+                    else
+                    {
+                        intersectionDepthScaled = shape1Min - shape2Max;
+                    }
+                }
+                else
+                {
+                    intersectionDepthScaled = shape1Min - shape2Max; // default
+                }
+                
+            }
 
             float axisLengthSquared = Vector3.Dot(axis, axis);
             if (axisLengthSquared < 1.0e-8f)

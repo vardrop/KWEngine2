@@ -9,16 +9,16 @@ using System.Threading.Tasks;
 
 namespace KWEngine2Test.Objects.CollisionTest
 {
-    class Box : GameObject
+    class BoxLower : GameObject
     {
         public override void Act(KeyboardState ks, MouseState ms, float deltaTimeFactor)
         {
-            /*Intersection i = GetIntersection();
+            Intersection i = GetIntersection();
             if(i != null)
             {
                 Console.WriteLine(i.MTV);
                 MoveOffset(i.MTV);
-            }*/
+            }
         }
     }
 }

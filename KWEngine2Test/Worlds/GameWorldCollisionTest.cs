@@ -15,19 +15,23 @@ namespace KWEngine2Test.Worlds
      
         public override void Prepare()
         {
-            SetCameraPosition(0, 1, 15);
+            SetCameraPosition(0, 0, 25);
 
             Box a = new Box();
             a.SetModel("KWCube");
-            a.SetScale(1, 4, 1);
-            a.SetPosition(0, 0.75f, 0);
+            a.SetScale(1, 6, 1);
+            a.SetPosition(0, 1, 0);
             a.IsCollisionObject = true;
+            a.IsShadowCaster = true;
             AddGameObject(a);
 
-            Immovable b = new Immovable();
+            BoxLower b = new BoxLower();
             b.SetModel("KWCube");
-            b.SetScale(10,0.5f,10);
+            b.SetScale(15,1f,15);
+            b.SetPosition(0, 0.5f, 0);
+            b.SetColor(1, 0, 0);
             b.IsCollisionObject = true;
+            b.IsShadowCaster = true;
             AddGameObject(b);
 
             //DebugShowHitboxes = true;
