@@ -4,6 +4,7 @@ using OpenTK;
 using OpenTK.Input;
 using KWEngine2Test.Objects;
 using KWEngine2.Helper;
+using KWEngine2Test.Objects.Main;
 
 namespace KWEngine2Test.Worlds
 {
@@ -50,8 +51,6 @@ namespace KWEngine2Test.Worlds
             KWEngine.LoadModelFromFile("Robot", @".\models\UBot\ubot.fbx");
             KWEngine.LoadModelFromFile("Lab", @".\models\labyrinth\walls.obj");
             KWEngine.LoadModelFromFile("Panel", @".\models\spacepanel\scifipanel.obj");
-            KWEngine.LoadModelFromFile("CorridorEntrance", @".\models\corridors\corridorEntrance01.fbx");
-            KWEngine.LoadModelFromFile("CorridorStraight01", @".\models\corridors\corridorStraight01_NoRoof.fbx");
             KWEngine.LoadModelFromFile("Spaceship", @".\models\spaceship\spaceship4.obj");
 
             KWEngine.BuildTerrainModel("Terrain", @".\textures\heightmap.png", @".\textures\sand_diffuse.png", 100, 2, 100, 5, 5);
