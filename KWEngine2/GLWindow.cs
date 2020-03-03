@@ -597,6 +597,7 @@ namespace KWEngine2
             GLWindow.StartGarbageCollection();
             DeltaTime.Watch.Stop();
             DeltaTime.Watch.Reset();
+            DeltaTime.lastRealTimeMeasurement_ms = 0;
             DeltaTime.Watch.Start();
         }
 
