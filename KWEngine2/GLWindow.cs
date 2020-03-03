@@ -118,8 +118,8 @@ namespace KWEngine2
         {
             string productVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductName + " " + FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductMajorPart + 
                 "." + FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductMinorPart + "." + FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductBuildPart;
-            Console.Write("\n\n\n================================================\n" + "Running " + productVersion + " ");
-            Console.WriteLine("on OpenGL 4.5 Core Profile.\n" + "================================================\n");
+            Console.Write("\n\n\n==================================================================================\n" + "Running " + productVersion + " ");
+            Console.WriteLine("on OpenGL 4.5 Core Profile.\n" + "==================================================================================\n");
 
             KWEngine.TextureDefault = HelperTexture.LoadTextureInternal("checkerboard.png");
             KWEngine.TextureBlack = HelperTexture.LoadTextureInternal("black.png");

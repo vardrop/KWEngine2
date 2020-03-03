@@ -168,7 +168,7 @@ namespace KWEngine2Test.Worlds
             ho.SetRotation(0, 0);
             AddHUDObject(ho);
            
-            DebugShowHitboxes = true;
+            DebugShowHitboxes = false;
             if (IsFirstPersonMode)
             {
                 FOV = 90;
