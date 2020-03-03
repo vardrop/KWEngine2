@@ -139,7 +139,7 @@ namespace KWEngine2.Model
             ProcessAnimations(scene, ref returnModel);
 
             returnModel.IsValid = true;
-            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
+            GLWindow.StartGarbageCollection();
             return returnModel;
         }
 

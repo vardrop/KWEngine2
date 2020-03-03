@@ -171,7 +171,7 @@ namespace KWEngine2.GameObjects
 
         internal void Act()
         {
-            long now = Stopwatch.GetTimestamp() / TimeSpan.TicksPerMillisecond;
+            long now = DeltaTime.Watch.ElapsedMilliseconds;
             if (KWEngine.CurrentWorld.IsFirstPersonMode)
             {
                 Vector3 fpPos = KWEngine.CurrentWorld.GetFirstPersonObject().Position;

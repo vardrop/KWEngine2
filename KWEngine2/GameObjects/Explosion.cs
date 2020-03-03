@@ -386,7 +386,7 @@ namespace KWEngine2.GameObjects
         {
             if(_starttime >= 0)
             {
-                long currentTime = Stopwatch.GetTimestamp() / TimeSpan.TicksPerMillisecond;
+                long currentTime = DeltaTime.Watch.ElapsedMilliseconds;
                 _secondsAlive = (currentTime - _starttime) / 1000f;
                 if(_secondsAlive > _duration)
                 {

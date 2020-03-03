@@ -479,7 +479,7 @@ namespace KWEngine2.Model
             }
             finally
             {
-                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
+                GLWindow.StartGarbageCollection();
             }
             mmp.Primitive = PrimitiveType.Triangles;
 

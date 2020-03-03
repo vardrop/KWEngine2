@@ -576,7 +576,6 @@ namespace KWEngine2
                 CurrentWorld.Prepare();
                 CurrentWorld._prepared = true;
                 CalculateProjectionMatrix();
-                return;
             }
             else
             {
@@ -594,6 +593,16 @@ namespace KWEngine2
                     CalculateProjectionMatrix();
                 }
             }
+            
+            GLWindow.StartGarbageCollection();
+            DeltaTime.Watch.Stop();
+            DeltaTime.Watch.Reset();
+            DeltaTime.Watch.Start();
+        }
+
+        internal static void StartGarbageCollection()
+        {
+            GC.KeepAlive(DeltaTime.Watch);
             GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
         }
 

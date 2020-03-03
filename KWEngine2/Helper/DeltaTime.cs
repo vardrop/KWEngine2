@@ -12,7 +12,7 @@ namespace KWEngine2.Helper
         private const float smoothFactor = 0.01f; // adjusting ratio (suggested values 0.01-0.5)
         private const float TargetFrameTime = 1f / 60f * 1000f;
         internal const double TargetFrameTimeDouble = 1.0 / 60.0;
-
+        internal static Stopwatch Watch = new Stopwatch();
         private static float deltaTimeFactor = 1;
         
         internal static float GetDeltaTimeFactor()
@@ -22,7 +22,7 @@ namespace KWEngine2.Helper
 
         internal static void UpdateDeltaTime()
         {
-            float currTimePick_ms = Stopwatch.GetTimestamp() / (float)TimeSpan.TicksPerMillisecond;
+            float currTimePick_ms = Watch.ElapsedMilliseconds;
             float realTimeElapsed_ms;
             if (lastRealTimeMeasurement_ms > 0)
             {

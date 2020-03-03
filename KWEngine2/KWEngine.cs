@@ -433,7 +433,7 @@ namespace KWEngine2
         /// <returns></returns>
         public static long GetCurrentTimeInMilliseconds()
         {
-            return Stopwatch.GetTimestamp() / TimeSpan.TicksPerMillisecond;
+            return DeltaTime.Watch.ElapsedMilliseconds;
         }
 
         /// <summary>

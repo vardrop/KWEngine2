@@ -104,7 +104,7 @@ namespace KWEngine2
         /// <returns>Zeit (in ms)</returns>
         public long GetCurrentTimeInMilliseconds()
         {
-            return Stopwatch.GetTimestamp() / TimeSpan.TicksPerMillisecond;
+            return DeltaTime.Watch.ElapsedMilliseconds;
         }
 
         /// <summary>
@@ -563,7 +563,7 @@ namespace KWEngine2
                 {
                     if (!_particleObjects.Contains(g))
                     {
-                        g._starttime = Stopwatch.GetTimestamp() / TimeSpan.TicksPerMillisecond;
+                        g._starttime = DeltaTime.Watch.ElapsedMilliseconds; // Stopwatch.GetTimestamp() / TimeSpan.TicksPerMillisecond;
                         _particleObjects.Add(g);
                     }
                 }
@@ -582,7 +582,7 @@ namespace KWEngine2
                 {
                     if (!_explosionObjects.Contains(ex))
                     {
-                        ex._starttime = Stopwatch.GetTimestamp() / TimeSpan.TicksPerMillisecond;
+                        ex._starttime = DeltaTime.Watch.ElapsedMilliseconds;  //Stopwatch.GetTimestamp() / TimeSpan.TicksPerMillisecond;
                         _explosionObjects.Add(ex);
                     }
                 }

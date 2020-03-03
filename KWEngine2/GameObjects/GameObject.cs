@@ -1270,7 +1270,7 @@ namespace KWEngine2.GameObjects
         /// <returns>Systemzeit in ms</returns>
         public static long GetCurrentTimeInMilliseconds()
         {
-            return Stopwatch.GetTimestamp() / TimeSpan.TicksPerMillisecond;
+            return DeltaTime.Watch.ElapsedMilliseconds;
         }
 
         /// <summary>
