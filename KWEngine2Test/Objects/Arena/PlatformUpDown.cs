@@ -14,11 +14,13 @@ namespace KWEngine2Test.Objects.Arena
     {
         private Direction _dir = Direction.WaitUp;
         private float _stateTime = 0;
+        private float _limitLow = 2.25f;
+        private float _limitUp = 8.5f;
 
         public override void Act(KeyboardState ks, MouseState ms, float deltaTimeFactor)
         {
             long timeStamp = GetCurrentTimeInMilliseconds();
-            if((int)_dir > 1 && timeStamp - _stateTime > 2500)
+            if((int)_dir > 1 && timeStamp - _stateTime > 3000)
             {
                 ChangeState(timeStamp);
             }
@@ -34,7 +36,7 @@ namespace KWEngine2Test.Objects.Arena
             else if (_dir == Direction.Up)
             {
                 MoveOffset(0, 0.1f * deltaTimeFactor, 0);
-                if(Position.Y > 5)
+                if(Position.Y > _limitUp)
                 {
                     ChangeState(timeStamp);
                 }
@@ -42,7 +44,7 @@ namespace KWEngine2Test.Objects.Arena
             else if (_dir == Direction.Down)
             {
                 MoveOffset(0, -0.1f * deltaTimeFactor, 0);
-                if (Position.Y <= 1.5f)
+                if (Position.Y <= _limitLow)
                 {
                     ChangeState(timeStamp);
                 }
@@ -54,27 +56,42 @@ namespace KWEngine2Test.Objects.Arena
                 if(i.MTV.Y > 0)
                 {
                     MoveOffset(i.MTV);
+                    ChangeState(timeStamp, true);
                 }
             }
         }
 
-        private void ChangeState(long timeStamp)
+        private void ChangeState(long timeStamp, bool collision = false)
         {
-            if(_dir == Direction.WaitUp)
+            if (collision)
             {
-                _dir = Direction.Up;
-            }
-            else if (_dir == Direction.WaitDown)
-            {
-                _dir = Direction.Down;
-            }
-            else if (_dir == Direction.Up)
-            {
-                _dir = Direction.WaitDown;
+                if (_dir == Direction.Up)
+                {
+                    _dir = Direction.Down;
+                }
+                else if (_dir == Direction.Down)
+                {
+                    _dir = Direction.Up;
+                }
             }
             else
             {
-                _dir = Direction.WaitUp;
+                if (_dir == Direction.WaitUp)
+                {
+                    _dir = Direction.Up;
+                }
+                else if (_dir == Direction.WaitDown)
+                {
+                    _dir = Direction.Down;
+                }
+                else if (_dir == Direction.Up)
+                {
+                    _dir = Direction.WaitDown;
+                }
+                else
+                {
+                    _dir = Direction.WaitUp;
+                }
             }
             _stateTime = timeStamp;
         }

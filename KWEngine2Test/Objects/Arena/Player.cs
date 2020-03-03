@@ -23,6 +23,14 @@ namespace KWEngine2Test.Objects.Arena
 
         public override void Act(KeyboardState ks, MouseState ms, float deltaTimeFactor)
         {
+            if (ks[Key.R])
+            {
+                SetPosition(0, 13, 0);
+                _phase = Phase.Fall;
+                _airTime = 0;
+                _heightAtJumpStart = 13;
+            }
+
             // Basic controls:
             if (CurrentWorld.IsFirstPersonMode && CurrentWorld.GetFirstPersonObject().Equals(this))
             {
@@ -78,7 +86,7 @@ namespace KWEngine2Test.Objects.Arena
             }
             else if(_phase == Phase.Stand)
             {
-                MoveOffset(0, -0.05f, 0);
+                MoveOffset(0, -0.001f, 0);
             }
           
             // Collision detection:
