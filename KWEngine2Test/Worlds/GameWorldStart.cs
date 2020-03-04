@@ -8,6 +8,7 @@ namespace KWEngine2Test.Worlds
     class GameWorldStart : World
     {
         private HUDObject _button = null;
+        private HUDObject _button2 = null;
 
         public override void Act(KeyboardState kb, MouseState ms, float deltaTimeFactor)
         {
@@ -27,6 +28,21 @@ namespace KWEngine2Test.Worlds
             {
                 _button.SetGlow(1, 0, 0, 0);
             }
+
+
+            if (_button2.IsMouseCursorOnMe(ms))
+            {
+                _button2.SetGlow(1, 0, 0, 1);
+
+                if (ms.LeftButton == ButtonState.Pressed)
+                {
+                    CurrentWindow.SetWorld(new GameWorldArena());
+                }
+            }
+            else
+            {
+                _button2.SetGlow(1, 0, 0, 0);
+            }
         }
      
         public override void Prepare()
@@ -44,13 +60,17 @@ namespace KWEngine2Test.Worlds
             c.SetPosition(0, 4, 0);
             AddGameObject(c);
 
-            _button = new HUDObject(HUDObjectType.Image, width / 2, height / 2);
+            _button = new HUDObject(HUDObjectType.Image, width / 2, height / 2 - 100);
             _button.SetTexture(@".\textures\buttonStart.png");
-            _button.SetScale(imageWidth * 2, imageHeight * 2);
-
+            _button.SetScale(imageWidth * 1.5f, imageHeight * 1.5f);
             AddHUDObject(_button);
 
-            DebugShowPerformanceInTitle = KWEngine.PerformanceUnit.FrameTimeInMilliseconds;
+            _button2 = new HUDObject(HUDObjectType.Image, width / 2, height / 2 + 200);
+            _button2.SetTexture(@".\textures\buttonStart.png");
+            _button2.SetScale(imageWidth * 1.5f, imageHeight * 1.5f);
+            AddHUDObject(_button2);
+
+            DebugShowPerformanceInTitle = KWEngine.PerformanceUnit.FramesPerSecond;
         }
 
     }
