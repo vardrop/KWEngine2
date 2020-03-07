@@ -169,7 +169,8 @@ namespace KWEngine2.GameObjects
         /// Setzt die Textur
         /// </summary>
         /// <param name="filename">Bilddatei</param>
-        public void SetTexture(string filename)
+        /// <param name="isFile">false, wenn die Datei Teil der EXE ist (Eingebettete Ressource)</param>
+        public void SetTexture(string filename, bool isFile = true)
         {
             if (File.Exists(filename) && _type == HUDObjectType.Image)
             {
@@ -179,7 +180,7 @@ namespace KWEngine2.GameObjects
                 }
                 else
                 {
-                    _textureIds[0] = HelperTexture.LoadTextureForBackgroundExternal(filename);
+                    _textureIds[0] = isFile ? HelperTexture.LoadTextureForBackgroundExternal(filename) : HelperTexture.LoadTextureForBackgroundInternal(filename);
                     KWEngine.CustomTextures[KWEngine.CurrentWorld].Add(filename, _textureIds[0]);
                 }
                 
@@ -187,7 +188,7 @@ namespace KWEngine2.GameObjects
             }
             else
             {
-                throw new Exception("Error: Is your HUD Type set to 'Image'? Or maybe the file " + filename + " does not exist. Is your path correct?");
+                throw new Exception("Error: Is your HUD Type set to 'Image'? Or maybe the file " + filename + " does not exist?");
             }
         }
 

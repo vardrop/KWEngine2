@@ -5,7 +5,7 @@ namespace KWEngine2.Helper
 {
     internal static class DeltaTime
     {
-        private static float smoothedDeltaRealTime_ms = 16.666666f; // initial value, Optionally you can save the new computed value (will change with each hardware) in Preferences to optimize the first drawing frames 
+        private static float smoothedDeltaRealTime_ms = 0.00001f; // initial value, Optionally you can save the new computed value (will change with each hardware) in Preferences to optimize the first drawing frames 
         private static float movAverageDeltaTime_ms = 16.6666666f; // mov Average start with default value
         internal static float lastRealTimeMeasurement_ms = 0; // temporal storage for last time measurement
         private const float movAveragePeriod = 60f; // #frames involved in average calc (suggested values 5-100)

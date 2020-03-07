@@ -31,17 +31,15 @@ namespace KWEngine2.Helper
             return (int)v;
         }
 
-        internal static int LoadTextureInternal(string filename)
+        internal static int LoadTextureFromAssembly(string resourceName, Assembly assembly)
         {
-            var assembly = Assembly.GetExecutingAssembly();
-            var resourceName = "KWEngine2.Assets.Textures." + filename;
             int texID = -1;
             using (Stream s = assembly.GetManifestResourceStream(resourceName))
             {
                 Bitmap image = new Bitmap(s);
                 if (image == null)
                 {
-                    throw new Exception("File " + filename + " is not a valid image file.");
+                    throw new Exception("File " + resourceName + " is not a valid image file.");
                 }
                 texID = GL.GenTexture();
                 GL.BindTexture(TextureTarget.Texture2D, texID);
@@ -60,7 +58,7 @@ namespace KWEngine2.Helper
                      OpenTK.Graphics.OpenGL4.PixelFormat.Bgr, PixelType.UnsignedByte, data.Scan0);
                 }
                 //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, value);
-                //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.)
+                //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.
                 GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
                 GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
                 GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
@@ -73,15 +71,21 @@ namespace KWEngine2.Helper
             return texID;
         }
 
+        internal static int LoadTextureInternal(string filename)
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var resourceName = "KWEngine2.Assets.Textures." + filename;
+            return LoadTextureFromAssembly(resourceName, assembly);
+        }
+
         public static int LoadTextureForModelExternal(string filename, bool convertRoughnessToSpecular = false)
         {
             if (!File.Exists(filename))
             {
-                //Debug.WriteLine("File " + filename + " not found.");
                 return -1;
             }
 
-            int texID = GL.GenTexture();
+            int texID;
             try
             {
                 Bitmap image = new Bitmap(filename);
@@ -89,6 +93,7 @@ namespace KWEngine2.Helper
                 {
                     throw new Exception("File " + filename + " is not a valid image file.");
                 }
+                texID =  GL.GenTexture();
                 GL.BindTexture(TextureTarget.Texture2D, texID);
                 BitmapData data = null;
 
@@ -123,6 +128,105 @@ namespace KWEngine2.Helper
             return texID;
         }
 
+        public static int LoadTextureForModelInternal(string filename, bool convertRoughnessToSpecular = false)
+        {
+            Assembly a = Assembly.GetEntryAssembly();
+            int texID;
+            try
+            {
+                string assPath = a.GetName().Name + "." + filename;
+                using (Stream s = a.GetManifestResourceStream(assPath))
+                {
+                    Bitmap image = new Bitmap(s);
+                    if (image == null)
+                    {
+                        throw new Exception("File " + filename + " is not a valid image file.");
+                    }
+                    texID = GL.GenTexture();
+                    GL.BindTexture(TextureTarget.Texture2D, texID);
+                    BitmapData data = null;
+
+                    if (image.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppArgb)
+                    {
+                        data = image.LockBits(new Rectangle(0, 0, image.Width, image.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, data.Width, data.Height, 0,
+                         OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
+                    }
+                    else
+                    {
+                        data = image.LockBits(new Rectangle(0, 0, image.Width, image.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+                        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, data.Width, data.Height, 0,
+                         OpenTK.Graphics.OpenGL4.PixelFormat.Bgr, PixelType.UnsignedByte, data.Scan0);
+                    }
+                    //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, value);
+                    //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.)
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+                    GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+
+                    image.Dispose();
+                    GL.BindTexture(TextureTarget.Texture2D, 0);
+
+                }
+            }
+            catch (Exception)
+            {
+                throw new Exception("Could not load image file from assembly: " + filename);
+            }
+            return texID;
+        }
+
+        public static int LoadTextureForBackgroundInternal(string assemblyPathAndName)
+        {
+            Assembly a = Assembly.GetEntryAssembly();
+            int texID;
+            try
+            {
+                using (Stream s = a.GetManifestResourceStream(a.GetName().Name + "." + assemblyPathAndName))
+                {
+                    
+                    Bitmap image = new Bitmap(s);
+                    if (image == null)
+                    {
+                        throw new Exception("File " + assemblyPathAndName + " not found or not a valid image file.");
+                    }
+                    texID = GL.GenTexture();
+                    GL.BindTexture(TextureTarget.Texture2D, texID);
+                    BitmapData data = null;
+
+                    if (image.PixelFormat == System.Drawing.Imaging.PixelFormat.Format32bppArgb)
+                    {
+                        data = image.LockBits(new Rectangle(0, 0, image.Width, image.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, data.Width, data.Height, 0,
+                         OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
+                    }
+                    else
+                    {
+                        data = image.LockBits(new Rectangle(0, 0, image.Width, image.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+                        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, data.Width, data.Height, 0,
+                         OpenTK.Graphics.OpenGL4.PixelFormat.Bgr, PixelType.UnsignedByte, data.Scan0);
+                    }
+                    //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, value);
+                    //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.)
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+                    //GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+
+                    image.Dispose();
+                    GL.BindTexture(TextureTarget.Texture2D, 0);
+                }
+            }
+            catch (Exception)
+            {
+                throw new Exception("Could not load image file " + assemblyPathAndName + "!");
+            }
+            return texID;
+        }
+
         public static int LoadTextureForBackgroundExternal(string filename)
         {
             if (!File.Exists(filename))
@@ -130,8 +234,7 @@ namespace KWEngine2.Helper
                 Debug.WriteLine("File " + filename + " for setting background image not found.");
                 return -1;
             }
-
-            int texID = GL.GenTexture();
+            int texID;
             try
             {
                 Bitmap image = new Bitmap(filename);
@@ -139,6 +242,7 @@ namespace KWEngine2.Helper
                 {
                     throw new Exception("File " + filename + " is not a valid image file.");
                 }
+                texID = GL.GenTexture();
                 GL.BindTexture(TextureTarget.Texture2D, texID);
                 BitmapData data = null;
 
@@ -173,8 +277,9 @@ namespace KWEngine2.Helper
             return texID;
         }
 
-        internal static int LoadTextureSkybox(string filename)
+        internal static int LoadTextureSkybox(string filename, bool isInAssembly = false)
         {
+            Assembly a = Assembly.GetEntryAssembly();
             if (!filename.ToLower().EndsWith("jpg") && !filename.ToLower().EndsWith("jpeg") && !filename.ToLower().EndsWith("png"))
                 throw new Exception("Only JPG and PNG files are supported.");
 
@@ -182,7 +287,7 @@ namespace KWEngine2.Helper
             {
                 try
                 {
-                    using (FileStream s = File.Open(filename, FileMode.Open))
+                    using (Stream s = isInAssembly ? a.GetManifestResourceStream(a.GetName().Name + "." + filename) : File.Open(filename, FileMode.Open))
                     {
                         Bitmap image = new Bitmap(s);
                         int width = image.Width;

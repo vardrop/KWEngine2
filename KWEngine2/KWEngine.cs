@@ -327,23 +327,23 @@ namespace KWEngine2
 
         internal static void InitializeModels()
         {
-            Models.Add("KWCube", SceneImporter.LoadModel("kwcube.obj", false, true));
-            Models.Add("KWCube6", SceneImporter.LoadModel("kwcube6.obj", false, true));
-            KWRect = SceneImporter.LoadModel("kwrect.obj", false, true);
-            Models.Add("KWSphere", SceneImporter.LoadModel("kwsphere.obj", false, true));
-            KWStar = SceneImporter.LoadModel("star.obj", false, true);
+            Models.Add("KWCube", SceneImporter.LoadModel("kwcube.obj", false, SceneImporter.AssemblyMode.Internal));
+            Models.Add("KWCube6", SceneImporter.LoadModel("kwcube6.obj", false, SceneImporter.AssemblyMode.Internal));
+            KWRect = SceneImporter.LoadModel("kwrect.obj", false, SceneImporter.AssemblyMode.Internal);
+            Models.Add("KWSphere", SceneImporter.LoadModel("kwsphere.obj", false, SceneImporter.AssemblyMode.Internal));
+            KWStar = SceneImporter.LoadModel("star.obj", false, SceneImporter.AssemblyMode.Internal);
             Models.Add("KWStar", KWStar);
-            KWHeart = SceneImporter.LoadModel("heart.obj", false, true);
+            KWHeart = SceneImporter.LoadModel("heart.obj", false, SceneImporter.AssemblyMode.Internal);
             Models.Add("KWHeart", KWHeart);
-            KWSkull = SceneImporter.LoadModel("skull.obj", false, true);
+            KWSkull = SceneImporter.LoadModel("skull.obj", false, SceneImporter.AssemblyMode.Internal);
             Models.Add("KWSkull", KWSkull);
-            KWDollar = SceneImporter.LoadModel("dollar.obj", false, true);
+            KWDollar = SceneImporter.LoadModel("dollar.obj", false, SceneImporter.AssemblyMode.Internal);
             Models.Add("KWDollar", KWDollar);
-            CoordinateSystem = SceneImporter.LoadModel("csystem.obj", false, true);
-            CoordinateSystemX = SceneImporter.LoadModel("csystemX.obj", false, true);
-            CoordinateSystemY = SceneImporter.LoadModel("csystemY.obj", false, true);
-            CoordinateSystemZ = SceneImporter.LoadModel("csystemZ.obj", false, true);
-            GHitbox = SceneImporter.LoadModel("Hitbox.obj", false, true);
+            CoordinateSystem = SceneImporter.LoadModel("csystem.obj", false, SceneImporter.AssemblyMode.Internal);
+            CoordinateSystemX = SceneImporter.LoadModel("csystemX.obj", false, SceneImporter.AssemblyMode.Internal);
+            CoordinateSystemY = SceneImporter.LoadModel("csystemY.obj", false, SceneImporter.AssemblyMode.Internal);
+            CoordinateSystemZ = SceneImporter.LoadModel("csystemZ.obj", false, SceneImporter.AssemblyMode.Internal);
+            GHitbox = SceneImporter.LoadModel("Hitbox.obj", false, SceneImporter.AssemblyMode.Internal);
 
             for (int i = 0; i < Explosion.Axes.Length; i++)
             {
@@ -534,7 +534,8 @@ namespace KWEngine2
         /// <param name="depth">Tiefe</param>
         /// <param name="texRepeatX">Texturwiederholung Breite</param>
         /// <param name="texRepeatZ">Texturwiederholung Tiefe</param>
-        public static void BuildTerrainModel(string name, string heightmap, string texture, float width, float height, float depth, float texRepeatX = 1, float texRepeatZ = 1)
+        /// <param name="isFile">false, wenn die Texturen Teil der EXE sind (Eingebettete Ressource)</param>
+        public static void BuildTerrainModel(string name, string heightmap, string texture, float width, float height, float depth, float texRepeatX = 1, float texRepeatZ = 1, bool isFile = true)
         {
             if (Models.ContainsKey(name)){
                 throw new Exception("There already is a model with that name. Please choose a different name.");
@@ -552,7 +553,7 @@ namespace KWEngine2
             terrainModel.MeshHitboxes.Add(meshHitBox);
 
             GeoTerrain t = new GeoTerrain();
-            GeoMesh terrainMesh = t.BuildTerrain(new Vector3(0, 0, 0), heightmap, width, height, depth, texRepeatX, texRepeatZ);
+            GeoMesh terrainMesh = t.BuildTerrain(new Vector3(0, 0, 0), heightmap, width, height, depth, texRepeatX, texRepeatZ, isFile);
             terrainMesh.Terrain = t;
             GeoMaterial mat = new GeoMaterial();
             mat.BlendMode = OpenTK.Graphics.OpenGL4.BlendingFactor.OneMinusSrcAlpha;
@@ -576,7 +577,7 @@ namespace KWEngine2
             }
             else
             {
-                texDiffuse.OpenGLID = HelperTexture.LoadTextureForModelExternal(texture);
+                texDiffuse.OpenGLID = isFile ? HelperTexture.LoadTextureForModelExternal(texture) : HelperTexture.LoadTextureForModelInternal(texture);
                 if (dictFound)
                 {
                     texDict.Add(texture, texDiffuse.OpenGLID);
@@ -588,6 +589,28 @@ namespace KWEngine2
             terrainMesh.Material = mat;
             terrainModel.Meshes.Add("Terrain", terrainMesh);
             KWEngine.Models.Add(name, terrainModel);
+        }
+
+        /// <summary>
+        /// Lädt ein Modell aus den eingebetteten Ressourcen
+        /// </summary>
+        /// <param name="name">Name des Modells</param>
+        /// <param name="path">Pfad zum Modell inkl. Dateiname</param>
+        /// <param name="flipTextureCoordinates">UV-Map umdrehen (Standard: true)</param>
+        public static void LoadModelFromAssembly(string name, string path, bool flipTextureCoordinates = true)
+        {
+            if (KWEngine.Models.ContainsKey(name.Trim()))
+            {
+                throw new Exception("A model with the name " + name + " already exists.");
+            }
+            
+            GeoModel m = SceneImporter.LoadModel(path, flipTextureCoordinates, SceneImporter.AssemblyMode.User);
+            name = name.Trim();
+            m.Name = name;
+            lock (KWEngine.Models)
+            {
+                KWEngine.Models.Add(name, m);
+            }
         }
 
         /// <summary>
@@ -608,16 +631,16 @@ namespace KWEngine2
         /// <param name="flipTextureCoordinates">UV-Map umdrehen (Standard: true)</param>
         public static void LoadModelFromFile(string name, string filename, bool flipTextureCoordinates = true)
         {
-            GeoModel m = SceneImporter.LoadModel(filename, flipTextureCoordinates, false);
+            if (KWEngine.Models.ContainsKey(name.Trim()))
+            {
+                throw new Exception("A model with the name " + name + " already exists.");
+            }
+            GeoModel m = SceneImporter.LoadModel(filename, flipTextureCoordinates, SceneImporter.AssemblyMode.File);
             name = name.Trim();
             m.Name = name;
             lock (KWEngine.Models)
             {
-                //name = name.ToLower();
-                if (!KWEngine.Models.ContainsKey(name))
-                    KWEngine.Models.Add(name, m);
-                else
-                    throw new Exception("A model with the name " + name + " already exists.");
+                KWEngine.Models.Add(name, m);
             }
         }
     }

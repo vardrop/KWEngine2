@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Reflection;
 
 namespace KWEngine2.Model
 {
@@ -53,12 +54,13 @@ namespace KWEngine2.Model
             return mDepth;
         }
 
-        internal GeoMesh BuildTerrain(Vector3 position, string heightMap, float width, float height, float depth, float texRepeatX = 1, float texRepeatY = 1)
+        internal GeoMesh BuildTerrain(Vector3 position, string heightMap, float width, float height, float depth, float texRepeatX = 1, float texRepeatY = 1, bool isFile = true)
         {
             GeoMesh mmp;
             try
             {
-                using (FileStream s = File.Open(heightMap, System.IO.FileMode.Open))
+                Assembly a = Assembly.GetEntryAssembly();
+                using (Stream s = isFile ? File.Open(heightMap, FileMode.Open) : a.GetManifestResourceStream(a.GetName().Name + "." + heightMap))
                 {
                     using (Bitmap image = new Bitmap(s))
                     {
@@ -81,7 +83,7 @@ namespace KWEngine2.Model
                         if (mDots > 1000)
                         {
                             Debug.WriteLine("\tImage pixel count:\t\t" + mp + " megapixel");
-                            if(mp >= 0.5)
+                            if (mp >= 0.5)
                                 Debug.WriteLine("(WARNING: pixel count > 0.5 megapixel! You will experience SERIOUS performance issues with this terrain mapping.)");
                         }
                         else

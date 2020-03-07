@@ -183,7 +183,8 @@ namespace KWEngine2
         /// <param name="green">Grünfärbung</param>
         /// <param name="blue">Blaufärbung</param>
         /// <param name="intensity">Helligkeit</param>
-        public void SetTextureBackground(string filename, float repeatX = 1, float repeatY = 1, float red = 1, float green = 1, float blue = 1, float intensity = 1)
+        /// <param name="isFile">false, falls der Pfad Teil der EXE-Datei ist</param>
+        public void SetTextureBackground(string filename, float repeatX = 1, float repeatY = 1, float red = 1, float green = 1, float blue = 1, float intensity = 1, bool isFile = true)
         {
             if (filename == null || filename.Length < 1)
             {
@@ -198,7 +199,8 @@ namespace KWEngine2
                 }
                 else
                 {
-                    _textureBackground = HelperTexture.LoadTextureForBackgroundExternal(filename);
+                    
+                    _textureBackground = isFile ? HelperTexture.LoadTextureForBackgroundExternal(filename) : HelperTexture.LoadTextureForBackgroundInternal(filename);
                     KWEngine.CustomTextures[this].Add(filename, _textureBackground);
                 }
                 _textureBackgroundTint.X = HelperGL.Clamp(red, 0, 1);
@@ -219,7 +221,8 @@ namespace KWEngine2
         /// <param name="green">Grünfärbung</param>
         /// <param name="blue">Blaufärbung</param>
         /// <param name="intensity">Helligkeit</param>
-        public void SetTextureSkybox(string filename, float red = 1, float green = 1, float blue = 1, float intensity = 1)
+        /// <param name="isFile">false, falls der Pfad Teil der EXE-Datei ist</param>
+        public void SetTextureSkybox(string filename, float red = 1, float green = 1, float blue = 1, float intensity = 1, bool isFile = true)
         {
             if (filename == null || filename.Length < 1)
                 _textureSkybox = -1;
@@ -231,7 +234,7 @@ namespace KWEngine2
                 }
                 else
                 {
-                    _textureSkybox = HelperTexture.LoadTextureSkybox(filename);
+                    _textureSkybox = HelperTexture.LoadTextureSkybox(filename, !isFile);
                 }
                 _textureBackgroundTint.X = HelperGL.Clamp(red, 0, 1);
                 _textureBackgroundTint.Y = HelperGL.Clamp(green, 0, 1);
@@ -809,7 +812,7 @@ namespace KWEngine2
                 List<string> removableModels = new List<string>();
                 foreach (string m in KWEngine.Models.Keys)
                 {
-                    if (!KWEngine.Models[m].IsInAssembly)
+                    if (KWEngine.Models[m].AssemblyMode != SceneImporter.AssemblyMode.Internal)
                     {
                         KWEngine.Models[m].Dispose();
                         removableModels.Add(m);

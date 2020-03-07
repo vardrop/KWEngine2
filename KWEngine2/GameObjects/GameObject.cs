@@ -10,6 +10,7 @@ using System.Diagnostics;
 using static KWEngine2.KWEngine;
 using KWEngine2.Audio;
 using System.IO;
+using System.Reflection;
 
 namespace KWEngine2.GameObjects
 {
@@ -1416,7 +1417,7 @@ namespace KWEngine2.GameObjects
             GameObject g = (GameObject)obj;
             return g.DistanceToCamera > this.DistanceToCamera ? 1 : -1;
         }
-        
+
 
         /// <summary>
         /// Setzt die Textur für das Objekt (KWCube und KWCube6)
@@ -1424,7 +1425,8 @@ namespace KWEngine2.GameObjects
         /// <param name="texture">Texturdatei</param>
         /// <param name="type">Art der Textur (Standard: Diffuse)</param>
         /// <param name="side">Seite des Würfels (für KWCube-Modelle)</param>
-        public void SetTexture(string texture, TextureType type = TextureType.Diffuse, CubeSide side = CubeSide.All)
+        /// <param name="isFile">false, falls der Pfad Teil der EXE-Datei ist</param>
+        public void SetTexture(string texture, TextureType type = TextureType.Diffuse, CubeSide side = CubeSide.All, bool isFile = true)
         {
             CheckModelAndWorld();
 
@@ -1434,7 +1436,7 @@ namespace KWEngine2.GameObjects
                 {
                     throw new Exception("Cannot set side texture on single sided cube model. Please use KWCube6 as model.");
                 }
-                _cubeModel.SetTexture(texture, side, type);
+                _cubeModel.SetTexture(texture, side, type, isFile);
             }
             else
             {
@@ -1456,7 +1458,8 @@ namespace KWEngine2.GameObjects
                     }
                     else
                     {
-                        int id = HelperTexture.LoadTextureForModelExternal(texture);
+                        Assembly a = Assembly.GetEntryAssembly();
+                        int id = isFile ? HelperTexture.LoadTextureForModelExternal(texture) : HelperTexture.LoadTextureForModelInternal(texture);
                         if (id > 0)
                         {
                             newTex.OpenGLID = id;
@@ -1869,13 +1872,14 @@ namespace KWEngine2.GameObjects
         /// <param name="meshName">Mesh</param>
         /// <param name="texture">Texturdatei</param>
         /// <param name="textureType">Texturtyp (Standard: Diffuse)</param>
-        public void SetTextureForMesh(string meshName, string texture, TextureType textureType = TextureType.Diffuse)
+        /// <param name="isFile">false, wenn die Datei Teil der EXE ist ("Eingebettete Ressource")</param>
+        public void SetTextureForMesh(string meshName, string texture, TextureType textureType = TextureType.Diffuse, bool isFile = true)
         {
             CheckModel();
             CheckIfNotTerrain();
             if (_cubeModel != null)
             {
-                SetTexture(texture, textureType, CubeSide.All);
+                SetTexture(texture, textureType, CubeSide.All, isFile);
                 Debug.WriteLine("Method call forwarded to SetTexture() for KWCube instances. Please use SetTexture() for KWCube instances.");
                 return;
             }
@@ -1891,7 +1895,7 @@ namespace KWEngine2.GameObjects
             {
                 if (mesh.Name.ToLower().Contains(meshName.ToLower()))
                 {
-                    SetTextureForMesh(id, texture, textureType);
+                    SetTextureForMesh(id, texture, textureType, isFile);
                     return;
                 }
                 id++;
@@ -1939,20 +1943,23 @@ namespace KWEngine2.GameObjects
         /// <param name="redTexture">Rottextur</param>
         /// <param name="greenTexture">Grüntextur</param>
         /// <param name="blueTexture">Blautextur</param>
-        public void SetTextureTerrainBlendMapping(string blendTexture, string redTexture, string greenTexture = null, string blueTexture = null)
+        /// <param name="isFile">false, wenn die Texturen Teil der EXE sind ("Eingebettete Ressource")</param>
+        public void SetTextureTerrainBlendMapping(string blendTexture, string redTexture, string greenTexture = null, string blueTexture = null, bool isFile = true)
         {
-            if (blendTexture != null && !File.Exists(blendTexture))
-                throw new Exception("Blend texture not found.");
+            if (isFile)
+            {
+                if (blendTexture != null && !File.Exists(blendTexture))
+                    throw new Exception("Blend texture not found.");
 
-            if (redTexture != null && !File.Exists(redTexture))
-                throw new Exception("Red texture not found.");
+                if (redTexture != null && !File.Exists(redTexture))
+                    throw new Exception("Red texture not found.");
 
-            if (greenTexture != null && !File.Exists(greenTexture))
-                throw new Exception("Green texture not found.");
+                if (greenTexture != null && !File.Exists(greenTexture))
+                    throw new Exception("Green texture not found.");
 
-            if (blueTexture != null && !File.Exists(blueTexture))
-                throw new Exception("Blue texture not found.");
-
+                if (blueTexture != null && !File.Exists(blueTexture))
+                    throw new Exception("Blue texture not found.");
+            }
 
             if (Model != null && Model.IsTerrain)
             {
@@ -1965,7 +1972,7 @@ namespace KWEngine2.GameObjects
                     }
                     else
                     {
-                        terrain._texBlend = HelperTexture.LoadTextureForModelExternal(blendTexture);
+                        terrain._texBlend = isFile ? HelperTexture.LoadTextureForModelExternal(blendTexture) : HelperTexture.LoadTextureForModelInternal(blendTexture);
                         if (terrain._texBlend < 0)
                             terrain._texBlend = KWEngine.TextureBlack;
 
@@ -1981,7 +1988,7 @@ namespace KWEngine2.GameObjects
                     }
                     else
                     {
-                        terrain._texR = HelperTexture.LoadTextureForModelExternal(redTexture);
+                        terrain._texR = isFile ? HelperTexture.LoadTextureForModelExternal(redTexture) : HelperTexture.LoadTextureForModelInternal(redTexture);
                         if (terrain._texR > 0 && terrain._texR != KWEngine.TextureAlpha)
                         {
                             KWEngine.CustomTextures[KWEngine.CurrentWorld].Add(redTexture, terrain._texR);
@@ -1994,7 +2001,7 @@ namespace KWEngine2.GameObjects
                     }
                     else
                     {
-                        terrain._texG = greenTexture == null ? KWEngine.TextureAlpha : HelperTexture.LoadTextureForModelExternal(greenTexture);
+                        terrain._texG = greenTexture == null ? KWEngine.TextureAlpha : isFile ? HelperTexture.LoadTextureForModelExternal(greenTexture) : HelperTexture.LoadTextureForModelInternal(greenTexture);
                         if (terrain._texG > 0 && terrain._texG != KWEngine.TextureAlpha)
                         {
                             KWEngine.CustomTextures[KWEngine.CurrentWorld].Add(greenTexture, terrain._texG);
@@ -2007,7 +2014,7 @@ namespace KWEngine2.GameObjects
                     }
                     else
                     {
-                        terrain._texB = blueTexture == null ? KWEngine.TextureAlpha : HelperTexture.LoadTextureForModelExternal(blueTexture);
+                        terrain._texB = blueTexture == null ? KWEngine.TextureAlpha : isFile ? HelperTexture.LoadTextureForModelExternal(blueTexture) : HelperTexture.LoadTextureForModelInternal(blueTexture);
                         if(terrain._texB > 0 && terrain._texB != KWEngine.TextureAlpha)
                         {
                             KWEngine.CustomTextures[KWEngine.CurrentWorld].Add(blueTexture, terrain._texB);
@@ -2035,13 +2042,14 @@ namespace KWEngine2.GameObjects
         /// <param name="meshID">ID</param>
         /// <param name="texture">Texturdatei</param>
         /// <param name="textureType">Texturtyp</param>
-        public void SetTextureForMesh(int meshID, string texture, TextureType textureType = TextureType.Diffuse)
+        /// <param name="isFile">false, wenn die Datei Teil der EXE ist ("Eingebettete Ressource")</param>
+        public void SetTextureForMesh(int meshID, string texture, TextureType textureType = TextureType.Diffuse, bool isFile = true)
         {
             CheckModel();
             CheckIfNotTerrain();
             if (_cubeModel != null)
             {
-                SetTexture(texture, textureType, CubeSide.All);
+                SetTexture(texture, textureType, CubeSide.All, isFile);
                 Debug.WriteLine("Method call forwarded to SetTexture() for KWCube instances. Please use SetTexture() for KWCube instances.");
                 return;
             }
@@ -2075,7 +2083,7 @@ namespace KWEngine2.GameObjects
                 }
                 else
                 {
-                    texId = HelperTexture.LoadTextureForModelExternal(texture);
+                    texId = isFile ? HelperTexture.LoadTextureForModelExternal(texture) : HelperTexture.LoadTextureForModelInternal(texture);
                     if (texId > 0)
                         KWEngine.CustomTextures[KWEngine.CurrentWorld].Add(texture, texId);
                 }

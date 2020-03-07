@@ -28,7 +28,7 @@ namespace KWEngine2.Model
         /// Absoluter Pfad zur Modelldatei
         /// </summary>
         public string PathAbsolute { get; internal set; }
-        internal bool IsInAssembly { get; set; }
+        internal SceneImporter.AssemblyMode AssemblyMode { get; set; }
         /// <summary>
         /// Animationsliste
         /// </summary>
@@ -114,7 +114,7 @@ namespace KWEngine2.Model
 
         internal void CalculatePath()
         {
-            if (!IsInAssembly)
+            if (AssemblyMode == SceneImporter.AssemblyMode.File)
             {
                 FileInfo fi = new FileInfo(Filename);
                 if (fi.Exists)

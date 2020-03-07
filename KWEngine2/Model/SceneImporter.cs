@@ -38,23 +38,37 @@ namespace KWEngine2.Model
             }
         }
 
+        internal enum AssemblyMode { File, Internal, User }
 
-
-        internal static GeoModel LoadModel(string filename, bool flipTextureCoordinates = false,  bool isInAssembly = false)
+        internal static GeoModel LoadModel(string filename, bool flipTextureCoordinates = false, AssemblyMode am = AssemblyMode.Internal)
         {
             AssimpContext importer = new AssimpContext();
             importer.SetConfig(new VertexBoneWeightLimitConfig(KWEngine.MAX_BONE_WEIGHTS));
             importer.SetConfig(new MaxBoneCountConfig(KWEngine.MAX_BONES));
-
+            FileType type = CheckFileEnding(filename);
             Scene scene = null;
-            if (isInAssembly)
+            if (am != AssemblyMode.File)
             {
-                var assembly = Assembly.GetExecutingAssembly();
-                var resourceName = "KWEngine2.Assets.Models." + filename;
+                if (type == FileType.Invalid)
+                {
+                    throw new Exception("Model file has invalid type.");
+                }
+                string resourceName;
+                Assembly assembly;
+
+                if (am == AssemblyMode.Internal)
+                {
+                    assembly = Assembly.GetExecutingAssembly();
+                    resourceName = "KWEngine2.Assets.Models." + filename;
+                }
+                else
+                {
+                    assembly = Assembly.GetEntryAssembly();
+                    resourceName = assembly.GetName().Name + "." + filename;
+                }
 
                 using (Stream s = assembly.GetManifestResourceStream(resourceName))
                 {
-
                     PostProcessSteps steps =
                           PostProcessSteps.LimitBoneWeights
                         | PostProcessSteps.Triangulate
@@ -63,12 +77,15 @@ namespace KWEngine2.Model
                         | PostProcessSteps.CalculateTangentSpace;
                     if(filename != "kwcube.obj" && filename !="kwcube6.obj")
                         steps |= PostProcessSteps.JoinIdenticalVertices;
+                    if (type == FileType.DirectX)
+                        steps |= PostProcessSteps.FlipWindingOrder;
+                    if (flipTextureCoordinates)
+                        steps |= PostProcessSteps.FlipUVs;
                     scene = importer.ImportFileFromStream(s, steps);
                 }
             }
             else
             {
-                FileType type = CheckFileEnding(filename);
                 if (type != FileType.Invalid)
                 {
                     PostProcessSteps steps =
@@ -95,38 +112,46 @@ namespace KWEngine2.Model
             if (scene == null)
                 throw new Exception("Could not load or find model: " + filename);
 
-            GeoModel model = ProcessScene(scene, filename.ToLower().Trim(), isInAssembly);
+            GeoModel model = ProcessScene(scene, am == AssemblyMode.File ? filename.ToLower().Trim() : filename, am) ;
             return model;
         }
 
-        private static GeoModel ProcessScene(Scene scene, string filename, bool isInAssembly)
+        private static GeoModel ProcessScene(Scene scene, string filename, AssemblyMode am)
         {
             GeoModel returnModel = new GeoModel();
             returnModel.Filename = filename;
             returnModel.Name = StripPathFromFile(filename);
-            if (isInAssembly)
+            if (am == AssemblyMode.Internal)
             {
                 returnModel.PathAbsolute = "";
             }
             else
             {
-
-                string p = Assembly.GetExecutingAssembly().Location;
-                string pA = new DirectoryInfo(StripFileNameFromPath(p)).FullName;
-                if (!Path.IsPathRooted(filename))
+                if (am == AssemblyMode.User)
                 {
-                    returnModel.PathAbsolute = Path.Combine(pA, filename);
+                    returnModel.PathAbsolute = Assembly.GetEntryAssembly().GetName().Name + "." + filename;
                 }
                 else
                 {
-                    returnModel.PathAbsolute = filename;
-                }
 
-                bool success = File.Exists(returnModel.PathAbsolute);
+
+                    string p = Assembly.GetExecutingAssembly().Location;
+                    string pA = new DirectoryInfo(StripFileNameFromPath(p)).FullName;
+                    if (!Path.IsPathRooted(filename))
+                    {
+                        returnModel.PathAbsolute = Path.Combine(pA, filename);
+                    }
+                    else
+                    {
+                        returnModel.PathAbsolute = filename;
+                    }
+
+                    bool success = File.Exists(returnModel.PathAbsolute);
+                }
             }
 
 
-            returnModel.IsInAssembly = isInAssembly;
+            returnModel.AssemblyMode = am;
             returnModel.CalculatePath();
             returnModel.Meshes = new Dictionary<string, GeoMesh>();
             returnModel.TransformGlobalInverse = Matrix4.Invert(HelperMatrix.ConvertAssimpToOpenTKMatrix(scene.RootNode.Transform));
@@ -330,6 +355,27 @@ namespace KWEngine2.Model
 
         }
 
+        internal static string StripFileNameFromAssemblyPath(string path)
+        {
+            int index = path.LastIndexOf('.');
+            if (index < 0)
+            {
+                return path;
+            }
+            else
+            {
+                index = path.LastIndexOf('.', index - 1);
+                if (index < 0)
+                {
+                    return path;
+                }
+                else
+                {
+                    return path.Substring(0, index + 1);
+                }
+            }
+        }
+
         internal static string StripPathFromFile(string fileWithPath)
         {
             int index = fileWithPath.LastIndexOf('\\');
@@ -423,19 +469,19 @@ namespace KWEngine2.Model
                     else
                     {
                         geoMaterial.BlendMode = material.BlendMode == BlendMode.Default ? OpenTK.Graphics.OpenGL4.BlendingFactor.OneMinusSrcAlpha : OpenTK.Graphics.OpenGL4.BlendingFactor.One; // TODO: Check if this is correct!
-                        if (model.IsInAssembly && material.Name == "System")
+                        if (model.AssemblyMode == AssemblyMode.Internal && material.Name == "System")
                         {
                             geoMaterial.ColorDiffuse = new Vector4(1, 1, 1, 1);
                         }
-                        else if (model.IsInAssembly && material.Name == "X")
+                        else if (model.AssemblyMode == AssemblyMode.Internal && material.Name == "X")
                         {
                             geoMaterial.ColorDiffuse = new Vector4(1, 0, 0, 1);
                         }
-                        else if (model.IsInAssembly && material.Name == "Y")
+                        else if (model.AssemblyMode == AssemblyMode.Internal && material.Name == "Y")
                         {
                             geoMaterial.ColorDiffuse = new Vector4(0, 1, 0, 1);
                         }
-                        else if (model.IsInAssembly && material.Name == "Z")
+                        else if (model.AssemblyMode == AssemblyMode.Internal && material.Name == "Z")
                         {
                             geoMaterial.ColorDiffuse = new Vector4(0, 0, 1, 1);
                         }
@@ -483,9 +529,17 @@ namespace KWEngine2.Model
                         }
                         else
                         {
-                            tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
-                                    FindTextureInSubs(StripPathFromFile(tex.Filename), model.PathAbsolute), true
-                                );
+                            if (model.AssemblyMode == AssemblyMode.File)
+                            {
+                                tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
+                                        FindTextureInSubs(StripPathFromFile(tex.Filename), model.PathAbsolute), true
+                                    );
+                            }
+                            else
+                            {
+                                string path = StripFileNameFromAssemblyPath(model.PathAbsolute).Substring(model.PathAbsolute.IndexOf('.') + 1) + StripPathFromFile(tex.Filename);
+                                tex.OpenGLID = HelperTexture.LoadTextureForModelInternal(path, true);
+                            }
                             if (tex.OpenGLID > 0)
                             {
                                 tex.Type = GeoTexture.TexType.Specular;
@@ -526,9 +580,17 @@ namespace KWEngine2.Model
                     }
                     else
                     {
-                        tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
-                                FindTextureInSubs(StripPathFromFile(tex.Filename), model.PathAbsolute)
-                            );
+                        if (model.AssemblyMode == AssemblyMode.File)
+                        {
+                            tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
+                                    FindTextureInSubs(StripPathFromFile(tex.Filename), model.PathAbsolute)
+                                );
+                        }
+                        else
+                        {
+                            string path = StripFileNameFromAssemblyPath(model.PathAbsolute).Substring(model.PathAbsolute.IndexOf('.') + 1) + StripPathFromFile(tex.Filename);
+                            tex.OpenGLID = HelperTexture.LoadTextureForModelInternal(path, true);
+                        }
                         if (tex.OpenGLID > 0)
                         {
                             geoMaterial.TextureDiffuse = tex;
@@ -562,9 +624,17 @@ namespace KWEngine2.Model
                     }
                     else
                     {
-                        tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
-                                FindTextureInSubs(StripPathFromFile(tex.Filename), model.PathAbsolute)
-                            );
+                        if (model.AssemblyMode == AssemblyMode.File)
+                        {
+                            tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
+                                    FindTextureInSubs(StripPathFromFile(tex.Filename), model.PathAbsolute)
+                                );
+                        }
+                        else
+                        {
+                            string path = StripFileNameFromAssemblyPath(model.PathAbsolute).Substring(model.PathAbsolute.IndexOf('.') + 1) + StripPathFromFile(tex.Filename);
+                            tex.OpenGLID = HelperTexture.LoadTextureForModelInternal(path, true);
+                        }
                         if (tex.OpenGLID > 0)
                         {
                             model.Textures.Add(tex.Filename, tex);
@@ -598,9 +668,17 @@ namespace KWEngine2.Model
                     }
                     else
                     {
-                        tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
-                                FindTextureInSubs(StripPathFromFile(tex.Filename), model.PathAbsolute)
-                            );
+                        if (model.AssemblyMode == AssemblyMode.File)
+                        {
+                            tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
+                                    FindTextureInSubs(StripPathFromFile(tex.Filename), model.PathAbsolute)
+                                );
+                        }
+                        else
+                        {
+                            string path = StripFileNameFromAssemblyPath(model.PathAbsolute).Substring(model.PathAbsolute.IndexOf('.') + 1) + StripPathFromFile(tex.Filename);
+                            tex.OpenGLID = HelperTexture.LoadTextureForModelInternal(path, true);
+                        }
                         if (tex.OpenGLID > 0)
                         {
                             geoMaterial.TextureSpecular = tex;
@@ -641,9 +719,17 @@ namespace KWEngine2.Model
                     }
                     else
                     {
-                        tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
-                                FindTextureInSubs(StripPathFromFile(tex.Filename), model.PathAbsolute)
-                            );
+                        if (model.AssemblyMode == AssemblyMode.File)
+                        {
+                            tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
+                                    FindTextureInSubs(StripPathFromFile(tex.Filename), model.PathAbsolute)
+                                );
+                        }
+                        else
+                        {
+                            string path = StripFileNameFromAssemblyPath(model.PathAbsolute).Substring(model.PathAbsolute.IndexOf('.') + 1) + StripPathFromFile(tex.Filename);
+                            tex.OpenGLID = HelperTexture.LoadTextureForModelInternal(path, true);
+                        }
                         if (tex.OpenGLID > 0)
                         {
                             geoMaterial.TextureEmissive = tex;
@@ -679,9 +765,17 @@ namespace KWEngine2.Model
                     }
                     else
                     {
-                        tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
-                                FindTextureInSubs(StripPathFromFile(tex.Filename), model.PathAbsolute)
-                            );
+                        if (model.AssemblyMode == AssemblyMode.File)
+                        {
+                            tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
+                                    FindTextureInSubs(StripPathFromFile(tex.Filename), model.PathAbsolute)
+                                );
+                        }
+                        else
+                        {
+                            string path = StripFileNameFromAssemblyPath(model.PathAbsolute).Substring(model.PathAbsolute.IndexOf('.') + 1) + StripPathFromFile(tex.Filename);
+                            tex.OpenGLID = HelperTexture.LoadTextureForModelInternal(path, true);
+                        }
                         if (tex.OpenGLID > 0)
                         {
                             model.Textures.Add(tex.Filename, tex);

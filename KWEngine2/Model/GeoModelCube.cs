@@ -1,6 +1,7 @@
 ﻿using KWEngine2.GameObjects;
 using KWEngine2.Helper;
 using System;
+using System.Reflection;
 using static KWEngine2.GameObjects.GameObject;
 using static KWEngine2.KWEngine;
 
@@ -71,7 +72,7 @@ namespace KWEngine2.Model
             }
         }
 
-        public void SetTexture(string texture, CubeSide side, TextureType type)
+        public void SetTexture(string texture, CubeSide side, TextureType type, bool isFile)
         {
             if(Owner == null || GLWindow.CurrentWindow.CurrentWorld == null)
             {
@@ -79,44 +80,44 @@ namespace KWEngine2.Model
             }
             if(this is GeoModelCube1)
             {
-                SetTextureAll(texture, type);
+                SetTextureAll(texture, type, isFile);
             }
             else if(side == CubeSide.All)
             {
-                SetTextureFront(texture, type);
-                SetTextureBack(texture, type);
-                SetTextureLeft(texture, type);
-                SetTextureRight(texture, type);
-                SetTextureTop(texture, type);
-                SetTextureBottom(texture, type);
+                SetTextureFront(texture, type, isFile);
+                SetTextureBack(texture, type, isFile);
+                SetTextureLeft(texture, type, isFile);
+                SetTextureRight(texture, type, isFile);
+                SetTextureTop(texture, type, isFile);
+                SetTextureBottom(texture, type, isFile);
             }
             else if(side == CubeSide.Front)
             {
-                SetTextureFront(texture, type);
+                SetTextureFront(texture, type, isFile);
             }
             else if (side == CubeSide.Back)
             {
-                SetTextureBack(texture, type);
+                SetTextureBack(texture, type, isFile);
             }
             else if (side == CubeSide.Left)
             {
-                SetTextureLeft(texture, type);
+                SetTextureLeft(texture, type, isFile);
             }
             else if (side == CubeSide.Right)
             {
-                SetTextureRight(texture, type);
+                SetTextureRight(texture, type, isFile);
             }
             else if (side == CubeSide.Top)
             {
-                SetTextureTop(texture, type);
+                SetTextureTop(texture, type, isFile);
             }
             else if (side == CubeSide.Bottom)
             {
-                SetTextureBottom(texture, type);
+                SetTextureBottom(texture, type, isFile);
             }
         }
 
-        private void SetTextureAll(string texture, TextureType type)
+        private void SetTextureAll(string texture, TextureType type, bool isFile)
         {
             int texAll;
            
@@ -126,7 +127,8 @@ namespace KWEngine2.Model
             }
             else
             {
-                texAll = HelperTexture.LoadTextureForModelExternal(texture);
+                Assembly a = Assembly.GetEntryAssembly();
+                texAll = isFile ? HelperTexture.LoadTextureForModelExternal(texture) : HelperTexture.LoadTextureForModelInternal(texture);
                 KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld].Add(texture, texAll);
             }
 
@@ -160,19 +162,16 @@ namespace KWEngine2.Model
 
         }
 
-        private void SetTextureFront(string texture, TextureType type)
+        private void SetTextureFront(string texture, TextureType type, bool isFile)
         {
             int texId = -1;
             if (CustomTextures[GLWindow.CurrentWindow.CurrentWorld].ContainsKey(texture))
             {
-                
-                    texId = KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld][texture];
+                texId = KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld][texture];
             }
             else
             {
-               
-                    texId = HelperTexture.LoadTextureForModelExternal(texture);
-
+                texId = isFile ? HelperTexture.LoadTextureForModelExternal(texture) : HelperTexture.LoadTextureForModelInternal(texture);
                 KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld].Add(texture, texId);
             }
 
@@ -187,7 +186,7 @@ namespace KWEngine2.Model
 
        
 
-        private void SetTextureBack(string texture, TextureType type)
+        private void SetTextureBack(string texture, TextureType type, bool isFile)
         {
             int texId = -1;
             if (KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld].ContainsKey(texture))
@@ -197,8 +196,8 @@ namespace KWEngine2.Model
             }
             else
             {
-               
-                    texId = HelperTexture.LoadTextureForModelExternal(texture);
+
+                texId = isFile ? HelperTexture.LoadTextureForModelExternal(texture) : HelperTexture.LoadTextureForModelInternal(texture);
 
                 KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld].Add(texture, texId);
             }
@@ -211,7 +210,7 @@ namespace KWEngine2.Model
                 EditTextureObject(ref GeoTextureBackSpecular, texId, type, texture);
         }
 
-        private void SetTextureLeft(string texture, TextureType type)
+        private void SetTextureLeft(string texture, TextureType type, bool isFile)
         {
             int texId = -1;
             if (KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld].ContainsKey(texture))
@@ -221,8 +220,8 @@ namespace KWEngine2.Model
             }
             else
             {
-               
-                    texId = HelperTexture.LoadTextureForModelExternal(texture);
+
+                texId = isFile ? HelperTexture.LoadTextureForModelExternal(texture) : HelperTexture.LoadTextureForModelInternal(texture);
 
                 KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld].Add(texture, texId);
             }
@@ -235,7 +234,7 @@ namespace KWEngine2.Model
                 EditTextureObject(ref GeoTextureLeftSpecular, texId, type, texture);
         }
 
-        private void SetTextureRight(string texture, TextureType type)
+        private void SetTextureRight(string texture, TextureType type, bool isFile)
         {
             int texId = -1;
             if (KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld].ContainsKey(texture))
@@ -245,8 +244,8 @@ namespace KWEngine2.Model
             }
             else
             {
-                
-                    texId = HelperTexture.LoadTextureForModelExternal(texture);
+
+                texId = isFile ? HelperTexture.LoadTextureForModelExternal(texture) : HelperTexture.LoadTextureForModelInternal(texture);
 
                 KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld].Add(texture, texId);
             }
@@ -259,7 +258,7 @@ namespace KWEngine2.Model
                 EditTextureObject(ref GeoTextureRightSpecular, texId, type, texture);
         }
 
-        private void SetTextureTop(string texture, TextureType type)
+        private void SetTextureTop(string texture, TextureType type, bool isFile)
         {
             int texId = -1;
             if (KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld].ContainsKey(texture))
@@ -268,7 +267,7 @@ namespace KWEngine2.Model
             }
             else
             {
-                texId = HelperTexture.LoadTextureForModelExternal(texture);
+                texId = isFile ? HelperTexture.LoadTextureForModelExternal(texture) : HelperTexture.LoadTextureForModelInternal(texture);
                 KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld].Add(texture, texId);
             }
 
@@ -280,7 +279,7 @@ namespace KWEngine2.Model
                 EditTextureObject(ref GeoTextureTopSpecular, texId, type, texture);
         }
 
-        private void SetTextureBottom(string texture, TextureType type)
+        private void SetTextureBottom(string texture, TextureType type, bool isFile)
         {
             int texId = -1;
             if (KWEngine.CustomTextures[GLWindow.CurrentWindow.CurrentWorld].ContainsKey(texture))
@@ -289,7 +288,7 @@ namespace KWEngine2.Model
             }
             else
             {
-                texId = HelperTexture.LoadTextureForModelExternal(texture);
+                texId = isFile ? HelperTexture.LoadTextureForModelExternal(texture) : HelperTexture.LoadTextureForModelInternal(texture);
             }
 
             if (type == TextureType.Diffuse)
