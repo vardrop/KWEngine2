@@ -67,7 +67,7 @@ namespace KWEngine2
         /// Standardkonstruktormethode
         /// </summary>
         public GLWindow()
-           : this(1280, 720, GameWindowFlags.FixedWindow, 0, true)
+           : this(1280, 720, GameWindowFlags.FixedWindow, 0, true, true)
         {
 
         }
@@ -78,7 +78,7 @@ namespace KWEngine2
         /// <param name="width">Breite des Fensters</param>
         /// <param name="height">Höhe des Fensters</param>
         public GLWindow(int width, int height)
-           : this(width, height, GameWindowFlags.Default, 0, true)
+           : this(width, height, GameWindowFlags.Default, 0, true, true)
         {
 
         }
@@ -91,8 +91,8 @@ namespace KWEngine2
         /// <param name="flag">FixedWindow oder FullScreen</param>
         /// <param name="antialiasing">FSAA-Wert (Anti-Aliasing)</param>
         /// <param name="vSync">VSync aktivieren</param>
-        /// <param name="multithreading">Multithreading aktivieren (Standard: false)</param>
-        public GLWindow(int width, int height, GameWindowFlags flag, int antialiasing = 0, bool vSync = true, bool multithreading = false)
+        /// <param name="multithreading">Multithreading aktivieren (Standard: true)</param>
+        public GLWindow(int width, int height, GameWindowFlags flag, int antialiasing = 0, bool vSync = true, bool multithreading = true)
             : base(width, height, GraphicsMode.Default, "KWEngine2 - C# 3D Gaming", flag == GameWindowFlags.Default ? GameWindowFlags.FixedWindow : flag, DisplayDevice.Default, 4, 5, GraphicsContextFlags.ForwardCompatible, null, multithreading)
         {
             _multithreaded = multithreading;
@@ -139,7 +139,7 @@ namespace KWEngine2
         /// <param name="antialiasing">FSAA-Wert (Anti-Aliasing)</param>
         /// <param name="vSync">VSync aktivieren</param>
         public GLWindow(int width, int height, GameWindowFlags flag, int antialiasing = 0, bool vSync = true)
-            : this(width, height, flag, antialiasing, vSync, false)
+            : this(width, height, flag, antialiasing, vSync, true)
         {
            
         }

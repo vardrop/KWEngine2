@@ -959,7 +959,7 @@ namespace KWEngine2.GameObjects
         /// <returns>Blickrichtungsvektor (normalisiert)</returns>
         public Vector3 GetLookAtVector()
         {
-            CheckModelAndWorld(true);
+            CheckModelAndWorld();
             return _lookAtVector;
         }
 
@@ -1254,9 +1254,9 @@ namespace KWEngine2.GameObjects
             return new Quaternion(0, 0, 0, 1);
         }
 
-        private void CheckModelAndWorld(bool checkIfGameObjectIsInAWorld = false)
+        private void CheckModelAndWorld()
         {
-            if (Model == null || checkIfGameObjectIsInAWorld ? this.CurrentWorld == null : GLWindow.CurrentWindow.CurrentWorld == null)
+            if (Model == null || GLWindow.CurrentWindow.CurrentWorld == null)
             {
                 throw new Exception("Model and/or World have not been set yet!");
             }
@@ -1287,7 +1287,7 @@ namespace KWEngine2.GameObjects
         /// <param name="offsetZ">Versatz in Z-Richtung (optional)</param>
         protected Intersection GetIntersection(float offsetX = 0, float offsetY = 0, float offsetZ = 0)
         {
-            CheckModelAndWorld(true);
+            CheckModelAndWorld();
             if (!IsCollisionObject)
             {
                 throw new Exception("Error: You are calling GetIntersectingObjects() on an instance that is marked as a non-colliding object.");
@@ -1336,7 +1336,7 @@ namespace KWEngine2.GameObjects
         /// <returns></returns>
         protected List<Intersection> GetIntersections(float offsetX = 0, float offsetY = 0, float offsetZ = 0)
         {
-            CheckModelAndWorld(true);
+            CheckModelAndWorld();
             List<Intersection> intersections = new List<Intersection>();
             if (!IsCollisionObject)
             {

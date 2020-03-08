@@ -84,21 +84,29 @@ namespace KWEngine2.Renderers
             GL.BindVertexArray(mesh.VAO);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
 
-            GL.Uniform4(mUniform_TintColor, ho._tint);
-            GL.Uniform4(mUniform_Glow, ho._glow);
-
-            for (int i = 0; i < ho._positions.Count; i++)
+            lock (ho)
             {
-                Matrix4 mvp = ho._modelMatrices[i] * viewProjection;
-                GL.UniformMatrix4(mUniform_MVP, false, ref mvp);
 
-                GL.ActiveTexture(TextureUnit.Texture0);
-                GL.BindTexture(TextureTarget.Texture2D, ho._textureIds[i]);
-                GL.Uniform1(mUniform_Texture, 0);
+                GL.Uniform4(mUniform_TintColor, ho._tint);
+                GL.Uniform4(mUniform_Glow, ho._glow);
 
-                GL.DrawElements(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
+                lock (ho._modelMatrices)
+                {
+                    for (int i = 0; i < ho._positions.Count; i++)
+                    {
 
-                GL.BindTexture(TextureTarget.Texture2D, 0);
+                        Matrix4 mvp = ho._modelMatrices[i] * viewProjection;
+                        GL.UniformMatrix4(mUniform_MVP, false, ref mvp);
+
+                        GL.ActiveTexture(TextureUnit.Texture0);
+                        GL.BindTexture(TextureTarget.Texture2D, ho._textureIds[i]);
+                        GL.Uniform1(mUniform_Texture, 0);
+
+                        GL.DrawElements(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
+
+                        GL.BindTexture(TextureTarget.Texture2D, 0);
+                    }
+                }
             }
 
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);

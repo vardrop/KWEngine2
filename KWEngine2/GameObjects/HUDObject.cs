@@ -117,17 +117,20 @@ namespace KWEngine2.GameObjects
 
         private void UpdateTextures()
         {
-            _textureIds = new int[_count];
-            for (int i = 0; i < _count; i++)
+            lock (_textureIds)
             {
-                int letterIndex = HelperFont.LETTERS.IndexOf(_text[i]);
-                if(letterIndex > 0)
+                _textureIds = new int[_count];
+                for (int i = 0; i < _count; i++)
                 {
-                    _textureIds[i] = HelperFont.TEXTURES[letterIndex];
-                }
-                else
-                {
-                    _textureIds[i] = KWEngine.TextureAlpha;
+                    int letterIndex = HelperFont.LETTERS.IndexOf(_text[i]);
+                    if (letterIndex > 0)
+                    {
+                        _textureIds[i] = HelperFont.TEXTURES[letterIndex];
+                    }
+                    else
+                    {
+                        _textureIds[i] = KWEngine.TextureAlpha;
+                    }
                 }
             }
         }
@@ -165,6 +168,30 @@ namespace KWEngine2.GameObjects
             }
         }
 
+        internal void SetTextureInternal(string filename, bool isFile)
+        {
+            if (File.Exists(filename) && _type == HUDObjectType.Image)
+            {
+                lock (KWEngine.CustomTextures)
+                {
+                    if (KWEngine.CustomTextures[KWEngine.CurrentWorld].ContainsKey(filename))
+                    {
+                        _textureIds[0] = KWEngine.CustomTextures[KWEngine.CurrentWorld][filename];
+                    }
+                    else
+                    {
+                        _textureIds[0] = isFile ? HelperTexture.LoadTextureForBackgroundExternal(filename) : HelperTexture.LoadTextureForBackgroundInternal(filename);
+                        KWEngine.CustomTextures[KWEngine.CurrentWorld].Add(filename, _textureIds[0]);
+                    }
+                }
+                _count = 1;
+            }
+            else
+            {
+                throw new Exception("Error: Is your HUD Type set to 'Image'? Or maybe the file " + filename + " does not exist?");
+            }
+        }
+
         /// <summary>
         /// Setzt die Textur
         /// </summary>
@@ -172,23 +199,14 @@ namespace KWEngine2.GameObjects
         /// <param name="isFile">false, wenn die Datei Teil der EXE ist (Eingebettete Ressource)</param>
         public void SetTexture(string filename, bool isFile = true)
         {
-            if (File.Exists(filename) && _type == HUDObjectType.Image)
+            if (GLWindow.CurrentWindow._multithreaded)
             {
-                if (KWEngine.CustomTextures[KWEngine.CurrentWorld].ContainsKey(filename))
-                {
-                    _textureIds[0] = KWEngine.CustomTextures[KWEngine.CurrentWorld][filename];
-                }
-                else
-                {
-                    _textureIds[0] = isFile ? HelperTexture.LoadTextureForBackgroundExternal(filename) : HelperTexture.LoadTextureForBackgroundInternal(filename);
-                    KWEngine.CustomTextures[KWEngine.CurrentWorld].Add(filename, _textureIds[0]);
-                }
-                
-                _count = 1;
+                Action a = () => SetTextureInternal(filename, isFile);
+                HelperGLLoader.AddCall(this, a);
             }
             else
             {
-                throw new Exception("Error: Is your HUD Type set to 'Image'? Or maybe the file " + filename + " does not exist?");
+                SetTextureInternal(filename, isFile);
             }
         }
 
@@ -225,17 +243,29 @@ namespace KWEngine2.GameObjects
         private void SetPosition(int index, Vector3 pos)
         {
             pos.X = pos.X + (CharacterSpreadFactor * index);
-            _positions.Add(pos);
-            _modelMatrices.Add(_scaleMatrix * _rotationMatrix * Matrix4.CreateTranslation(pos));
+            lock (_positions)
+            {
+                _positions.Add(pos);
+            }
+            lock (_modelMatrices)
+            {
+                _modelMatrices.Add(_scaleMatrix * _rotationMatrix * Matrix4.CreateTranslation(pos));
+            }
         }
 
         internal void UpdatePositions()
         {
-            _positions.Clear();
-            _modelMatrices.Clear();
-            for (int i = 0; i < _count; i++)
+            lock (_positions)
             {
-                SetPosition(i, Position);
+                lock (_modelMatrices)
+                {
+                    _positions.Clear();
+                    _modelMatrices.Clear();
+                    for (int i = 0; i < _count; i++)
+                    {
+                        SetPosition(i, Position);
+                    }
+                }
             }
         }
 
