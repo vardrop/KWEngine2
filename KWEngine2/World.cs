@@ -215,8 +215,14 @@ namespace KWEngine2
         /// <param name="isFile">false, falls der Pfad Teil der EXE-Datei ist</param>
         public void SetTextureBackground(string filename, float repeatX = 1, float repeatY = 1, float red = 1, float green = 1, float blue = 1, float intensity = 1, bool isFile = true)
         {
-            Action a = () => SetTextureBackgroundInternal(filename, repeatX, repeatY, red, green, blue, intensity, isFile);
-            HelperGLLoader.AddCall(this, a);
+            if (GLWindow.CurrentWindow._multithreaded)
+            {
+                Action a = () => SetTextureBackgroundInternal(filename, repeatX, repeatY, red, green, blue, intensity, isFile);
+                HelperGLLoader.AddCall(this, a);
+            }
+            else
+                SetTextureBackgroundInternal(filename, repeatX, repeatY, red, green, blue, intensity, isFile);
+
         }
 
         /// <summary>
@@ -230,8 +236,15 @@ namespace KWEngine2
         /// <param name="isFile">false, falls der Pfad Teil der EXE-Datei ist</param>
         public void SetTextureSkybox(string filename, float red = 1, float green = 1, float blue = 1, float intensity = 1, bool isFile = true)
         {
-            Action a = () => SetTextureSkyboxInternal(filename, red, green, blue, intensity, isFile);
-            HelperGLLoader.AddCall(this, a);
+            if (GLWindow.CurrentWindow._multithreaded)
+            {
+                Action a = () => SetTextureSkyboxInternal(filename, red, green, blue, intensity, isFile);
+                HelperGLLoader.AddCall(this, a);
+            }
+            else
+            {
+                SetTextureSkyboxInternal(filename, red, green, blue, intensity, isFile);
+            }
         }
 
         internal void SetTextureSkyboxInternal(string filename, float red = 1, float green = 1, float blue = 1, float intensity = 1, bool isFile = true)

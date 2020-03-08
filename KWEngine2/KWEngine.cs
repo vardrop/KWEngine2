@@ -10,6 +10,7 @@ using System.Reflection;
 using System.IO;
 using System.Drawing.Text;
 using OpenTK.Graphics.OpenGL4;
+using System.Runtime.CompilerServices;
 
 namespace KWEngine2
 {
@@ -597,8 +598,14 @@ namespace KWEngine2
         /// <param name="name">Name des Modells</param>
         /// <param name="path">Pfad zum Modell inkl. Dateiname</param>
         /// <param name="flipTextureCoordinates">UV-Map umdrehen (Standard: true)</param>
-        public static void LoadModelFromAssembly(string name, string path, bool flipTextureCoordinates = true)
+        /// <param name="callerName"></param>
+        public static void LoadModelFromAssembly(string name, string path, bool flipTextureCoordinates = true, [CallerMemberName] string callerName = "")
         {
+            if(callerName != "Prepare")
+            {
+                throw new Exception("Models may only be loaded in the world's Prepare() method.");
+            }
+
             if (KWEngine.Models.ContainsKey(name.Trim()))
             {
                 throw new Exception("A model with the name " + name + " already exists.");
@@ -618,24 +625,19 @@ namespace KWEngine2
         /// </summary>
         /// <param name="name">Name des Modells</param>
         /// <param name="filename">Datei des Modells</param>
-        public static void LoadModelFromFile(string name, string filename)
+        /// <param name="callerName"></param>
+        public static void LoadModelFromFile(string name, string filename, [CallerMemberName] string callerName = "")
         {
-            LoadModelFromFile(name, filename, true);
-        }
+            if (callerName != "Prepare")
+            {
+                throw new Exception("Models may only be loaded in the world's Prepare() method.");
+            }
 
-        /// <summary>
-        /// Lädt ein Modell aus einer Datei
-        /// </summary>
-        /// <param name="name">Name des Modells</param>
-        /// <param name="filename">Datei des Modells</param>
-        /// <param name="flipTextureCoordinates">UV-Map umdrehen (Standard: true)</param>
-        public static void LoadModelFromFile(string name, string filename, bool flipTextureCoordinates = true)
-        {
             if (KWEngine.Models.ContainsKey(name.Trim()))
             {
                 throw new Exception("A model with the name " + name + " already exists.");
             }
-            GeoModel m = SceneImporter.LoadModel(filename, flipTextureCoordinates, SceneImporter.AssemblyMode.File);
+            GeoModel m = SceneImporter.LoadModel(filename, true, SceneImporter.AssemblyMode.File);
             name = name.Trim();
             m.Name = name;
             lock (KWEngine.Models)
@@ -643,5 +645,6 @@ namespace KWEngine2
                 KWEngine.Models.Add(name, m);
             }
         }
+
     }
 }

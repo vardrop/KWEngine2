@@ -1526,8 +1526,13 @@ namespace KWEngine2.GameObjects
         /// <param name="isFile">false, falls der Pfad Teil der EXE-Datei ist</param>
         public void SetTexture(string texture, TextureType type = TextureType.Diffuse, CubeSide side = CubeSide.All, bool isFile = true)
         {
-            Action a = () => SetTextureInternal(texture, type, side, isFile);
-            HelperGLLoader.AddCall(this, a);
+            if (CurrentWindow._multithreaded)
+            {
+                Action a = () => SetTextureInternal(texture, type, side, isFile);
+                HelperGLLoader.AddCall(this, a);
+            }
+            else
+                SetTextureInternal(texture, type, side, isFile);
         }
 
         /// <summary>
@@ -1941,8 +1946,15 @@ namespace KWEngine2.GameObjects
         /// <param name="isFile">false, wenn die Datei Teil der EXE ist ("Eingebettete Ressource")</param>
         public void SetTextureForMesh(string meshName, string texture, TextureType textureType = TextureType.Diffuse, bool isFile = true)
         {
-            Action a = () => SetTextureForMeshInternal(meshName, texture, textureType, isFile);
-            HelperGLLoader.AddCall(this, a);
+            if (CurrentWindow._multithreaded)
+            {
+                Action a = () => SetTextureForMeshInternal(meshName, texture, textureType, isFile);
+                HelperGLLoader.AddCall(this, a);
+            }
+            else
+            {
+                SetTextureForMeshInternal(meshName, texture, textureType, isFile);
+            }
         }
 
         private void CheckIfNotTerrain()
@@ -2083,8 +2095,13 @@ namespace KWEngine2.GameObjects
         /// <param name="isFile">false, wenn die Texturen Teil der EXE sind ("Eingebettete Ressource")</param>
         public void SetTextureTerrainBlendMapping(string blendTexture, string redTexture, string greenTexture = null, string blueTexture = null, bool isFile = true)
         {
-            Action a = () => SetTextureTerrainBlendMappingInternal(blendTexture, redTexture, greenTexture, blueTexture, isFile);
-            HelperGLLoader.AddCall(this, a);
+            if (CurrentWindow._multithreaded)
+            {
+                Action a = () => SetTextureTerrainBlendMappingInternal(blendTexture, redTexture, greenTexture, blueTexture, isFile);
+                HelperGLLoader.AddCall(this, a);
+            }
+            else
+                SetTextureTerrainBlendMappingInternal(blendTexture, redTexture, greenTexture, blueTexture, isFile);
         }
 
         internal void SetTextureForMeshInternal(int meshID, string texture, TextureType textureType = TextureType.Diffuse, bool isFile = true)
@@ -2175,8 +2192,13 @@ namespace KWEngine2.GameObjects
         /// <param name="isFile">false, wenn die Datei Teil der EXE ist ("Eingebettete Ressource")</param>
         public void SetTextureForMesh(int meshID, string texture, TextureType textureType = TextureType.Diffuse, bool isFile = true)
         {
-            Action a = () => SetTextureForMeshInternal(meshID, texture, textureType, isFile);
-            HelperGLLoader.AddCall(this, a);
+            if (CurrentWindow._multithreaded)
+            {
+                Action a = () => SetTextureForMeshInternal(meshID, texture, textureType, isFile);
+                HelperGLLoader.AddCall(this, a);
+            }
+            else
+                SetTextureForMeshInternal(meshID, texture, textureType, isFile);
         }
 
         /// <summary>
