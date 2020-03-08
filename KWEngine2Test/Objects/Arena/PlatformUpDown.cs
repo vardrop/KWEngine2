@@ -14,7 +14,7 @@ namespace KWEngine2Test.Objects.Arena
     {
         private Direction _dir = Direction.WaitUp;
         private float _stateTime = 0;
-        private float _limitLow = 2.25f;
+        private float _limitLow = 2f;
         private float _limitUp = 9f;
 
         public override void Act(KeyboardState ks, MouseState ms, float deltaTimeFactor)

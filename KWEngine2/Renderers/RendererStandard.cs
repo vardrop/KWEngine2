@@ -214,9 +214,16 @@ namespace KWEngine2.Renderers
                     }
 
                     // Matrices:
-                    Matrix4.Mult(ref g.ModelMatrixForRenderPass[index], ref viewProjection, out _modelViewProjection);
-                    Matrix4.Transpose(ref g.ModelMatrixForRenderPass[index], out _normalMatrix);
-                    Matrix4.Invert(ref _normalMatrix, out _normalMatrix);
+                    try
+                    {
+                        Matrix4.Mult(ref g.ModelMatrixForRenderPass[index], ref viewProjection, out _modelViewProjection);
+                        Matrix4.Transpose(ref g.ModelMatrixForRenderPass[index], out _normalMatrix);
+                        Matrix4.Invert(ref _normalMatrix, out _normalMatrix);
+                    }
+                    catch (Exception)
+                    {
+                        continue;
+                    }
 
                     GL.UniformMatrix4(mUniform_ModelMatrix, false, ref g.ModelMatrixForRenderPass[index]);
                     GL.UniformMatrix4(mUniform_NormalMatrix, false, ref _normalMatrix);
@@ -464,11 +471,11 @@ namespace KWEngine2.Renderers
                     GL.DrawElements(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
                     //HelperGL.CheckGLErrors();
                     GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-
                     GL.BindVertexArray(0);
+                    GL.BindTexture(TextureTarget.Texture2D, 0);
                 }
             }
-
+            GL.BindTexture(TextureTarget.Texture2D,0);
             GL.UseProgram(0);
         }
 

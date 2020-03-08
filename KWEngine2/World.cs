@@ -173,18 +173,7 @@ namespace KWEngine2
         internal Vector2 _textureBackgroundTransform = new Vector2(1, 1);
         internal int _textureSkybox = -1;
 
-        /// <summary>
-        /// Setzt das Hintergrundbild (2D)
-        /// </summary>
-        /// <param name="filename">Textur</param>
-        /// <param name="repeatX">Wiederholung Breite</param>
-        /// <param name="repeatY">Wiederholung Höhe</param>
-        /// <param name="red">Rotfärbung</param>
-        /// <param name="green">Grünfärbung</param>
-        /// <param name="blue">Blaufärbung</param>
-        /// <param name="intensity">Helligkeit</param>
-        /// <param name="isFile">false, falls der Pfad Teil der EXE-Datei ist</param>
-        public void SetTextureBackground(string filename, float repeatX = 1, float repeatY = 1, float red = 1, float green = 1, float blue = 1, float intensity = 1, bool isFile = true)
+        internal void SetTextureBackgroundInternal(string filename, float repeatX = 1, float repeatY = 1, float red = 1, float green = 1, float blue = 1, float intensity = 1, bool isFile = true)
         {
             if (filename == null || filename.Length < 1)
             {
@@ -199,7 +188,7 @@ namespace KWEngine2
                 }
                 else
                 {
-                    
+
                     _textureBackground = isFile ? HelperTexture.LoadTextureForBackgroundExternal(filename) : HelperTexture.LoadTextureForBackgroundInternal(filename);
                     KWEngine.CustomTextures[this].Add(filename, _textureBackground);
                 }
@@ -214,6 +203,23 @@ namespace KWEngine2
         }
 
         /// <summary>
+        /// Setzt das Hintergrundbild (2D)
+        /// </summary>
+        /// <param name="filename">Textur</param>
+        /// <param name="repeatX">Wiederholung Breite</param>
+        /// <param name="repeatY">Wiederholung Höhe</param>
+        /// <param name="red">Rotfärbung</param>
+        /// <param name="green">Grünfärbung</param>
+        /// <param name="blue">Blaufärbung</param>
+        /// <param name="intensity">Helligkeit</param>
+        /// <param name="isFile">false, falls der Pfad Teil der EXE-Datei ist</param>
+        public void SetTextureBackground(string filename, float repeatX = 1, float repeatY = 1, float red = 1, float green = 1, float blue = 1, float intensity = 1, bool isFile = true)
+        {
+            Action a = () => SetTextureBackgroundInternal(filename, repeatX, repeatY, red, green, blue, intensity, isFile);
+            HelperGLLoader.AddCall(this, a);
+        }
+
+        /// <summary>
         /// Setzt das 3D-Hintergrundbild
         /// </summary>
         /// <param name="filename">Skybox-Textur</param>
@@ -223,6 +229,12 @@ namespace KWEngine2
         /// <param name="intensity">Helligkeit</param>
         /// <param name="isFile">false, falls der Pfad Teil der EXE-Datei ist</param>
         public void SetTextureSkybox(string filename, float red = 1, float green = 1, float blue = 1, float intensity = 1, bool isFile = true)
+        {
+            Action a = () => SetTextureSkyboxInternal(filename, red, green, blue, intensity, isFile);
+            HelperGLLoader.AddCall(this, a);
+        }
+
+        internal void SetTextureSkyboxInternal(string filename, float red = 1, float green = 1, float blue = 1, float intensity = 1, bool isFile = true)
         {
             if (filename == null || filename.Length < 1)
                 _textureSkybox = -1;
@@ -244,7 +256,7 @@ namespace KWEngine2
             }
         }
 
-        
+
         private Vector3 _cameraPosition = new Vector3(0, 0, 25);
         private Vector3 _cameraTarget = new Vector3(0, 0, 0);
         private Vector3 _cameraLookAt = new Vector3(0, 0, 1);

@@ -376,9 +376,29 @@ namespace KWEngine2.GameObjects
                 _textureId = texId;
             else
             {
-                _textureId = HelperTexture.LoadTextureForModelExternal(texture);
-                if (_textureId > 0)
-                    KWEngine.CustomTextures[_currentWorld].Add(texture, _textureId);
+                if (texture != null)
+                {
+                    Action a = () => SetTexture(texture);
+                    HelperGLLoader.AddCall(this, a);
+                }
+            }
+        }
+
+        internal void SetTexture(string texture)
+        {
+
+            lock (KWEngine.CustomTextures)
+            {
+                if (KWEngine.CustomTextures[_currentWorld].ContainsKey(texture))
+                {
+                    _textureId = KWEngine.CustomTextures[_currentWorld][texture];
+                }
+                else
+                {
+                    _textureId = HelperTexture.LoadTextureForModelExternal(texture);
+                    if (_textureId > 0)
+                        KWEngine.CustomTextures[_currentWorld].Add(texture, _textureId);
+                }
             }
         }
 

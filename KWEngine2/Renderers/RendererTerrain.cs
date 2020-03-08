@@ -175,9 +175,16 @@ namespace KWEngine2.Renderers
                 GL.BindTexture(TextureTarget.Texture2D, GLWindow.CurrentWindow.TextureShadowMap);
                 GL.Uniform1(mUniform_TextureShadowMap, 3);
 
-                Matrix4.Mult(ref g.ModelMatrixForRenderPass[0], ref viewProjection, out _modelViewProjection);
-                Matrix4.Transpose(ref g.ModelMatrixForRenderPass[0], out _normalMatrix);
-                Matrix4.Invert(ref _normalMatrix, out _normalMatrix);
+                try
+                {
+                    Matrix4.Mult(ref g.ModelMatrixForRenderPass[0], ref viewProjection, out _modelViewProjection);
+                    Matrix4.Transpose(ref g.ModelMatrixForRenderPass[0], out _normalMatrix);
+                    Matrix4.Invert(ref _normalMatrix, out _normalMatrix);
+                }
+                catch(Exception)
+                {
+                    _normalMatrix = g.ModelMatrixForRenderPass[0];
+                }
 
                 GL.UniformMatrix4(mUniform_ModelMatrix, false, ref g.ModelMatrixForRenderPass[0]);
                 GL.UniformMatrix4(mUniform_NormalMatrix, false, ref _normalMatrix);

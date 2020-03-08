@@ -90,7 +90,7 @@ namespace KWEngine2Test.Objects.Arena
             }
             else if(_phase == Phase.Stand)
             {
-                MoveOffset(0, -_movementSpeed * 0.0001f, 0);
+                MoveOffset(0, -_movementSpeed * 0.5f, 0);
             }
           
 

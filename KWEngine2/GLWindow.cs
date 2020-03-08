@@ -14,6 +14,7 @@ using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
+using System.Runtime;
 
 namespace KWEngine2
 {
@@ -32,6 +33,8 @@ namespace KWEngine2
 
         internal float bloomWidth = 1;
         internal float bloomHeight = 1;
+        internal int _fsaa = 0;
+        internal bool _multithreaded = false;
 
         /// <summary>
         /// Aktuelles Fenster
@@ -61,7 +64,7 @@ namespace KWEngine2
         internal GeoModel _bloomQuad;
     
         /// <summary>
-        /// Konstruktormethode
+        /// Standardkonstruktormethode
         /// </summary>
         public GLWindow()
            : this(1280, 720, GameWindowFlags.FixedWindow, 0, true)
@@ -69,7 +72,16 @@ namespace KWEngine2
 
         }
 
-        internal int _fsaa = 0;
+        /// <summary>
+        /// Standardkonstruktormethode
+        /// </summary>
+        /// <param name="width">Breite des Fensters</param>
+        /// <param name="height">Höhe des Fensters</param>
+        public GLWindow(int width, int height)
+           : this(width, height, GameWindowFlags.Default, 0, true)
+        {
+
+        }
 
         /// <summary>
         /// Konstruktormethode
@@ -79,9 +91,12 @@ namespace KWEngine2
         /// <param name="flag">FixedWindow oder FullScreen</param>
         /// <param name="antialiasing">FSAA-Wert (Anti-Aliasing)</param>
         /// <param name="vSync">VSync aktivieren</param>
-        public GLWindow(int width, int height, GameWindowFlags flag, int antialiasing = 0, bool vSync = true)
-            : base(width, height, GraphicsMode.Default, "KWEngine2 - C# 3D Gaming", flag == GameWindowFlags.Default ? GameWindowFlags.FixedWindow : flag, DisplayDevice.Default, 4, 5, GraphicsContextFlags.ForwardCompatible, null, true)
+        /// <param name="multithreading">Multithreading aktivieren (Standard: false)</param>
+        public GLWindow(int width, int height, GameWindowFlags flag, int antialiasing = 0, bool vSync = true, bool multithreading = false)
+            : base(width, height, GraphicsMode.Default, "KWEngine2 - C# 3D Gaming", flag == GameWindowFlags.Default ? GameWindowFlags.FixedWindow : flag, DisplayDevice.Default, 4, 5, GraphicsContextFlags.ForwardCompatible, null, multithreading)
         {
+            _multithreaded = multithreading;
+            GCSettings.LatencyMode = GCLatencyMode.SustainedLowLatency;
             Width = width;
             Height = height;
 
@@ -114,12 +129,30 @@ namespace KWEngine2
             BasicInit();
         }
 
+
+        /// <summary>
+        /// Konstruktormethode
+        /// </summary>
+        /// <param name="width">Breite des Fensters</param>
+        /// <param name="height">Höhe des Fensters</param>
+        /// <param name="flag">FixedWindow oder FullScreen</param>
+        /// <param name="antialiasing">FSAA-Wert (Anti-Aliasing)</param>
+        /// <param name="vSync">VSync aktivieren</param>
+        public GLWindow(int width, int height, GameWindowFlags flag, int antialiasing = 0, bool vSync = true)
+            : this(width, height, flag, antialiasing, vSync, false)
+        {
+           
+        }
+
         private void BasicInit()
         {
             string productVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductName + " " + FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductMajorPart + 
                 "." + FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductMinorPart + "." + FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductBuildPart;
-            Console.Write("\n\n\n==================================================================================\n" + "Running " + productVersion + " ");
-            Console.WriteLine("on OpenGL 4.5 Core Profile.\n" + "==================================================================================\n");
+            Console.Write("\n\n\n============================================================================\n" + "Running " + productVersion + " ");
+            Console.WriteLine("on OpenGL 4.5 Core Profile.");
+            if(_multithreaded)
+                Console.WriteLine("                [ experimental multithreading mode ]");
+            Console.WriteLine("============================================================================\n");
 
             KWEngine.TextureDefault = HelperTexture.LoadTextureInternal("checkerboard.png");
             KWEngine.TextureBlack = HelperTexture.LoadTextureInternal("black.png");
@@ -172,12 +205,26 @@ namespace KWEngine2
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             base.OnRenderFrame(e);
-            //GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-            //GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            lock (HelperGLLoader.LoadList)
+            {
+                if (HelperGLLoader.LoadList.Count > 0)
+                {
+                    LoadPackage lp = HelperGLLoader.LoadList[0];
+                    HelperGLLoader.LoadList.RemoveAt(0);
+                    Type type = lp.ReceiverType.BaseType;
+                    if (type.IsEquivalentTo(typeof(GLWindow)))
+                    {
+                        if(CurrentWorld != null)
+                        {
+                            CurrentWorld._prepared = false;
+                        }
+                    }
+                    lp.Action.Invoke();
+                    //return; ?
+                }
+            }
 
-
-            
-            if (CurrentWorld != null)
+            if (CurrentWorld != null && CurrentWorld._prepared)
             {
 
                 lock (CurrentWorld)
@@ -347,6 +394,44 @@ namespace KWEngine2
                 HelperGL.CheckGLErrors();
             }
             SwapBuffers();
+
+            frameCounter++;
+            frameData += (e.Time * 1000.0);
+            if (frameCounter > 100)
+            {
+                int index = Title != null ? Title.LastIndexOf('|') : -1;
+                if (KWEngine.DebugShowPerformanceInTitle == KWEngine.PerformanceUnit.FrameTimeInMilliseconds)
+                {
+                    if (index < 0)
+                    {
+                        Title = Title + " | " + Math.Round(frameData / frameCounter, 2) + " ms";
+                    }
+                    else
+                    {
+                        Title = Title.Substring(0, index - 1);
+                        Title += " | " + Math.Round(frameData / frameCounter, 2) + " ms";
+                    }
+                }
+                else if (KWEngine.DebugShowPerformanceInTitle == KWEngine.PerformanceUnit.FramesPerSecond)
+                {
+                    if (index < 0)
+                    {
+                        Title = Title + " | " + Math.Round(1000.0 / (frameData / frameCounter), 1) + " fps";
+                    }
+                    else
+                    {
+                        Title = Title.Substring(0, index - 1);
+                        Title += " | " + Math.Round(1000.0 / (frameData / frameCounter), 1) + " fps";
+                    }
+                }
+                else
+                {
+                    if (index >= 0)
+                        Title = Title.Substring(0, index - 1);
+                }
+                frameCounter = 0;
+                frameData = 0;
+            }
         }
 
         private static void SwitchToBufferAndClear(int id)
@@ -374,12 +459,14 @@ namespace KWEngine2
                 return;
             }
 
+            if (CurrentWorld == null)
+                return;
 
             if (CurrentWorld._prepared)
             {
                 lock (CurrentWorld._explosionObjects)
                 {
-                    foreach(Explosion ex in CurrentWorld._explosionObjects)
+                    foreach (Explosion ex in CurrentWorld._explosionObjects)
                     {
                         ex.Act();
                     }
@@ -395,7 +482,8 @@ namespace KWEngine2
                         g.CheckBounds();
                     }
                 }
-                lock (CurrentWorld._particleObjects) { 
+                lock (CurrentWorld._particleObjects)
+                {
                     foreach (ParticleObject p in CurrentWorld.GetParticleObjects())
                     {
                         p.Act();
@@ -412,55 +500,19 @@ namespace KWEngine2
 
 
                 CurrentWorld.Act(ks, ms, DeltaTime.GetDeltaTimeFactor());
-            }
-            
-            CurrentWorld.AddRemoveObjects();
-            CurrentWorld.SortByZ();
 
-            if (CurrentWorld.IsFirstPersonMode && Focused)
-            {
-                Mouse.SetPosition(_mousePointFPS.X, _mousePointFPS.Y);
+                CurrentWorld.AddRemoveObjects();
+                CurrentWorld.SortByZ();
+
+                if (CurrentWorld.IsFirstPersonMode && Focused)
+                {
+                    Mouse.SetPosition(_mousePointFPS.X, _mousePointFPS.Y);
+                }
             }
 
             DeltaTime.UpdateDeltaTime();
             KWEngine.TimeElapsed += (float)e.Time;
-            frameCounter++;
-            frameData += (e.Time * 1000.0);
-            if(frameCounter > 100)
-            {
-                int index = Title != null ? Title.LastIndexOf('|') : -1;
-                if (KWEngine.DebugShowPerformanceInTitle == KWEngine.PerformanceUnit.FrameTimeInMilliseconds)
-                {
-                    if (index < 0)
-                    {
-                        Title = Title + " | " + Math.Round(frameData / frameCounter, 2) + " ms";
-                    }
-                    else
-                    {
-                        Title = Title.Substring(0, index - 1);
-                        Title += " | " + Math.Round(frameData / frameCounter, 2) + " ms";
-                    }
-                }
-                else if(KWEngine.DebugShowPerformanceInTitle == KWEngine.PerformanceUnit.FramesPerSecond)
-                {
-                    if (index < 0)
-                    {
-                        Title = Title + " | " + Math.Round(1000.0 / (frameData / frameCounter), 1) + " fps";
-                    }
-                    else
-                    {
-                        Title = Title.Substring(0, index - 1);
-                        Title += " | " + Math.Round(1000.0 / (frameData / frameCounter), 1) + " fps";
-                    }
-                }
-                else
-                {
-                    if(index >= 0)
-                        Title = Title.Substring(0, index - 1);
-                }
-                frameCounter = 0;
-                frameData = 0;
-            }
+            
             
         }
 
@@ -564,6 +616,15 @@ namespace KWEngine2
         /// <param name="w">Welt-Instanz</param>
         public void SetWorld(World w)
         {
+            Action a = () => SetWorldInternal(w);
+            if (CurrentWorld != null)
+                CurrentWorld._prepared = false;
+            HelperGLLoader.AddCall(this, a);
+        }
+
+        internal void SetWorldInternal(World w)
+        {
+
             if (CurrentWorld == null)
             {
                 CurrentWorld = w;
@@ -604,7 +665,7 @@ namespace KWEngine2
         internal static void StartGarbageCollection()
         {
             GC.KeepAlive(DeltaTime.Watch);
-            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true);
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, false);
         }
 
         private void ApplyBloom()

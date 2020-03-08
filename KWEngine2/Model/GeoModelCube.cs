@@ -72,17 +72,17 @@ namespace KWEngine2.Model
             }
         }
 
-        public void SetTexture(string texture, CubeSide side, TextureType type, bool isFile)
+        internal void SetTextureInternal(string texture, CubeSide side, TextureType type, bool isFile)
         {
-            if(Owner == null || GLWindow.CurrentWindow.CurrentWorld == null)
+            if (Owner == null || GLWindow.CurrentWindow.CurrentWorld == null)
             {
                 throw new Exception("Cube texture owner is not set or is not member of a world.");
             }
-            if(this is GeoModelCube1)
+            if (this is GeoModelCube1)
             {
                 SetTextureAll(texture, type, isFile);
             }
-            else if(side == CubeSide.All)
+            else if (side == CubeSide.All)
             {
                 SetTextureFront(texture, type, isFile);
                 SetTextureBack(texture, type, isFile);
@@ -91,7 +91,7 @@ namespace KWEngine2.Model
                 SetTextureTop(texture, type, isFile);
                 SetTextureBottom(texture, type, isFile);
             }
-            else if(side == CubeSide.Front)
+            else if (side == CubeSide.Front)
             {
                 SetTextureFront(texture, type, isFile);
             }
@@ -115,6 +115,11 @@ namespace KWEngine2.Model
             {
                 SetTextureBottom(texture, type, isFile);
             }
+        }
+
+        public void SetTexture(string texture, CubeSide side, TextureType type, bool isFile)
+        {
+            SetTextureInternal(texture, side, type, isFile);
         }
 
         private void SetTextureAll(string texture, TextureType type, bool isFile)

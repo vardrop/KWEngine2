@@ -109,9 +109,11 @@
     <Compile Include="Helper\HelperCamera.cs" />
     <Compile Include="Helper\HelperFont.cs" />
     <Compile Include="Helper\HelperFrustum.cs" />
+    <Compile Include="Helper\HelperGLLoader.cs" />
     <Compile Include="Helper\HelperMouseRay.cs" />
     <Compile Include="Helper\HelperRandom.cs" />
     <Compile Include="Helper\HelperRotation.cs" />
+    <Compile Include="Helper\LoadPackage.cs" />
     <Compile Include="Helper\ParticleInfo.cs" />
     <Compile Include="Helper\Sector.cs" />
     <Compile Include="KWEngine.cs" />

@@ -5,8 +5,8 @@ namespace KWEngine2.Helper
 {
     internal static class DeltaTime
     {
-        private static float smoothedDeltaRealTime_ms = 0.00001f; // initial value, Optionally you can save the new computed value (will change with each hardware) in Preferences to optimize the first drawing frames 
-        private static float movAverageDeltaTime_ms = 16.6666666f; // mov Average start with default value
+        private static float smoothedDeltaRealTime_ms = 0.0001f; // initial value, Optionally you can save the new computed value (will change with each hardware) in Preferences to optimize the first drawing frames 
+        private static float movAverageDeltaTime_ms = 0.0001f; // mov Average start with default value
         internal static float lastRealTimeMeasurement_ms = 0; // temporal storage for last time measurement
         private const float movAveragePeriod = 60f; // #frames involved in average calc (suggested values 5-100)
         private const float smoothFactor = 0.01f; // adjusting ratio (suggested values 0.01-0.5)
@@ -33,11 +33,8 @@ namespace KWEngine2.Helper
                 realTimeElapsed_ms = smoothedDeltaRealTime_ms; // just the first time
             }
             movAverageDeltaTime_ms = (realTimeElapsed_ms + movAverageDeltaTime_ms * (movAveragePeriod - 1)) / movAveragePeriod;
-            // Calc a better aproximation for smooth stepTime
             smoothedDeltaRealTime_ms = smoothedDeltaRealTime_ms + (movAverageDeltaTime_ms - smoothedDeltaRealTime_ms) * smoothFactor;
-
-            deltaTimeFactor = smoothedDeltaRealTime_ms / TargetFrameTime;
-          //  Debug.WriteLine("dT: " + deltaTimeFactor);
+            deltaTimeFactor = HelperGL.Clamp(smoothedDeltaRealTime_ms / TargetFrameTime, 0.00001f, 10);
             lastRealTimeMeasurement_ms = currTimePick_ms;
         }
     }
