@@ -58,7 +58,7 @@ namespace KWEngine2.Renderers
             mUniform_BoneTransforms = GL.GetUniformLocation(mProgramId, "uBoneTransforms");
         }
 
-        internal override void Draw(GameObject g, ref Matrix4 viewProjection, HelperFrustum frustum)
+        internal override void Draw(GameObject g, ref Matrix4 viewProjection, HelperFrustum frustum, bool isSun)
         {
             if (g == null || !g.HasModel)
                 return;
@@ -78,15 +78,17 @@ namespace KWEngine2.Renderers
 
                     bool useMeshTransform = !(g.AnimationID >= 0 && g.Model.Animations != null && g.Model.Animations.Count > 0);
 
-                    if (useMeshTransform)
+                    if (isSun)
                     {
-                        Matrix4.Mult(ref mesh.Transform, ref g._modelMatrix, out g.ModelMatrixForRenderPass[index]);
+                        if (useMeshTransform)
+                        {
+                            Matrix4.Mult(ref mesh.Transform, ref g._modelMatrix, out g.ModelMatrixForRenderPass[index]);
+                        }
+                        else
+                        {
+                            g.ModelMatrixForRenderPass[index] = g._modelMatrix;
+                        }
                     }
-                    else
-                    {
-                        g.ModelMatrixForRenderPass[index] = g._modelMatrix;
-                    }
-
                     if (mesh.Material.Opacity <= 0 || !isInsideFrustum)
                     {
                         continue;
@@ -142,6 +144,11 @@ namespace KWEngine2.Renderers
         }
 
         internal override void Draw(GameObject g, ref Matrix4 viewProjection, ref Matrix4 viewProjectionShadow, ref Matrix4 viewProjectionShadow2, HelperFrustum frustum, ref float[] lightColors, ref float[] lightTargets, ref float[] lightPositions, int lightCount, ref int lightShadow)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal override void Draw(GameObject g, ref Matrix4 viewProjection, HelperFrustum frustum)
         {
             throw new NotImplementedException();
         }

@@ -76,6 +76,7 @@ namespace KWEngine2.Renderers
 
             // Clear translation part:
             _viewMatrix = _viewMatrix.ClearTranslation();
+            _viewMatrix = KWEngine.CurrentWorld._skyboxRotation * _viewMatrix;
             Matrix4 MVP = _viewMatrix * viewProjection;
 
 
@@ -113,6 +114,11 @@ namespace KWEngine2.Renderers
         }
 
         internal override void Draw(GameObject g, ref Matrix4 viewProjection, ref Matrix4 viewProjectionShadow, ref Matrix4 viewProjectionShadow2, HelperFrustum frustum, ref float[] lightColors, ref float[] lightTargets, ref float[] lightPositions, int lightCount, ref int lightShadow)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal override void Draw(GameObject g, ref Matrix4 viewProjection, HelperFrustum frustum, bool isSun)
         {
             throw new NotImplementedException();
         }

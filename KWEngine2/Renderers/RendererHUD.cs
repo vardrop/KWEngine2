@@ -120,5 +120,10 @@ namespace KWEngine2.Renderers
         {
             throw new NotImplementedException();
         }
+
+        internal override void Draw(GameObject g, ref Matrix4 viewProjection, HelperFrustum frustum, bool isSun)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

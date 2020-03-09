@@ -47,7 +47,6 @@ namespace KWEngine2
         internal Matrix4 _modelViewProjectionMatrixBloomMerge = Matrix4.Identity;
         internal Matrix4 _projectionMatrix = Matrix4.Identity;
         internal Matrix4 _projectionMatrixShadow = Matrix4.Identity;
-        internal Matrix4 _projectionMatrixShadow2 = Matrix4.Identity;
         internal Matrix4 _viewProjectionMatrixHUD = Matrix4.Identity;
 
         internal static float[] LightColors = new float[KWEngine.MAX_LIGHTS * 4];
@@ -56,8 +55,7 @@ namespace KWEngine2
 
         internal HelperFrustum Frustum = new HelperFrustum();
         internal HelperFrustum FrustumShadowMap = new HelperFrustum();
-        internal HelperFrustum FrustumShadowMap2 = new HelperFrustum();
-
+        
         internal System.Drawing.Rectangle _windowRect;
         internal System.Drawing.Point _mousePoint = new System.Drawing.Point(0, 0);
         internal System.Drawing.Point _mousePointFPS = new System.Drawing.Point(0, 0);
@@ -240,15 +238,14 @@ namespace KWEngine2
                 int shadowLight = -1;
                 lock (CurrentWorld._lightObjects)
                 {
-                    LightObject.PrepareLightsForRenderPass(CurrentWorld.GetLightObjects(), ref LightColors, ref LightTargets, ref LightPositions, ref CurrentWorld._lightcount, ref shadowLight);
+                    LightObject.PrepareLightsForRenderPass(CurrentWorld._lightObjects, ref LightColors, ref LightTargets, ref LightPositions, ref CurrentWorld._lightcount, ref shadowLight);
                 }
-
+                LightObject sLight = shadowLight >= 0 ? CurrentWorld._lightObjects.ElementAt(shadowLight) :  null;
                 if (CurrentWorld.DebugShadowCaster)
                 {
-                    if (shadowLight >= 0)
+                    if (sLight != null)
                     {
-                        LightObject sLight = CurrentWorld.GetLightObjects().ElementAt(shadowLight);
-                        _viewMatrix = Matrix4.LookAt(sLight.Position, sLight.Target, KWEngine.WorldUp);
+                        _viewMatrix = sLight._shadowViewMatrix; // Matrix4.LookAt(sLight.Position, sLight.Target, KWEngine.WorldUp);
                     }
                     else
                     {
@@ -265,8 +262,10 @@ namespace KWEngine2
                 Matrix4 viewProjection;
                 if (CurrentWorld.DebugShadowCaster)
                 {
-                    if (shadowLight >= 0)
-                        viewProjection = _viewMatrix * _projectionMatrixShadow2;
+                    if (sLight != null)
+                    {
+                        viewProjection = _viewMatrix * sLight._projectionMatrixShadow2;
+                    }
                     else
                         viewProjection = _viewMatrix * _projectionMatrixShadow;
                 }
@@ -275,17 +274,9 @@ namespace KWEngine2
                     viewProjection = _viewMatrix * _projectionMatrix;
                 }
 
-
-
-                Matrix4 viewMatrixShadow = Matrix4.LookAt(CurrentWorld.GetSunPosition(), CurrentWorld.GetSunTarget(), KWEngine.WorldUp);
-                Matrix4 viewProjectionShadow = viewMatrixShadow * _projectionMatrixShadow;
-                Matrix4 viewProjectionShadow2 = Matrix4.Identity;
-
+                Matrix4 viewProjectionShadow = CurrentWorld._viewMatrixShadow * _projectionMatrixShadow;
                 Frustum.CalculateFrustum(_projectionMatrix, _viewMatrix);
-                FrustumShadowMap.CalculateFrustum(_projectionMatrixShadow, viewMatrixShadow);
-
-
-
+                FrustumShadowMap.CalculateFrustum(_projectionMatrixShadow, CurrentWorld._viewMatrixShadow);
 
                 SwitchToBufferAndClear(FramebufferShadowMap);
                 GL.Viewport(0, 0, KWEngine.ShadowMapSize, KWEngine.ShadowMapSize);
@@ -295,27 +286,23 @@ namespace KWEngine2
 
                     foreach (GameObject g in CurrentWorld._gameObjects)
                     {
-                        KWEngine.Renderers["Shadow"].Draw(g, ref viewProjectionShadow, FrustumShadowMap);
+                        KWEngine.Renderers["Shadow"].Draw(g, ref viewProjectionShadow, FrustumShadowMap, true);
                     }
                 }
                 GL.UseProgram(0);
 
-                Matrix4 viewMatrixShadow2 = Matrix4.Identity;
-                if (shadowLight >= 0)
+                //Matrix4 viewMatrixShadow2 = Matrix4.Identity;
+                if (sLight != null)
                 {
-                    LightObject sLight = CurrentWorld.GetLightObjects().ElementAt(shadowLight);
-                    viewMatrixShadow2 = Matrix4.LookAt(sLight.Position, sLight.Target, KWEngine.WorldUp);
-                    FrustumShadowMap2.CalculateFrustum(_projectionMatrixShadow2, viewMatrixShadow2);
-
                     SwitchToBufferAndClear(FramebufferShadowMap2);
                     GL.Viewport(0, 0, KWEngine.ShadowMapSize, KWEngine.ShadowMapSize);
                     GL.UseProgram(KWEngine.Renderers["Shadow"].GetProgramId());
-                    viewProjectionShadow2 = viewMatrixShadow2 * _projectionMatrixShadow2;
+                    sLight._frustumShadowMap2.CalculateFrustum(sLight._projectionMatrixShadow2, sLight._shadowViewMatrix);
                     lock (CurrentWorld._gameObjects)
                     {
                         foreach (GameObject g in CurrentWorld._gameObjects)
                         {
-                            KWEngine.Renderers["Shadow"].Draw(g, ref viewProjectionShadow2, FrustumShadowMap2);
+                            KWEngine.Renderers["Shadow"].Draw(g, ref sLight._viewProjectionMatrixShadow2, sLight._frustumShadowMap2, false);
                         }
                     }
                     GL.UseProgram(0);
@@ -338,7 +325,7 @@ namespace KWEngine2
                 }
 
                 Matrix4 viewProjectionShadowBiased = viewProjectionShadow * HelperMatrix.BiasedMatrixForShadowMapping;
-                Matrix4 viewProjectionShadowBiased2 = viewProjectionShadow2 * HelperMatrix.BiasedMatrixForShadowMapping;
+                Matrix4 viewProjectionShadowBiased2 = sLight == null ? Matrix4.Identity : sLight._viewProjectionMatrixShadow2 * HelperMatrix.BiasedMatrixForShadowMapping;
 
                 lock (CurrentWorld._gameObjects)
                 {

@@ -205,5 +205,10 @@ namespace KWEngine2.Renderers
         {
             GL.Uniform3(mUniform_BaseColor, mesh.Material.ColorDiffuse.X, mesh.Material.ColorDiffuse.Y, mesh.Material.ColorDiffuse.Z);
         }
+
+        internal override void Draw(GameObject g, ref Matrix4 viewProjection, HelperFrustum frustum, bool isSun)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

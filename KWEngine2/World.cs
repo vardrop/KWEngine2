@@ -48,6 +48,9 @@ namespace KWEngine2
 
         internal bool _prepared = false;
         private float _worldDistance = 100;
+        internal Matrix4 _skyboxRotation = Matrix4.Identity;
+        internal Matrix4 _viewMatrixShadow = Matrix4.Identity;
+
         /// <summary>
         /// Zentrum der Welt
         /// </summary>
@@ -245,6 +248,15 @@ namespace KWEngine2
             {
                 SetTextureSkyboxInternal(filename, red, green, blue, intensity, isFile);
             }
+        }
+
+        /// <summary>
+        /// Setzt die Rotation der Skybox (falls vorhanden)
+        /// </summary>
+        /// <param name="degrees">Grad der Rotation</param>
+        public void SetTextureSkyboxRotation(float degrees)
+        {
+            _skyboxRotation = Matrix4.CreateRotationY(MathHelper.DegreesToRadians(degrees));
         }
 
         internal void SetTextureSkyboxInternal(string filename, float red = 1, float green = 1, float blue = 1, float intensity = 1, bool isFile = true)
@@ -455,6 +467,7 @@ namespace KWEngine2
         {
             p.Z += +0.000001f;
             _sunPosition = p;
+            _viewMatrixShadow = Matrix4.LookAt(_sunPosition, _sunTarget, KWEngine.WorldUp);
         }
 
         /// <summary>
@@ -475,6 +488,7 @@ namespace KWEngine2
         public void SetSunTarget(Vector3 p)
         {
             _sunTarget = p;
+            _viewMatrixShadow = Matrix4.LookAt(_sunPosition, _sunTarget, KWEngine.WorldUp);
         }
 
         /// <summary>

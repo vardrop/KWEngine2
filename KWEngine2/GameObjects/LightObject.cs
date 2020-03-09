@@ -36,12 +36,27 @@ namespace KWEngine2.GameObjects
         /// <summary>
         /// Art des Lichts
         /// </summary>
-        public LightType Type { get; set; }
+        public LightType Type
+        { 
+            get
+            {
+                return _type;
+            }
+            set
+            {
+                _type = value;
+                if(value == LightType.DirectionalShadow)
+                {
+                    UpdateMatrices();
+                }
+            }
+        }
         private Vector4 Color { get; set; }
         internal World World { get; set; }
         internal float FOVShadow2 { get; set; } = 60f;
         internal float ShadowMapBiasCoefficient = 0.005f;
-
+        internal Matrix4 _shadowViewMatrix = Matrix4.Identity;
+        internal LightType _type = LightType.Point;
         /// <summary>
         /// Aktuelle Welt
         /// </summary>
@@ -59,18 +74,53 @@ namespace KWEngine2.GameObjects
             get; internal set;
         }
 
+        internal Vector3 _target = new Vector3(0, -1, 0);
+        internal Vector3 _position = new Vector3(0, 0, 0);
+        internal HelperFrustum _frustumShadowMap2 = new HelperFrustum();
+        internal Matrix4 _projectionMatrixShadow2 = Matrix4.Identity;
+        internal Matrix4 _viewProjectionMatrixShadow2 = Matrix4.Identity;
+
+        private void UpdateMatrices()
+        {
+            if (_type == LightType.DirectionalShadow)
+            {
+                _shadowViewMatrix = Matrix4.LookAt(Position, Target, KWEngine.WorldUp);
+                _frustumShadowMap2.CalculateFrustum(_projectionMatrixShadow2, _shadowViewMatrix);
+                _viewProjectionMatrixShadow2 = _shadowViewMatrix * _projectionMatrixShadow2;
+            }
+        }
+
         /// <summary>
         /// Position des Lichts
         /// </summary>
-        public Vector3 Position { get; set; }
+        public Vector3 Position 
+        { 
+            get { return _position; }
+            set
+            {
+                _position = value;
+                UpdateMatrices();
+            }
+        }
         /// <summary>
         /// Ziel des Lichts
         /// </summary>
-        public Vector3 Target { get; set; }
+        public Vector3 Target
+        { 
+            get
+            {
+                return _target;
+            }
+            set
+            {
+                _target = value;
+                UpdateMatrices();
+            }
+        }
         /// <summary>
         /// Distanzmultiplikator (Standard: 10)
         /// </summary>
-        public float DistanceMultiplier { get; private set; } = 1;
+        public float DistanceMultiplier { get; private set; } = 10;
 
         /// <summary>
         /// Act
@@ -90,7 +140,7 @@ namespace KWEngine2.GameObjects
             Color = new Vector4(1, 1, 1, 1);
             Type = LightType.Point;
             DistanceMultiplier = 10;
-            SetFOVShadowPrivate(180);
+            SetFOVShadowPrivate(179);
         }
 
         /// <summary>
@@ -113,7 +163,7 @@ namespace KWEngine2.GameObjects
         /// <param name="red">Rot</param>
         /// <param name="green">Grün</param>
         /// <param name="blue">Blau</param>
-        /// <param name="intensity">Helligkeit</param>
+        /// <param name="intensity">Helligkeit (0 bis 1024)</param>
         public void SetColor(float red, float green, float blue, float intensity)
         {
             Color = new Vector4(
@@ -173,7 +223,8 @@ namespace KWEngine2.GameObjects
             FOVShadow2 = HelperGL.Clamp(fov, 60, 179);
             if(KWEngine.CurrentWorld != null)
             {
-                KWEngine.CurrentWindow._projectionMatrixShadow2 = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(FOVShadow2 / 2), KWEngine.ShadowMapSize / (float)KWEngine.ShadowMapSize, 1f, CurrentWorld != null ? CurrentWorld.ZFar / 10 : 100f);
+                _projectionMatrixShadow2 = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(FOVShadow2 / 2), KWEngine.ShadowMapSize / (float)KWEngine.ShadowMapSize, 1f, CurrentWorld != null ? CurrentWorld.ZFar / 10 : 100f);
+                UpdateMatrices();
             }
         }
 
@@ -190,7 +241,8 @@ namespace KWEngine2.GameObjects
                 FOVShadow2 = HelperGL.Clamp(fov, 60, 179);
                 if (KWEngine.CurrentWorld != null)
                 {
-                    KWEngine.CurrentWindow._projectionMatrixShadow2 = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(FOVShadow2 / 2), KWEngine.ShadowMapSize / (float)KWEngine.ShadowMapSize, 1f, CurrentWorld != null ? CurrentWorld.ZFar / 10 : 100f);
+                    _projectionMatrixShadow2 = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(FOVShadow2 / 2), KWEngine.ShadowMapSize / (float)KWEngine.ShadowMapSize, 1f, CurrentWorld != null ? CurrentWorld.ZFar / 10 : 100f);
+                    UpdateMatrices();
                 }
             }
         }
@@ -209,7 +261,7 @@ namespace KWEngine2.GameObjects
             }
         }
 
-        internal static void PrepareLightsForRenderPass(IReadOnlyCollection<LightObject> lights, ref float[] colors, ref float[] targets, ref float[] positions, ref int count, ref int shadowLight)
+        internal static void PrepareLightsForRenderPass(List<LightObject> lights, ref float[] colors, ref float[] targets, ref float[] positions, ref int count, ref int shadowLight)
         {
             count = lights.Count;
             IEnumerator<LightObject> enumerator = lights.GetEnumerator();
