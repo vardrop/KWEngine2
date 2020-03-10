@@ -15,12 +15,12 @@ namespace KWEngine2.Audio
     /// <summary>
     /// Vorgeladener Audioton
     /// </summary>
-    internal class CachedSound
+    internal class CachedSound : IDisposable
     {
-        private ALFormat mFormat = ALFormat.MonoFloat32Ext;
-        private int mPointerBuffer = -1;
-        private string mName = "";
-        private IntPtr pointerToAudioData = IntPtr.Zero;
+        private readonly ALFormat mFormat;
+        private readonly int mPointerBuffer;
+        private readonly string mName;
+        private readonly IntPtr pointerToAudioData;
 
         /// <summary>
         /// Audiodaten
@@ -35,11 +35,11 @@ namespace KWEngine2.Audio
         /// Konstruktor für das Erzeugen eines gecacheten Tons
         /// </summary>
         /// <param name="audioFileName">Dateiname</param>
-        public CachedSound(string audioFileName)
+        public CachedSound(string audioFileName) 
         {
-            int numChannels = -1;
-            int bitsPerSample = -1;
-            int sampleRate = -1;
+            int numChannels;
+            int bitsPerSample;
+            int sampleRate;
             if (!(audioFileName.ToLower().EndsWith("wav") || audioFileName.ToLower().EndsWith("ogg")))
                 throw new Exception("Only wav and ogg files are supported.");
 
@@ -101,8 +101,7 @@ namespace KWEngine2.Audio
             FileStream input = new FileStream(filename, FileMode.Open, FileAccess.Read);
             OggDecoder.OggDecodeStream stream = new OggDecoder.OggDecodeStream(input, true);
             byte[] inputAudioData = new byte[stream.Length];
-            int read = 0;
-            read = stream.Read(inputAudioData, 0, inputAudioData.Length);
+            int read = stream.Read(inputAudioData, 0, inputAudioData.Length);
             if(read > 0)
             {
                 numChannels = stream.ChannelCount;
@@ -119,10 +118,9 @@ namespace KWEngine2.Audio
             byte[] inputAudioData = null;
             try
             {
-                fStream = new FileStream(filename, FileMode.Open);
+                fStream = new FileStream(filename, FileMode.Open) {Position = 22};
 
                 // Read channels
-                fStream.Position = 22;
                 byte channels1 = (byte)fStream.ReadByte();
                 fStream.Position = 23;
                 byte channels2 = (byte)fStream.ReadByte();
@@ -223,6 +221,11 @@ namespace KWEngine2.Audio
         {
             AL.DeleteBuffer(mPointerBuffer);
             Marshal.FreeHGlobal(pointerToAudioData);
+        }
+
+        public void Dispose()
+        {
+            Clear();
         }
     }
 }

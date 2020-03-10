@@ -133,7 +133,7 @@ namespace KWEngine2.GameObjects
         /// <summary>
         /// Konstruktormethode
         /// </summary>
-        public LightObject()
+        protected LightObject()
         {
             Position = new Vector3(0, 0, 0);
             Target = new Vector3(0, 0, 0);

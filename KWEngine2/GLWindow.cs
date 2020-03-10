@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Reflection;
-using System.Threading;
-using System.Windows.Forms;
-using System.Linq;
-using KWEngine2.Audio;
+﻿using KWEngine2.Audio;
 using KWEngine2.GameObjects;
 using KWEngine2.Helper;
 using KWEngine2.Model;
@@ -14,7 +7,14 @@ using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
 using System.Runtime;
+using System.Threading;
+using System.Windows.Forms;
 
 namespace KWEngine2
 {
@@ -65,7 +65,7 @@ namespace KWEngine2
         /// <summary>
         /// Standardkonstruktormethode
         /// </summary>
-        public GLWindow()
+        protected GLWindow()
            : this(1280, 720, GameWindowFlags.FixedWindow, 0, true, false)
         {
 
@@ -76,7 +76,7 @@ namespace KWEngine2
         /// </summary>
         /// <param name="width">Breite des Fensters</param>
         /// <param name="height">Höhe des Fensters</param>
-        public GLWindow(int width, int height)
+        protected GLWindow(int width, int height)
            : this(width, height, GameWindowFlags.Default, 0, true, false)
         {
 
@@ -91,7 +91,7 @@ namespace KWEngine2
         /// <param name="antialiasing">FSAA-Wert (Anti-Aliasing)</param>
         /// <param name="vSync">VSync aktivieren</param>
         /// <param name="multithreading">Multithreading aktivieren (Standard: false)</param>
-        public GLWindow(int width, int height, GameWindowFlags flag, int antialiasing = 0, bool vSync = true, bool multithreading = false)
+        protected GLWindow(int width, int height, GameWindowFlags flag, int antialiasing = 0, bool vSync = true, bool multithreading = false)
             : base(width, height, GraphicsMode.Default, "KWEngine2 - C# 3D Gaming", flag == GameWindowFlags.Default ? GameWindowFlags.FixedWindow : flag, DisplayDevice.Default, 4, 5, GraphicsContextFlags.ForwardCompatible, null, !multithreading)
         {
             _multithreaded = multithreading;
@@ -124,7 +124,7 @@ namespace KWEngine2
             }
             if (_multithreaded)
             {
-                TargetUpdateFrequency = TargetUpdateFrequency == 0 ? 60 : TargetUpdateFrequency;
+                TargetUpdateFrequency = TargetUpdateFrequency < 1 ? 60 : TargetUpdateFrequency;
                 DeltaTime.movAveragePeriod = 5f; // #frames involved in average calc (suggested values 5-100)
                 DeltaTime.smoothFactor = 0.02f; // adjusting ratio (suggested values 0.01-0.5)
             }
@@ -143,7 +143,7 @@ namespace KWEngine2
         /// <param name="flag">FixedWindow oder FullScreen</param>
         /// <param name="antialiasing">FSAA-Wert (Anti-Aliasing)</param>
         /// <param name="vSync">VSync aktivieren</param>
-        public GLWindow(int width, int height, GameWindowFlags flag, int antialiasing = 0, bool vSync = true)
+        protected GLWindow(int width, int height, GameWindowFlags flag, int antialiasing = 0, bool vSync = true)
             : this(width, height, flag, antialiasing, vSync, false)
         {
            
@@ -622,10 +622,10 @@ namespace KWEngine2
         /// <param name="w">Welt-Instanz</param>
         public void SetWorld(World w)
         {
-            Action a = () => SetWorldInternal(w);
+            void Action() => SetWorldInternal(w);
             if (CurrentWorld != null)
                 CurrentWorld._prepared = false;
-            HelperGLLoader.AddCall(this, a);
+            HelperGLLoader.AddCall(this, Action);
         }
 
         internal void SetWorldInternal(World w)
@@ -765,9 +765,9 @@ namespace KWEngine2
                     InitFramebufferShadowMap2();
                     InitFramebufferBloom();
                 }
-                catch (Exception)
+                catch (ArgumentOutOfRangeException ex)
                 {
-                    ok = false;
+                    Debug.WriteLine("Error building framebuffers: " + ex.Message);
                 }
                 ok = true;
             }
@@ -801,8 +801,8 @@ namespace KWEngine2
 
         private void InitFramebufferShadowMap()
         {
-            int framebufferId = -1;
-            int depthTexId = -1;
+            int framebufferId;
+            int depthTexId;
 
             framebufferId = GL.GenFramebuffer();
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebufferId);
@@ -840,8 +840,8 @@ namespace KWEngine2
 
         private void InitFramebufferShadowMap2()
         {
-            int framebufferId = -1;
-            int depthTexId = -1;
+            int framebufferId;
+            int depthTexId;
 
             framebufferId = GL.GenFramebuffer();
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, framebufferId);
@@ -879,9 +879,9 @@ namespace KWEngine2
 
         private void InitFramebufferOriginalDownsampled()
         {
-            int framebufferId = -1;
-            int renderedTexture = -1;
-            int renderedTextureAttachment = -1;
+            int framebufferId;
+            int renderedTexture;
+            int renderedTextureAttachment;
 
             //Init des frame buffer:
             framebufferId = GL.GenFramebuffer();
@@ -928,12 +928,12 @@ namespace KWEngine2
 
         private void InitFramebufferOriginal()
         {
-            int framebufferId = -1;
-            int renderedTexture = -1;
-            int renderedTextureAttachment = -1;
-            int renderbufferFSAA = -1;
-            int renderbufferFSAA2 = -1;
-            int depthTexId = -1;
+            int framebufferId;
+            int renderedTexture;
+            int renderedTextureAttachment;
+            int renderbufferFSAA;
+            int renderbufferFSAA2;
+            int depthTexId;
 
             // FULL RESOLUTION
 
@@ -1015,8 +1015,8 @@ namespace KWEngine2
 
         private void InitFramebufferBloom()
         {
-            int framebufferTempId = -1;
-            int renderedTextureTemp = -1;
+            int framebufferTempId;
+            int renderedTextureTemp;
 
             // =========== TEMP ===========
 
