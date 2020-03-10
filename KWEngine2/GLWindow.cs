@@ -122,9 +122,11 @@ namespace KWEngine2
                 X = 0;
                 Y = 0;
             }
-            if (multithreading && !vSync)
+            if (_multithreaded)
             {
                 TargetUpdateFrequency = TargetUpdateFrequency == 0 ? 60 : TargetUpdateFrequency;
+                DeltaTime.movAveragePeriod = 5f; // #frames involved in average calc (suggested values 5-100)
+                DeltaTime.smoothFactor = 0.02f; // adjusting ratio (suggested values 0.01-0.5)
             }
             CurrentWindow = this;
             _vSync = vSync;
