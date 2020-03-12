@@ -62,7 +62,7 @@ namespace KWEngine2Test.Worlds
             PlatformUpDown testPlatform = new PlatformUpDown();
             testPlatform.SetModel("ArenaPlatform");
             testPlatform.SetScale(1.5f);
-            testPlatform.SetPosition(15, 2f, 0);
+            testPlatform.SetPosition(15, 1.5f, 0);
             testPlatform.IsCollisionObject = true;
             testPlatform.IsShadowCaster = true;
             AddGameObject(testPlatform);

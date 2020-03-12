@@ -18,6 +18,7 @@ namespace KWEngine2Test.Objects.Arena
         private float _movementSpeed = 0.2f;
         private Phase _phase = Phase.Stand;
         private float _airTime = 0;
+        private float _lastGain = 0;
         private float _heightAtJumpStart = 0;
         private bool _jumpButtonPressed = false;
 
@@ -57,7 +58,6 @@ namespace KWEngine2Test.Objects.Arena
                 
                 MoveAndStrafeFirstPerson(forward, strafe, _movementSpeed * deltaTimeFactor);
             }
-            
 
             // Jump controls:
             if(ms.RightButton == ButtonState.Pressed && _phase == Phase.Stand && _jumpButtonPressed == false)
@@ -65,6 +65,7 @@ namespace KWEngine2Test.Objects.Arena
                 _jumpButtonPressed = true;
                 _phase = Phase.Jump;
                 _airTime = 0;
+                _lastGain = 0;
                 _heightAtJumpStart = Position.Y;
             }
 
@@ -80,7 +81,16 @@ namespace KWEngine2Test.Objects.Arena
                 _airTime += (deltaTimeFactor * 16.666667f) / 1000f;
                 float gain = -14f * (float)Math.Pow(_airTime - 0.4f, 2) + 2.25f;
                 SetPositionY(_heightAtJumpStart + gain);
-
+                if (gain <= _lastGain)
+                {
+                    _phase = Phase.Fall;
+                    _lastGain = 0;
+                    _airTime = 0;
+                    _heightAtJumpStart = Position.Y;
+                }
+                else
+                    _lastGain = gain;
+                
             }
             else if(_phase == Phase.Fall)
             {
@@ -90,24 +100,33 @@ namespace KWEngine2Test.Objects.Arena
             }
             else if(_phase == Phase.Stand)
             {
-                MoveOffset(0, -_movementSpeed * 0.1f, 0);
+                MoveOffset(0, -_movementSpeed * 0.1f * deltaTimeFactor, 0);
             }
           
 
             // Collision detection:
             List<Intersection> intersections = GetIntersections();
             bool upCorrection = false;
-            foreach(Intersection i in intersections)
+            foreach (Intersection i in intersections)
             {
-                MoveOffset(i.MTV);
+                Vector3 mtv = i.MTV;
 
-                if (i.MTV.Y > 0)
+                MoveOffset(mtv);
+
+                if (mtv.Y > 0.00001f)
                 {
-                    _phase = Phase.Stand;
-                    _airTime = 0;
-                    upCorrection = true;
+                    if (_phase == Phase.Fall)
+                    {
+                        _phase = Phase.Stand;
+                        _airTime = 0;
+                        upCorrection = true;
+                    }
+                    
                 }
-                if(i.MTV.Y < 0 && _phase == Phase.Jump)
+                if(mtv.Y < 0 && 
+                    _phase == Phase.Jump &&
+                    Math.Abs(mtv.Y) > Math.Abs(mtv.X) && Math.Abs(mtv.Y) > Math.Abs(mtv.Z)
+                    )
                 {
                     _phase = Phase.Fall;
                     _airTime = 0;
@@ -120,7 +139,6 @@ namespace KWEngine2Test.Objects.Arena
                 _airTime = 0;
                 _heightAtJumpStart = Position.Y;
             }
-
 
             // Has to happen last!
             // (otherwise the camera would be set before 
