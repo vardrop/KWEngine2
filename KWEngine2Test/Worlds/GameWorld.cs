@@ -80,8 +80,9 @@ namespace KWEngine2Test.Worlds
             floor.IsShadowCaster = true;
             floor.SetTexture(@".\textures\sand_normal.png", KWEngine.TextureType.Normal);
             AddGameObject(floor);
-
+            
             Immovable wallLeft1 = new Immovable();
+            wallLeft1.Name = "WallLeft";
             wallLeft1.SetModel("KWCube");
             wallLeft1.IsCollisionObject = true;
             wallLeft1.IsShadowCaster = true;
@@ -90,6 +91,7 @@ namespace KWEngine2Test.Worlds
             AddGameObject(wallLeft1);
 
             Immovable wallRight = new Immovable();
+            wallRight.Name = "WallRight";
             wallRight.SetModel("KWCube");
             wallRight.IsCollisionObject = true;
             wallRight.IsShadowCaster = true;
@@ -98,6 +100,7 @@ namespace KWEngine2Test.Worlds
             AddGameObject(wallRight);
 
             Immovable wallFront = new Immovable();
+            wallFront.Name = "WallFront";
             wallFront.SetModel("KWCube");
             wallFront.IsCollisionObject = true;
             wallFront.IsShadowCaster = true;
@@ -106,6 +109,7 @@ namespace KWEngine2Test.Worlds
             AddGameObject(wallFront);
 
             Immovable wallBack = new Immovable();
+            wallBack.Name = "WallBack";
             wallBack.SetModel("KWCube");
             wallBack.IsCollisionObject = true;
             wallBack.IsShadowCaster = true;
@@ -115,6 +119,7 @@ namespace KWEngine2Test.Worlds
 
             p = new Player();
             p.SetModel("Robot");
+            p.Name = "Player";
             p.SetPosition(-5, 0f, -5);
             p.SetScale(4);
             p.AnimationID = 0;
@@ -125,7 +130,7 @@ namespace KWEngine2Test.Worlds
             p.TurnTowardsXZ(new Vector3(0, 0, 0));
             p.SetSpecularOverride(true, 8, 32);
             AddGameObject(p);
-            //SetFirstPersonObject(p);<
+            //SetFirstPersonObject(p);
 
             p._flashlight = new Flashlight();
             p._flashlight.Type = LightType.DirectionalShadow;
@@ -135,6 +140,7 @@ namespace KWEngine2Test.Worlds
             AddLightObject(p._flashlight);
 
             Immovable lab = new Immovable();
+            lab.Name = "Labyrinth";
             lab.SetModel("Lab");
             lab.IsCollisionObject = true;
             lab.IsShadowCaster = true;
@@ -142,6 +148,7 @@ namespace KWEngine2Test.Worlds
             AddGameObject(lab);
 
             Panel panel = new Panel();
+            panel.Name = "Panel";
             panel.SetModel("Panel");
             panel.SetPosition(10, 0.25f, -5);
             panel.SetScale(3);

@@ -65,6 +65,8 @@ namespace KWEngine2.GameObjects
 
         private Vector3 _lookAtVector = new Vector3(0, 0, 1);
 
+        internal Vector2 LeftRightMost { get; set; } = new Vector2(0,0);
+
         internal enum Override { SpecularEnable, SpecularPower, SpecularArea, TextureDiffuse, TextureNormal, TextureSpecular, TextureTransform, TextureMetallic, TextureRoughness }
 
         internal Dictionary<string, Dictionary<Override, object>> _overrides = new Dictionary<string, Dictionary<Override, object>>();        
@@ -92,6 +94,8 @@ namespace KWEngine2.GameObjects
         private Vector3 _tintColor = new Vector3(1, 1, 1);
         private Vector4 _glow = new Vector4(0, 0, 0, 0);
         private float _opacity = 1;
+
+        internal List<GameObject> _collisionCandidates = new List<GameObject>();
 
         /// <summary>
         /// Sichtbarkeit (0 = Unsichtbar, 1 = Sichtbar)
@@ -457,6 +461,7 @@ namespace KWEngine2.GameObjects
             _sceneCenter.X = sceneCenter.X / Hitboxes.Count;
             _sceneCenter.Y = sceneCenter.Y / Hitboxes.Count;
             _sceneCenter.Z = sceneCenter.Z / Hitboxes.Count;
+            LeftRightMost = new Vector2(minX - KWEngine.SweepAndPruneToleranceWidth, maxX + KWEngine.SweepAndPruneToleranceWidth);
             _sceneDimensions = new Vector3(maxX - minX, maxY - minY, maxZ - minZ);
             Vector3 downLeftFront = new Vector3(GetCenterPointForAllHitboxes().X - GetMaxDimensions().X / 2, GetCenterPointForAllHitboxes().Y - GetMaxDimensions().Y / 2, GetCenterPointForAllHitboxes().Z + GetMaxDimensions().Z / 2);
             Vector3 upRightBack = new Vector3(GetCenterPointForAllHitboxes().X + GetMaxDimensions().X / 2, GetCenterPointForAllHitboxes().Y + GetMaxDimensions().Y / 2, GetCenterPointForAllHitboxes().Z - GetMaxDimensions().Z / 2);
@@ -1292,13 +1297,14 @@ namespace KWEngine2.GameObjects
             {
                 throw new Exception("Error: You are calling GetIntersectingObjects() on an instance that is marked as a non-colliding object.");
             }
+            Vector3 offset = new Vector3(offsetX, offsetY, offsetZ);
+            /*
             foreach (GameObject go in CurrentWorld.GetGameObjects())
             {
                 if (!go.IsCollisionObject || go.Equals(this))
                 {
                     continue;
                 }
-                Vector3 offset = new Vector3(offsetX, offsetY, offsetZ);
                 bool considerForMeasurement = ConsiderForMeasurement(go, this, ref offset);
                 if (considerForMeasurement)
                 {
@@ -1324,6 +1330,33 @@ namespace KWEngine2.GameObjects
                     }
                 }
             }
+            */
+            
+            foreach(GameObject go in _collisionCandidates)
+            { 
+                foreach (Hitbox hbother in go.Hitboxes)
+                {
+                    foreach (Hitbox hbcaller in this.Hitboxes)
+                    {
+                        Intersection i;
+                        if (hbother.Owner.Model.IsTerrain && ConsiderForMeasurementTerrain(go, this, ref offset))
+                        {
+                            i = Hitbox.TestIntersectionTerrain(hbcaller, hbother, offset);
+                        }
+                        else
+                        {
+                            i = Hitbox.TestIntersection(hbcaller, hbother, offset);
+                        }
+
+                        if (i != null)
+                        {
+                            return i;
+                        }
+                    }
+                }
+            }
+            
+
             return null;
         }
 
@@ -1342,6 +1375,8 @@ namespace KWEngine2.GameObjects
             {
                 throw new Exception("Error: You are calling GetIntersectingObjects() on an instance that is marked as a non-colliding object.");
             }
+            Vector3 offset = new Vector3(offsetX, offsetY, offsetZ);
+            /*
             //Objekte außerhalb der Reichweite ausfiltern:
             foreach (GameObject go in CurrentWorld.GetGameObjects())
             {
@@ -1349,7 +1384,7 @@ namespace KWEngine2.GameObjects
                 {
                     continue;
                 }
-                Vector3 offset = new Vector3(offsetX, offsetY, offsetZ);
+                
                 bool considerForMeasurement = ConsiderForMeasurement(go, this, ref offset);
                 if (considerForMeasurement)
                 {
@@ -1373,8 +1408,54 @@ namespace KWEngine2.GameObjects
                     }
                 }
             }
+            */
+            
+            foreach(GameObject go in _collisionCandidates)
+            {
+                foreach (Hitbox hbother in go.Hitboxes)
+                {
+                    foreach (Hitbox hbcaller in this.Hitboxes)
+                    {
+                        Intersection i;
+                        if (hbother.Owner.Model.IsTerrain && ConsiderForMeasurementTerrain(go, this, ref offset))
+                        {
+
+                            i = Hitbox.TestIntersectionTerrain(hbcaller, hbother, offset);
+                        }
+                        else
+                        {
+                            i = Hitbox.TestIntersection(hbcaller, hbother, offset);
+                        }
+
+                        if (i != null)
+                            intersections.Add(i);
+                    }
+                }
+            }
 
             return intersections;
+        }
+
+        private static bool ConsiderForMeasurementTerrain(GameObject go, GameObject caller, ref Vector3 callerOffset)
+        {
+            GeoTerrain terra = go.Model.Meshes["Terrain"].Terrain;
+            float terraHigh = go.Position.Y + terra.GetScaleFactor();
+            float terraLow = go.Position.Y;
+            float left = go.Position.X - terra.GetWidth() / 2f;
+            float right = go.Position.X + terra.GetWidth() / 2f;
+
+            float back = go.Position.Z - terra.GetDepth() / 2f;
+            float front = go.Position.Z + terra.GetDepth() / 2f;
+
+            Vector3 hbCaller = caller.GetCenterPointForAllHitboxes();
+            if (hbCaller.X + callerOffset.X >= left && hbCaller.X + callerOffset.X <= right
+                                                    && hbCaller.Z + callerOffset.Z >= back && hbCaller.Z + callerOffset.Z <= front
+                                                    && hbCaller.Y + callerOffset.Y + caller.GetMaxDiameter() / 2 >= terraLow
+                                                    && hbCaller.Y + callerOffset.Y - caller.GetMaxDiameter() / 2 <= (terraHigh * 1.5f))
+            {
+                return true;
+            }
+            return false;
         }
 
         private static bool ConsiderForMeasurement(GameObject go, GameObject caller, ref Vector3 callerOffset)
@@ -2396,6 +2477,15 @@ namespace KWEngine2.GameObjects
         protected static void SoundStopAll()
         {
             GLAudioEngine.SoundStopAll();
+        }
+
+        /// <summary>
+        /// Zusammenfassung dieser Instanz
+        /// </summary>
+        /// <returns>String mit Instanzdetails</returns>
+        public override string ToString()
+        {
+            return Name + " (" + Model.Name + " | " + base.ToString() + ")";
         }
     }
 }

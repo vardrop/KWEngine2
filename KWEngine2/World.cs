@@ -907,6 +907,55 @@ namespace KWEngine2
                 : (y == null ? 1 : y.DistanceToCamera.CompareTo(x.DistanceToCamera)));
         }
 
+        internal void SweepAndPrune()
+        {
+            IOrderedEnumerable<GameObject> axisList = _gameObjects.OrderBy(x => x.LeftRightMost.X);
+            List<GameObject> activeList = new List<GameObject>();
+            int index = 1;
+            bool found = false;
+            for(int i = 0; i < axisList.Count(); i++)
+            {
+                if (!found && axisList.ElementAt(i).IsCollisionObject)
+                {
+                    activeList.Add(axisList.ElementAt(i));
+                    index = i + 1;
+                    found = true;
+                }
+                axisList.ElementAt(i)._collisionCandidates.Clear();
+            }
+            
+            for (int i = index; i < axisList.Count(); i++)
+            {
+                GameObject currentFromAxisList = axisList.ElementAt(i);
+                if (currentFromAxisList.IsCollisionObject == false)
+                {
+                    continue;
+                }
+
+                for (int j = 0; j < activeList.Count; )
+                {
+                    GameObject goActiveList = activeList[j];
+                    if (currentFromAxisList.LeftRightMost.X > goActiveList.LeftRightMost.Y)
+                    {
+                        activeList.RemoveAt(j);
+                    }
+                    else
+                    {
+                        if (currentFromAxisList.IsCollisionObject && goActiveList.IsCollisionObject && !currentFromAxisList.Equals(goActiveList))
+                        {
+                            if(!currentFromAxisList._collisionCandidates.Contains(goActiveList))
+                                currentFromAxisList._collisionCandidates.Add(goActiveList);
+                            if(!goActiveList._collisionCandidates.Contains(currentFromAxisList))
+                                goActiveList._collisionCandidates.Add(currentFromAxisList);
+                            if(!activeList.Contains(currentFromAxisList))
+                                activeList.Add(currentFromAxisList);
+                        }
+                        j++;
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// Spielt einen Ton ab (ogg)
         /// </summary>

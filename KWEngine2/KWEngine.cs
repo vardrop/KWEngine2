@@ -61,6 +61,21 @@ namespace KWEngine2
         internal static int TextureAlpha = -1;
         internal static float TimeElapsed = 0;
 
+        internal static float _broadPhaseToleranceWidth = 1f;
+
+        /// <summary>
+        /// Toleranzbereich für die Kollisionssuche (Standard: 1 Längeneinheit)
+        /// Wenn nach Überschneidungen von Objekten gesucht wird, wird jede Hitbox
+        /// automatisch um die angegebene Länge vergrößert, um die im aktuellen Frame
+        /// passierenden Bewegungen mit zu berücksichtigen.
+        /// </summary>
+        public static float SweepAndPruneToleranceWidth
+        {
+            get { return _broadPhaseToleranceWidth; }
+            set { _broadPhaseToleranceWidth = Math.Max(0f, Math.Abs(value)); }
+        }
+
+
         /// <summary>
         /// Einheit zur Anzeige der Frame-Performance
         /// </summary>

@@ -263,35 +263,45 @@ namespace KWEngine2.GameObjects
 
         internal static void PrepareLightsForRenderPass(List<LightObject> lights, ref float[] colors, ref float[] targets, ref float[] positions, ref int count, ref int shadowLight)
         {
-            count = lights.Count;
+            int countTemp = 0;
             IEnumerator<LightObject> enumerator = lights.GetEnumerator();
             enumerator.Reset();
-            for (int i = 0, arraycounter = 0; i < lights.Count; i++, arraycounter += 4)
+            for (int i = 0, arraycounter = 0; i < lights.Count; i++)
             {
+
                 enumerator.MoveNext();
                 LightObject l = enumerator.Current;
+                bool isInFrustum =
+                    KWEngine.CurrentWindow.Frustum.SphereVsFrustum(l.Position, l.Type == LightType.DirectionalShadow ? l.DistanceMultiplier * 100 : l.DistanceMultiplier * 10);
 
-                if(l.Type == LightType.DirectionalShadow)
+                if (isInFrustum)
                 {
-                    shadowLight = i;
+                    if (l.Type == LightType.DirectionalShadow)
+                    {
+                        shadowLight = i;
+                    }
+
+                    colors[arraycounter + 0] = l.Color.X;
+                    colors[arraycounter + 1] = l.Color.Y;
+                    colors[arraycounter + 2] = l.Color.Z;
+                    colors[arraycounter + 3] = l.Color.W; // Intensity of color
+
+                    targets[arraycounter + 0] = l.Target.X;
+                    targets[arraycounter + 1] = l.Target.Y;
+                    targets[arraycounter + 2] = l.Target.Z;
+                    targets[arraycounter + 3] = l.Type == LightType.Directional || l.Type == LightType.DirectionalShadow ? 1 : -1;
+
+                    positions[arraycounter + 0] = l.Position.X;
+                    positions[arraycounter + 1] = l.Position.Y;
+                    positions[arraycounter + 2] = l.Position.Z;
+                    positions[arraycounter + 3] = l.DistanceMultiplier;
+
+                    countTemp++;
+                    arraycounter += 4;
                 }
-
-                colors[arraycounter + 0] = l.Color.X;
-                colors[arraycounter + 1] = l.Color.Y;
-                colors[arraycounter + 2] = l.Color.Z;
-                colors[arraycounter + 3] = l.Color.W; // Intensity of color
-
-                targets[arraycounter + 0] = l.Target.X;
-                targets[arraycounter + 1] = l.Target.Y;
-                targets[arraycounter + 2] = l.Target.Z;
-                targets[arraycounter + 3] = l.Type == LightType.Directional || l.Type == LightType.DirectionalShadow ? 1 : -1;
-
-                positions[arraycounter + 0] = l.Position.X;
-                positions[arraycounter + 1] = l.Position.Y;
-                positions[arraycounter + 2] = l.Position.Z;
-                positions[arraycounter + 3] = l.DistanceMultiplier;
             }
 
+            count = countTemp;
         }
 
     }
