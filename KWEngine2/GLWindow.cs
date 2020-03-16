@@ -124,7 +124,7 @@ namespace KWEngine2
             }
             if (_multithreaded)
             {
-                TargetUpdateFrequency = TargetUpdateFrequency < 1 ? 60 : TargetUpdateFrequency;
+                TargetUpdateFrequency = TargetUpdateFrequency < 1 ? 59.94 : TargetUpdateFrequency;
                 DeltaTime.movAveragePeriod = 5f; // #frames involved in average calc (suggested values 5-100)
                 DeltaTime.smoothFactor = 0.02f; // adjusting ratio (suggested values 0.01-0.5)
             }
