@@ -12,3 +12,5 @@ Example project can be found [here](https://www.kwengine.de/latest/kwengine2exam
 A wiki with a detailed tutorial on how to use the engine can be found [here](https://github.com/KWEngine/KWEngine2/wiki).
 
 The official Website can be found [here](https://www.kwengine.de).
+
+An OpenGL beginner's tutorial for 2D can be found [here](https://github.com/KWEngine/OpenGL2D/wiki)
