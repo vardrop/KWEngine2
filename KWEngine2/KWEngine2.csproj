@@ -99,6 +99,7 @@
     <Compile Include="Audio\GLAudioSource.cs" />
     <Compile Include="Audio\OggDecoder\OggDecodeStream.cs" />
     <Compile Include="Audio\WaveFormat.cs" />
+    <Compile Include="Collision\CollisionPair.cs" />
     <Compile Include="Collision\Hitbox.cs" />
     <Compile Include="Collision\Intersection.cs" />
     <Compile Include="Helper\DeltaTime.cs" />

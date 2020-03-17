@@ -51,6 +51,10 @@
     <Compile Include="Objects\Arena\Immovable.cs" />
     <Compile Include="Objects\Arena\PlatformUpDown.cs" />
     <Compile Include="Objects\Arena\Player.cs" />
+    <Compile Include="Objects\SpaceInvaders\Box.cs" />
+    <Compile Include="Objects\SpaceInvaders\Player.cs" />
+    <Compile Include="Objects\SpaceInvaders\Shot.cs" />
+    <Compile Include="Worlds\GameWorldSpaceInvaders.cs" />
     <Compile Include="Worlds\GameWorldArena.cs" />
     <Compile Include="Worlds\GameWorldStart.cs" />
     <Compile Include="Objects\Cube.cs" />

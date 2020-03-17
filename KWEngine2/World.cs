@@ -9,6 +9,7 @@ using System.Diagnostics;
 using OpenTK.Graphics.OpenGL4;
 using System.Linq;
 using KWEngine2.Audio;
+using KWEngine2.Collision;
 using static KWEngine2.KWEngine;
 
 namespace KWEngine2
@@ -909,24 +910,18 @@ namespace KWEngine2
 
         internal void SweepAndPrune()
         {
+
+            if (_gameObjects.Count < 2)
+                return;
+            List<CollisionPair> pairs = new List<CollisionPair>();
             IOrderedEnumerable<GameObject> axisList = _gameObjects.OrderBy(x => x.LeftRightMost.X);
             List<GameObject> activeList = new List<GameObject>();
-            int index = 1;
-            bool found = false;
-            for(int i = 0; i < axisList.Count(); i++)
-            {
-                if (!found && axisList.ElementAt(i).IsCollisionObject)
-                {
-                    activeList.Add(axisList.ElementAt(i));
-                    index = i + 1;
-                    found = true;
-                }
-                axisList.ElementAt(i)._collisionCandidates.Clear();
-            }
-            
-            for (int i = index; i < axisList.Count(); i++)
+            activeList.Add(axisList.ElementAt(0));
+            int axisListCount = _gameObjects.Count;
+            for (int i = 0; i < axisListCount; i++)
             {
                 GameObject currentFromAxisList = axisList.ElementAt(i);
+                currentFromAxisList._collisionCandidates.Clear();
                 if (currentFromAxisList.IsCollisionObject == false)
                 {
                     continue;
@@ -941,18 +936,23 @@ namespace KWEngine2
                     }
                     else
                     {
-                        if (currentFromAxisList.IsCollisionObject && goActiveList.IsCollisionObject && !currentFromAxisList.Equals(goActiveList))
+                        if (!currentFromAxisList.Equals(goActiveList))
                         {
-                            if(!currentFromAxisList._collisionCandidates.Contains(goActiveList))
-                                currentFromAxisList._collisionCandidates.Add(goActiveList);
-                            if(!goActiveList._collisionCandidates.Contains(currentFromAxisList))
-                                goActiveList._collisionCandidates.Add(currentFromAxisList);
+                            if ((currentFromAxisList._sceneCenter - goActiveList._sceneCenter).LengthFast <
+                                currentFromAxisList.GetMaxDiameter() / 2 + goActiveList.GetMaxDiameter() / 2)
+                                pairs.Add(new CollisionPair(currentFromAxisList, goActiveList));
                             if(!activeList.Contains(currentFromAxisList))
                                 activeList.Add(currentFromAxisList);
                         }
                         j++;
                     }
                 }
+            }
+
+            foreach (CollisionPair p in pairs)
+            {
+                p.A._collisionCandidates.Add(p.B);
+                p.B._collisionCandidates.Add(p.A);
             }
         }
 
