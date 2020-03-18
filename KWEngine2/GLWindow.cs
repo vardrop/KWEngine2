@@ -509,7 +509,7 @@ namespace KWEngine2
 
                 CurrentWorld.AddRemoveObjects();
                 CurrentWorld.SortByZ();
-                CurrentWorld.SweepAndPrune();
+                //CurrentWorld.SweepAndPrune();
 
                 if (CurrentWorld.IsFirstPersonMode && Focused)
                 {

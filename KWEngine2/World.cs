@@ -938,8 +938,8 @@ namespace KWEngine2
                     {
                         if (!currentFromAxisList.Equals(goActiveList))
                         {
-                            if ((currentFromAxisList._sceneCenter - goActiveList._sceneCenter).LengthFast <
-                                currentFromAxisList.GetMaxDiameter() / 2 + goActiveList.GetMaxDiameter() / 2)
+                            //if ((currentFromAxisList._sceneCenter - goActiveList._sceneCenter).LengthFast <
+                            //    currentFromAxisList.GetMaxDiameter() / 2 + goActiveList.GetMaxDiameter() / 2)
                                 pairs.Add(new CollisionPair(currentFromAxisList, goActiveList));
                             if(!activeList.Contains(currentFromAxisList))
                                 activeList.Add(currentFromAxisList);

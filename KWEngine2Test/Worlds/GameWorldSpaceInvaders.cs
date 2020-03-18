@@ -11,17 +11,35 @@ namespace KWEngine2Test.Worlds
 {
     class GameWorldSpaceInvaders : World
     {
-
+        private long _timestampLast = 0;
         private Player p;
 
         public override void Act(KeyboardState kb, MouseState ms, float deltaTimeFactor)
         {
+            long now = GetCurrentTimeInMilliseconds();
+            long diff = now - _timestampLast;
+            if(diff > 500)
+            {
+                EnemySimple es = new EnemySimple();
+                es.SetModel("Spaceship6");
+                es.SetRotation(90, 0, 0);
+                es.SetPosition(HelperRandom.GetRandomNumber(-16.5f, 16.5f), 10.5f, 0);
+                es.IsCollisionObject = true;
+                AddGameObject(es);
+
+                _timestampLast = now;
+            }
+
 
         }
      
         public override void Prepare()
         {
+            SunAmbientFactor = 0.9f;
             KWEngine.LoadModelFromFile("Spaceship4", @".\Models\Spaceship\spaceship4.obj");
+            KWEngine.LoadModelFromFile("Spaceship5", @".\Models\Spaceship\spaceship5.obj");
+            KWEngine.LoadModelFromFile("Spaceship2", @".\Models\Spaceship\spaceship2.obj");
+            KWEngine.LoadModelFromFile("Spaceship6", @".\Models\Spaceship\spaceship6.obj");
 
             p = new Player();
             p.SetModel("Spaceship4");
@@ -78,7 +96,8 @@ namespace KWEngine2Test.Worlds
             */
 
             FOV = 90;
-            KWEngine.SweepAndPruneToleranceWidth = 0;
+            SetTextureBackground(@".\textures\spacebackground.jpg", 2, 2);
+            //KWEngine.SweepAndPruneToleranceWidth = 0;
             KWEngine.DebugShowPerformanceInTitle = KWEngine.PerformanceUnit.FramesPerSecond;
         }
 

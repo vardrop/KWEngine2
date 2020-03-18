@@ -52,6 +52,8 @@
     <Compile Include="Objects\Arena\PlatformUpDown.cs" />
     <Compile Include="Objects\Arena\Player.cs" />
     <Compile Include="Objects\SpaceInvaders\Box.cs" />
+    <Compile Include="Objects\SpaceInvaders\Enemy.cs" />
+    <Compile Include="Objects\SpaceInvaders\EnemySimple.cs" />
     <Compile Include="Objects\SpaceInvaders\Player.cs" />
     <Compile Include="Objects\SpaceInvaders\Shot.cs" />
     <Compile Include="Worlds\GameWorldSpaceInvaders.cs" />
@@ -274,10 +276,25 @@
     <None Include="Models\SpacePedestal\pedestal.obj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Models\Spaceship\spaceship2.obj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Models\Spaceship\spaceship4.mtl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Models\Spaceship\spaceship4.obj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Models\Spaceship\spaceship5.mtl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Models\Spaceship\spaceship5.obj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Models\Spaceship\spaceship6.mtl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Models\Spaceship\spaceship6.obj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Models\UBot\uBot.fbx">
@@ -380,7 +397,28 @@
     <Content Include="Models\SpacePedestal\pedestal_specular.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Models\Spaceship\spaceship2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\Spaceship\spaceship2Red.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\Spaceship\spaceship2White.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\Spaceship\spaceship2_normal.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Models\Spaceship\spaceship4.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\Spaceship\spaceship5.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\Spaceship\spaceship6.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\Spaceship\spaceship6_normal.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Models\UBot\ubot_diffuse.jpg">
@@ -429,6 +467,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Textures\skybox1.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\spacebackground.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

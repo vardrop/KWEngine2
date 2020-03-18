@@ -13,20 +13,20 @@ namespace KWEngine2Test.Objects.SpaceInvaders
     {
         private float _movementSpeed = 0.1f;
         private long _timestampLastShot = 0;
-        private long _cooldown = 1;
+        private long _cooldown = 100;
 
         public override void Act(KeyboardState ks, MouseState ms, float deltaTimeFactor)
         {
             Vector3 mousePoint = GetMouseIntersectionPoint(ms, Plane.Z);
             TurnTowardsXY(mousePoint);
 
-            if(ks[Key.A])
+            if(ks[Key.A] && Position.X > -17)
                 MoveOffset(-_movementSpeed, 0, 0);
-            if (ks[Key.D])
+            if (ks[Key.D] && Position.X < 17)
                 MoveOffset(+_movementSpeed, 0, 0);
-            if (ks[Key.W])
+            if (ks[Key.W] && Position.Y < 10)
                 MoveOffset(0, +_movementSpeed, 0);
-            if (ks[Key.S])
+            if (ks[Key.S] && Position.Y > -10)
                 MoveOffset(0, -_movementSpeed, 0);
 
             if (ms.LeftButton == ButtonState.Pressed)
@@ -37,7 +37,7 @@ namespace KWEngine2Test.Objects.SpaceInvaders
                 {
                     Vector3 lav = GetLookAtVector();
 
-                    Shot s = new Shot();
+                    Shot s = new Shot(this);
                     s.SetModel("KWCube");
                     s.SetRotation(this.Rotation);
                     s.SetPosition(this.Position + lav);
