@@ -9,7 +9,7 @@ namespace KWEngine2Test
         public GameWindow()
             : base(1280, 720, OpenTK.GameWindowFlags.Default, 4, true, false)
         {
-            SetWorld(new GameWorldSpaceInvaders());
+            SetWorld(new GameWorldStart());
         }
     }
 }
