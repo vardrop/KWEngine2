@@ -910,18 +910,19 @@ namespace KWEngine2
 
         internal void SweepAndPrune()
         {
-
             if (_gameObjects.Count < 2)
                 return;
             List<CollisionPair> pairs = new List<CollisionPair>();
             IOrderedEnumerable<GameObject> axisList = _gameObjects.OrderBy(x => x.LeftRightMost.X);
             List<GameObject> activeList = new List<GameObject>();
             activeList.Add(axisList.ElementAt(0));
+            axisList.ElementAt(0)._collisionCandidates.Clear();
             int axisListCount = _gameObjects.Count;
-            for (int i = 0; i < axisListCount; i++)
+            for (int i = 1; i < axisListCount; i++)
             {
                 GameObject currentFromAxisList = axisList.ElementAt(i);
                 currentFromAxisList._collisionCandidates.Clear();
+                //Console.WriteLine("axis item: " + currentFromAxisList.Name);
                 if (currentFromAxisList.IsCollisionObject == false)
                 {
                     continue;
@@ -930,30 +931,62 @@ namespace KWEngine2
                 for (int j = 0; j < activeList.Count; )
                 {
                     GameObject goActiveList = activeList[j];
+                    //Console.WriteLine("\tactive item: " + goActiveList.Name);
                     if (currentFromAxisList.LeftRightMost.X > goActiveList.LeftRightMost.Y)
                     {
+                        //Console.WriteLine("\t\t(removing " + activeList.ElementAt(j).Name + ")");
                         activeList.RemoveAt(j);
+                        if (activeList.Count == 0)
+                            activeList.Add(currentFromAxisList);
                     }
                     else
                     {
                         if (!currentFromAxisList.Equals(goActiveList))
                         {
-                            //if ((currentFromAxisList._sceneCenter - goActiveList._sceneCenter).LengthFast <
-                            //    currentFromAxisList.GetMaxDiameter() / 2 + goActiveList.GetMaxDiameter() / 2)
+                            if (IsCollisionOnZAxis(currentFromAxisList, goActiveList))
+                            {
+                                //Console.WriteLine("\t\tadding collision between " + currentFromAxisList.Name  + " and " + goActiveList.Name);
                                 pairs.Add(new CollisionPair(currentFromAxisList, goActiveList));
-                            if(!activeList.Contains(currentFromAxisList))
-                                activeList.Add(currentFromAxisList);
+                            }
+                            activeList.Add(currentFromAxisList);
+                            //break;
                         }
                         j++;
                     }
                 }
             }
-
+            
+            int debugI = 1;
             foreach (CollisionPair p in pairs)
             {
+                //Console.WriteLine(debugI + ": " + p.A + " with " + p.B);
                 p.A._collisionCandidates.Add(p.B);
                 p.B._collisionCandidates.Add(p.A);
+                debugI++;
             }
+            
+            //if(pairs.Count > 0)
+            //    Console.WriteLine("------------------------------------");
+        }
+
+        private bool IsCollisionOnZAxis(GameObject A, GameObject B)
+        {
+            // x = maxZ, y = minZ
+            if (B.FrontBackMost.X >= A.FrontBackMost.Y &&
+                B.FrontBackMost.X <= A.FrontBackMost.X
+                ||
+                A.FrontBackMost.X >= B.FrontBackMost.Y &&
+                A.FrontBackMost.X <= B.FrontBackMost.X
+                ||
+                A.FrontBackMost.X >= B.FrontBackMost.X &&
+                A.FrontBackMost.Y <= B.FrontBackMost.Y
+                ||
+                B.FrontBackMost.X >= A.FrontBackMost.X &&
+                B.FrontBackMost.Y <= A.FrontBackMost.Y
+                )
+                return true;
+            
+            return false;
         }
 
         /// <summary>

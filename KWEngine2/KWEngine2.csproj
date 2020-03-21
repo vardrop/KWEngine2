@@ -218,7 +218,9 @@
   <ItemGroup />
   <ItemGroup>
     <Content Include="Assets\readme.txt" />
-    <Content Include="OpenAL32.dll" />
+    <Content Include="OpenAL32.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <EmbeddedResource Include="Assets\Textures\fire01.png" />
     <EmbeddedResource Include="Assets\Textures\fire02.png" />
     <EmbeddedResource Include="Assets\Textures\fire03.png" />

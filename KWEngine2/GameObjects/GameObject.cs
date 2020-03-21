@@ -66,6 +66,7 @@ namespace KWEngine2.GameObjects
         private Vector3 _lookAtVector = new Vector3(0, 0, 1);
 
         internal Vector2 LeftRightMost { get; set; } = new Vector2(0,0);
+        internal Vector2 FrontBackMost { get; set; } = new Vector2(0, 0);
 
         internal enum Override { SpecularEnable, SpecularPower, SpecularArea, TextureDiffuse, TextureNormal, TextureSpecular, TextureTransform, TextureMetallic, TextureRoughness }
 
@@ -96,6 +97,7 @@ namespace KWEngine2.GameObjects
         private float _opacity = 1;
 
         internal List<GameObject> _collisionCandidates = new List<GameObject>();
+        internal bool _collisionResetForFrame = false;
 
         /// <summary>
         /// Sichtbarkeit (0 = Unsichtbar, 1 = Sichtbar)
@@ -462,6 +464,7 @@ namespace KWEngine2.GameObjects
             _sceneCenter.Y = sceneCenter.Y / Hitboxes.Count;
             _sceneCenter.Z = sceneCenter.Z / Hitboxes.Count;
             LeftRightMost = new Vector2(minX - KWEngine.SweepAndPruneToleranceWidth, maxX + KWEngine.SweepAndPruneToleranceWidth);
+            FrontBackMost = new Vector2(maxZ + KWEngine.SweepAndPruneToleranceWidth, minZ - KWEngine.SweepAndPruneToleranceWidth);
             _sceneDimensions = new Vector3(maxX - minX, maxY - minY, maxZ - minZ);
             Vector3 downLeftFront = new Vector3(GetCenterPointForAllHitboxes().X - GetMaxDimensions().X / 2, GetCenterPointForAllHitboxes().Y - GetMaxDimensions().Y / 2, GetCenterPointForAllHitboxes().Z + GetMaxDimensions().Z / 2);
             Vector3 upRightBack = new Vector3(GetCenterPointForAllHitboxes().X + GetMaxDimensions().X / 2, GetCenterPointForAllHitboxes().Y + GetMaxDimensions().Y / 2, GetCenterPointForAllHitboxes().Z - GetMaxDimensions().Z / 2);
@@ -1082,18 +1085,21 @@ namespace KWEngine2.GameObjects
 
         internal void ProcessCurrentAnimation()
         {
-            if (AnimationID >= 0 && AnimationID < Model.Animations.Count)
-            {
-                GeoAnimation a = Model.Animations[AnimationID];
-                
-                //Console.WriteLine(AnimationPercentage);
-                float timestamp = a.DurationInTicks * AnimationPercentage;
-                foreach (GeoMesh mesh in Model.Meshes.Values)
+            //lock (this)
+            //{
+                if (AnimationID >= 0 && AnimationID < Model.Animations.Count)
                 {
-                    Matrix4 identity = Matrix4.Identity;
-                    ReadNodeHierarchy(timestamp, ref a, AnimationID, Model.Root, mesh, ref identity);
+                    GeoAnimation a = Model.Animations[AnimationID];
+
+                    //Console.WriteLine(AnimationPercentage);
+                    float timestamp = a.DurationInTicks * AnimationPercentage;
+                    foreach (GeoMesh mesh in Model.Meshes.Values)
+                    {
+                        Matrix4 identity = Matrix4.Identity;
+                        ReadNodeHierarchy(timestamp, ref a, AnimationID, Model.Root, mesh, ref identity);
+                    }
                 }
-            }
+            //}
         }
 
         private void ReadNodeHierarchy(float timestamp, ref GeoAnimation animation, int animationId, GeoNode node, GeoMesh mesh, ref Matrix4 parentTransform, int debugLevel = 0)

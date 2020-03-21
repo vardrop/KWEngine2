@@ -288,6 +288,7 @@ namespace KWEngine2
 
                     foreach (GameObject g in CurrentWorld._gameObjects)
                     {
+                        g.ProcessCurrentAnimation();
                         KWEngine.Renderers["Shadow"].Draw(g, ref viewProjectionShadow, FrustumShadowMap, true);
                     }
                 }
@@ -483,11 +484,14 @@ namespace KWEngine2
                     foreach (GameObject g in CurrentWorld.GetGameObjects())
                     {
                         g.Act(ks, ms, DeltaTime.GetDeltaTimeFactor());
-                        g.ProcessCurrentAnimation();
+                        
 
                         g.CheckBounds();
                     }
                 }
+
+                //CurrentWorld.SweepAndPrune();
+
                 lock (CurrentWorld._particleObjects)
                 {
                     foreach (ParticleObject p in CurrentWorld.GetParticleObjects())
@@ -503,13 +507,11 @@ namespace KWEngine2
                     }
                 }
 
-
-
                 CurrentWorld.Act(ks, ms, DeltaTime.GetDeltaTimeFactor());
 
                 CurrentWorld.AddRemoveObjects();
                 CurrentWorld.SortByZ();
-                //CurrentWorld.SweepAndPrune();
+                
 
                 if (CurrentWorld.IsFirstPersonMode && Focused)
                 {

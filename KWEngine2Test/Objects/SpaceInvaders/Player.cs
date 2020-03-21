@@ -39,6 +39,7 @@ namespace KWEngine2Test.Objects.SpaceInvaders
 
                     Shot s = new Shot(this);
                     s.SetModel("KWCube");
+                    s.Name = "PlayerShot";
                     s.SetRotation(this.Rotation);
                     s.SetPosition(this.Position + lav);
                     s.SetScale(0.075f, 0.075f, 0.5f);
