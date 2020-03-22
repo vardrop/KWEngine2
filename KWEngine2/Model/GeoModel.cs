@@ -93,21 +93,25 @@ namespace KWEngine2.Model
         internal void Dispose()
         {
             IsValid = false;
-
-            lock (Textures)
+            if (Textures != null)
             {
-                foreach(GeoTexture t in Textures.Values)
+                lock (Textures)
                 {
-                    GL.DeleteTexture(t.OpenGLID);
+                    foreach (GeoTexture t in Textures.Values)
+                    {
+                        GL.DeleteTexture(t.OpenGLID);
+                    }
+                    Textures.Clear();
                 }
-                Textures.Clear();
             }
-
-            lock (Meshes)
+            if (Meshes != null)
             {
-                foreach(GeoMesh m in Meshes.Values)
+                lock (Meshes)
                 {
-                    m.Dispose();
+                    foreach (GeoMesh m in Meshes.Values)
+                    {
+                        m.Dispose();
+                    }
                 }
             }
         }

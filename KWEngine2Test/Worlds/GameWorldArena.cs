@@ -16,7 +16,11 @@ namespace KWEngine2Test.Worlds
 
         public override void Act(KeyboardState kb, MouseState ms, float deltaTimeFactor)
         {
-           
+            if (kb[Key.Escape])
+            {
+                CurrentWindow.SetWorld(new GameWorldStart());
+                return;
+            }
         }
 
         public override void Prepare()

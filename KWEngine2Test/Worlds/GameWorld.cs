@@ -22,6 +22,12 @@ namespace KWEngine2Test.Worlds
 
         public override void Act(KeyboardState kb, MouseState ms, float deltaTimeFactor)
         {
+            if(kb[Key.Escape])
+            {
+                CurrentWindow.SetWorld(new GameWorldStart());
+                return;
+            }
+
             long now = GetCurrentTimeInMilliseconds();
             if(now - _timeStamp > 3000)
             {

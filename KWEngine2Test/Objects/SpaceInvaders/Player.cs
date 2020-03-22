@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using KWEngine2.Collision;
 using KWEngine2.GameObjects;
 using OpenTK;
 using OpenTK.Input;
@@ -29,7 +30,7 @@ namespace KWEngine2Test.Objects.SpaceInvaders
             if (ks[Key.S] && Position.Y > -10)
                 MoveOffset(0, -_movementSpeed, 0);
 
-            if (ms.LeftButton == ButtonState.Pressed)
+            if (ms.LeftButton == ButtonState.Pressed || ks[Key.Space])
             {
                 long timestampNow = GetCurrentTimeInMilliseconds();
 
@@ -49,8 +50,14 @@ namespace KWEngine2Test.Objects.SpaceInvaders
 
                     _timestampLastShot = timestampNow;
                 }
+            }
 
-                
+            Intersection i = GetIntersection(0, 0, 0, typeof(Enemy));
+            if(i != null)
+            {
+                CurrentWorld.RemoveGameObject(this);
+                Explosion ex = new Explosion(Position, 512, 5, ExplosionType.SkullRingZ);
+                CurrentWorld.AddGameObject(ex);
             }
         }
     }

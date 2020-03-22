@@ -17,20 +17,24 @@ namespace KWEngine2Test.Worlds
 
         public override void Act(KeyboardState kb, MouseState ms, float deltaTimeFactor)
         {
-            
+            if (kb[Key.Escape])
+            {
+                CurrentWindow.SetWorld(new GameWorldStart());
+                return;
+            }
+
             long now = GetCurrentTimeInMilliseconds();
             long diff = now - _timestampLast;
             
             if (!_test)
             {
-                if(diff > 250)
-                //if (GetGameObjectsByType<EnemySimple>().Count < 1)
+                if(diff > 500)
                 {
                     EnemySimple es = new EnemySimple();
                     es.SetModel("Spaceship6");
                     es.Name = "Enemy";
                     es.SetRotation(90, 0, 0);
-                    es.SetPosition(HelperRandom.GetRandomNumber(-16.5f, 16.5f), 10.5f, 0);
+                    es.SetPosition(HelperRandom.GetRandomNumber(-17f, 17f), 10.5f, 0);
                     es.IsCollisionObject = true;
                     AddGameObject(es);
 
@@ -59,9 +63,6 @@ namespace KWEngine2Test.Worlds
             }
             else
             {
-
-
-
                 Box b1 = new Box();
                 b1.SetModel("KWCube");
                 b1.IsCollisionObject = true;

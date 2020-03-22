@@ -1293,6 +1293,63 @@ namespace KWEngine2.GameObjects
         /// <summary>
         /// Ermittelt ein Objekt, das mit dem aufrufenden Objekt kollidiert
         /// </summary>
+        /// <param name="offsetX">Versatz in X-Richtung</param>
+        /// <param name="offsetY">Versatz in Y-Richtung</param>
+        /// <param name="offsetZ">Versatz in Z-Richtung</param>
+        /// <param name="types">Liste der Klassennamen, auf die geprüft werden soll</param>
+        protected Intersection GetIntersection(float offsetX, float offsetY, float offsetZ, params Type[] types)
+        {
+            CheckModelAndWorld();
+            if (!IsCollisionObject)
+            {
+                throw new Exception("Error: You are calling GetIntersectingObjects() on an instance that is marked as a non-colliding object.");
+            }
+            Vector3 offset = new Vector3(offsetX, offsetY, offsetZ);
+
+            foreach (GameObject go in CurrentWorld.GetGameObjects())
+            {
+                if (!go.IsCollisionObject || go.Equals(this))
+                {
+                    continue;
+                }
+                bool found = false;
+                foreach (Type t in types)
+                    if (go.GetType().Equals(t) || go.GetType().IsSubclassOf(t))
+                        found = true;
+                if(!found)
+                    continue;
+
+                bool considerForMeasurement = ConsiderForMeasurement(go, this, ref offset);
+                if (considerForMeasurement)
+                {
+                    foreach (Hitbox hbother in go.Hitboxes)
+                    {
+                        foreach (Hitbox hbcaller in this.Hitboxes)
+                        {
+                            Intersection i;
+                            if (hbother.Owner.Model.IsTerrain)
+                            {
+                                i = Hitbox.TestIntersectionTerrain(hbcaller, hbother, offset);
+                            }
+                            else
+                            {
+                                i = Hitbox.TestIntersection(hbcaller, hbother, offset);
+                            }
+
+                            if (i != null)
+                            {
+                                return i;
+                            }
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Ermittelt ein Objekt, das mit dem aufrufenden Objekt kollidiert
+        /// </summary>
         /// <param name="offsetX">Versatz in X-Richtung (optional)</param>
         /// <param name="offsetY">Versatz in Y-Richtung (optional)</param>
         /// <param name="offsetZ">Versatz in Z-Richtung (optional)</param>
@@ -1336,34 +1393,66 @@ namespace KWEngine2.GameObjects
                     }
                 }
             }
-            
-            /*
-            foreach(GameObject go in _collisionCandidates)
-            { 
-                foreach (Hitbox hbother in go.Hitboxes)
-                {
-                    foreach (Hitbox hbcaller in this.Hitboxes)
-                    {
-                        Intersection i;
-                        if (hbother.Owner.Model.IsTerrain && ConsiderForMeasurementTerrain(go, this, ref offset))
-                        {
-                            i = Hitbox.TestIntersectionTerrain(hbcaller, hbother, offset);
-                        }
-                        else
-                        {
-                            i = Hitbox.TestIntersection(hbcaller, hbother, offset);
-                        }
+            return null;
+        }
 
-                        if (i != null)
+        /// <summary>
+        /// Erfragt eine Liste aller Objekte, die mit dem aufrufenden Objekt kollidieren
+        /// </summary>
+        /// <param name="offsetX">Versatz in X-Richtung</param>
+        /// <param name="offsetY">Versatz in Y-Richtung</param>
+        /// <param name="offsetZ">Versatz in Z-Richtung</param>
+        /// <param name="types">Liste der Klassennamen, auf die geprüft werden soll</param>
+        /// <returns></returns>
+        protected List<Intersection> GetIntersections(float offsetX, float offsetY, float offsetZ, params Type[] types)
+        {
+            CheckModelAndWorld();
+            List<Intersection> intersections = new List<Intersection>();
+            if (!IsCollisionObject)
+            {
+                throw new Exception("Error: You are calling GetIntersectingObjects() on an instance that is marked as a non-colliding object.");
+            }
+            Vector3 offset = new Vector3(offsetX, offsetY, offsetZ);
+
+            //Objekte außerhalb der Reichweite ausfiltern:
+            foreach (GameObject go in CurrentWorld.GetGameObjects())
+            {
+                if (!go.IsCollisionObject || go.Equals(this))
+                {
+                    continue;
+                }
+
+                bool found = false;
+                foreach (Type t in types)
+                    if (go.GetType().Equals(t) || go.GetType().IsSubclassOf(t))
+                        found = true;
+                if (!found)
+                    continue;
+
+                bool considerForMeasurement = ConsiderForMeasurement(go, this, ref offset);
+                if (considerForMeasurement)
+                {
+                    foreach (Hitbox hbother in go.Hitboxes)
+                    {
+                        foreach (Hitbox hbcaller in this.Hitboxes)
                         {
-                            return i;
+                            Intersection i;
+                            if (hbother.Owner.Model.IsTerrain)
+                            {
+                                i = Hitbox.TestIntersectionTerrain(hbcaller, hbother, offset);
+                            }
+                            else
+                            {
+                                i = Hitbox.TestIntersection(hbcaller, hbother, offset);
+                            }
+
+                            if (i != null)
+                                intersections.Add(i);
                         }
                     }
                 }
             }
-            */
-
-            return null;
+            return intersections;
         }
 
         /// <summary>
@@ -1414,31 +1503,6 @@ namespace KWEngine2.GameObjects
                     }
                 }
             }
-            
-            /*
-            foreach(GameObject go in _collisionCandidates)
-            {
-                foreach (Hitbox hbother in go.Hitboxes)
-                {
-                    foreach (Hitbox hbcaller in this.Hitboxes)
-                    {
-                        Intersection i;
-                        if (hbother.Owner.Model.IsTerrain && ConsiderForMeasurementTerrain(go, this, ref offset))
-                        {
-
-                            i = Hitbox.TestIntersectionTerrain(hbcaller, hbother, offset);
-                        }
-                        else
-                        {
-                            i = Hitbox.TestIntersection(hbcaller, hbother, offset);
-                        }
-
-                        if (i != null)
-                            intersections.Add(i);
-                    }
-                }
-            }
-            */
             return intersections;
         }
 

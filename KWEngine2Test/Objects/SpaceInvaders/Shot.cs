@@ -29,10 +29,13 @@ namespace KWEngine2Test.Objects.SpaceInvaders
 
             Move(_movementSpeed);
 
-          
-                Intersection intersection = GetIntersection();
+            Intersection intersection;
+            if(_parent is Player)
+                intersection = GetIntersection(0, 0, 0, typeof(Enemy));
+            else
+                intersection = GetIntersection(0, 0, 0, typeof(Player));
 
-                if (intersection != null && !intersection.Object.Equals(_parent))
+            if (intersection != null && !intersection.Object.Equals(_parent))
                 {
                     if (_parent is Player)
                     {
