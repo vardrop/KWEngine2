@@ -60,8 +60,8 @@ namespace KWEngine2.Model
             Vertices[6] = new Vector3(maxX, maxY, minZ); // backrightup
             Vertices[7] = new Vector3(minX, maxY, minZ); // backleftup
 
-            Normals[0] = new Vector3(1, 0, 0);
-            Normals[1] = new Vector3(0, 1, 0);
+            Normals[0] = new Vector3(0, 1, 0);
+            Normals[1] = new Vector3(1, 0, 0);
             Normals[2] = new Vector3(0, 0, 1);
         }
     }

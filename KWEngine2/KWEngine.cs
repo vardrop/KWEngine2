@@ -69,7 +69,7 @@ namespace KWEngine2
         /// automatisch um die angegebene Länge vergrößert, um die im aktuellen Frame
         /// passierenden Bewegungen mit zu berücksichtigen.
         /// </summary>
-        internal static float SweepAndPruneToleranceWidth
+        public static float SweepAndPruneToleranceWidth
         {
             get { return _broadPhaseToleranceWidth; }
             set { _broadPhaseToleranceWidth = Math.Max(0f, Math.Abs(value)); }

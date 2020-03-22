@@ -12,6 +12,7 @@ namespace KWEngine2Test.Objects.SpaceInvaders
     class EnemySimple : Enemy
     {
         private long _timestampLastShot;
+        private bool _test = true;
 
         public EnemySimple()
         {
@@ -26,9 +27,8 @@ namespace KWEngine2Test.Objects.SpaceInvaders
 
             float z = (float)Math.Sin(_spawnTime + now / 75.0);
             //float y = -0.001f * (now * now * now) + 0.1f * (now * now);
-            MoveOffset(z * deltaTimeFactor * _movementSpeed, -_movementSpeed * deltaTimeFactor, 0);
-
-            if(now - _timestampLastShot > 200)
+            MoveOffset(z * deltaTimeFactor * _movementSpeed, -_movementSpeed * deltaTimeFactor * (_test ? 0.1f : 1f), 0);
+            if (!_test && now - _timestampLastShot > 200)
             {
                 Vector3 lav = GetLookAtVector();
 
@@ -55,7 +55,7 @@ namespace KWEngine2Test.Objects.SpaceInvaders
 
                 _timestampLastShot = now + HelperRandom.GetRandomNumber(0, 500);
             }
-
+            
             if (!IsInsideScreenSpace)
                 CurrentWorld.RemoveGameObject(this);
 

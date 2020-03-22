@@ -1304,7 +1304,7 @@ namespace KWEngine2.GameObjects
                 throw new Exception("Error: You are calling GetIntersectingObjects() on an instance that is marked as a non-colliding object.");
             }
             Vector3 offset = new Vector3(offsetX, offsetY, offsetZ);
-            
+            /*
             foreach (GameObject go in CurrentWorld.GetGameObjects())
             {
                 if (!go.IsCollisionObject || go.Equals(this))
@@ -1336,8 +1336,8 @@ namespace KWEngine2.GameObjects
                     }
                 }
             }
+            */
             
-            /*
             foreach(GameObject go in _collisionCandidates)
             { 
                 foreach (Hitbox hbother in go.Hitboxes)
@@ -1361,7 +1361,7 @@ namespace KWEngine2.GameObjects
                     }
                 }
             }
-            */
+            
 
             return null;
         }
@@ -1382,7 +1382,7 @@ namespace KWEngine2.GameObjects
                 throw new Exception("Error: You are calling GetIntersectingObjects() on an instance that is marked as a non-colliding object.");
             }
             Vector3 offset = new Vector3(offsetX, offsetY, offsetZ);
-            
+            /*
             //Objekte außerhalb der Reichweite ausfiltern:
             foreach (GameObject go in CurrentWorld.GetGameObjects())
             {
@@ -1414,8 +1414,8 @@ namespace KWEngine2.GameObjects
                     }
                 }
             }
+            */
             
-            /*
             foreach(GameObject go in _collisionCandidates)
             {
                 foreach (Hitbox hbother in go.Hitboxes)
@@ -1438,7 +1438,7 @@ namespace KWEngine2.GameObjects
                     }
                 }
             }
-            */
+            
             return intersections;
         }
 
@@ -2493,5 +2493,6 @@ namespace KWEngine2.GameObjects
         {
             return Name + " (" + Model.Name + " | " + base.ToString() + ")";
         }
+
     }
 }

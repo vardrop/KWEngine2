@@ -563,9 +563,9 @@ namespace KWEngine2
                 {
                     if (!_gameObjects.Contains(g))
                     {
-                        _gameObjects.Add(g);
-                        g.CurrentWorld = this;
                         g.UpdateModelMatrixAndHitboxes();
+                        g.CurrentWorld = this;
+                        _gameObjects.Add(g);
                     }
                 }
                 _gameObjectsTBA.Clear();
@@ -908,13 +908,17 @@ namespace KWEngine2
                 : (y == null ? 1 : y.DistanceToCamera.CompareTo(x.DistanceToCamera)));
         }
 
+        internal List<GameObject> activeList = new List<GameObject>();
+        List<CollisionPair> pairs = new List<CollisionPair>();
         internal void SweepAndPrune()
         {
+            bool test = false;
+
             if (_gameObjects.Count < 2)
                 return;
-            List<CollisionPair> pairs = new List<CollisionPair>();
+            pairs.Clear();
             IOrderedEnumerable<GameObject> axisList = _gameObjects.OrderBy(x => x.LeftRightMost.X);
-            List<GameObject> activeList = new List<GameObject>();
+            activeList.Clear();
             activeList.Add(axisList.ElementAt(0));
             axisList.ElementAt(0)._collisionCandidates.Clear();
             int axisListCount = _gameObjects.Count;
@@ -922,22 +926,23 @@ namespace KWEngine2
             {
                 GameObject currentFromAxisList = axisList.ElementAt(i);
                 currentFromAxisList._collisionCandidates.Clear();
-                //Console.WriteLine("axis item: " + currentFromAxisList.Name);
+                if(test) Console.WriteLine("axis item: " + currentFromAxisList.Name);
                 if (currentFromAxisList.IsCollisionObject == false)
                 {
                     continue;
                 }
-
+                //activeList.Add(currentFromAxisList);
+                //bool addAxisObject = false;
                 for (int j = 0; j < activeList.Count; )
                 {
                     GameObject goActiveList = activeList[j];
-                    //Console.WriteLine("\tactive item: " + goActiveList.Name);
+                    if (test) Console.WriteLine("\tactive item: " + goActiveList.Name);
                     if (currentFromAxisList.LeftRightMost.X > goActiveList.LeftRightMost.Y)
                     {
-                        //Console.WriteLine("\t\t(removing " + activeList.ElementAt(j).Name + ")");
+                        if (test) Console.WriteLine("\t\t(removing " + activeList.ElementAt(j).Name + ")");
                         activeList.RemoveAt(j);
-                        if (activeList.Count == 0)
-                            activeList.Add(currentFromAxisList);
+                        
+                            
                     }
                     else
                     {
@@ -945,15 +950,22 @@ namespace KWEngine2
                         {
                             if (IsCollisionOnZAxis(currentFromAxisList, goActiveList))
                             {
-                                //Console.WriteLine("\t\tadding collision between " + currentFromAxisList.Name  + " and " + goActiveList.Name);
+                                if (test) Console.WriteLine("\t\tadding collision between " + currentFromAxisList.Name  + " and " + goActiveList.Name);
                                 pairs.Add(new CollisionPair(currentFromAxisList, goActiveList));
+                                if (test) 
+                                    if (pairs.Count > 100)
+                                        Console.WriteLine("!");
                             }
-                            activeList.Add(currentFromAxisList);
+                            if (test) Console.WriteLine("\t\tadding " + currentFromAxisList.Name + " to activeList.");
+                            if(!activeList.Contains(currentFromAxisList))
+                                activeList.Add(currentFromAxisList);
                             //break;
                         }
                         j++;
                     }
                 }
+                if (activeList.Count == 0)
+                    activeList.Add(currentFromAxisList);
             }
             
             int debugI = 1;
@@ -964,7 +976,8 @@ namespace KWEngine2
                 p.B._collisionCandidates.Add(p.A);
                 debugI++;
             }
-            
+            Console.WriteLine("Active list count: " + activeList.Count);
+            Console.WriteLine("Active pair count: " + pairs.Count);
             //if(pairs.Count > 0)
             //    Console.WriteLine("------------------------------------");
         }

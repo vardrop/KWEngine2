@@ -490,7 +490,7 @@ namespace KWEngine2
                     }
                 }
 
-                //CurrentWorld.SweepAndPrune();
+                CurrentWorld.SweepAndPrune();
 
                 lock (CurrentWorld._particleObjects)
                 {
