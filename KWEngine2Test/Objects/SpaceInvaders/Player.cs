@@ -12,7 +12,7 @@ namespace KWEngine2Test.Objects.SpaceInvaders
 {
     class Player : GameObject
     {
-        private float _movementSpeed = 0.1f;
+        private float _movementSpeed = 0.125f;
         private long _timestampLastShot = 0;
         private long _cooldown = 100;
 

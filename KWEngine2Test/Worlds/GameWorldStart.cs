@@ -18,7 +18,7 @@ namespace KWEngine2Test.Worlds
 
             if (_button.IsMouseCursorOnMe(ms))
             {
-                _button.SetGlow(1, 0, 0, 1);
+                _button.SetGlow(0.25f, 0.5f, 1f, 0.4f);
 
                 if (ms.LeftButton == ButtonState.Pressed)
                 {
@@ -34,7 +34,7 @@ namespace KWEngine2Test.Worlds
 
             if (_button2.IsMouseCursorOnMe(ms))
             {
-                _button2.SetGlow(1, 0, 0, 1);
+                _button2.SetGlow(0, 0, 1, 0.7f);
 
                 if (ms.LeftButton == ButtonState.Pressed)
                 {
@@ -49,7 +49,7 @@ namespace KWEngine2Test.Worlds
 
             if (_button3.IsMouseCursorOnMe(ms))
             {
-                _button3.SetGlow(1, 0, 0, 1);
+                _button3.SetGlow(0.5f, 1, 0.5f, 0.3f);
 
                 if (ms.LeftButton == ButtonState.Pressed)
                 {

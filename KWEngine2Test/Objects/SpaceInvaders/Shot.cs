@@ -11,7 +11,7 @@ namespace KWEngine2Test.Objects.SpaceInvaders
 {
     class Shot : GameObject
     {
-        private float _movementSpeed = 0.2f;
+        private float _movementSpeed = 0.3f;
         private GameObject _parent = null;
 
         public Shot(GameObject parent)

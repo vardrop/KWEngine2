@@ -52,11 +52,14 @@ namespace KWEngine2Test.Worlds
             KWEngine.LoadModelFromFile("Spaceship2", @".\Models\Spaceship\spaceship2.obj");
             KWEngine.LoadModelFromFile("Spaceship6", @".\Models\Spaceship\spaceship6.obj");
 
+            SoundPlay(@".\audio\dom.ogg", true, 0.4f);
+
             if (!_test)
             {
                 _p = new Player();
                 _p.SetModel("Spaceship4");
                 _p.Name = "Player";
+                _p.SetPositionY(-9);
                 _p.SetRotation(90, 0, 180);
                 _p.IsCollisionObject = true;
                 AddGameObject(_p);
