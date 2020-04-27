@@ -316,6 +316,18 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Audio\dom10.ogg" />
+    <Content Include="Audio\dom11.ogg" />
+    <Content Include="Audio\dom12.ogg" />
+    <Content Include="Audio\dom13.ogg" />
+    <Content Include="Audio\dom14.ogg" />
+    <Content Include="Audio\dom3.ogg" />
+    <Content Include="Audio\dom4.ogg" />
+    <Content Include="Audio\dom5.ogg" />
+    <Content Include="Audio\dom6.ogg" />
+    <Content Include="Audio\dom7.ogg" />
+    <Content Include="Audio\dom8.ogg" />
+    <Content Include="Audio\dom9.ogg" />
     <Content Include="Audio\explosion01.ogg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -331,6 +343,11 @@
     <Content Include="Audio\shot01.ogg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Audio\shot02.ogg" />
+    <Content Include="Audio\shot03.ogg" />
+    <Content Include="Audio\shot04.ogg" />
+    <Content Include="Audio\shot05.ogg" />
+    <Content Include="Audio\shot06.ogg" />
     <Content Include="Audio\stage01.ogg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
