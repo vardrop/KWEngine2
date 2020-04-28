@@ -283,7 +283,7 @@ namespace KWEngine2.GameObjects
         /// <summary>
         /// Optionales Speicherfeld
         /// </summary>
-        public object Tag { get; protected set; } = null;
+        public object Tag { get; set; } = null;
         private GeoModel _model;
         internal Matrix4 _modelMatrix = Matrix4.Identity;
         private Quaternion _rotation = new Quaternion(0, 0, 0, 1);
