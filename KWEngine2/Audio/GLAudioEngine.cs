@@ -30,6 +30,8 @@ namespace KWEngine2.Audio
         private static bool mAudioOn = false;
         private static List<GLAudioSource> mSources = new List<GLAudioSource>();
 
+        private static int mChannels = 32;
+
         private static void TryInitAudio()
         {
             int tries = 0;
@@ -70,7 +72,7 @@ namespace KWEngine2.Audio
 
             if (mAudioOn)
             {
-                for (int i = 0; i < 16; i++)
+                for (int i = 0; i < mChannels; i++)
                 {
                     GLAudioSource s = new GLAudioSource();
                     mSources.Add(s);
@@ -140,7 +142,7 @@ namespace KWEngine2.Audio
             }
 
             GLAudioSource source = null;
-            for (int i = 0; i < 16; i++)
+            for (int i = 0; i < mChannels; i++)
             {
                 if (looping && sound.Contains(mSources[i].GetFileName()) && mSources[i].IsLooping)
                 {
@@ -155,7 +157,7 @@ namespace KWEngine2.Audio
             }
             if (source == null)
             {
-                Console.WriteLine("Error playing audio file: all 16 channels are busy.");
+                Console.WriteLine("Error playing audio file: all " + mChannels + " channels are busy.");
                 return;
             }
 
