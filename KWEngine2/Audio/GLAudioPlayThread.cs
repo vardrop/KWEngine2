@@ -47,7 +47,7 @@ namespace KWEngine2.Audio
             {
                 try
                 {
-                    Thread.Sleep(25);
+                    Thread.Sleep(5);
                 }
                 catch (Exception)
                 {
