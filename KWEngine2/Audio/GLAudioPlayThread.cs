@@ -42,19 +42,7 @@ namespace KWEngine2.Audio
             AL.Source(mSource.GetSourceId(), ALSourcef.Gain, mVolume);
             mSource.SetFileName(mData.GetName());
             AL.SourcePlay(mSource.GetSourceId());            
-            
-            while (AL.GetSourceState(mSource.GetSourceId()) == ALSourceState.Playing)
-            {
-                try
-                {
-                    Thread.Sleep(5);
-                }
-                catch (Exception)
-                {
 
-                }
-            }
-            
             mSource.SetFileName("");
             mSource.SetLooping(false);
         }

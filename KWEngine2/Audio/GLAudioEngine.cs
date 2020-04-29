@@ -144,14 +144,10 @@ namespace KWEngine2.Audio
             GLAudioSource source = null;
             for (int i = 0; i < mChannels; i++)
             {
-                if (looping && sound.Contains(mSources[i].GetFileName()) && mSources[i].IsLooping)
-                {
-                    Console.WriteLine("Sound " + sound + " is already being looped. Playback aborted.");
-                    return;
-                }
-                else if (source == null && !mSources[i].IsPlaying)
+                if (!mSources[i].IsPlaying)
                 {
                     source = mSources[i];
+                    source.SetFileName(sound);
                     break;
                 }
             }
@@ -161,10 +157,18 @@ namespace KWEngine2.Audio
                 return;
             }
 
-            GLAudioPlayThread playThread = new GLAudioPlayThread(soundToPlay, source, looping, volume);
-            Action a = new Action(playThread.Play);
-            Task t = new Task(a);
-            t.Start();
+            AL.Source(source.GetSourceId(), ALSourcei.Buffer, soundToPlay.GetBufferPointer());
+            if (looping)
+            {
+                AL.Source(source.GetSourceId(), ALSourceb.Looping, true);
+                
+            }
+            else
+            {
+                AL.Source(source.GetSourceId(), ALSourceb.Looping, false);
+            }
+            AL.Source(source.GetSourceId(), ALSourcef.Gain, volume);
+            AL.SourcePlay(source.GetSourceId());
         }
 
         /// <summary>
