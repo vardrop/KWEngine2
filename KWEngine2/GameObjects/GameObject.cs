@@ -2527,9 +2527,20 @@ namespace KWEngine2.GameObjects
         /// <param name="audiofile">Audiodatei</param>
         /// <param name="playLooping">looped playback?</param>
         /// <param name="volume">Lautstärke</param>
-        protected static void SoundPlay(string audiofile, bool playLooping = false, float volume = 1.0f)
+        /// <returns>ID des verwendeten Audiokanals</returns>
+        protected static int SoundPlay(string audiofile, bool playLooping = false, float volume = 1.0f)
         {
-            GLAudioEngine.SoundPlay(audiofile, playLooping, volume);
+            return GLAudioEngine.SoundPlay(audiofile, playLooping, volume);
+        }
+
+        /// <summary>
+        /// Ändert die Lautstärke eines Tons
+        /// </summary>
+        /// <param name="sourceId">id der Audiospur</param>
+        /// <param name="gain">Lautstärke (0.0f bis 1.0f)</param>
+        public static void SoundChangeGain(int sourceId, float gain)
+        {
+            GLAudioEngine.SoundChangeGain(sourceId, gain);
         }
 
         /// <summary>
@@ -2539,6 +2550,24 @@ namespace KWEngine2.GameObjects
         protected static void SoundStop(string audiofile)
         {
             GLAudioEngine.SoundStop(audiofile);
+        }
+
+        /// <summary>
+        /// Lädt eine Audiodatei in den Arbeitsspeicher
+        /// </summary>
+        /// <param name="audiofile">Audiodatei</param>
+        protected static void SoundPreload(string audiofile)
+        {
+            GLAudioEngine.SoundPreload(audiofile);
+        }
+
+        /// <summary>
+        /// Stoppt den angegebenen Audiokanal
+        /// </summary>
+        /// <param name="sourceId">Lanalnummer</param>
+        protected static void SoundStop(int sourceId)
+        {
+            GLAudioEngine.SoundStop(sourceId);
         }
 
         /// <summary>

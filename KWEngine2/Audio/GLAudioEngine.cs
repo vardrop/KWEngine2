@@ -10,6 +10,7 @@ using OpenTK.Audio.OpenAL;
 using OpenTK;
 using System.Threading.Tasks;
 using System.Threading;
+using KWEngine2.Helper;
 
 namespace KWEngine2.Audio
 {
@@ -108,6 +109,14 @@ namespace KWEngine2.Audio
             }
         }
 
+        public static void SoundStop(int sourceId)
+        {
+            if (mSources[sourceId] != null && mSources[sourceId].IsPlaying)
+            {
+                AL.SourceStop(sourceId);
+            }
+        }
+
         public static void SoundStopAll()
         {
             GLAudioSource source;
@@ -121,12 +130,21 @@ namespace KWEngine2.Audio
             }
         }
 
-        public static void SoundPlay(string sound, bool looping, float volume = 1.0f)
+        public static void SoundChangeGain(int sourceId, float gain)
+        {
+            gain = HelperGL.Clamp(gain, 0, 8);
+            if (mSources[sourceId] != null && mSources[sourceId].IsPlaying)
+            {
+                AL.Source(mSources[sourceId].GetSourceId(), ALSourcef.Gain, gain);
+            }
+        }
+
+        public static int SoundPlay(string sound, bool looping, float volume = 1.0f)
         {
             if (!mAudioOn)
             {
                 Console.WriteLine("Error playing audio: audio device not available.");
-                return;
+                return -1;
             }
             volume = volume >= 0 && volume <= 1.0f ? volume : 1.0f;
 
@@ -142,11 +160,13 @@ namespace KWEngine2.Audio
             }
 
             GLAudioSource source = null;
+            int channelNumber = -1;
             for (int i = 0; i < mChannels; i++)
             {
                 if (!mSources[i].IsPlaying)
                 {
                     source = mSources[i];
+                    channelNumber = i;
                     source.SetFileName(sound);
                     break;
                 }
@@ -154,7 +174,7 @@ namespace KWEngine2.Audio
             if (source == null)
             {
                 Console.WriteLine("Error playing audio file: all " + mChannels + " channels are busy.");
-                return;
+                return -1;
             }
 
             AL.Source(source.GetSourceId(), ALSourcei.Buffer, soundToPlay.GetBufferPointer());
@@ -169,6 +189,15 @@ namespace KWEngine2.Audio
             }
             AL.Source(source.GetSourceId(), ALSourcef.Gain, volume);
             AL.SourcePlay(source.GetSourceId());
+            return channelNumber;
+        }
+
+        public static void SoundPreload(string sound)
+        {
+            if (!CachedSounds.ContainsKey(sound))
+            {
+                CachedSounds.Add(sound, new CachedSound(sound));
+            }
         }
 
         /// <summary>

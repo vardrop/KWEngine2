@@ -995,9 +995,29 @@ namespace KWEngine2
         /// <param name="audiofile">Audiodatei (ogg)</param>
         /// <param name="playLooping">Looped playback?</param>
         /// <param name="volume">Lautstärke</param>
-        public void SoundPlay(string audiofile, bool playLooping = false, float volume = 1.0f)
+        /// <returns>ID des verwendeten Audiokanals</returns>
+        public int SoundPlay(string audiofile, bool playLooping = false, float volume = 1.0f)
         {
-            GLAudioEngine.SoundPlay(audiofile, playLooping, volume);
+            return GLAudioEngine.SoundPlay(audiofile, playLooping, volume);
+        }
+
+        /// <summary>
+        /// Lädt eine Audiodatei in den Arbeitsspeicher
+        /// </summary>
+        /// <param name="audiofile">Audiodatei</param>
+        protected static void SoundPreload(string audiofile)
+        {
+            GLAudioEngine.SoundPreload(audiofile);
+        }
+
+        /// <summary>
+        /// Ändert die Lautstärke eines Tons
+        /// </summary>
+        /// <param name="sourceId">id der Audiospur</param>
+        /// <param name="gain">Lautstärke (0.0f bis 1.0f)</param>
+        public static void SoundChangeGain(int sourceId, float gain)
+        {
+            GLAudioEngine.SoundChangeGain(sourceId, gain);
         }
 
         /// <summary>
@@ -1007,6 +1027,15 @@ namespace KWEngine2
         public void SoundStop(string audiofile)
         {
             GLAudioEngine.SoundStop(audiofile);
+        }
+
+        /// <summary>
+        /// Stoppt den angegebenen Audiokanal
+        /// </summary>
+        /// <param name="sourceId">Lanalnummer</param>
+        protected static void SoundStop(int sourceId)
+        {
+            GLAudioEngine.SoundStop(sourceId);
         }
 
         /// <summary>
