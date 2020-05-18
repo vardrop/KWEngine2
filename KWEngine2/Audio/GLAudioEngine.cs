@@ -67,7 +67,7 @@ namespace KWEngine2.Audio
                 }
 
                 tries++;
-                Thread.Sleep(500);
+                Thread.Sleep(300);
             }
             IsInitializing = false;
 
@@ -98,44 +98,56 @@ namespace KWEngine2.Audio
 
         public static void SoundStop(string sound)
         {
-            GLAudioSource source;
-            for (int i = 0; i < mSources.Count; i++)
+            if (mAudioOn)
             {
-                if (mSources[i] != null && mSources[i].IsPlaying && sound.Contains(mSources[i].GetFileName()))
+                GLAudioSource source;
+                for (int i = 0; i < mSources.Count; i++)
                 {
-                    source = mSources[i];
-                    source.Stop();
+                    if (mSources[i] != null && mSources[i].IsPlaying && sound.Contains(mSources[i].GetFileName()))
+                    {
+                        source = mSources[i];
+                        source.Stop();
+                    }
                 }
             }
         }
 
         public static void SoundStop(int sourceId)
         {
-            if (mSources[sourceId] != null && mSources[sourceId].IsPlaying)
+            if (mAudioOn)
             {
-                AL.SourceStop(sourceId);
+                if (mSources[sourceId] != null && mSources[sourceId].IsPlaying)
+                {
+                    AL.SourceStop(sourceId);
+                }
             }
         }
 
         public static void SoundStopAll()
         {
-            GLAudioSource source;
-            for (int i = 0; i < mSources.Count; i++)
+            if (mAudioOn)
             {
-                if (mSources[i] != null && mSources[i].IsPlaying)
+                GLAudioSource source;
+                for (int i = 0; i < mSources.Count; i++)
                 {
-                    source = mSources[i];
-                    source.Stop();
+                    if (mSources[i] != null && mSources[i].IsPlaying)
+                    {
+                        source = mSources[i];
+                        source.Stop();
+                    }
                 }
             }
         }
 
         public static void SoundChangeGain(int sourceId, float gain)
         {
-            gain = HelperGL.Clamp(gain, 0, 8);
-            if (mSources[sourceId] != null && mSources[sourceId].IsPlaying)
+            if (mAudioOn)
             {
-                AL.Source(mSources[sourceId].GetSourceId(), ALSourcef.Gain, gain);
+                gain = HelperGL.Clamp(gain, 0, 8);
+                if (mSources[sourceId] != null && mSources[sourceId].IsPlaying)
+                {
+                    AL.Source(mSources[sourceId].GetSourceId(), ALSourcef.Gain, gain);
+                }
             }
         }
 
@@ -194,9 +206,12 @@ namespace KWEngine2.Audio
 
         public static void SoundPreload(string sound)
         {
-            if (!CachedSounds.ContainsKey(sound))
+            if (mAudioOn)
             {
-                CachedSounds.Add(sound, new CachedSound(sound));
+                if (!CachedSounds.ContainsKey(sound))
+                {
+                    CachedSounds.Add(sound, new CachedSound(sound));
+                }
             }
         }
 
