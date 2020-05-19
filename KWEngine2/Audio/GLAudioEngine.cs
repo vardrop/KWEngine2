@@ -66,8 +66,11 @@ namespace KWEngine2.Audio
                     mAudioOn = false;
                 }
 
-                tries++;
-                Thread.Sleep(300);
+                if (mAudioOn == false)
+                {
+                    tries++;
+                    Thread.Sleep(500);
+                }
             }
             IsInitializing = false;
 
