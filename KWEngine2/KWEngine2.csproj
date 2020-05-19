@@ -221,6 +221,9 @@
     <Content Include="OpenAL32.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="OpenAL64.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <EmbeddedResource Include="Assets\Textures\fire01.png" />
     <EmbeddedResource Include="Assets\Textures\fire02.png" />
     <EmbeddedResource Include="Assets\Textures\fire03.png" />
