@@ -481,6 +481,8 @@ namespace KWEngine2
 
                 lock (CurrentWorld._gameObjects)
                 {
+                    CurrentWorld.SweepAndPrune();
+
                     foreach (GameObject g in CurrentWorld.GetGameObjects())
                     {
                         g.Act(ks, ms, DeltaTime.GetDeltaTimeFactor());
@@ -490,7 +492,6 @@ namespace KWEngine2
                     }
                 }
 
-                //CurrentWorld.SweepAndPrune();
 
                 lock (CurrentWorld._particleObjects)
                 {
