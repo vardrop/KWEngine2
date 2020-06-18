@@ -65,7 +65,8 @@ namespace KWEngine2Test.Worlds
      
         public override void Prepare()
         {
-            KWEngine.PostProcessQuality = KWEngine.PostProcessingQuality.High;
+            KWEngine.PostProcessQuality = KWEngine.PostProcessingQuality.Standard;
+            //KWEngine.MouseSensitivity = -0.001f;
 
             int imageWidth = 190;
             int imageHeight = 190;

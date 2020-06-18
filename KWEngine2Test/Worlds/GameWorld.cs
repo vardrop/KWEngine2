@@ -60,7 +60,6 @@ namespace KWEngine2Test.Worlds
             KWEngine.LoadModelFromFile("Spaceship", @".\models\spaceship\spaceship4.obj");
 
             KWEngine.BuildTerrainModel("Terrain", @".\textures\heightmap.png", @".\textures\sand_diffuse.png", 100, 2, 100, 5, 5);
-            KWEngine.PostProcessQuality = KWEngine.PostProcessingQuality.Standard;
             KWEngine.ShadowMapCoefficient = 0.0005f;
             FOVShadow = 40f;
             SetSunPosition(250, 250, -250);

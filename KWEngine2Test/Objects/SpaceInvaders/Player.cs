@@ -22,13 +22,13 @@ namespace KWEngine2Test.Objects.SpaceInvaders
             TurnTowardsXY(mousePoint);
 
             if(ks[Key.A] && Position.X > -17)
-                MoveOffset(-_movementSpeed, 0, 0);
+                MoveOffset(-_movementSpeed * deltaTimeFactor, 0, 0);
             if (ks[Key.D] && Position.X < 17)
-                MoveOffset(+_movementSpeed, 0, 0);
+                MoveOffset(+_movementSpeed * deltaTimeFactor, 0, 0);
             if (ks[Key.W] && Position.Y < 10)
-                MoveOffset(0, +_movementSpeed, 0);
+                MoveOffset(0, +_movementSpeed * deltaTimeFactor, 0);
             if (ks[Key.S] && Position.Y > -10)
-                MoveOffset(0, -_movementSpeed, 0);
+                MoveOffset(0, -_movementSpeed * deltaTimeFactor, 0);
 
             if (ms.LeftButton == ButtonState.Pressed || ks[Key.Space])
             {

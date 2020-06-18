@@ -27,7 +27,7 @@ namespace KWEngine2Test.Objects.SpaceInvaders
                 return;
             }
 
-            Move(_movementSpeed);
+            Move(_movementSpeed * deltaTimeFactor);
 
             Intersection intersection;
             if(_parent is Player)
