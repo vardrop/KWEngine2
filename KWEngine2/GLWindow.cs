@@ -34,6 +34,7 @@ namespace KWEngine2
         internal float bloomWidth = 1;
         internal float bloomHeight = 1;
         internal int _fsaa = 0;
+        internal float _anisotropy = 1.0f;
         internal bool _multithreaded = false;
         internal bool _vSync = true;
 
@@ -63,6 +64,17 @@ namespace KWEngine2
         internal GeoModel _bloomQuad;
     
         /// <summary>
+        /// Gibt den Grad der anisotropischen Texturfilterung zurück (Standard: 1)
+        /// </summary>
+        public float AnisotropicFiltering
+        {
+            get
+            {
+                return _anisotropy;
+            }
+        }
+
+        /// <summary>
         /// Standardkonstruktormethode
         /// </summary>
         protected GLWindow()
@@ -91,13 +103,18 @@ namespace KWEngine2
         /// <param name="antialiasing">FSAA-Wert (Anti-Aliasing)</param>
         /// <param name="vSync">VSync aktivieren</param>
         /// <param name="multithreading">Multithreading aktivieren (Standard: false)</param>
-        protected GLWindow(int width, int height, GameWindowFlags flag, int antialiasing = 0, bool vSync = true, bool multithreading = false)
+        /// <param name="textureAnisotropy">Level der anisotropischen Texturfilterung [1 bis 16, Standard: 1 (aus)]</param>
+        protected GLWindow(int width, int height, GameWindowFlags flag, int antialiasing = 0, bool vSync = true, bool multithreading = false, int textureAnisotropy = 1)
             : base(width, height, GraphicsMode.Default, "KWEngine2 - C# 3D Gaming", flag == GameWindowFlags.Default ? GameWindowFlags.FixedWindow : flag, DisplayDevice.Default, 4, 5, GraphicsContextFlags.ForwardCompatible, null, !multithreading)
         {
             _multithreaded = multithreading;
             GCSettings.LatencyMode = GCLatencyMode.SustainedLowLatency;
             Width = width;
             Height = height;
+            if (textureAnisotropy >= 1 && textureAnisotropy <= 16)
+                _anisotropy = textureAnisotropy;
+            else
+                _anisotropy = 1;
 
             GLAudioEngine.InitAudioEngine();
 
