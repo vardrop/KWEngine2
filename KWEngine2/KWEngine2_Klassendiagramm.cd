@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Class Name="KWEngine2.Collision.Intersection">
-    <Position X="17.75" Y="3.25" Width="2.25" />
+    <Position X="2.5" Y="15.75" Width="2.75" />
     <Members>
       <Field Name="mMTV" Hidden="true" />
     </Members>
@@ -11,7 +11,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine2.KWEngine">
-    <Position X="7.5" Y="3.25" Width="2.75" />
+    <Position X="2.5" Y="3" Width="2.75" />
     <Members>
       <Field Name="_broadPhaseToleranceWidth" Hidden="true" />
       <Field Name="_shadowmapbiascoefficient" Hidden="true" />
@@ -86,8 +86,9 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine2.GLWindow">
-    <Position X="10.75" Y="3.25" Width="2.75" />
+    <Position X="5.5" Y="3" Width="2.75" />
     <Members>
+      <Field Name="_anisotropy" Hidden="true" />
       <Field Name="_bloomQuad" Hidden="true" />
       <Field Name="_dummy" Hidden="true" />
       <Field Name="_fsaa" Hidden="true" />
@@ -121,9 +122,13 @@
       <Method Name="InitFramebufferOriginal" Hidden="true" />
       <Method Name="InitFramebufferOriginalDownsampled" Hidden="true" />
       <Method Name="InitFramebufferShadowMap" Hidden="true" />
+      <Method Name="InitFramebufferShadowMap2" Hidden="true" />
+      <Method Name="InitializeFramebuffers" Hidden="true" />
       <Field Name="LightColors" Hidden="true" />
       <Field Name="LightPositions" Hidden="true" />
       <Field Name="LightTargets" Hidden="true" />
+      <Method Name="SetWorldInternal" Hidden="true" />
+      <Method Name="StartGarbageCollection" Hidden="true" />
       <Method Name="SwitchToBufferAndClear" Hidden="true" />
       <Field Name="TextureBloom" Hidden="true" />
       <Field Name="TextureBloom1" Hidden="true" />
@@ -134,14 +139,15 @@
       <Field Name="TextureMainFinal" Hidden="true" />
       <Field Name="TextureShadowMap" Hidden="true" />
       <Field Name="TextureShadowMap2" Hidden="true" />
+      <Method Name="UpdateWindowRect" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>EAaBQQSBgiAgkYQAQAiCEQAiiAxKYWDAAUBpERABkwo=</HashCode>
+      <HashCode>EAaBQQSBgiAgkYQAQAiCEQAiiAxKYWDACUBpERABkwo=</HashCode>
       <FileName>GLWindow.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine2.World">
-    <Position X="10.75" Y="8.75" Width="2.75" />
+    <Position X="8.5" Y="3" Width="2.75" />
     <Members>
       <Field Name="_cameraLookAt" Hidden="true" />
       <Field Name="_cameraPosition" Hidden="true" />
@@ -171,6 +177,7 @@
       <Field Name="_sunColor" Hidden="true" />
       <Field Name="_sunPosition" Hidden="true" />
       <Field Name="_sunTarget" Hidden="true" />
+      <Field Name="_sweepTestAxisIndex" Hidden="true" />
       <Field Name="_textureBackground" Hidden="true" />
       <Field Name="_textureBackgroundTint" Hidden="true" />
       <Field Name="_textureBackgroundTransform" Hidden="true" />
@@ -190,16 +197,17 @@
       <Method Name="UpdateCameraLookAtVector" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BIDgWFqCIDiBSgBIAWWQAAhDaAYVizI0KRDFElDubMY=</HashCode>
+      <HashCode>BIDgWFqCIDiBSgBIAWWQAAhDaA4VizI0KRLFElDubMY=</HashCode>
       <FileName>World.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine2.GameObjects.GameObject">
-    <Position X="14" Y="3.25" Width="3.25" />
+    <Position X="11.5" Y="3" Width="3.25" />
     <Members>
       <Field Name="_animationId" Hidden="true" />
       <Field Name="_animationPercentage" Hidden="true" />
       <Field Name="_collisionCandidates" Hidden="true" />
+      <Field Name="_collisionResetForFrame" Hidden="true" />
       <Field Name="_colorOutline" Hidden="true" />
       <Field Name="_cubeModel" Hidden="true" />
       <Field Name="_emissiveColor" Hidden="true" />
@@ -232,6 +240,7 @@
       <Method Name="CreateModelMatrix" Hidden="true" />
       <Property Name="DistanceToCamera" Hidden="true" />
       <Method Name="Get3DMouseCoords" Hidden="true" />
+      <Method Name="GetExtentsForAxis" Hidden="true" />
       <Method Name="GetLargestHitbox" Hidden="true" />
       <Method Name="GetRotationNoFPSMode" Hidden="true" />
       <Field Name="Hitboxes" Hidden="true" />
@@ -261,13 +270,13 @@
       </Enum>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>QmHK+hpAWKEgULX0JpLO1QRAULImj8zZGZgIxgAoCfQ=</HashCode>
+      <HashCode>QmHK+hpA2KEgULX0JpLO1QRA0Lomj8zZGZoIxgAoCfQ=</HashCode>
       <FileName>GameObjects\GameObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="KWEngine2.GameObjects.Explosion">
-    <Position X="14" Y="20.75" Width="3.25" />
+    <Position X="8.5" Y="14.75" Width="2.75" />
     <Members>
       <Field Name="_algorithm" Hidden="true" />
       <Field Name="_amount" Hidden="true" />
@@ -296,7 +305,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine2.GameObjects.HUDObject">
-    <Position X="17.75" Y="6.25" Width="2.25" />
+    <Position X="5.5" Y="14.75" Width="2.75" />
     <Members>
       <Field Name="_absolute" Hidden="true" />
       <Field Name="_count" Hidden="true" />
@@ -322,7 +331,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine2.GameObjects.LightObject">
-    <Position X="17.75" Y="13" Width="2.25" />
+    <Position X="2.5" Y="11.25" Width="2.75" />
     <Members>
       <Field Name="_frustumShadowMap2" Hidden="true" />
       <Field Name="_position" Hidden="true" />
@@ -345,7 +354,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine2.GameObjects.ParticleObject">
-    <Position X="17.75" Y="10.25" Width="2.25" />
+    <Position X="5.5" Y="11.25" Width="2.75" />
     <Members>
       <Field Name="_aliveInMS" Hidden="true" />
       <Field Name="_durationInMS" Hidden="true" />
@@ -370,7 +379,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine2.Helper.HelperRandom">
-    <Position X="7.5" Y="11.5" Width="2.75" />
+    <Position X="5.5" Y="7.5" Width="2.75" />
     <Members>
       <Field Name="generator" Hidden="true" />
     </Members>
@@ -380,7 +389,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine2.Helper.HelperRotation">
-    <Position X="7.5" Y="13" Width="2.75" />
+    <Position X="5.5" Y="9" Width="2.75" />
     <Members>
       <Method Name="CalculateDegreesFromRadians" Hidden="true" />
       <Method Name="CalculateRadiansFromDegrees" Hidden="true" />
@@ -398,23 +407,12 @@
       <FileName>Helper\HelperRotation.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="KWEngine2.Model.GeoModel">
-    <Position X="7.5" Y="15.25" Width="2.75" />
-    <Members>
-      <Property Name="Armature" Hidden="true" />
-      <Property Name="BoneNames" Hidden="true" />
-      <Method Name="CalculatePath" Hidden="true" />
-      <Method Name="Dispose" Hidden="true" />
-      <Property Name="Meshes" Hidden="true" />
-      <Property Name="MeshHitboxes" Hidden="true" />
-      <Field Name="NodesWithoutHierarchy" Hidden="true" />
-      <Property Name="Root" Hidden="true" />
-      <Property Name="Textures" Hidden="true" />
-    </Members>
+  <Enum Name="KWEngine2.GameObjects.ParticleType" Collapsed="true">
+    <Position X="5.5" Y="13.75" Width="2.75" />
     <TypeIdentifier>
-      <HashCode>AAABAAEAgCAAQCJAAgoAAAQYAgIAAgAAAAAAIAAQAAA=</HashCode>
-      <FileName>Model\GeoModel.cs</FileName>
+      <HashCode>EAAAAYAACEAIAAAAIAAAAAAAAMAKAAA0AAAAAAACAAA=</HashCode>
+      <FileName>GameObjects\ParticleObject.cs</FileName>
     </TypeIdentifier>
-  </Class>
+  </Enum>
   <Font Name="Segoe UI" Size="9" />
 </ClassDiagram>
