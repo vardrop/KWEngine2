@@ -10,6 +10,9 @@ namespace KWEngine2Test.Objects.Arena
 {
     class Immovable : GameObject
     {
+
+        public bool IsStair { get; set; } = false;
+
         public override void Act(KeyboardState ks, MouseState ms, float deltaTimeFactor)
         {
 

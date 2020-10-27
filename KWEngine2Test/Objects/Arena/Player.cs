@@ -24,6 +24,9 @@ namespace KWEngine2Test.Objects.Arena
 
         public override void Act(KeyboardState ks, MouseState ms, float deltaTimeFactor)
         {
+            if (!CurrentWindow.Focused)
+                return;
+
             // Debugging purposes:
             if (ks[Key.R])
             {
@@ -110,7 +113,10 @@ namespace KWEngine2Test.Objects.Arena
             foreach (Intersection i in intersections)
             {
                 Vector3 mtv = i.MTV;
-
+                if(i.Object is Immovable && (i.Object as Immovable).IsStair && i.MTVUp.Y > 0)
+                {
+                    mtv = i.MTVUp;
+                }
                 MoveOffset(mtv);
 
                 if (mtv.Y > 0.00001f)

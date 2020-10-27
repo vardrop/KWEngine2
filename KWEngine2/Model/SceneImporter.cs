@@ -465,6 +465,10 @@ namespace KWEngine2.Model
                         geoMaterial.SpecularPower = 0;
                         geoMaterial.SpecularArea = 1024;
                         geoMaterial.TextureSpecularIsRoughness = false;
+                        if (mesh.Name != null && mesh.Name.ToLower().Contains("_invisible"))
+                        {
+                            geoMaterial.Opacity = 0;
+                        }
                     }
                     else
                     {
@@ -494,6 +498,10 @@ namespace KWEngine2.Model
                         geoMaterial.SpecularArea = material.Shininess;
                         geoMaterial.TextureSpecularIsRoughness = false;
                         geoMaterial.Opacity = material.HasOpacity ? material.Opacity : 1;
+                        if(mesh.Name != null && mesh.Name.ToLower().Contains("_invisible"))
+                        {
+                            geoMaterial.Opacity = 0;
+                        }
                     }
 
                     
@@ -507,6 +515,10 @@ namespace KWEngine2.Model
                     geoMaterial.SpecularArea = 1024;
                     geoMaterial.SpecularPower = 0;
                     geoMaterial.TextureSpecularIsRoughness = false;
+                    if (mesh.Name != null && mesh.Name.ToLower().Contains("_invisible"))
+                    {
+                        geoMaterial.Opacity = 0;
+                    }
                 }
             }
 
@@ -827,10 +839,10 @@ namespace KWEngine2.Model
             float minX = float.MaxValue, minY = float.MaxValue, minZ = float.MaxValue;
             float maxX = float.MinValue, maxY = float.MinValue, maxZ = float.MinValue;
             Matrix4 nodeTransform = Matrix4.Identity;
-
+            Mesh mesh = null;
             for (int m = 0; m < scene.MeshCount; m++)
             {
-                Mesh mesh = scene.Meshes[m];
+                mesh = scene.Meshes[m];
                 bool isNewMesh = currentMeshName != null && mesh.Name != currentMeshName && model.Filename != "kwcube6.obj";
 
                 if (mesh.PrimitiveType != PrimitiveType.Triangle)
@@ -844,11 +856,10 @@ namespace KWEngine2.Model
                     if (currentMeshName != null && !currentMeshName.ToLower().Contains("_nohitbox"))
                     {
                         // Generate hitbox for the previous mesh:
-                        meshHitBox = new GeoMeshHitbox(maxX, maxY, maxZ, minX, minY, minZ);
+                        meshHitBox = new GeoMeshHitbox(maxX, maxY, maxZ, minX, minY, minZ, currentMeshName.ToLower().Contains("_fullhitbox") ? mesh : null);
                         meshHitBox.Model = model;
                         meshHitBox.Name = currentMeshName;
                         meshHitBox.Transform = nodeTransform;
-                        meshHitBox.HasPCA = false;
                         model.MeshHitboxes.Add(meshHitBox);
 
                     }
@@ -949,11 +960,10 @@ namespace KWEngine2.Model
             // Generate hitbox for the last mesh:
             if (currentMeshName != null && !currentMeshName.ToLower().Contains("_nohitbox"))
             {
-                meshHitBox = new GeoMeshHitbox(maxX, maxY, maxZ, minX, minY, minZ);
+                meshHitBox = new GeoMeshHitbox(maxX, maxY, maxZ, minX, minY, minZ, currentMeshName.ToLower().Contains("_fullhitbox") ? mesh : null);
                 meshHitBox.Model = model;
                 meshHitBox.Name = model.Filename == "kwcube6.obj" ? "KWCube6" : currentMeshName;
                 meshHitBox.Transform = nodeTransform;
-                meshHitBox.HasPCA = false;
                 model.MeshHitboxes.Add(meshHitBox);
             }
 

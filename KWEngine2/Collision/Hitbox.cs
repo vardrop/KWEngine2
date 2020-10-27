@@ -4,8 +4,6 @@ using OpenTK;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KWEngine2.Collision
 {
@@ -49,10 +47,23 @@ namespace KWEngine2.Collision
         public GameObject Owner { get; private set; }
         private GeoMeshHitbox mMesh;
 
+        internal bool IsExtended
+        {
+            get
+            {
+                return mMesh != null ? mMesh.IsExtended : false;
+            }
+        }
+
         public Hitbox(GameObject owner, GeoMeshHitbox mesh)
         {
             Owner = owner;
             mMesh = mesh;
+            if(mesh.IsExtended)
+            {
+                mVertices = new Vector3[mesh.Vertices.Length];
+                mNormals = new Vector3[mesh.Normals.Length];
+            }
             Vector3 sceneCenter = Update(ref owner._sceneDimensions);
             Owner._sceneCenter = sceneCenter;
         }
@@ -68,59 +79,30 @@ namespace KWEngine2.Collision
             float minZ = float.MaxValue;
             float maxZ = float.MinValue;
 
-            if (mMesh.HasPCA && (mMesh.Name.Contains("P-C-A") || mMesh.Name.Contains("P-C-A")))
+            for (int i = 0; i < mVertices.Length; i++)
             {
-                for (int i = 0; i < mVertices.Length; i++)
+                if (i < mNormals.Length)
                 {
-                    if (i < 3)
-                    {
-                        Vector3.TransformNormal(ref mMesh.NormalsPCA[i], ref mModelMatrixFinal, out mNormals[i]);
-                    }
-                    
-                    Vector3.TransformPosition(ref mMesh.VerticesPCA[i], ref mModelMatrixFinal, out mVertices[i]);
-                    if (mVertices[i].X > maxX)
-                        maxX = mVertices[i].X;
-                    if (mVertices[i].X < minX)
-                        minX = mVertices[i].X;
-                    if (mVertices[i].Y > maxY)
-                        maxY = mVertices[i].Y;
-                    if (mVertices[i].Y < minY)
-                        minY = mVertices[i].Y;
-                    if (mVertices[i].Z > maxZ)
-                        maxZ = mVertices[i].Z;
-                    if (mVertices[i].Z < minZ)
-                        minZ = mVertices[i].Z;
+                    Vector3.TransformNormal(ref mMesh.Normals[i], ref mModelMatrixFinal, out mNormals[i]);
                 }
 
-                Vector3.TransformPosition(ref mMesh.CenterPCA, ref mModelMatrixFinal, out mCenter);
-            }
-            else
-            {
-                for (int i = 0; i < mVertices.Length; i++)
-                {
-                    if (i < 3)
-                    {
-                        Vector3.TransformNormal(ref mMesh.Normals[i], ref mModelMatrixFinal, out mNormals[i]);
-                    }
-
-                    Vector3.TransformPosition(ref mMesh.Vertices[i], ref mModelMatrixFinal, out mVertices[i]);
-                    if (mVertices[i].X > maxX)
-                        maxX = mVertices[i].X;
-                    if (mVertices[i].X < minX)
-                        minX = mVertices[i].X;
-                    if (mVertices[i].Y > maxY)
-                        maxY = mVertices[i].Y;
-                    if (mVertices[i].Y < minY)
-                        minY = mVertices[i].Y;
-                    if (mVertices[i].Z > maxZ)
-                        maxZ = mVertices[i].Z;
-                    if (mVertices[i].Z < minZ)
-                        minZ = mVertices[i].Z;
-                }
-
-                Vector3.TransformPosition(ref mMesh.Center, ref mModelMatrixFinal, out mCenter);
+                Vector3.TransformPosition(ref mMesh.Vertices[i], ref mModelMatrixFinal, out mVertices[i]);
+                if (mVertices[i].X > maxX)
+                    maxX = mVertices[i].X;
+                if (mVertices[i].X < minX)
+                    minX = mVertices[i].X;
+                if (mVertices[i].Y > maxY)
+                    maxY = mVertices[i].Y;
+                if (mVertices[i].Y < minY)
+                    minY = mVertices[i].Y;
+                if (mVertices[i].Z > maxZ)
+                    maxZ = mVertices[i].Z;
+                if (mVertices[i].Z < minZ)
+                    minZ = mVertices[i].Z;
             }
 
+            Vector3.TransformPosition(ref mMesh.Center, ref mModelMatrixFinal, out mCenter);
+            
             float xWidth = maxX - minX;
             float yWidth = maxY - minY;
             float zWidth = maxZ - minZ;
@@ -180,7 +162,6 @@ namespace KWEngine2.Collision
             MTVTempUp = Vector3.Zero;
             for (int i = 0; i < caller.mNormals.Length; i++)
             {
-                bool error = false;
                 float shape1Min, shape1Max, shape2Min, shape2Max;
                 SatTest(ref caller.mNormals[i], ref caller.mVertices, out shape1Min, out shape1Max, ref offsetCaller);
                 SatTest(ref caller.mNormals[i], ref collider.mVertices, out shape2Min, out shape2Max, ref ZeroVector);
@@ -191,10 +172,13 @@ namespace KWEngine2.Collision
                 else
                 {
                     CalculateOverlap(ref caller.mNormals[i], ref shape1Min, ref shape1Max, ref shape2Min, ref shape2Max,
-                        out error, ref mtvDistance, ref mtvDistanceUp, ref MTVTemp, ref MTVTempUp, ref mtvDirection, ref mtvDirectionUp, ref caller.mCenter, ref collider.mCenter, ref offsetCaller);
+                        ref mtvDistance, ref mtvDistanceUp, ref MTVTemp, ref MTVTempUp, ref mtvDirection, ref mtvDirectionUp, ref caller.mCenter, ref collider.mCenter, ref offsetCaller);
                 }
+            }
 
-
+            for (int i = 0; i < collider.mNormals.Length; i++)
+            {
+                float shape1Min, shape1Max, shape2Min, shape2Max;
                 SatTest(ref collider.mNormals[i], ref caller.mVertices, out shape1Min, out shape1Max, ref offsetCaller);
                 SatTest(ref collider.mNormals[i], ref collider.mVertices, out shape2Min, out shape2Max, ref ZeroVector);
                 if (!Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
@@ -204,13 +188,12 @@ namespace KWEngine2.Collision
                 else
                 {
                     CalculateOverlap(ref collider.mNormals[i], ref shape1Min, ref shape1Max, ref shape2Min, ref shape2Max,
-                        out error, ref mtvDistance, ref mtvDistanceUp, ref MTVTemp, ref MTVTempUp, ref mtvDirection, ref mtvDirectionUp, ref caller.mCenter, ref collider.mCenter, ref offsetCaller);
+                        ref mtvDistance, ref mtvDistanceUp, ref MTVTemp, ref MTVTempUp, ref mtvDirection, ref mtvDirectionUp, ref caller.mCenter, ref collider.mCenter, ref offsetCaller);
                 }
-
             }
 
             if (MTVTemp == Vector3.Zero)
-                return null;
+            return null;
 
             Intersection o = new Intersection(collider.Owner, MTVTemp, MTVTempUp, collider.mMesh.Name);
             return o;
@@ -429,7 +412,7 @@ namespace KWEngine2.Collision
 
 
         private static void CalculateOverlap(ref Vector3 axis, ref float shape1Min, ref float shape1Max, ref float shape2Min, ref float shape2Max,
-            out bool error, ref float mtvDistance, ref float mtvDistanceUp, ref Vector3 mtv, ref Vector3 mtvUp, ref float mtvDirection, ref float mtvDirectionUp, ref Vector3 posA, ref Vector3 posB, ref Vector3 callerOffset)
+            ref float mtvDistance, ref float mtvDistanceUp, ref Vector3 mtv, ref Vector3 mtvUp, ref float mtvDirection, ref float mtvDirectionUp, ref Vector3 posA, ref Vector3 posB, ref Vector3 callerOffset)
         {
             float intersectionDepthScaled;
             if (shape1Min < shape2Min)
@@ -446,13 +429,13 @@ namespace KWEngine2.Collision
                     {
                         intersectionDepthScaled = shape2Min - shape1Max;
                     }
-                    
+
                 }
                 else
                 {
                     intersectionDepthScaled = shape1Max - shape2Min; // default
                 }
-                
+
             }
             else
             {
@@ -473,18 +456,11 @@ namespace KWEngine2.Collision
                 {
                     intersectionDepthScaled = shape1Min - shape2Max; // default
                 }
-                
+
             }
 
             float axisLengthSquared = Vector3.Dot(axis, axis);
-            if (axisLengthSquared < 1.0e-8f)
-            {
-                error = true;
-                return;
-            }
             float intersectionDepthSquared = (intersectionDepthScaled * intersectionDepthScaled) / axisLengthSquared;
-
-            error = false;
 
             if(Math.Abs(axis.Y) > Math.Abs(axis.X) && Math.Abs(axis.Y) > Math.Abs(axis.Z) && intersectionDepthSquared < mtvDistanceUp)
             {
@@ -502,7 +478,6 @@ namespace KWEngine2.Collision
                 mtvDirection = notSameDirection < 0 ? -1.0f : 1.0f;
                 mtv = mtv * mtvDirection;
             }
-
         }
 
         private static bool Overlaps(float min1, float max1, float min2, float max2)

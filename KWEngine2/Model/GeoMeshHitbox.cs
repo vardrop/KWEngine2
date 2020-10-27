@@ -1,4 +1,5 @@
-﻿using OpenTK;
+﻿using Assimp;
+using OpenTK;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,9 @@ namespace KWEngine2.Model
         {
             return Name;
         }
+
+        internal bool IsExtended { get; private set; } = false;
+
         public string Name { get; internal set; }
         internal float maxX, maxY, maxZ;
         internal float minX, minY, minZ;
@@ -27,14 +31,14 @@ namespace KWEngine2.Model
         internal Vector3[] NormalsPCA = new Vector3[3];
         internal Vector3 CenterPCA = new Vector3(0, 0, 0);
 
-        public bool HasPCA { get; internal set; } = false;
-
         internal Matrix4 Transform = Matrix4.Identity;
 
         public GeoModel Model { get; internal set; } = null;
 
-        public GeoMeshHitbox(float maxX, float maxY, float maxZ, float minX, float minY, float minZ)
+        public GeoMeshHitbox(float maxX, float maxY, float maxZ, float minX, float minY, float minZ, Mesh meshData = null)
         {
+            IsExtended = meshData != null;
+
             this.maxX = maxX;
             this.maxY = maxY;
             this.maxZ = maxZ;
@@ -50,19 +54,42 @@ namespace KWEngine2.Model
             height = maxY - minY;
             depth = maxZ - minZ;
 
-            Vertices[0] = new Vector3(minX, minY, maxZ); // frontleftdown
-            Vertices[1] = new Vector3(maxX, minY, maxZ); // frontrightdown
-            Vertices[2] = new Vector3(maxX, minY, minZ); // backrightdown
-            Vertices[3] = new Vector3(minX, minY, minZ); // backleftdown
+            if(IsExtended)
+            {
+                Vertices = new Vector3[meshData.VertexCount];
+                Normals = new Vector3[meshData.Normals.Count];
 
-            Vertices[4] = new Vector3(minX, maxY, maxZ); // frontleftup
-            Vertices[5] = new Vector3(maxX, maxY, maxZ); // frontrightup
-            Vertices[6] = new Vector3(maxX, maxY, minZ); // backrightup
-            Vertices[7] = new Vector3(minX, maxY, minZ); // backleftup
+                for(int i = 0; i < meshData.VertexCount; i++)
+                {
+                    Vertices[i].X = meshData.Vertices[i].X;
+                    Vertices[i].Y = meshData.Vertices[i].Y;
+                    Vertices[i].Z = meshData.Vertices[i].Z;
+                }
 
-            Normals[0] = new Vector3(1, 0, 0);
-            Normals[1] = new Vector3(0, 1, 0);
-            Normals[2] = new Vector3(0, 0, 1);
+                for (int i = 0; i < meshData.Normals.Count; i++)
+                {
+                    Normals[i].X = meshData.Normals[i].X;
+                    Normals[i].Y = meshData.Normals[i].Y;
+                    Normals[i].Z = meshData.Normals[i].Z;
+                    //Normals[i].Normalize();
+                }
+            }
+            else
+            {
+                Vertices[0] = new Vector3(minX, minY, maxZ); // frontleftdown
+                Vertices[1] = new Vector3(maxX, minY, maxZ); // frontrightdown
+                Vertices[2] = new Vector3(maxX, minY, minZ); // backrightdown
+                Vertices[3] = new Vector3(minX, minY, minZ); // backleftdown
+
+                Vertices[4] = new Vector3(minX, maxY, maxZ); // frontleftup
+                Vertices[5] = new Vector3(maxX, maxY, maxZ); // frontrightup
+                Vertices[6] = new Vector3(maxX, maxY, minZ); // backrightup
+                Vertices[7] = new Vector3(minX, maxY, minZ); // backleftup
+
+                Normals[0] = new Vector3(1, 0, 0);
+                Normals[1] = new Vector3(0, 1, 0);
+                Normals[2] = new Vector3(0, 0, 1);
+            } 
         }
     }
 }
