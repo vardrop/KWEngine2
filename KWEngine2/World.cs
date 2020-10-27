@@ -915,8 +915,6 @@ namespace KWEngine2
             if (_gameObjects.Count < 2)
                 return;
 
-
-            List<CollisionPair> pairs = new List<CollisionPair>();
             IOrderedEnumerable<GameObject> axisList = null;
             if (_sweepTestAxisIndex == 0)
                 axisList = _gameObjects.OrderBy(x => x.LeftRightMost.X);
@@ -929,7 +927,6 @@ namespace KWEngine2
             Vector3 centerSqSum = new Vector3(0, 0, 0);
             for(int i = 0; i < axisList.Count(); i++)
             {
-                axisList.ElementAt(i)._collisionCandidates.Clear();
                 Vector3 currentCenter = axisList.ElementAt(i).GetCenterPointForAllHitboxes();
                 centerSum += currentCenter;
                 centerSqSum += (currentCenter * currentCenter);
@@ -942,7 +939,8 @@ namespace KWEngine2
                     {
                         break;
                     }
-                    pairs.Add(new CollisionPair(fromI, fromJ));
+                    fromI._collisionCandidates.Add(fromJ);
+                    fromJ._collisionCandidates.Add(fromI);
                 }
             }
             centerSum /= axisList.Count();
@@ -959,14 +957,7 @@ namespace KWEngine2
             {
                 maxVar = Math.Abs(variance.Z);
                 _sweepTestAxisIndex = 2;
-            }
-
-            //Debug.WriteLine("Axis index: " + _sweepTestAxisIndex);
-            foreach (CollisionPair p in pairs)
-            {
-                p.A._collisionCandidates.Add(p.B);
-                p.B._collisionCandidates.Add(p.A);
-            }
+            }           
         }
 
 

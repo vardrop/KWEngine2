@@ -351,6 +351,7 @@ namespace KWEngine2
                 {
                     foreach (GameObject g in CurrentWorld._gameObjects)
                     {
+                        g._collisionCandidates.Clear(); // clear collision list for this objects
                         if (g.CurrentWorld.IsFirstPersonMode && g.CurrentWorld.GetFirstPersonObject().Equals(g))
                             continue;
                         if (g.Model.IsTerrain)
