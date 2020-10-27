@@ -42,6 +42,7 @@ namespace KWEngine2.Collision
         }
 
         private static Vector3 MTVTemp = new Vector3(0, 0, 0);
+        private static Vector3 MTVTempUp = new Vector3(0, 0, 0);
         private Matrix4 mTempMatrix = Matrix4.Identity;
         private Matrix4 mModelMatrixFinal = Matrix4.Identity;
 
@@ -172,7 +173,11 @@ namespace KWEngine2.Collision
         {
             float mtvDistance = float.MaxValue;
             float mtvDirection = 1;
-            MTVTemp.X = 0; MTVTemp.Y = 0; MTVTemp.Z = 0;
+            float mtvDistanceUp = float.MaxValue;
+            float mtvDirectionUp = 1;
+
+            MTVTemp = Vector3.Zero;
+            MTVTempUp = Vector3.Zero;
             for (int i = 0; i < caller.mNormals.Length; i++)
             {
                 bool error = false;
@@ -186,7 +191,7 @@ namespace KWEngine2.Collision
                 else
                 {
                     CalculateOverlap(ref caller.mNormals[i], ref shape1Min, ref shape1Max, ref shape2Min, ref shape2Max,
-                        out error, ref mtvDistance, ref MTVTemp, ref mtvDirection, ref caller.mCenter, ref collider.mCenter, ref offsetCaller);
+                        out error, ref mtvDistance, ref mtvDistanceUp, ref MTVTemp, ref MTVTempUp, ref mtvDirection, ref mtvDirectionUp, ref caller.mCenter, ref collider.mCenter, ref offsetCaller);
                 }
 
 
@@ -199,7 +204,7 @@ namespace KWEngine2.Collision
                 else
                 {
                     CalculateOverlap(ref collider.mNormals[i], ref shape1Min, ref shape1Max, ref shape2Min, ref shape2Max,
-                        out error, ref mtvDistance, ref MTVTemp, ref mtvDirection, ref caller.mCenter, ref collider.mCenter, ref offsetCaller);
+                        out error, ref mtvDistance, ref mtvDistanceUp, ref MTVTemp, ref MTVTempUp, ref mtvDirection, ref mtvDirectionUp, ref caller.mCenter, ref collider.mCenter, ref offsetCaller);
                 }
 
             }
@@ -207,7 +212,7 @@ namespace KWEngine2.Collision
             if (MTVTemp == Vector3.Zero)
                 return null;
 
-            Intersection o = new Intersection(collider.Owner, MTVTemp, collider.mMesh.Name);
+            Intersection o = new Intersection(collider.Owner, MTVTemp, MTVTempUp, collider.mMesh.Name);
             return o;
         }
 
@@ -259,11 +264,11 @@ namespace KWEngine2.Collision
             if (lowestTriangle >= 0)
             {
                 heightOnMap = lowestIntersectionHeight + a - offset.Y;
-                return new Intersection(collider.Owner, Vector3.Zero, collider.Owner.Name, heightOnMap, lowestIntersectionHeight, true);
+                return new Intersection(collider.Owner, Vector3.Zero, Vector3.Zero, collider.Owner.Name, heightOnMap, lowestIntersectionHeight, true);
             }
             if (trianglesMTV.Count > 0)
             {
-                return new Intersection(collider.Owner, Vector3.Zero, collider.Owner.Name, collider.mCenter.Y, collider.mCenter.Y, true);
+                return new Intersection(collider.Owner, Vector3.Zero, Vector3.Zero, collider.Owner.Name, collider.mCenter.Y, collider.mCenter.Y, true);
             }
             return null;
         }
@@ -424,7 +429,7 @@ namespace KWEngine2.Collision
 
 
         private static void CalculateOverlap(ref Vector3 axis, ref float shape1Min, ref float shape1Max, ref float shape2Min, ref float shape2Max,
-            out bool error, ref float mtvDistance, ref Vector3 mtv, ref float mtvDirection, ref Vector3 posA, ref Vector3 posB, ref Vector3 callerOffset)
+            out bool error, ref float mtvDistance, ref float mtvDistanceUp, ref Vector3 mtv, ref Vector3 mtvUp, ref float mtvDirection, ref float mtvDirectionUp, ref Vector3 posA, ref Vector3 posB, ref Vector3 callerOffset)
         {
             float intersectionDepthScaled;
             if (shape1Min < shape2Min)
@@ -481,6 +486,14 @@ namespace KWEngine2.Collision
 
             error = false;
 
+            if(Math.Abs(axis.Y) > Math.Abs(axis.X) && Math.Abs(axis.Y) > Math.Abs(axis.Z) && intersectionDepthSquared < mtvDistanceUp)
+            {
+                mtvDistanceUp = intersectionDepthSquared;
+                mtvUp = axis * (intersectionDepthScaled / axisLengthSquared);
+                float notSameDirection = Vector3.Dot(posA + callerOffset - posB, mtvUp);
+                mtvDirectionUp = notSameDirection < 0 ? -1.0f : 1.0f;
+                mtvUp = mtvUp * mtvDirectionUp;
+            }
             if (intersectionDepthSquared < mtvDistance || mtvDistance < 0)
             {
                 mtvDistance = intersectionDepthSquared;

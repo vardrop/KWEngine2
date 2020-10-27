@@ -23,6 +23,8 @@ namespace KWEngine2.Collision
         public string MeshName { get; private set; } = "";
         
         private Vector3 mMTV = Vector3.Zero;
+        private Vector3 mMTVUp = Vector3.Zero;
+
         /// <summary>
         /// Minimal-Translation-Vector (für Kollisionskorrektur)
         /// </summary>
@@ -31,6 +33,17 @@ namespace KWEngine2.Collision
             get
             {
                 return mMTV;
+            }
+        }
+        
+        /// <summary>
+        /// Minimal-Translation-Vector für die Y-Achse
+        /// </summary>
+        public Vector3 MTVUp
+        {
+            get
+            {
+                return mMTVUp;
             }
         }
 
@@ -58,13 +71,12 @@ namespace KWEngine2.Collision
         /// <param name="suggestedHeightOnTerrain"></param>
         /// <param name="heightOnTerrain"></param>
         /// <param name="isTerrain"></param>
-        public Intersection(GameObject collider, Vector3 mtv, string mName, float suggestedHeightOnTerrain = 0, float heightOnTerrain = 0, bool isTerrain = false)
+        public Intersection(GameObject collider, Vector3 mtv, Vector3 mtvUp, string mName, float suggestedHeightOnTerrain = 0, float heightOnTerrain = 0, bool isTerrain = false)
         {
             Object = collider;
             MeshName = mName;
-            mMTV.X = mtv.X;
-            mMTV.Y = mtv.Y;
-            mMTV.Z = mtv.Z;
+            mMTV = mtv;
+            mMTVUp = mtvUp;
             HeightOnTerrainSuggested = suggestedHeightOnTerrain;
             HeightOnTerrain = heightOnTerrain;
             IsTerrain = isTerrain;

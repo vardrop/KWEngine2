@@ -841,14 +841,17 @@ namespace KWEngine2.Model
                 
                 if (isNewMesh)
                 {
-                    // Generate hitbox for the previous mesh:
-                    meshHitBox = new GeoMeshHitbox(maxX, maxY, maxZ, minX, minY, minZ);
-                    meshHitBox.Model = model;
-                    meshHitBox.Name = currentMeshName;
-                    meshHitBox.Transform = nodeTransform;
-                    meshHitBox.HasPCA = false;
-                    model.MeshHitboxes.Add(meshHitBox);
+                    if (currentMeshName != null && !currentMeshName.ToLower().Contains("_nohitbox"))
+                    {
+                        // Generate hitbox for the previous mesh:
+                        meshHitBox = new GeoMeshHitbox(maxX, maxY, maxZ, minX, minY, minZ);
+                        meshHitBox.Model = model;
+                        meshHitBox.Name = currentMeshName;
+                        meshHitBox.Transform = nodeTransform;
+                        meshHitBox.HasPCA = false;
+                        model.MeshHitboxes.Add(meshHitBox);
 
+                    }
                     minX = float.MaxValue;
                     minY = float.MaxValue;
                     minZ = float.MaxValue;
@@ -944,12 +947,15 @@ namespace KWEngine2.Model
             }
 
             // Generate hitbox for the last mesh:
-            meshHitBox = new GeoMeshHitbox(maxX, maxY, maxZ, minX, minY, minZ);
-            meshHitBox.Model = model;
-            meshHitBox.Name = model.Filename == "kwcube6.obj" ? "KWCube6" : currentMeshName;
-            meshHitBox.Transform = nodeTransform;
-            meshHitBox.HasPCA = false;
-            model.MeshHitboxes.Add(meshHitBox);
+            if (currentMeshName != null && !currentMeshName.ToLower().Contains("_nohitbox"))
+            {
+                meshHitBox = new GeoMeshHitbox(maxX, maxY, maxZ, minX, minY, minZ);
+                meshHitBox.Model = model;
+                meshHitBox.Name = model.Filename == "kwcube6.obj" ? "KWCube6" : currentMeshName;
+                meshHitBox.Transform = nodeTransform;
+                meshHitBox.HasPCA = false;
+                model.MeshHitboxes.Add(meshHitBox);
+            }
 
         }
 

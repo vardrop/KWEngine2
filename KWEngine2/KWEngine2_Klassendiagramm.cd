@@ -227,7 +227,9 @@
       <Field Name="_sceneDiameter" Hidden="true" />
       <Field Name="_sceneDimensions" Hidden="true" />
       <Field Name="_tintColor" Hidden="true" />
+      <Property Name="BackFrontMost" Hidden="true" />
       <Property Name="BoneTranslationMatrices" Hidden="true" />
+      <Property Name="BottomTopMost" Hidden="true" />
       <Method Name="CalcInterpolatedRotation" Hidden="true" />
       <Method Name="CalcInterpolatedScaling" Hidden="true" />
       <Method Name="CalcInterpolatedTranslation" Hidden="true" />
@@ -246,6 +248,7 @@
       <Field Name="Hitboxes" Hidden="true" />
       <Method Name="IntersectRaySphere" Hidden="true" />
       <Method Name="IsPointInsideBox" Hidden="true" />
+      <Property Name="LeftRightMost" Hidden="true" />
       <Method Name="LinePlaneIntersection" Hidden="true" />
       <Field Name="ModelMatrixForRenderPass" Hidden="true" />
       <Method Name="ProcessCurrentAnimation" Hidden="true" />
