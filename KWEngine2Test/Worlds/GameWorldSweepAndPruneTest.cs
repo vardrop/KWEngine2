@@ -1,8 +1,7 @@
 ﻿using KWEngine2;
-using KWEngine2.GameObjects;
-using KWEngine2Test.Objects;
-using KWEngine2Test.Objects.SweepAndPruneTest;
+using KWEngine2.Helper;
 using OpenTK.Input;
+using KWEngine2Test.Objects.SweepAndPruneTest;
 
 namespace KWEngine2Test.Worlds
 {
@@ -16,8 +15,18 @@ namespace KWEngine2Test.Worlds
      
         public override void Prepare()
         {
-            FOV = 90;
+            KWEngine.DebugShowPerformanceInTitle = KWEngine.PerformanceUnit.FrameTimeInMilliseconds;
 
+            FOV = 90;
+            Player p = new Player();
+            p.SetModel("KWCube");
+            p.SetPosition(0, -8, 0);
+            p.IsCollisionObject = true;
+            AddGameObject(p);
+
+            SpawnEnemies();
+
+            /*
             SweepCube c1 = new SweepCube();
             c1.Name = "c1";
             c1.SetModel("KWCube");
@@ -57,6 +66,19 @@ namespace KWEngine2Test.Worlds
             c5.SetScale(5, 1, 1);
             c5.IsCollisionObject = true;
             AddGameObject(c5);
+            */
+        }
+
+        private void SpawnEnemies()
+        {
+            for(int i = 0; i < 100; i++)
+            {
+                KWEngine2Test.Objects.SweepAndPruneTest.Enemy e = new Enemy();
+                e.SetModel("KWSphere");
+                e.SetPosition((i - 50) / 2f, HelperRandom.GetRandomNumber(-7f, 10f), 0);
+                e.IsCollisionObject = true;
+                AddGameObject(e);
+            }
         }
 
     }

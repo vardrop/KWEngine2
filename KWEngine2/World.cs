@@ -915,13 +915,13 @@ namespace KWEngine2
             if (_gameObjects.Count < 2)
                 return;
 
-            IOrderedEnumerable<GameObject> axisList = null;
+            List<GameObject> axisList = null;
             if (_sweepTestAxisIndex == 0)
-                axisList = _gameObjects.OrderBy(x => x.LeftRightMost.X);
+                axisList = _gameObjects.OrderBy(x => x.LeftRightMost.X).ToList();
             else if (_sweepTestAxisIndex == 1)
-                axisList = _gameObjects.OrderBy(x => x.BottomTopMost.X);
-            else if(_sweepTestAxisIndex == 2)
-                axisList = _gameObjects.OrderBy(x => x.BackFrontMost.X);
+                axisList = _gameObjects.OrderBy(x => x.BottomTopMost.X).ToList();
+            else if (_sweepTestAxisIndex == 2)
+                axisList = _gameObjects.OrderBy(x => x.BackFrontMost.X).ToList();
 
             Vector3 centerSum = new Vector3(0, 0, 0);
             Vector3 centerSqSum = new Vector3(0, 0, 0);
@@ -933,9 +933,9 @@ namespace KWEngine2
   
                 for(int j = i+1; j < axisList.Count(); j++)
                 {
-                    GameObject fromI = axisList.ElementAt(i);
-                    GameObject fromJ = axisList.ElementAt(j);
-                    if(fromJ.GetExtentsForAxis(_sweepTestAxisIndex).X > fromI.GetExtentsForAxis(_sweepTestAxisIndex).Y)
+                    GameObject fromI = axisList[i];
+                    GameObject fromJ = axisList[j];
+                    if (fromJ.GetExtentsForAxis(_sweepTestAxisIndex).X > fromI.GetExtentsForAxis(_sweepTestAxisIndex).Y)
                     {
                         break;
                     }
@@ -957,7 +957,7 @@ namespace KWEngine2
             {
                 maxVar = Math.Abs(variance.Z);
                 _sweepTestAxisIndex = 2;
-            }           
+            }        
         }
 
 
