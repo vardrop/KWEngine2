@@ -927,11 +927,11 @@ namespace KWEngine2
             Vector3 centerSqSum = new Vector3(0, 0, 0);
             for(int i = 0; i < axisList.Count(); i++)
             {
-                Vector3 currentCenter = axisList.ElementAt(i).GetCenterPointForAllHitboxes();
+                Vector3 currentCenter = axisList[i].GetCenterPointForAllHitboxes();
                 centerSum += currentCenter;
                 centerSqSum += (currentCenter * currentCenter);
   
-                for(int j = i+1; j < axisList.Count(); j++)
+                for(int j = i+1; j < axisList.Count; j++)
                 {
                     GameObject fromI = axisList[i];
                     GameObject fromJ = axisList[j];
@@ -943,8 +943,8 @@ namespace KWEngine2
                     fromJ._collisionCandidates.Add(fromI);
                 }
             }
-            centerSum /= axisList.Count();
-            centerSqSum /= axisList.Count();
+            centerSum /= axisList.Count;
+            centerSqSum /= axisList.Count;
             Vector3 variance = centerSqSum - (centerSum * centerSum);
             float maxVar = Math.Abs(variance.X);
             _sweepTestAxisIndex = 0;
