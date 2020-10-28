@@ -10,6 +10,6 @@ uniform vec2 uTextureTransform;
  
 void main()
 {
-	vTexture = aTexture * uTextureTransform; 
+	vTexture = vec2(aTexture.x, 1.0 - aTexture.y) * uTextureTransform; 
 	gl_Position = (uMVP * vec4(aPosition, 1.0)).xyww; 
 }
