@@ -927,14 +927,24 @@ namespace KWEngine2
             Vector3 centerSqSum = new Vector3(0, 0, 0);
             for(int i = 0; i < axisList.Count(); i++)
             {
+                if(axisList[i].IsCollisionObject == false)
+                {
+                    continue;
+                }
+
                 Vector3 currentCenter = axisList[i].GetCenterPointForAllHitboxes();
                 centerSum += currentCenter;
                 centerSqSum += (currentCenter * currentCenter);
   
                 for(int j = i+1; j < axisList.Count; j++)
                 {
-                    GameObject fromI = axisList[i];
                     GameObject fromJ = axisList[j];
+                    if(fromJ.IsCollisionObject == false)
+                    {
+                        continue;
+                    }
+
+                    GameObject fromI = axisList[i];
                     if (fromJ.GetExtentsForAxis(_sweepTestAxisIndex).X > fromI.GetExtentsForAxis(_sweepTestAxisIndex).Y)
                     {
                         break;

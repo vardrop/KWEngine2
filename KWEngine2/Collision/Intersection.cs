@@ -65,12 +65,13 @@ namespace KWEngine2.Collision
         /// <summary>
         /// Konstruktormethode
         /// </summary>
-        /// <param name="collider"></param>
-        /// <param name="mtv"></param>
-        /// <param name="mName"></param>
-        /// <param name="suggestedHeightOnTerrain"></param>
-        /// <param name="heightOnTerrain"></param>
-        /// <param name="isTerrain"></param>
+        /// <param name="collider">Kollisionsobjekt</param>
+        /// <param name="mtv">Korrektur-MTV</param>
+        /// <param name="mtvUp">Korrektur-MTV (Y-Achse)</param>
+        /// <param name="mName">Mesh-Name</param>
+        /// <param name="suggestedHeightOnTerrain">Höhe auf Terrain (inkl. Hitbox)</param>
+        /// <param name="heightOnTerrain">Absolute Höhe auf dem Terrain</param>
+        /// <param name="isTerrain">true, wenn es ein Terrain-Objekt ist</param>
         public Intersection(GameObject collider, Vector3 mtv, Vector3 mtvUp, string mName, float suggestedHeightOnTerrain = 0, float heightOnTerrain = 0, bool isTerrain = false)
         {
             Object = collider;
