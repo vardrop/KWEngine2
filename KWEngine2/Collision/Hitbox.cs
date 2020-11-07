@@ -1,4 +1,5 @@
-﻿using KWEngine2.GameObjects;
+﻿using Assimp;
+using KWEngine2.GameObjects;
 using KWEngine2.Model;
 using OpenTK;
 using System;
@@ -39,6 +40,8 @@ namespace KWEngine2.Collision
 
         }
 
+        public bool IsActive { get; internal set; } = true;
+
         private static Vector3 MTVTemp = new Vector3(0, 0, 0);
         private static Vector3 MTVTempUp = new Vector3(0, 0, 0);
         private Matrix4 mTempMatrix = Matrix4.Identity;
@@ -59,13 +62,16 @@ namespace KWEngine2.Collision
         {
             Owner = owner;
             mMesh = mesh;
-            if(mesh.IsExtended)
+            if (mesh.IsExtended)
             {
                 mVertices = new Vector3[mesh.Vertices.Length];
                 mNormals = new Vector3[mesh.Normals.Length];
             }
-            Vector3 sceneCenter = Update(ref owner._sceneDimensions);
-            Owner._sceneCenter = sceneCenter;
+            if (mMesh.IsActive)
+            { 
+                Vector3 sceneCenter = Update(ref owner._sceneDimensions);
+                Owner._sceneCenter = sceneCenter;
+            }
         }
 
         public Vector3 Update(ref Vector3 dims)

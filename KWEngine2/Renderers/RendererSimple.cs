@@ -85,14 +85,16 @@ namespace KWEngine2.Renderers
             lock (g)
             {
                 bool useMeshTransform = (g.AnimationID >= 0 && g.Model.Animations != null && g.Model.Animations.Count > 0);
-
                 int i = 0;
                 foreach (GeoMeshHitbox h in g.Model.MeshHitboxes)
                 {
+                    if (!h.IsActive)
+                        continue;
+
                     Matrix4 model = Matrix4.CreateScale(h.width, h.height, h.depth);
                     model *= Matrix4.CreateTranslation(h.Center);
-                    if(useMeshTransform)
-                        model *= g.Model.Meshes.ElementAt(i).Value.Transform;
+                    if (useMeshTransform)
+                        model *= h.Mesh.Transform;
                     model = model * g.ModelMatrixForRenderPass[i];
                     _modelViewProjection = model * viewProjection;
 

@@ -197,75 +197,51 @@ namespace KWEngine2.Model
             return gNode;
         }
 
+        private static Node GetNodeForBone(Node node, Bone b)
+        {
+            foreach(Node n in node.Children)
+            {
+                if(n.Name == b.Name)
+                {
+                    return n;
+                }
+                else
+                {
+                    Node nodeCandidate = GetNodeForBone(n, b);
+                    if (nodeCandidate != null)
+                        return nodeCandidate;
+                }
+            }
+            return null;
+        }
+
         private static void FindRootBone(Scene scene, ref GeoModel model, string boneName)
         {
-            bool found = false;
-            foreach (Node child in scene.RootNode.Children)
+            int c = 0;
+            while(c < scene.Meshes.Count)
             {
-                if (child.Name == boneName) // found the anchor
+                Mesh m = scene.Meshes[c];
+                if(m.BoneCount > 0)
                 {
-                    Node armature = ScanForParent(scene, child);
-                    if (armature != null)
+                    Node boneNode = GetNodeForBone(scene.RootNode, m.Bones[0]);
+                    if(boneNode != null)
                     {
-                        foreach (GeoNode n in model.NodesWithoutHierarchy)
+                        while(boneNode.Parent != scene.RootNode)
                         {
-                            if (armature.Name == n.Name)
+                            boneNode = boneNode.Parent;
+                        }
+                        foreach(GeoNode n in model.NodesWithoutHierarchy)
+                        {
+                            if(n.Name == boneNode.Name)
                             {
                                 model.Armature = n;
-                                found = true;
-                            }
-                            return;
-                        }
-                    }
-                }
-            }
-            if (!found)
-            {
-                Node subNode = scene.RootNode.Children[0];
-                foreach (Node child in subNode.Children)
-                {
-                    if (child.Name == boneName) // found the anchor
-                    {
-                        Node armature = child.Parent;
-                        if (armature != null)
-                        {
-                            foreach (GeoNode n in model.NodesWithoutHierarchy)
-                            {
-                                if (armature.Name == n.Name)
-                                {
-                                    model.Armature = n;
-                                    found = true;
-                                    return;
-                                }
-                                
+                                return;
                             }
                         }
+
                     }
                 }
-            }
-            if (!found && scene.RootNode.Children.Count > 1)
-            {
-                Node subNode = scene.RootNode.Children[1];
-                foreach (Node child in subNode.Children)
-                {
-                    if (child.Name == boneName) // found the anchor
-                    {
-                        Node armature = child.Parent;
-                        if (armature != null)
-                        {
-                            foreach (GeoNode n in model.NodesWithoutHierarchy)
-                            {
-                                if (armature.Name == n.Name)
-                                {
-                                    model.Armature = n;
-                                    found = true;
-                                    return;
-                                }
-                                
-                            }
-                        }
-                    }
-                }
+                c++;
             }
         }
 
@@ -310,7 +286,7 @@ namespace KWEngine2.Model
             }
         }
 
-        private static bool FindTransformForMesh(Scene scene, Node currentNode, Mesh mesh, out Matrix4 transform, out string nodeName, ref Matrix4 parentTransform)
+        private static bool FindTransformForMesh(Scene scene, Node currentNode, Mesh mesh, ref Matrix4 transform, out string nodeName, ref Matrix4 parentTransform)
         {
             Matrix4 currentNodeTransform = parentTransform * HelperMatrix.ConvertAssimpToOpenTKMatrix(currentNode.Transform);
             for (int i = 0; i < currentNode.MeshIndices.Count; i++)
@@ -327,10 +303,9 @@ namespace KWEngine2.Model
             for (int i = 0; i < currentNode.ChildCount; i++)
             {
                 Node child = currentNode.Children[i];
-                bool found = FindTransformForMesh(scene, child, mesh, out Matrix4 t, out string nName, ref currentNodeTransform);
+                bool found = FindTransformForMesh(scene, child, mesh, ref transform, out string nName, ref currentNodeTransform);
                 if (found)
                 {
-                    transform = t;
                     nodeName = nName;
                     return true;
                 }
@@ -850,16 +825,16 @@ namespace KWEngine2.Model
                     throw new Exception("Model's primitive type is not set to 'triangles'. Cannot import model.");
                 }
                 
-                
                 if (isNewMesh)
                 {
-                    if (currentMeshName != null && !currentMeshName.ToLower().Contains("_nohitbox"))
+                    if (currentMeshName != null)
                     {
                         // Generate hitbox for the previous mesh:
                         meshHitBox = new GeoMeshHitbox(maxX, maxY, maxZ, minX, minY, minZ, currentMeshName.ToLower().Contains("_fullhitbox") ? mesh : null);
                         meshHitBox.Model = model;
                         meshHitBox.Name = currentMeshName;
                         meshHitBox.Transform = nodeTransform;
+                        meshHitBox.IsActive = !currentMeshName.ToLower().Contains("_nohitbox");
                         model.MeshHitboxes.Add(meshHitBox);
 
                     }
@@ -876,12 +851,12 @@ namespace KWEngine2.Model
 
                 GeoMesh geoMesh = new GeoMesh();
                 Matrix4 parentTransform = Matrix4.Identity;
-                bool transformFound = FindTransformForMesh(scene, scene.RootNode, mesh, out nodeTransform, out string nodeName, ref parentTransform);
+                bool transformFound = FindTransformForMesh(scene, scene.RootNode, mesh, ref nodeTransform, out string nodeName, ref parentTransform);
                 geoMesh.Transform = nodeTransform;
                 geoMesh.Terrain = null;
                 geoMesh.BoneTranslationMatrixCount = mesh.BoneCount;
-                geoMesh.HasPCAHitbox = false; // TODO: Calculate PCA Hitbox
                 geoMesh.Name = mesh.Name + " #" + m.ToString().PadLeft(4, '0') + " (Node: " + nodeName + ")";
+                geoMesh.NameOrg = mesh.Name;
                 geoMesh.Vertices = new GeoVertex[mesh.VertexCount];
                 geoMesh.Primitive = OpenTK.Graphics.OpenGL4.PrimitiveType.Triangles;
                 geoMesh.VAOGenerateAndBind();
@@ -958,13 +933,26 @@ namespace KWEngine2.Model
             }
 
             // Generate hitbox for the last mesh:
-            if (currentMeshName != null && !currentMeshName.ToLower().Contains("_nohitbox"))
+            if (currentMeshName != null)
             {
                 meshHitBox = new GeoMeshHitbox(maxX, maxY, maxZ, minX, minY, minZ, currentMeshName.ToLower().Contains("_fullhitbox") ? mesh : null);
                 meshHitBox.Model = model;
                 meshHitBox.Name = model.Filename == "kwcube6.obj" ? "KWCube6" : currentMeshName;
                 meshHitBox.Transform = nodeTransform;
+                meshHitBox.IsActive = !currentMeshName.ToLower().Contains("_nohitbox");
                 model.MeshHitboxes.Add(meshHitBox);
+            }
+
+            foreach(GeoMeshHitbox hitbox in model.MeshHitboxes)
+            {
+                foreach(GeoMesh m in model.Meshes.Values)
+                {
+                    if(m.NameOrg == hitbox.Name)
+                    {
+                        hitbox.Mesh = m;
+                        break;
+                    }
+                }
             }
 
         }

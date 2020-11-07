@@ -16,6 +16,7 @@ namespace KWEngine2.Model
         }
 
         internal bool IsExtended { get; private set; } = false;
+        public bool IsActive { get; internal set; } = true;
 
         public string Name { get; internal set; }
         internal float maxX, maxY, maxZ;
@@ -34,6 +35,7 @@ namespace KWEngine2.Model
         internal Matrix4 Transform = Matrix4.Identity;
 
         public GeoModel Model { get; internal set; } = null;
+        public GeoMesh Mesh { get; internal set; } = null;
 
         public GeoMeshHitbox(float maxX, float maxY, float maxZ, float minX, float minY, float minZ, Mesh meshData = null)
         {

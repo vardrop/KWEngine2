@@ -33,6 +33,7 @@ namespace KWEngine2.Model
         public int VBOBiTangent { get; internal set; }
         public int VBOIndex { get; internal set; }
         public string Name { get; internal set; }
+        public string NameOrg { get; internal set; }
         internal Matrix4 Transform;
         public GeoVertex[] Vertices { get; internal set; }
         public OpenTK.Graphics.OpenGL4.PrimitiveType Primitive;
@@ -44,7 +45,6 @@ namespace KWEngine2.Model
             }
         }
 
-        public bool HasPCAHitbox { get; internal set; }
         public uint[] Indices { get; internal set; }
         public GeoMaterial Material { get; internal set; }
 

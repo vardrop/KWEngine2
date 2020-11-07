@@ -441,29 +441,37 @@ namespace KWEngine2.GameObjects
             float maxY = float.MinValue;
             float minZ = float.MaxValue;
             float maxZ = float.MinValue;
+            int minusHitboxes = 0;
             foreach (Hitbox h in Hitboxes)
             {
-                Vector3 localCenter = h.Update(ref tmpDims);
-                sceneCenter += localCenter;
+                if (!h.IsActive)
+                {
+                    minusHitboxes++;
+                }
+                else
+                {
+                    Vector3 localCenter = h.Update(ref tmpDims);
+                    sceneCenter += localCenter;
 
-                if (localCenter.X + tmpDims.X / 2 > maxX)
-                    maxX = localCenter.X + tmpDims.X / 2;
-                if (localCenter.X - tmpDims.X / 2 < minX)
-                    minX = localCenter.X - tmpDims.X / 2;
+                    if (localCenter.X + tmpDims.X / 2 > maxX)
+                        maxX = localCenter.X + tmpDims.X / 2;
+                    if (localCenter.X - tmpDims.X / 2 < minX)
+                        minX = localCenter.X - tmpDims.X / 2;
 
-                if (localCenter.Y + tmpDims.Y / 2 > maxY)
-                    maxY = localCenter.Y + tmpDims.Y / 2;
-                if (localCenter.Y - tmpDims.Y / 2 < minY)
-                    minY = localCenter.Y - tmpDims.Y / 2;
+                    if (localCenter.Y + tmpDims.Y / 2 > maxY)
+                        maxY = localCenter.Y + tmpDims.Y / 2;
+                    if (localCenter.Y - tmpDims.Y / 2 < minY)
+                        minY = localCenter.Y - tmpDims.Y / 2;
 
-                if (localCenter.Z + tmpDims.Z / 2 > maxZ)
-                    maxZ = localCenter.Z + tmpDims.Z / 2;
-                if (localCenter.Z - tmpDims.Z / 2 < minZ)
-                    minZ = localCenter.Z - tmpDims.Z / 2;
+                    if (localCenter.Z + tmpDims.Z / 2 > maxZ)
+                        maxZ = localCenter.Z + tmpDims.Z / 2;
+                    if (localCenter.Z - tmpDims.Z / 2 < minZ)
+                        minZ = localCenter.Z - tmpDims.Z / 2;
+                }
             }
-            _sceneCenter.X = sceneCenter.X / Hitboxes.Count;
-            _sceneCenter.Y = sceneCenter.Y / Hitboxes.Count;
-            _sceneCenter.Z = sceneCenter.Z / Hitboxes.Count;
+            _sceneCenter.X = sceneCenter.X / (Hitboxes.Count - minusHitboxes);
+            _sceneCenter.Y = sceneCenter.Y / (Hitboxes.Count - minusHitboxes);
+            _sceneCenter.Z = sceneCenter.Z / (Hitboxes.Count - minusHitboxes);
             LeftRightMost = new Vector2(minX - KWEngine.SweepAndPruneToleranceWidth, maxX + KWEngine.SweepAndPruneToleranceWidth);
             BackFrontMost = new Vector2(minZ - KWEngine.SweepAndPruneToleranceWidth, maxZ + KWEngine.SweepAndPruneToleranceWidth);
             BottomTopMost = new Vector2(minY - KWEngine.SweepAndPruneToleranceWidth, maxY + KWEngine.SweepAndPruneToleranceWidth);
@@ -1098,21 +1106,17 @@ namespace KWEngine2.GameObjects
 
         internal void ProcessCurrentAnimation()
         {
-            //lock (this)
-            //{
-                if (AnimationID >= 0 && AnimationID < Model.Animations.Count)
-                {
-                    GeoAnimation a = Model.Animations[AnimationID];
+            if (AnimationID >= 0 && AnimationID < Model.Animations.Count)
+            {
+                GeoAnimation a = Model.Animations[AnimationID];
 
-                    //Console.WriteLine(AnimationPercentage);
-                    float timestamp = a.DurationInTicks * AnimationPercentage;
-                    foreach (GeoMesh mesh in Model.Meshes.Values)
-                    {
-                        Matrix4 identity = Matrix4.Identity;
-                        ReadNodeHierarchy(timestamp, ref a, AnimationID, Model.Root, mesh, ref identity);
-                    }
+                float timestamp = a.DurationInTicks * AnimationPercentage;
+                foreach (GeoMesh mesh in Model.Meshes.Values)
+                {
+                    Matrix4 identity = Matrix4.Identity;
+                    ReadNodeHierarchy(timestamp, ref a, AnimationID, Model.Root, mesh, ref identity);
                 }
-            //}
+            }
         }
 
         private void ReadNodeHierarchy(float timestamp, ref GeoAnimation animation, int animationId, GeoNode node, GeoMesh mesh, ref Matrix4 parentTransform, int debugLevel = 0)
