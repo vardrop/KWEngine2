@@ -49,7 +49,7 @@ namespace KWEngine2.Renderers
                 throw new Exception("Creating and linking shaders failed.");
             }
 
-
+            mAttribute_vpos = GL.GetAttribLocation(mProgramId, "aPosition");
             mUniform_MVP = GL.GetUniformLocation(mProgramId, "uMVP");
             mUniform_BaseColor = GL.GetUniformLocation(mProgramId, "uBaseColor");
         }
@@ -79,40 +79,36 @@ namespace KWEngine2.Renderers
             if (!g.IsInsideScreenSpace || g.Opacity <= 0 || !g.IsCollisionObject)
                 return;
 
-            GL.UseProgram(mProgramId);
+            
             GL.Disable(EnableCap.Blend);
 
             lock (g)
             {
-                bool useMeshTransform = (g.AnimationID >= 0 && g.Model.Animations != null && g.Model.Animations.Count > 0);
-                int i = 0;
-                foreach (GeoMeshHitbox h in g.Model.MeshHitboxes)
+                for (int i = 0; i < g.Hitboxes.Count; i++)
                 {
-                    if (!h.IsActive)
-                        continue;
+                    GL.UseProgram(mProgramId);
 
-                    Matrix4 model = Matrix4.CreateScale(h.width, h.height, h.depth);
-                    model *= Matrix4.CreateTranslation(h.Center);
-                    if (useMeshTransform)
-                        model *= h.Mesh.Transform;
-                    model = model * g.ModelMatrixForRenderPass[i];
-                    _modelViewProjection = model * viewProjection;
-
-                    GL.UniformMatrix4(mUniform_MVP, false, ref _modelViewProjection);
+                    bool isFullHitbox = g.Hitboxes[i].GetVertices(out float[] v);
+                    GL.UniformMatrix4(mUniform_MVP, false, ref viewProjection);
                     GL.Uniform3(mUniform_BaseColor, 1.0f, 1.0f, 1.0f);
 
-                    GeoMesh mesh = KWEngine.GHitbox.Meshes.ElementAt(0).Value;
-                    GL.BindVertexArray(mesh.VAO);
-                    GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
-                    GL.DrawElements(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
-                    GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-                    GL.BindVertexArray(0);
+                    int tmpVAO = GL.GenVertexArray();
+                    GL.BindVertexArray(tmpVAO);
+                    int tmp = GL.GenBuffer();
+                    GL.BindBuffer(BufferTarget.ArrayBuffer, tmp);
+                    GL.BufferData(BufferTarget.ArrayBuffer, v.Length * 4, v, BufferUsageHint.StaticDraw);
+                    GL.VertexAttribPointer(mAttribute_vpos, 3, VertexAttribPointerType.Float, false, 0, 0);
+                    GL.EnableVertexAttribArray(mAttribute_vpos);
+                    GL.DrawArrays(PrimitiveType.Points, 0, v.Length / 3);
+                    GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+                    GL.DisableVertexAttribArray(0);
 
-                    i++;
+                    GL.DeleteBuffer(tmp);
+                    GL.DeleteVertexArray(tmpVAO);
+
+                    GL.UseProgram(0);
                 }
             }
-
-            GL.UseProgram(0);
         }
 
         internal override void Draw(GameObject g, ref Matrix4 viewProjection, ref Matrix4 viewProjectionShadowBiased, ref Matrix4 viewProjectionShadowBiased2, HelperFrustum frustum, ref float[] lightColors, ref float[] lightTargets, ref float[] lightPositions, int lightCount, ref int lightShadow)

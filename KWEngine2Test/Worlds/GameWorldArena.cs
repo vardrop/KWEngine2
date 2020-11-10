@@ -29,12 +29,9 @@ namespace KWEngine2Test.Worlds
             SetSunPosition(200, 200, 50);
             SetSunColor(1, 0.75f, 0.5f, 1);
             KWEngine.ShadowMapCoefficient = 0.00075f;
-
             KWEngine.LoadModelFromFile("ArenaOuter", @".\Models\ArenaOuter\ArenaOuter.fbx");
             KWEngine.LoadModelFromFile("ArenaPlatform", @".\Models\ArenaOuter\ArenaPlatform.obj");
             KWEngine.LoadModelFromFile("ArenaPlatforms", @".\Models\ArenaOuter\ArenaPlatforms.fbx");
-           // KWEngine.LoadModelFromFile("StairTest", @".\Models\ArenaOuter\StairTest.obj");
-           // KWEngine.LoadModelFromFile("HitboxTest", @".\Models\ArenaOuter\normalstest.obj");
 
             KWEngine.BuildTerrainModel("Arena", @".\textures\heightmapArena.png", @".\textures\sand_diffuse.png", 150, 10, 150, 7.5f, 7.5f);
             Immovable terra = new Immovable();
@@ -42,24 +39,6 @@ namespace KWEngine2Test.Worlds
             terra.SetPosition(0, -0.5f, 0);
             terra.SetTexture(@".\textures\sand_normal.png", KWEngine.TextureType.Normal);
             AddGameObject(terra);
-
-            /*
-            Immovable stairTest = new Immovable();
-            stairTest.SetModel("StairTest");
-            stairTest.IsCollisionObject = true;
-            stairTest.IsStair = true;
-            stairTest.SetPosition(15, 0f, 0);
-            stairTest.SetScale(0.5f);
-            AddGameObject(stairTest);
-
-            Immovable hitboxtest = new Immovable();
-            hitboxtest.SetModel("HitboxTest");
-            hitboxtest.IsCollisionObject = true;
-            hitboxtest.SetPosition(0, 0f, 0);
-            hitboxtest.SetScale(1);
-            //DebugShowHitboxes = true;
-            AddGameObject(hitboxtest);
-            */
 
             Immovable floor = new Immovable();
             floor.SetModel("KWCube");

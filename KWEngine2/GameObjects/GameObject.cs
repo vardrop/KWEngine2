@@ -1109,21 +1109,14 @@ namespace KWEngine2.GameObjects
             if (AnimationID >= 0 && AnimationID < Model.Animations.Count)
             {
                 GeoAnimation a = Model.Animations[AnimationID];
-
-                float timestamp = a.DurationInTicks * AnimationPercentage;
-                foreach (GeoMesh mesh in Model.Meshes.Values)
-                {
-                    Matrix4 identity = Matrix4.Identity;
-                    ReadNodeHierarchy(timestamp, ref a, AnimationID, Model.Root, mesh, ref identity);
-                }
+                Matrix4 identity = Matrix4.Identity;
+                ReadNodeHierarchy(a.DurationInTicks * AnimationPercentage, ref a, AnimationID, Model.Root, ref identity);
             }
         }
 
-        private void ReadNodeHierarchy(float timestamp, ref GeoAnimation animation, int animationId, GeoNode node, GeoMesh mesh, ref Matrix4 parentTransform, int debugLevel = 0)
+        private void ReadNodeHierarchy(float timestamp, ref GeoAnimation animation, int animationId, GeoNode node, ref Matrix4 parentTransform)
         {
-            string nodeName = node.Name;
-
-            animation.AnimationChannels.TryGetValue(nodeName, out GeoNodeAnimationChannel channel);
+            animation.AnimationChannels.TryGetValue(node.Name, out GeoNodeAnimationChannel channel);
             Matrix4 nodeTransformation = node.Transform;
 
             if (channel != null)
@@ -1138,22 +1131,25 @@ namespace KWEngine2.GameObjects
             }
             Matrix4 globalTransform = nodeTransformation * parentTransform;
 
-            int index = mesh.BoneNames.IndexOf(node.Name);
-            if (index >= 0)
+            foreach(GeoMesh mesh in Model.Meshes.Values)
             {
-                lock (BoneTranslationMatrices)
+                if (mesh.BoneNames.Count > 0)
                 {
-                    BoneTranslationMatrices[mesh.Name][index] = mesh.BoneOffset[index] * globalTransform * Model.TransformGlobalInverse;
+                    int index = mesh.BoneNames.IndexOf(node.Name);
+                    if (index >= 0)
+                    {
+                        BoneTranslationMatrices[mesh.Name][index] = mesh.BoneOffset[index] * globalTransform * Model.TransformGlobalInverse;
+                    }
                 }
             }
-
+            
             for (int i = 0; i < node.Children.Count; i++)
             {
-                ReadNodeHierarchy(timestamp, ref animation, animationId, node.Children[i], mesh, ref globalTransform, debugLevel + 1);
+                ReadNodeHierarchy(timestamp, ref animation, animationId, node.Children[i], ref globalTransform);
             }
 
         }
-
+      
         private Vector3 CalcInterpolatedScaling(float timestamp, ref GeoNodeAnimationChannel channel)
         {
             if (channel.ScaleKeys.Count == 1)

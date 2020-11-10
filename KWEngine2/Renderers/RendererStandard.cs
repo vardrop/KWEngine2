@@ -135,7 +135,6 @@ namespace KWEngine2.Renderers
             if (g == null || !g.HasModel || g.CurrentWorld == null || g.Opacity <= 0)
                 return;
 
-            //g.IsInsideScreenSpace = frustum.SphereVsFrustum(g.GetCenterPointForAllHitboxes(), g.GetMaxDiameter() / 2);
             g.IsInsideScreenSpace = frustum.VolumeVsFrustum(g.GetCenterPointForAllHitboxes(), g.GetMaxDimensions().X, g.GetMaxDimensions().Y, g.GetMaxDimensions().Z);
             if (!g.IsInsideScreenSpace)
                 return;
@@ -264,16 +263,13 @@ namespace KWEngine2.Renderers
                         overrides = g._overrides[mesh.Name];
                     }
 
-                    if (g.AnimationID >= 0 && g.Model.Animations != null && g.Model.Animations.Count > 0)
+                    if (mesh.BoneNames.Count > 0 && g.AnimationID >= 0 && g.Model.Animations != null && g.Model.Animations.Count > 0)
                     {
                         GL.Uniform1(mUniform_UseAnimations, 1);
-                        lock (g.BoneTranslationMatrices)
+                        for (int i = 0; i < g.BoneTranslationMatrices[meshName].Length; i++)
                         {
-                            for (int i = 0; i < g.BoneTranslationMatrices[meshName].Length; i++)
-                            {
-                                Matrix4 tmp = g.BoneTranslationMatrices[meshName][i];
-                                GL.UniformMatrix4(mUniform_BoneTransforms + i, false, ref tmp);
-                            }
+                            Matrix4 tmp = g.BoneTranslationMatrices[meshName][i];
+                            GL.UniformMatrix4(mUniform_BoneTransforms + i, false, ref tmp);
                         }
                     }
                     else
@@ -331,9 +327,6 @@ namespace KWEngine2.Renderers
                         }
                         else
                         {
-                            //GL.ActiveTexture(TextureUnit.Texture8);
-                            //GL.BindTexture(TextureTarget.Texture2D, mesh.Material.TextureLight.OpenGLID);
-                            //GL.Uniform1(mUniform_TextureLightMap, 8);
                             GL.Uniform1(mUniform_TextureUseLightMap, 0);
                         }
 
@@ -376,9 +369,6 @@ namespace KWEngine2.Renderers
                         }
                         else
                         {
-                            //GL.ActiveTexture(TextureUnit.Texture0);
-                            //GL.BindTexture(TextureTarget.Texture2D, texId);
-                            //GL.Uniform1(mUniform_Texture, 0);
                             GL.Uniform1(mUniform_TextureUse, 0);
                             GL.Uniform3(mUniform_BaseColor, mesh.Material.ColorDiffuse.X, mesh.Material.ColorDiffuse.Y, mesh.Material.ColorDiffuse.Z);
                         }
@@ -403,10 +393,6 @@ namespace KWEngine2.Renderers
                         }
                         else
                         {
-
-                            //GL.ActiveTexture(TextureUnit.Texture1);
-                            //GL.BindTexture(TextureTarget.Texture2D, texId);
-                            //GL.Uniform1(mUniform_TextureNormalMap, 1);
                             GL.Uniform1(mUniform_TextureUseNormalMap, 0);
                         }
 
@@ -434,9 +420,6 @@ namespace KWEngine2.Renderers
                         }
                         else
                         {
-                            //GL.ActiveTexture(TextureUnit.Texture2);
-                            //GL.BindTexture(TextureTarget.Texture2D, texId);
-                            //GL.Uniform1(mUniform_TextureSpecularMap, 2);
                             GL.Uniform1(mUniform_TextureUseSpecularMap, 0);
                             GL.Uniform1(mUniform_TextureSpecularIsRoughness, 0);
                         }
@@ -451,9 +434,6 @@ namespace KWEngine2.Renderers
                         }
                         else
                         {
-                            //GL.ActiveTexture(TextureUnit.Texture4);
-                            //GL.BindTexture(TextureTarget.Texture2D, mesh.Material.TextureEmissive.OpenGLID);
-                            //GL.Uniform1(mUniform_TextureEmissiveMap, 4);
                             GL.Uniform1(mUniform_TextureUseEmissiveMap, 0);
                         }
 

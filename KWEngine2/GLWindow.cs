@@ -200,6 +200,7 @@ namespace KWEngine2
             GL.ClearColor(0.0f, 0.0f, 0.0f, 1f);
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
+            GL.Enable(EnableCap.ProgramPointSize);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
             // Only needed for tesselation... maybe later?

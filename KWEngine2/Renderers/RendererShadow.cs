@@ -75,9 +75,8 @@ namespace KWEngine2.Renderers
                         index = 0;
                     }
                     GeoMesh mesh = g.Model.Meshes[meshName];
-
-                    bool useMeshTransform = !(g.AnimationID >= 0 && g.Model.Animations != null && g.Model.Animations.Count > 0);
-
+                    bool useMeshTransform = mesh.BoneNames.Count == 0 || !(g.AnimationID >= 0 && g.Model.Animations != null && g.Model.Animations.Count > 0);
+                    
                     if (isSun)
                     {
                         if (useMeshTransform)
@@ -101,13 +100,10 @@ namespace KWEngine2.Renderers
                         if (useMeshTransform == false)
                         {
                             GL.Uniform1(mUniform_UseAnimations, 1);
-                            lock (g.BoneTranslationMatrices)
+                            for (int i = 0; i < g.BoneTranslationMatrices[meshName].Length; i++)
                             {
-                                for (int i = 0; i < g.BoneTranslationMatrices[meshName].Length; i++)
-                                {
-                                    Matrix4 tmp = g.BoneTranslationMatrices[meshName][i];
-                                    GL.UniformMatrix4(mUniform_BoneTransforms + i, false, ref tmp);
-                                }
+                                Matrix4 tmp = g.BoneTranslationMatrices[meshName][i];
+                                GL.UniformMatrix4(mUniform_BoneTransforms + i, false, ref tmp);
                             }
                         }
                         else
@@ -125,7 +121,6 @@ namespace KWEngine2.Renderers
                     }
                 }
             }
-            //GL.UseProgram(0);
         }
 
         internal override void Draw(GameObject g, ref Matrix4 viewProjection)

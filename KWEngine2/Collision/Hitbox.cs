@@ -40,6 +40,19 @@ namespace KWEngine2.Collision
 
         }
 
+        internal bool GetVertices(out float[] vertices)
+        {
+            vertices = new float[mVertices.Length * 3];
+            for(int i = 0, j = 0; i < mVertices.Length; i++)
+            {
+                vertices[j + 0] = mVertices[i].X;
+                vertices[j + 1] = mVertices[i].Y;
+                vertices[j + 2] = mVertices[i].Z;
+                j += 3;
+            }
+            return mVertices.Length != 8;
+        }
+
         public bool IsActive { get; internal set; } = true;
 
         private static Vector3 MTVTemp = new Vector3(0, 0, 0);
