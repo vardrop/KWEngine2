@@ -9,7 +9,6 @@ using System.Diagnostics;
 using OpenTK.Graphics.OpenGL4;
 using System.Linq;
 using KWEngine2.Audio;
-using KWEngine2.Collision;
 using static KWEngine2.KWEngine;
 
 namespace KWEngine2
@@ -154,11 +153,6 @@ namespace KWEngine2
         internal List<Explosion> _explosionObjects = new List<Explosion>();
         internal List<Explosion> _explosionObjectsTBA = new List<Explosion>();
         internal List<Explosion> _explosionObjectsTBR = new List<Explosion>();
-
-        //internal List<SceneryObject> _sceneryObjects = new List<SceneryObject>();
-        //internal List<SceneryObject> _sceneryObjectsTBA = new List<SceneryObject>();
-        //internal List<SceneryObject> _sceneryObjectsTBR = new List<SceneryObject>();
-
 
         internal int _lightcount = 0;
         /// <summary>
@@ -606,7 +600,7 @@ namespace KWEngine2
                 {
                     if (!_particleObjects.Contains(g))
                     {
-                        g._starttime = DeltaTime.Watch.ElapsedMilliseconds; // Stopwatch.GetTimestamp() / TimeSpan.TicksPerMillisecond;
+                        g._starttime = DeltaTime.Watch.ElapsedMilliseconds;
                         _particleObjects.Add(g);
                     }
                 }
@@ -625,7 +619,7 @@ namespace KWEngine2
                 {
                     if (!_explosionObjects.Contains(ex))
                     {
-                        ex._starttime = DeltaTime.Watch.ElapsedMilliseconds;  //Stopwatch.GetTimestamp() / TimeSpan.TicksPerMillisecond;
+                        ex._starttime = DeltaTime.Watch.ElapsedMilliseconds;
                         _explosionObjects.Add(ex);
                     }
                 }

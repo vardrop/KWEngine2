@@ -56,13 +56,13 @@ namespace KWEngine2
 
         internal HelperFrustum Frustum = new HelperFrustum();
         internal HelperFrustum FrustumShadowMap = new HelperFrustum();
-        
+
         internal System.Drawing.Rectangle _windowRect;
         internal System.Drawing.Point _mousePoint = new System.Drawing.Point(0, 0);
         internal System.Drawing.Point _mousePointFPS = new System.Drawing.Point(0, 0);
 
         internal GeoModel _bloomQuad;
-    
+
         /// <summary>
         /// Gibt den Grad der anisotropischen Texturfilterung zurück (Standard: 1)
         /// </summary>
@@ -163,16 +163,16 @@ namespace KWEngine2
         protected GLWindow(int width, int height, GameWindowFlags flag, int antialiasing = 0, bool vSync = true)
             : this(width, height, flag, antialiasing, vSync, false)
         {
-           
+
         }
 
         private void BasicInit()
         {
-            string productVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductName + " " + FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductMajorPart + 
+            string productVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductName + " " + FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductMajorPart +
                 "." + FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductMinorPart + "." + FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductBuildPart;
             Console.Write("\n\n\n============================================================================\n" + "Running " + productVersion + " ");
             Console.WriteLine("on OpenGL 4.5 Core Profile.");
-            if(_multithreaded)
+            if (_multithreaded)
                 Console.WriteLine("                [ experimental multithreading mode ]");
             Console.WriteLine("============================================================================\n");
 
@@ -186,10 +186,10 @@ namespace KWEngine2
             KWEngine.InitializeFont("Anonymous.ttf");
             _bloomQuad = KWEngine.KWRect;
 
-            
+
         }
 
-        
+
         /// <summary>
         /// EventHandler für das erste Laden des Fensters
         /// </summary>
@@ -215,11 +215,13 @@ namespace KWEngine2
         {
             GLAudioEngine.SoundStopAll();
             GLAudioEngine.Dispose();
-            
+
             base.Dispose(manual);
 
 
         }
+
+        private List<GameObject> mInstancesRenderLast = new List<GameObject>();
 
         /// <summary>
         /// EventHandler für den Render-Thread
@@ -249,18 +251,20 @@ namespace KWEngine2
                     {
                         lp.Action.Invoke();
                     }
-                    
+
                 }
             }
 
             if (CurrentWorld != null && CurrentWorld._prepared)
             {
+                mInstancesRenderLast.Clear();
+
                 int shadowLight = -1;
                 lock (CurrentWorld._lightObjects)
                 {
                     LightObject.PrepareLightsForRenderPass(CurrentWorld._lightObjects, ref LightColors, ref LightTargets, ref LightPositions, ref CurrentWorld._lightcount, ref shadowLight);
                 }
-                LightObject sLight = shadowLight >= 0 ? CurrentWorld._lightObjects.ElementAt(shadowLight) :  null;
+                LightObject sLight = shadowLight >= 0 ? CurrentWorld._lightObjects.ElementAt(shadowLight) : null;
                 if (CurrentWorld.DebugShadowCaster)
                 {
                     if (sLight != null)
@@ -312,7 +316,6 @@ namespace KWEngine2
                 }
                 GL.UseProgram(0);
 
-                //Matrix4 viewMatrixShadow2 = Matrix4.Identity;
                 if (sLight != null)
                 {
                     SwitchToBufferAndClear(FramebufferShadowMap2);
@@ -330,7 +333,7 @@ namespace KWEngine2
 
                 }
 
-                   
+
                 SwitchToBufferAndClear(FramebufferMainMultisample);
                 GL.Viewport(ClientRectangle);
 
@@ -361,11 +364,37 @@ namespace KWEngine2
                         }
                         else
                         {
-                            KWEngine.Renderers["Standard"].Draw(g, ref viewProjection, ref viewProjectionShadowBiased, ref viewProjectionShadowBiased2, Frustum, ref LightColors, ref LightTargets, ref LightPositions, CurrentWorld._lightcount, ref shadowLight);
-                            if(CurrentWorld.DebugShowHitboxes)
-                                KWEngine.RendererSimple.DrawHitbox(g, ref viewProjection);
+                            bool opacityFound = false;
+                            foreach (GeoMesh mesh in g.Model.Meshes.Values)
+                            {
+                                if (mesh.Material.Opacity < 1f)
+                                {
+                                    opacityFound = true;
+                                    break;
+                                }
+                            }
+                            if (opacityFound || g.Opacity < 1f)
+                            {
+                                mInstancesRenderLast.Add(g);
+                                continue;
+                            }
+                            else
+                            {
+                                KWEngine.Renderers["Standard"].Draw(g, ref viewProjection, ref viewProjectionShadowBiased, ref viewProjectionShadowBiased2, Frustum, ref LightColors, ref LightTargets, ref LightPositions, CurrentWorld._lightcount, ref shadowLight);
+                                if (CurrentWorld.DebugShowHitboxes)
+                                    KWEngine.RendererSimple.DrawHitbox(g, ref viewProjection);
+                            }
                         }
                     }
+
+                    mInstancesRenderLast.Sort((x, y) => x == null ? (y == null ? 0 : -1) : (y == null ? 1 : y.DistanceToCamera.CompareTo(x.DistanceToCamera)));
+                    foreach (GameObject g in mInstancesRenderLast)
+                    {
+                        KWEngine.Renderers["Standard"].Draw(g, ref viewProjection, ref viewProjectionShadowBiased, ref viewProjectionShadowBiased2, Frustum, ref LightColors, ref LightTargets, ref LightPositions, CurrentWorld._lightcount, ref shadowLight);
+                        if (CurrentWorld.DebugShowHitboxes)
+                            KWEngine.RendererSimple.DrawHitbox(g, ref viewProjection);
+                    }
+                    mInstancesRenderLast.Clear();
                 }
                 GL.UseProgram(0);
 
@@ -412,7 +441,7 @@ namespace KWEngine2
             DownsampleFramebuffer();
             ApplyBloom();
             HelperGL.CheckGLErrors();
-            
+
             SwapBuffers();
 
             frameCounter++;
@@ -466,6 +495,8 @@ namespace KWEngine2
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         }
 
+        private List<GameObject> mInstancesLast = new List<GameObject>();
+
         /// <summary>
         /// EventHandler für den Gameplay-Thread
         /// </summary>
@@ -498,17 +529,27 @@ namespace KWEngine2
                     }
                 }
 
+
                 lock (CurrentWorld._gameObjects)
                 {
                     CurrentWorld.SweepAndPrune();
-
+                    mInstancesLast.Clear();
                     foreach (GameObject g in CurrentWorld.GetGameObjects())
                     {
+                        if (g.UpdateLast)
+                        {
+                            mInstancesLast.Add(g);
+                            continue;
+                        }
                         g.Act(ks, ms, DeltaTime.GetDeltaTimeFactor());
-                        
-
                         g.CheckBounds();
                     }
+                    foreach (GameObject g in mInstancesLast)
+                    {
+                        g.Act(ks, ms, DeltaTime.GetDeltaTimeFactor());
+                        g.CheckBounds();
+                    }
+                    mInstancesLast.Clear();
                 }
 
 
@@ -530,8 +571,8 @@ namespace KWEngine2
                 CurrentWorld.Act(ks, ms, DeltaTime.GetDeltaTimeFactor());
 
                 CurrentWorld.AddRemoveObjects();
-                CurrentWorld.SortByZ();
-                
+                //CurrentWorld.SortByZ();
+
 
                 if (CurrentWorld.IsFirstPersonMode && Focused)
                 {
@@ -568,13 +609,13 @@ namespace KWEngine2
         {
             base.OnFocusedChanged(e);
             if (Focused)
-            { 
-                if(CurrentWorld != null && CurrentWorld.IsFirstPersonMode)
+            {
+                if (CurrentWorld != null && CurrentWorld.IsFirstPersonMode)
                 {
                     Mouse.SetPosition(_mousePointFPS.X, _mousePointFPS.Y);
                 }
             }
-                
+
         }
 
         /// <summary>
@@ -586,7 +627,7 @@ namespace KWEngine2
             base.OnResize(e);
 
             GL.Viewport(ClientRectangle);
-            
+
             InitializeFramebuffers();
 
             _mousePointFPS.X = X + Width / 2;
@@ -613,7 +654,7 @@ namespace KWEngine2
 
         internal void UpdateWindowRect()
         {
-            
+
             if (WindowState == WindowState.Fullscreen)
             {
                 _windowRect = new System.Drawing.Rectangle(this.X, this.Y, this.Width, this.Height);
@@ -622,16 +663,16 @@ namespace KWEngine2
             {
                 _windowRect = new System.Drawing.Rectangle(this.X + 8, this.Y + SystemInformation.CaptionHeight + 8, this.Width, this.Height);
             }
-            
+
         }
 
         internal void CalculateProjectionMatrix()
         {
-            _projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(CurrentWorld != null ? CurrentWorld.FOV / 2: 45f), ClientSize.Width / (float)ClientSize.Height, 0.1f, CurrentWorld != null ? CurrentWorld.ZFar : 1000f);
-            _projectionMatrixShadow = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(CurrentWorld != null ? CurrentWorld.FOVShadow / 2 : 45f),KWEngine.ShadowMapSize / (float)KWEngine.ShadowMapSize, 1f, CurrentWorld != null ? CurrentWorld.ZFar : 1000f);
-            
+            _projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(CurrentWorld != null ? CurrentWorld.FOV / 2 : 45f), ClientSize.Width / (float)ClientSize.Height, 0.1f, CurrentWorld != null ? CurrentWorld.ZFar : 1000f);
+            _projectionMatrixShadow = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(CurrentWorld != null ? CurrentWorld.FOVShadow / 2 : 45f), KWEngine.ShadowMapSize / (float)KWEngine.ShadowMapSize, 1f, CurrentWorld != null ? CurrentWorld.ZFar : 1000f);
 
-            _modelViewProjectionMatrixBloom = Matrix4.CreateScale(ClientSize.Width / 2f, ClientSize.Height  / 2f, 1) * Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographic(ClientSize.Width / 2f, ClientSize.Height / 2f, 0.1f, 100f);
+
+            _modelViewProjectionMatrixBloom = Matrix4.CreateScale(ClientSize.Width / 2f, ClientSize.Height / 2f, 1) * Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographic(ClientSize.Width / 2f, ClientSize.Height / 2f, 0.1f, 100f);
             _modelViewProjectionMatrixBloomMerge = Matrix4.CreateScale(ClientSize.Width, ClientSize.Height, 1) * Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographic(ClientSize.Width, ClientSize.Height, 0.1f, 100f);
 
             _modelViewProjectionMatrixBackground = Matrix4.CreateScale(ClientSize.Width, ClientSize.Height, 1) * Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographic(ClientSize.Width, ClientSize.Height, 0.1f, 100f);
@@ -683,7 +724,7 @@ namespace KWEngine2
                     CalculateProjectionMatrix();
                 }
             }
-            
+
             GLWindow.StartGarbageCollection();
             DeltaTime.Watch.Stop();
             DeltaTime.Watch.Reset();
@@ -794,7 +835,7 @@ namespace KWEngine2
                 }
                 ok = true;
             }
-            
+
         }
 
         private void DownsampleFramebuffer()
@@ -807,7 +848,7 @@ namespace KWEngine2
                 GL.ReadBuffer(ReadBufferMode.ColorAttachment0);
                 GL.DrawBuffer(DrawBufferMode.ColorAttachment0);
                 GL.BlitFramebuffer(0, 0, Width, Height, 0, 0, Width, Height, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Linear);
-                
+
                 GL.ReadBuffer(ReadBufferMode.ColorAttachment1);
                 GL.DrawBuffer(DrawBufferMode.ColorAttachment1);
                 GL.BlitFramebuffer(0, 0, Width, Height, 0, 0, Width, Height, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Linear);

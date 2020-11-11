@@ -39,6 +39,12 @@ namespace KWEngine2.GameObjects
             /// Kamerablickebene
             /// </summary>
             Camera }
+
+        /// <summary>
+        /// Legt fest, ob das Objekt jeden Frame zuletzt aktualisiert wird (Standard: Nach Reihenfolge des Hinzufügens)
+        /// </summary>
+        public bool UpdateLast { get; set; } = false;
+
         internal uint DistanceToCamera { get; set; } = 100;
         /// <summary>
         /// Gibt an, ob das Objekt Schatten wirft und empfängt

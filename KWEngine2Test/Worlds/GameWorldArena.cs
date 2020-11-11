@@ -77,15 +77,13 @@ namespace KWEngine2Test.Worlds
             _player.IsCollisionObject = true;
             _player.SetPosition(25, 0, 15);
             _player.FPSEyeOffset = 0.75f;
+            _player.UpdateLast = true;
             AddGameObject(_player);
             SetFirstPersonObject(_player, -230);
 
             SetTextureSkybox(@".\textures\skybox1.jpg", 1, 0.75f, 0.5f);
             //SetTextureSkyboxRotation(90);
             DebugShowPerformanceInTitle = KWEngine.PerformanceUnit.FramesPerSecond;
-            //KWEngine.ShadowMapSize = 4096;
-            //DebugShadowCaster = true;
-            //DebugShowHitboxes = true;
 
         }
     }
